@@ -387,13 +387,13 @@ static inline bool IsDigitsOnly(CSStr str)
 // ------------------------------------------------------------------------------------------------
 Object GetConnectionObj(const ConnRef & conn)
 {
-    return Object(new Connection(conn));
+    return Object(new SQLiteConnection(conn));
 }
 
 // ------------------------------------------------------------------------------------------------
 Object GetStatementObj(const StmtRef & stmt)
 {
-    return Object(new Statement(stmt));
+    return Object(new SQLiteStatement(stmt));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -578,7 +578,7 @@ CCStr TableToQueryColumns(Table & tbl)
 }
 
 // ------------------------------------------------------------------------------------------------
-ConnHnd::ConnHnd()
+SQLiteConnHnd::SQLiteConnHnd()
     : mPtr(nullptr)
     , mStatus(SQLITE_OK)
     , mQueue()
@@ -593,7 +593,7 @@ ConnHnd::ConnHnd()
 }
 
 // ------------------------------------------------------------------------------------------------
-ConnHnd::~ConnHnd()
+SQLiteConnHnd::~SQLiteConnHnd()
 {
     // Is there anything to close?
     if (mPtr != nullptr)
@@ -610,7 +610,7 @@ ConnHnd::~ConnHnd()
 }
 
 // ------------------------------------------------------------------------------------------------
-void ConnHnd::Create(CSStr name, Int32 flags, CSStr vfs)
+void SQLiteConnHnd::Create(CSStr name, Int32 flags, CSStr vfs)
 {
     // Make sure a previous connection doesn't exist
     if (mPtr)
@@ -643,7 +643,7 @@ void ConnHnd::Create(CSStr name, Int32 flags, CSStr vfs)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 ConnHnd::Flush(Uint32 num, Object & env, Function & func)
+Int32 SQLiteConnHnd::Flush(Uint32 num, Object & env, Function & func)
 {
     // Do we even have a valid connection?
     if (!mPtr)
@@ -734,7 +734,7 @@ Int32 ConnHnd::Flush(Uint32 num, Object & env, Function & func)
 }
 
 // ------------------------------------------------------------------------------------------------
-StmtHnd::StmtHnd(ConnRef conn)
+SQLiteStmtHnd::SQLiteStmtHnd(ConnRef conn)
     : mPtr(nullptr)
     , mStatus(SQLITE_OK)
     , mConn(std::move(conn))
@@ -749,7 +749,7 @@ StmtHnd::StmtHnd(ConnRef conn)
 }
 
 // ------------------------------------------------------------------------------------------------
-StmtHnd::~StmtHnd()
+SQLiteStmtHnd::~SQLiteStmtHnd()
 {
     // Is there anything to finalize?
     if (mPtr != nullptr)
@@ -763,7 +763,7 @@ StmtHnd::~StmtHnd()
 }
 
 // ------------------------------------------------------------------------------------------------
-void StmtHnd::Create(CSStr query, SQInteger length)
+void SQLiteStmtHnd::Create(CSStr query, SQInteger length)
 {
     // Make sure a previous statement doesn't exist
     if (mPtr)
@@ -803,7 +803,7 @@ void StmtHnd::Create(CSStr query, SQInteger length)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 StmtHnd::GetColumnIndex(CSStr name, SQInteger length)
+Int32 SQLiteStmtHnd::GetColumnIndex(CSStr name, SQInteger length)
 {
     // Validate the handle
     if (!mPtr)
@@ -842,44 +842,44 @@ Int32 StmtHnd::GetColumnIndex(CSStr name, SQInteger length)
 }
 
 // ------------------------------------------------------------------------------------------------
-CCStr StmtHnd::ErrStr() const
+CCStr SQLiteStmtHnd::ErrStr() const
 {
     return mConn ? sqlite3_errstr(sqlite3_errcode(mConn->mPtr)) : _SC("");
 }
 
 // ------------------------------------------------------------------------------------------------
-CCStr StmtHnd::ErrMsg() const
+CCStr SQLiteStmtHnd::ErrMsg() const
 {
     return mConn ? sqlite3_errmsg(mConn->mPtr) : _SC("");
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 StmtHnd::ErrNo() const
+Int32 SQLiteStmtHnd::ErrNo() const
 {
     return mConn ? sqlite3_errcode(mConn->mPtr) : SQLITE_NOMEM;
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 StmtHnd::ExErrNo() const
+Int32 SQLiteStmtHnd::ExErrNo() const
 {
     return mConn ? sqlite3_extended_errcode(mConn->mPtr) : SQLITE_NOMEM;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Connection::TraceOutput(void * /*ptr*/, CCStr sql)
+void SQLiteConnection::TraceOutput(void * /*ptr*/, CCStr sql)
 {
     LogInf("SQLite Trace: %s", sql);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Connection::ProfileOutput(void * /*ptr*/, CCStr sql, sqlite3_uint64 time)
+void SQLiteConnection::ProfileOutput(void * /*ptr*/, CCStr sql, sqlite3_uint64 time)
 {
     LogInf("SQLite profile (time: %llu): %s", time, sql);
 }
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void Connection::Validate(CCStr file, Int32 line) const
+void SQLiteConnection::Validate(CCStr file, Int32 line) const
 {
     if (!m_Handle)
     {
@@ -887,7 +887,7 @@ void Connection::Validate(CCStr file, Int32 line) const
     }
 }
 #else
-void Connection::Validate() const
+void SQLiteConnection::Validate() const
 {
     if (!m_Handle)
     {
@@ -898,7 +898,7 @@ void Connection::Validate() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void Connection::ValidateCreated(CCStr file, Int32 line) const
+void SQLiteConnection::ValidateCreated(CCStr file, Int32 line) const
 {
     if (!m_Handle)
     {
@@ -910,7 +910,7 @@ void Connection::ValidateCreated(CCStr file, Int32 line) const
     }
 }
 #else
-void Connection::ValidateCreated() const
+void SQLiteConnection::ValidateCreated() const
 {
     if (!m_Handle)
     {
@@ -925,13 +925,13 @@ void Connection::ValidateCreated() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const ConnRef & Connection::GetValid(CCStr file, Int32 line) const
+const ConnRef & SQLiteConnection::GetValid(CCStr file, Int32 line) const
 {
     Validate(file, line);
     return m_Handle;
 }
 #else
-const ConnRef & Connection::GetValid() const
+const ConnRef & SQLiteConnection::GetValid() const
 {
     Validate();
     return m_Handle;
@@ -940,13 +940,13 @@ const ConnRef & Connection::GetValid() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const ConnRef & Connection::GetCreated(CCStr file, Int32 line) const
+const ConnRef & SQLiteConnection::GetCreated(CCStr file, Int32 line) const
 {
     ValidateCreated(file, line);
     return m_Handle;
 }
 #else
-const ConnRef & Connection::GetCreated() const
+const ConnRef & SQLiteConnection::GetCreated() const
 {
     ValidateCreated();
     return m_Handle;
@@ -954,12 +954,12 @@ const ConnRef & Connection::GetCreated() const
 #endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
-void Connection::Open(StackStrF & name)
+void SQLiteConnection::Open(StackStrF & name)
 {
     // Should we create a connection handle?
     if (!m_Handle)
     {
-        m_Handle = ConnRef(new ConnHnd());
+        m_Handle = ConnRef(new SQLiteConnHnd());
     }
     // Make sure another database isn't opened
     if (SQMOD_GET_VALID(*this)->mPtr != nullptr)
@@ -974,12 +974,12 @@ void Connection::Open(StackStrF & name)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Connection::Open(StackStrF & name, Int32 flags)
+void SQLiteConnection::Open(StackStrF & name, Int32 flags)
 {
     // Should we create a connection handle?
     if (!m_Handle)
     {
-        m_Handle = ConnRef(new ConnHnd());
+        m_Handle = ConnRef(new SQLiteConnHnd());
     }
     // Make sure another database isn't opened
     if (SQMOD_GET_VALID(*this)->mPtr != nullptr)
@@ -991,12 +991,12 @@ void Connection::Open(StackStrF & name, Int32 flags)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Connection::Open(StackStrF & name, Int32 flags, StackStrF & vfs)
+void SQLiteConnection::Open(StackStrF & name, Int32 flags, StackStrF & vfs)
 {
     // Should we create a connection handle?
     if (!m_Handle)
     {
-        m_Handle = ConnRef(new ConnHnd());
+        m_Handle = ConnRef(new SQLiteConnHnd());
     }
     // Make sure another database isn't opened
     if (SQMOD_GET_VALID(*this)->mPtr != nullptr)
@@ -1008,7 +1008,7 @@ void Connection::Open(StackStrF & name, Int32 flags, StackStrF & vfs)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 Connection::Exec(StackStrF & str)
+Int32 SQLiteConnection::Exec(StackStrF & str)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to execute the specified query
@@ -1023,15 +1023,15 @@ Int32 Connection::Exec(StackStrF & str)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Connection::Query(StackStrF & str) const
+Object SQLiteConnection::Query(StackStrF & str) const
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Return the requested information
-    return Object(new Statement(m_Handle, str));
+    return Object(new SQLiteStatement(m_Handle, str));
 }
 
 // ------------------------------------------------------------------------------------------------
-void Connection::Queue(StackStrF & str)
+void SQLiteConnection::Queue(StackStrF & str)
 {
     SQMOD_VALIDATE(*this);
     // Is there a query to commit?
@@ -1044,7 +1044,7 @@ void Connection::Queue(StackStrF & str)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Connection::IsReadOnly() const
+bool SQLiteConnection::IsReadOnly() const
 {
     // Request the desired information
     const int result = sqlite3_db_readonly(SQMOD_GET_CREATED(*this)->mPtr, "main");
@@ -1058,16 +1058,16 @@ bool Connection::IsReadOnly() const
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Connection::TableExists(StackStrF & name) const
+bool SQLiteConnection::TableExists(StackStrF & name) const
 {
     StackStrF query("SELECT count(*) FROM [sqlite_master] WHERE [type]='table' AND [name]=?");
     // Prepare a statement to inspect the master table
-    Statement stmt(SQMOD_GET_CREATED(*this), query);
+    SQLiteStatement stmt(SQMOD_GET_CREATED(*this), query);
     // Could the statement be created?
     if (stmt.IsValid())
     {
         // Bind the specified name onto the statement parameter
-        Parameter(stmt.GetHandle(), 1).SetString(name);
+        SQLiteParameter(stmt.GetHandle(), 1).SetString(name);
         // Attempt to step the statement and obtain a value
         if (stmt.Step())
         {
@@ -1079,7 +1079,7 @@ bool Connection::TableExists(StackStrF & name) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Connection::SetTracing(bool toggle)
+void SQLiteConnection::SetTracing(bool toggle)
 {
     // Check whether changes are necessary
     if (SQMOD_GET_CREATED(*this)->mTrace == toggle)
@@ -1094,12 +1094,12 @@ void Connection::SetTracing(bool toggle)
     // Go ahead and enable tracing
     else
     {
-        sqlite3_trace(m_Handle->mPtr, &Connection::TraceOutput, nullptr);
+        sqlite3_trace(m_Handle->mPtr, &SQLiteConnection::TraceOutput, nullptr);
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-void Connection::SetProfiling(bool toggle)
+void SQLiteConnection::SetProfiling(bool toggle)
 {
     // Check whether changes are necessary
     if (SQMOD_GET_CREATED(*this)->mProfile == toggle)
@@ -1114,12 +1114,12 @@ void Connection::SetProfiling(bool toggle)
     // Go ahead and enable profiling
     else
     {
-        sqlite3_profile(m_Handle->mPtr, &Connection::ProfileOutput, nullptr);
+        sqlite3_profile(m_Handle->mPtr, &SQLiteConnection::ProfileOutput, nullptr);
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-void Connection::SetBusyTimeout(Int32 millis)
+void SQLiteConnection::SetBusyTimeout(Int32 millis)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Apply the requested timeout
@@ -1130,7 +1130,7 @@ void Connection::SetBusyTimeout(Int32 millis)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 Connection::GetInfo(Int32 operation, bool highwater, bool reset)
+Int32 SQLiteConnection::GetInfo(Int32 operation, bool highwater, bool reset)
 {
     // Where to retrieve the information
     Int32 cur_value;
@@ -1150,7 +1150,7 @@ Int32 Connection::GetInfo(Int32 operation, bool highwater, bool reset)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Connection::ReserveQueue(Uint32 num)
+void SQLiteConnection::ReserveQueue(Uint32 num)
 {
     SQMOD_VALIDATE(*this);
     // Perform the requested operation
@@ -1158,7 +1158,7 @@ void Connection::ReserveQueue(Uint32 num)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Connection::PopQueue()
+void SQLiteConnection::PopQueue()
 {
     SQMOD_VALIDATE(*this);
     // Perform the requested operation
@@ -1169,7 +1169,7 @@ void Connection::PopQueue()
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 Connection::Flush()
+Int32 SQLiteConnection::Flush()
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Perform the requested operation
@@ -1177,7 +1177,7 @@ Int32 Connection::Flush()
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 Connection::Flush(SQInteger num)
+Int32 SQLiteConnection::Flush(SQInteger num)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Perform the requested operation
@@ -1185,7 +1185,7 @@ Int32 Connection::Flush(SQInteger num)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 Connection::Flush(Object & env, Function & func)
+Int32 SQLiteConnection::Flush(Object & env, Function & func)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Perform the requested operation
@@ -1193,7 +1193,7 @@ Int32 Connection::Flush(Object & env, Function & func)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 Connection::Flush(SQInteger num, Object & env, Function & func)
+Int32 SQLiteConnection::Flush(SQInteger num, Object & env, Function & func)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Perform the requested operation
@@ -1202,7 +1202,7 @@ Int32 Connection::Flush(SQInteger num, Object & env, Function & func)
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void Parameter::Validate(CCStr file, Int32 line) const
+void SQLiteParameter::Validate(CCStr file, Int32 line) const
 {
     // Are we pointing to a valid index?
     if (m_Index < 0)
@@ -1216,7 +1216,7 @@ void Parameter::Validate(CCStr file, Int32 line) const
     }
 }
 #else
-void Parameter::Validate() const
+void SQLiteParameter::Validate() const
 {
     // Are we pointing to a valid index?
     if (m_Index < 0)
@@ -1233,7 +1233,7 @@ void Parameter::Validate() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void Parameter::ValidateCreated(CCStr file, Int32 line) const
+void SQLiteParameter::ValidateCreated(CCStr file, Int32 line) const
 {
     // Are we pointing to a valid index?
     if (m_Index < 0)
@@ -1250,7 +1250,7 @@ void Parameter::ValidateCreated(CCStr file, Int32 line) const
     }
 }
 #else
-void Parameter::ValidateCreated() const
+void SQLiteParameter::ValidateCreated() const
 {
     // Are we pointing to a valid index?
     if (m_Index < 0)
@@ -1270,13 +1270,13 @@ void Parameter::ValidateCreated() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const StmtRef & Parameter::GetValid(CCStr file, Int32 line) const
+const StmtRef & SQLiteParameter::GetValid(CCStr file, Int32 line) const
 {
     Validate(file, line);
     return m_Handle;
 }
 #else
-const StmtRef & Parameter::GetValid() const
+const StmtRef & SQLiteParameter::GetValid() const
 {
     Validate();
     return m_Handle;
@@ -1285,13 +1285,13 @@ const StmtRef & Parameter::GetValid() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const StmtRef & Parameter::GetCreated(CCStr file, Int32 line) const
+const StmtRef & SQLiteParameter::GetCreated(CCStr file, Int32 line) const
 {
     ValidateCreated(file, line);
     return m_Handle;
 }
 #else
-const StmtRef & Parameter::GetCreated() const
+const StmtRef & SQLiteParameter::GetCreated() const
 {
     ValidateCreated();
     return m_Handle;
@@ -1300,7 +1300,7 @@ const StmtRef & Parameter::GetCreated() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void Parameter::ValidateParam(Int32 idx, CCStr file, Int32 line) const
+void SQLiteParameter::ValidateParam(Int32 idx, CCStr file, Int32 line) const
 {
     ValidateCreated(file, line);
     // Is the specified index in range?
@@ -1311,19 +1311,19 @@ void Parameter::ValidateParam(Int32 idx, CCStr file, Int32 line) const
     }
 }
 #else
-void Parameter::ValidateParam(Int32 idx) const
+void SQLiteParameter::ValidateParam(Int32 idx) const
 {
     ValidateCreated();
     // Is the specified index in range?
     if (!m_Handle->CheckParameter(idx))
     {
-        SqThrowF("Parameter index is out of range (%d:%d)", idx, m_Handle->mParameters);
+        SqThrowF("SQLiteParameter index is out of range (%d:%d)", idx, m_Handle->mParameters);
     }
 }
 #endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetIndex(const Object & param)
+void SQLiteParameter::SetIndex(const Object & param)
 {
     // Where the index will be extracted
     Int32 idx = 0;
@@ -1399,19 +1399,19 @@ void Parameter::SetIndex(const Object & param)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Parameter::GetStatement() const
+Object SQLiteParameter::GetStatement() const
 {
     return GetStatementObj(m_Handle);
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Parameter::GetConnection() const
+Object SQLiteParameter::GetConnection() const
 {
     return GetConnectionObj(SQMOD_GET_VALID(*this)->mConn);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetValue(const Object & value)
+void SQLiteParameter::SetValue(const Object & value)
 {
     switch (value.GetType())
     {
@@ -1448,7 +1448,7 @@ void Parameter::SetValue(const Object & value)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetBool(bool value)
+void SQLiteParameter::SetBool(bool value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
@@ -1461,7 +1461,7 @@ void Parameter::SetBool(bool value)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetChar(SQInteger value)
+void SQLiteParameter::SetChar(SQInteger value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
@@ -1474,7 +1474,7 @@ void Parameter::SetChar(SQInteger value)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetInteger(SQInteger value)
+void SQLiteParameter::SetInteger(SQInteger value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
@@ -1487,7 +1487,7 @@ void Parameter::SetInteger(SQInteger value)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetInt8(SQInteger value)
+void SQLiteParameter::SetInt8(SQInteger value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
@@ -1500,7 +1500,7 @@ void Parameter::SetInt8(SQInteger value)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetUint8(SQInteger value)
+void SQLiteParameter::SetUint8(SQInteger value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
@@ -1513,7 +1513,7 @@ void Parameter::SetUint8(SQInteger value)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetInt16(SQInteger value)
+void SQLiteParameter::SetInt16(SQInteger value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
@@ -1526,7 +1526,7 @@ void Parameter::SetInt16(SQInteger value)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetUint16(SQInteger value)
+void SQLiteParameter::SetUint16(SQInteger value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
@@ -1539,7 +1539,7 @@ void Parameter::SetUint16(SQInteger value)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetInt32(SQInteger value)
+void SQLiteParameter::SetInt32(SQInteger value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
@@ -1552,7 +1552,7 @@ void Parameter::SetInt32(SQInteger value)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetUint32(SQInteger value)
+void SQLiteParameter::SetUint32(SQInteger value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
@@ -1565,7 +1565,7 @@ void Parameter::SetUint32(SQInteger value)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetInt64(const Object & value)
+void SQLiteParameter::SetInt64(const Object & value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
@@ -1578,7 +1578,7 @@ void Parameter::SetInt64(const Object & value)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetUint64(const Object & value)
+void SQLiteParameter::SetUint64(const Object & value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
@@ -1591,7 +1591,7 @@ void Parameter::SetUint64(const Object & value)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetFloat(SQFloat value)
+void SQLiteParameter::SetFloat(SQFloat value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
@@ -1604,7 +1604,7 @@ void Parameter::SetFloat(SQFloat value)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetFloat32(SQFloat value)
+void SQLiteParameter::SetFloat32(SQFloat value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
@@ -1617,7 +1617,7 @@ void Parameter::SetFloat32(SQFloat value)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetFloat64(SQFloat value)
+void SQLiteParameter::SetFloat64(SQFloat value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
@@ -1630,7 +1630,7 @@ void Parameter::SetFloat64(SQFloat value)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetString(StackStrF & value)
+void SQLiteParameter::SetString(StackStrF & value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
@@ -1643,7 +1643,7 @@ void Parameter::SetString(StackStrF & value)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetStringRaw(CSStr value, SQInteger length)
+void SQLiteParameter::SetStringRaw(CSStr value, SQInteger length)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
@@ -1656,7 +1656,7 @@ void Parameter::SetStringRaw(CSStr value, SQInteger length)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetZeroBlob(SQInteger size)
+void SQLiteParameter::SetZeroBlob(SQInteger size)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
@@ -1669,7 +1669,7 @@ void Parameter::SetZeroBlob(SQInteger size)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetBlob(const Object & value)
+void SQLiteParameter::SetBlob(const Object & value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // The blob data pointer and size
@@ -1700,7 +1700,7 @@ void Parameter::SetBlob(const Object & value)
     }
 }
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetData(const SqBuffer & value)
+void SQLiteParameter::SetData(const SqBuffer & value)
 {
     // Grab the internal buffer
     Buffer & buff = *value.GetRef();
@@ -1718,7 +1718,7 @@ void Parameter::SetData(const SqBuffer & value)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetDataEx(const SqBuffer & value, SQInteger offset, SQInteger length)
+void SQLiteParameter::SetDataEx(const SqBuffer & value, SQInteger offset, SQInteger length)
 {
     // Grab the internal buffer
     Buffer & buff = *value.GetRef();
@@ -1749,7 +1749,7 @@ void Parameter::SetDataEx(const SqBuffer & value, SQInteger offset, SQInteger le
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetDate(const Date & value)
+void SQLiteParameter::SetDate(const Date & value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to generate the specified date string
@@ -1764,7 +1764,7 @@ void Parameter::SetDate(const Date & value)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetDateEx(SQInteger year, SQInteger month, SQInteger day)
+void SQLiteParameter::SetDateEx(SQInteger year, SQInteger month, SQInteger day)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Convert the specified values within the proper ranges
@@ -1787,7 +1787,7 @@ void Parameter::SetDateEx(SQInteger year, SQInteger month, SQInteger day)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetTime(const Time & value)
+void SQLiteParameter::SetTime(const Time & value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
@@ -1800,7 +1800,7 @@ void Parameter::SetTime(const Time & value)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetTimeEx(SQInteger hour, SQInteger minute, SQInteger second)
+void SQLiteParameter::SetTimeEx(SQInteger hour, SQInteger minute, SQInteger second)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Convert the specified values within the proper ranges
@@ -1832,13 +1832,13 @@ void Parameter::SetTimeEx(SQInteger hour, SQInteger minute, SQInteger second)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetDatetime(const Datetime & value)
+void SQLiteParameter::SetDatetime(const Datetime & value)
 {
     SetDatetimeEx(value.GetYear(), value.GetMonth(), value.GetDay(), value.GetHour(), value.GetMinute(), value.GetSecond());
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetDatetimeEx(SQInteger year, SQInteger month, SQInteger day, SQInteger hour, SQInteger minute, SQInteger second)
+void SQLiteParameter::SetDatetimeEx(SQInteger year, SQInteger month, SQInteger day, SQInteger hour, SQInteger minute, SQInteger second)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Convert the specified values within the proper ranges
@@ -1880,7 +1880,7 @@ void Parameter::SetDatetimeEx(SQInteger year, SQInteger month, SQInteger day, SQ
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetNow()
+void SQLiteParameter::SetNow()
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
@@ -1894,7 +1894,7 @@ void Parameter::SetNow()
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parameter::SetNull()
+void SQLiteParameter::SetNull()
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
@@ -1908,7 +1908,7 @@ void Parameter::SetNull()
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void Column::Validate(CCStr file, Int32 line) const
+void SQLiteColumn::Validate(CCStr file, Int32 line) const
 {
     // Are we pointing to a valid index?
     if (m_Index < 0)
@@ -1922,7 +1922,7 @@ void Column::Validate(CCStr file, Int32 line) const
     }
 }
 #else
-void Column::Validate() const
+void SQLiteColumn::Validate() const
 {
     // Are we pointing to a valid index?
     if (m_Index < 0)
@@ -1939,7 +1939,7 @@ void Column::Validate() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void Column::ValidateCreated(CCStr file, Int32 line) const
+void SQLiteColumn::ValidateCreated(CCStr file, Int32 line) const
 {
     // Are we pointing to a valid index?
     if (m_Index < 0)
@@ -1956,7 +1956,7 @@ void Column::ValidateCreated(CCStr file, Int32 line) const
     }
 }
 #else
-void Column::ValidateCreated() const
+void SQLiteColumn::ValidateCreated() const
 {
     // Are we pointing to a valid index?
     if (m_Index < 0)
@@ -1976,13 +1976,13 @@ void Column::ValidateCreated() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const StmtRef & Column::GetValid(CCStr file, Int32 line) const
+const StmtRef & SQLiteColumn::GetValid(CCStr file, Int32 line) const
 {
     Validate(file, line);
     return m_Handle;
 }
 #else
-const StmtRef & Column::GetValid() const
+const StmtRef & SQLiteColumn::GetValid() const
 {
     Validate();
     return m_Handle;
@@ -1991,13 +1991,13 @@ const StmtRef & Column::GetValid() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const StmtRef & Column::GetCreated(CCStr file, Int32 line) const
+const StmtRef & SQLiteColumn::GetCreated(CCStr file, Int32 line) const
 {
     ValidateCreated(file, line);
     return m_Handle;
 }
 #else
-const StmtRef & Column::GetCreated() const
+const StmtRef & SQLiteColumn::GetCreated() const
 {
     ValidateCreated();
     return m_Handle;
@@ -2006,7 +2006,7 @@ const StmtRef & Column::GetCreated() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void Column::ValidateColumn(Int32 idx, CCStr file, Int32 line) const
+void SQLiteColumn::ValidateColumn(Int32 idx, CCStr file, Int32 line) const
 {
     ValidateCreated(file, line);
     // Is the specified index in range?
@@ -2017,7 +2017,7 @@ void Column::ValidateColumn(Int32 idx, CCStr file, Int32 line) const
     }
 }
 #else
-void Column::ValidateColumn(Int32 idx) const
+void SQLiteColumn::ValidateColumn(Int32 idx) const
 {
     ValidateCreated();
     // Is the specified index in range?
@@ -2030,7 +2030,7 @@ void Column::ValidateColumn(Int32 idx) const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void Column::ValidateRow(CCStr file, Int32 line) const
+void SQLiteColumn::ValidateRow(CCStr file, Int32 line) const
 {
     ValidateCreated(file, line);
     // Do we have any rows available?
@@ -2040,7 +2040,7 @@ void Column::ValidateRow(CCStr file, Int32 line) const
     }
 }
 #else
-void Column::ValidateRow() const
+void SQLiteColumn::ValidateRow() const
 {
     ValidateCreated();
     // Do we have any rows available?
@@ -2052,7 +2052,7 @@ void Column::ValidateRow() const
 #endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
-void Column::SetIndex(const Object & column)
+void SQLiteColumn::SetIndex(const Object & column)
 {
     // Where the index will be extracted
     Int32 idx = -1;
@@ -2128,31 +2128,31 @@ void Column::SetIndex(const Object & column)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Column::GetStatement() const
+Object SQLiteColumn::GetStatement() const
 {
     return GetStatementObj(m_Handle);
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Column::GetConnection() const
+Object SQLiteColumn::GetConnection() const
 {
     return GetConnectionObj(SQMOD_GET_VALID(*this)->mConn);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Column::IsNull() const
+bool SQLiteColumn::IsNull() const
 {
     return (sqlite3_column_type(SQMOD_GET_CREATED(*this)->mPtr, m_Index) == SQLITE_NULL);
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr Column::GetName() const
+CSStr SQLiteColumn::GetName() const
 {
     return sqlite3_column_name(SQMOD_GET_CREATED(*this)->mPtr, m_Index);
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr Column::GetOriginName() const
+CSStr SQLiteColumn::GetOriginName() const
 {
 #ifdef SQLITE_ENABLE_COLUMN_METADATA
     return sqlite3_column_origin_name(SQMOD_GET_CREATED(*this)->mPtr, m_Index);
@@ -2164,19 +2164,19 @@ CSStr Column::GetOriginName() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 Column::GetType() const
+Int32 SQLiteColumn::GetType() const
 {
     return sqlite3_column_type(SQMOD_GET_CREATED(*this)->mPtr, m_Index);
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 Column::GetBytes() const
+Int32 SQLiteColumn::GetBytes() const
 {
     return sqlite3_column_bytes(SQMOD_GET_CREATED(*this)->mPtr, m_Index);
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Column::GetValue() const
+Object SQLiteColumn::GetValue() const
 {
     SQMOD_VALIDATE_ROW(*this);
     // Obtain the initial stack size
@@ -2225,7 +2225,7 @@ Object Column::GetValue() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Column::GetNumber() const
+Object SQLiteColumn::GetNumber() const
 {
     SQMOD_VALIDATE_ROW(*this);
     // Obtain the initial stack size
@@ -2279,7 +2279,7 @@ Object Column::GetNumber() const
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Column::GetInteger() const
+SQInteger SQLiteColumn::GetInteger() const
 {
     SQMOD_VALIDATE_ROW(*this);
     // Return the requested information
@@ -2287,7 +2287,7 @@ SQInteger Column::GetInteger() const
 }
 
 // ------------------------------------------------------------------------------------------------
-SQFloat Column::GetFloat() const
+SQFloat SQLiteColumn::GetFloat() const
 {
     SQMOD_VALIDATE_ROW(*this);
     // Return the requested information
@@ -2295,7 +2295,7 @@ SQFloat Column::GetFloat() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Column::GetLong() const
+Object SQLiteColumn::GetLong() const
 {
     SQMOD_VALIDATE_ROW(*this);
     // Return the requested information
@@ -2303,7 +2303,7 @@ Object Column::GetLong() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Column::GetString() const
+Object SQLiteColumn::GetString() const
 {
     SQMOD_VALIDATE_ROW(*this);
     // Obtain the initial stack size
@@ -2316,7 +2316,7 @@ Object Column::GetString() const
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Column::GetBoolean() const
+bool SQLiteColumn::GetBoolean() const
 {
     SQMOD_VALIDATE_ROW(*this);
     // Return the requested information
@@ -2324,7 +2324,7 @@ bool Column::GetBoolean() const
 }
 
 // ------------------------------------------------------------------------------------------------
-SQChar Column::GetChar() const
+SQChar SQLiteColumn::GetChar() const
 {
     SQMOD_VALIDATE_ROW(*this);
     // Return the requested information
@@ -2332,7 +2332,7 @@ SQChar Column::GetChar() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Column::GetBuffer() const
+Object SQLiteColumn::GetBuffer() const
 {
     SQMOD_VALIDATE_ROW(*this);
     // Remember the current stack size
@@ -2348,7 +2348,7 @@ Object Column::GetBuffer() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Column::GetBlob() const
+Object SQLiteColumn::GetBlob() const
 {
     SQMOD_VALIDATE_ROW(*this);
     // Obtain the initial stack size
@@ -2383,7 +2383,7 @@ Object Column::GetBlob() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void Statement::Validate(CCStr file, Int32 line) const
+void SQLiteStatement::Validate(CCStr file, Int32 line) const
 {
     if (!m_Handle)
     {
@@ -2391,7 +2391,7 @@ void Statement::Validate(CCStr file, Int32 line) const
     }
 }
 #else
-void Statement::Validate() const
+void SQLiteStatement::Validate() const
 {
     if (!m_Handle)
     {
@@ -2402,7 +2402,7 @@ void Statement::Validate() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void Statement::ValidateCreated(CCStr file, Int32 line) const
+void SQLiteStatement::ValidateCreated(CCStr file, Int32 line) const
 {
     if (!m_Handle)
     {
@@ -2414,7 +2414,7 @@ void Statement::ValidateCreated(CCStr file, Int32 line) const
     }
 }
 #else
-void Statement::ValidateCreated() const
+void SQLiteStatement::ValidateCreated() const
 {
     if (!m_Handle)
     {
@@ -2429,13 +2429,13 @@ void Statement::ValidateCreated() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const StmtRef & Statement::GetValid(CCStr file, Int32 line) const
+const StmtRef & SQLiteStatement::GetValid(CCStr file, Int32 line) const
 {
     Validate(file, line);
     return m_Handle;
 }
 #else
-const StmtRef & Statement::GetValid() const
+const StmtRef & SQLiteStatement::GetValid() const
 {
     Validate();
     return m_Handle;
@@ -2444,13 +2444,13 @@ const StmtRef & Statement::GetValid() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const StmtRef & Statement::GetCreated(CCStr file, Int32 line) const
+const StmtRef & SQLiteStatement::GetCreated(CCStr file, Int32 line) const
 {
     ValidateCreated(file, line);
     return m_Handle;
 }
 #else
-const StmtRef & Statement::GetCreated() const
+const StmtRef & SQLiteStatement::GetCreated() const
 {
     ValidateCreated();
     return m_Handle;
@@ -2459,7 +2459,7 @@ const StmtRef & Statement::GetCreated() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void Statement::ValidateColumn(Int32 idx, CCStr file, Int32 line) const
+void SQLiteStatement::ValidateColumn(Int32 idx, CCStr file, Int32 line) const
 {
     ValidateCreated(file, line);
     // Is the specified index in range?
@@ -2470,7 +2470,7 @@ void Statement::ValidateColumn(Int32 idx, CCStr file, Int32 line) const
     }
 }
 #else
-void Statement::ValidateColumn(Int32 idx) const
+void SQLiteStatement::ValidateColumn(Int32 idx) const
 {
     ValidateCreated();
     // Is the specified index in range?
@@ -2483,7 +2483,7 @@ void Statement::ValidateColumn(Int32 idx) const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void Statement::ValidateParam(Int32 idx, CCStr file, Int32 line) const
+void SQLiteStatement::ValidateParam(Int32 idx, CCStr file, Int32 line) const
 {
     ValidateCreated(file, line);
     // Is the specified index in range?
@@ -2494,7 +2494,7 @@ void Statement::ValidateParam(Int32 idx, CCStr file, Int32 line) const
     }
 }
 #else
-void Statement::ValidateParam(Int32 idx) const
+void SQLiteStatement::ValidateParam(Int32 idx) const
 {
     ValidateCreated();
     // Is the specified index in range?
@@ -2507,7 +2507,7 @@ void Statement::ValidateParam(Int32 idx) const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void Statement::ValidateRow(CCStr file, Int32 line) const
+void SQLiteStatement::ValidateRow(CCStr file, Int32 line) const
 {
     ValidateCreated(file, line);
     // Do we have any rows available?
@@ -2517,7 +2517,7 @@ void Statement::ValidateRow(CCStr file, Int32 line) const
     }
 }
 #else
-void Statement::ValidateRow() const
+void SQLiteStatement::ValidateRow() const
 {
     ValidateCreated();
     // Do we have any rows available?
@@ -2529,20 +2529,20 @@ void Statement::ValidateRow() const
 #endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
-Statement::Statement(const Connection & connection, StackStrF & query)
-    : m_Handle(new StmtHnd(connection.GetHandle()))
+SQLiteStatement::SQLiteStatement(const SQLiteConnection & connection, StackStrF & query)
+    : m_Handle(new SQLiteStmtHnd(connection.GetHandle()))
 {
     SQMOD_GET_VALID(*this)->Create(query.mPtr, query.mLen);
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Statement::GetConnection() const
+Object SQLiteStatement::GetConnection() const
 {
-    return Object(new Connection(SQMOD_GET_VALID(*this)->mConn));
+    return Object(new SQLiteConnection(SQMOD_GET_VALID(*this)->mConn));
 }
 
 // ------------------------------------------------------------------------------------------------
-Statement & Statement::Reset()
+SQLiteStatement & SQLiteStatement::Reset()
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Specify that we don't have a row available and we haven't finished stepping
@@ -2560,7 +2560,7 @@ Statement & Statement::Reset()
 }
 
 // ------------------------------------------------------------------------------------------------
-Statement & Statement::Clear()
+SQLiteStatement & SQLiteStatement::Clear()
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Specify that we don't have a row available and we haven't finished stepping
@@ -2578,7 +2578,7 @@ Statement & Statement::Clear()
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 Statement::Exec()
+Int32 SQLiteStatement::Exec()
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Did we reset first?
@@ -2619,7 +2619,7 @@ Int32 Statement::Exec()
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Statement::Step()
+bool SQLiteStatement::Step()
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Did we reset first?
@@ -2662,12 +2662,12 @@ bool Statement::Step()
 }
 
 // ------------------------------------------------------------------------------------------------
-Statement & Statement::SetArray(Int32 idx, const Array & arr)
+SQLiteStatement & SQLiteStatement::SetArray(Int32 idx, const Array & arr)
 {
     // Obtain a script iterator
     Array::iterator itr;
     // Create a parameter instance to bind the values
-    Parameter param(m_Handle);
+    SQLiteParameter param(m_Handle);
     // Process each element until _next returns null
     while (idx <= m_Handle->mParameters && arr.Next(itr))
     {
@@ -2681,7 +2681,7 @@ Statement & Statement::SetArray(Int32 idx, const Array & arr)
 }
 
 // ------------------------------------------------------------------------------------------------
-Statement & Statement::SetTable(const Table & tbl)
+SQLiteStatement & SQLiteStatement::SetTable(const Table & tbl)
 {
     // Is there anything to bind?
     if (tbl.GetSize() <= 0)
@@ -2691,7 +2691,7 @@ Statement & Statement::SetTable(const Table & tbl)
     // Obtain a table iterator
     Table::iterator itr;
     // Create a parameter instance to bind the values
-    Parameter param(m_Handle);
+    SQLiteParameter param(m_Handle);
     // Process each element until _next returns null
     while (tbl.Next(itr))
     {
@@ -2705,7 +2705,7 @@ Statement & Statement::SetTable(const Table & tbl)
 }
 
 // ------------------------------------------------------------------------------------------------
-Array Statement::GetArray(Int32 min, Int32 max) const
+Array SQLiteStatement::GetArray(Int32 min, Int32 max) const
 {
     SQMOD_VALIDATE_ROW(*this);
     // Is the specified minimum index valid?
@@ -2731,7 +2731,7 @@ Array Statement::GetArray(Int32 min, Int32 max) const
     // Allocate an array large enough to hold the values from selected columns
     Array arr(DefaultVM::Get(), max-min);
     // Create a column instance to retrieve the values
-    Column column(m_Handle);
+    SQLiteColumn column(m_Handle);
     // Array element counter
     Int32 elem = 0;
     // Process the range of selected columns
@@ -2747,7 +2747,7 @@ Array Statement::GetArray(Int32 min, Int32 max) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Table Statement::GetTable(Int32 min, Int32 max) const
+Table SQLiteStatement::GetTable(Int32 min, Int32 max) const
 {
     SQMOD_VALIDATE_ROW(*this);
     // Is the specified minimum index valid?
@@ -2773,7 +2773,7 @@ Table Statement::GetTable(Int32 min, Int32 max) const
     // Create a table to hold the selected column values
     Table tbl(DefaultVM::Get());
     // Create a column instance to retrieve the values
-    Column column(m_Handle);
+    SQLiteColumn column(m_Handle);
     // Process the range of selected columns
     while (min <= max)
     {
@@ -2794,14 +2794,14 @@ Table Statement::GetTable(Int32 min, Int32 max) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Transaction::Transaction(const Connection & db)
-    : Transaction(db.GetHandle())
+SQLiteTransaction::SQLiteTransaction(const SQLiteConnection & db)
+    : SQLiteTransaction(db.GetHandle())
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Transaction::Transaction(ConnRef  db)
+SQLiteTransaction::SQLiteTransaction(ConnRef  db)
     : m_Handle(std::move(db)), m_Committed(false)
 {
     // Was the specified database connection valid?
@@ -2819,7 +2819,7 @@ Transaction::Transaction(ConnRef  db)
 }
 
 // ------------------------------------------------------------------------------------------------
-Transaction::~Transaction()
+SQLiteTransaction::~SQLiteTransaction()
 {
     // Was this transaction successfully committed?
     if (m_Committed)
@@ -2837,7 +2837,7 @@ Transaction::~Transaction()
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Transaction::Commit()
+bool SQLiteTransaction::Commit()
 {
     // We shouldn't even be here if there wasn't a valid connection but let's be sure
     if (!m_Handle)
@@ -2892,7 +2892,7 @@ void Register_SQLite(HSQUIRRELVM vm)
 	    .FmtFunc(_SC("EscapeEx"), &EscapeStringEx);
 
     sqlns.Bind(_SC("Connection"),
-        Class< Connection >(sqlns.GetVM(), SQLiteConnectionTypename::Str)
+        Class< SQLiteConnection >(sqlns.GetVM(), SQLiteConnectionTypename::Str)
         // Constructors
         .Ctor()
         .Ctor< StackStrF & >()
@@ -2900,241 +2900,241 @@ void Register_SQLite(HSQUIRRELVM vm)
         .Ctor< StackStrF &, Int32, StackStrF & >()
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &SQLiteConnectionTypename::Fn)
-        .Func(_SC("_tostring"), &Connection::ToString)
+        .Func(_SC("_tostring"), &SQLiteConnection::ToString)
         // Properties
-        .Prop(_SC("IsValid"), &Connection::IsValid)
-        .Prop(_SC("Connected"), &Connection::IsConnected)
-        .Prop(_SC("References"), &Connection::GetRefCount)
-        .Prop(_SC("Status"), &Connection::GetStatus)
-        .Prop(_SC("Flags"), &Connection::GetFlags)
-        .Prop(_SC("Name"), &Connection::GetName)
-        .Prop(_SC("VFS"), &Connection::GetVFS)
-        .Prop(_SC("ErrCode"), &Connection::GetErrorCode)
-        .Prop(_SC("ExErrCode"), &Connection::GetExtendedErrorCode)
-        .Prop(_SC("ExtendedErrCode"), &Connection::GetExtendedErrorCode)
-        .Prop(_SC("ErrStr"), &Connection::GetErrStr)
-        .Prop(_SC("ErrMsg"), &Connection::GetErrMsg)
-        .Prop(_SC("ReadOnly"), &Connection::IsReadOnly)
-        .Prop(_SC("Autocommit"), &Connection::GetAutoCommit)
-        .Prop(_SC("LastInsertRowId"), &Connection::GetLastInsertRowID)
-        .Prop(_SC("Changes"), &Connection::GetChanges)
-        .Prop(_SC("TotalChanges"), &Connection::GetTotalChanges)
-        .Prop(_SC("Trace"), &Connection::GetTracing, &Connection::SetTracing)
-        .Prop(_SC("Profile"), &Connection::GetProfiling, &Connection::SetProfiling)
-        .Prop(_SC("QueueSize"), &Connection::QueueSize)
+        .Prop(_SC("IsValid"), &SQLiteConnection::IsValid)
+        .Prop(_SC("Connected"), &SQLiteConnection::IsConnected)
+        .Prop(_SC("References"), &SQLiteConnection::GetRefCount)
+        .Prop(_SC("Status"), &SQLiteConnection::GetStatus)
+        .Prop(_SC("Flags"), &SQLiteConnection::GetFlags)
+        .Prop(_SC("Name"), &SQLiteConnection::GetName)
+        .Prop(_SC("VFS"), &SQLiteConnection::GetVFS)
+        .Prop(_SC("ErrCode"), &SQLiteConnection::GetErrorCode)
+        .Prop(_SC("ExErrCode"), &SQLiteConnection::GetExtendedErrorCode)
+        .Prop(_SC("ExtendedErrCode"), &SQLiteConnection::GetExtendedErrorCode)
+        .Prop(_SC("ErrStr"), &SQLiteConnection::GetErrStr)
+        .Prop(_SC("ErrMsg"), &SQLiteConnection::GetErrMsg)
+        .Prop(_SC("ReadOnly"), &SQLiteConnection::IsReadOnly)
+        .Prop(_SC("Autocommit"), &SQLiteConnection::GetAutoCommit)
+        .Prop(_SC("LastInsertRowId"), &SQLiteConnection::GetLastInsertRowID)
+        .Prop(_SC("Changes"), &SQLiteConnection::GetChanges)
+        .Prop(_SC("TotalChanges"), &SQLiteConnection::GetTotalChanges)
+        .Prop(_SC("Trace"), &SQLiteConnection::GetTracing, &SQLiteConnection::SetTracing)
+        .Prop(_SC("Profile"), &SQLiteConnection::GetProfiling, &SQLiteConnection::SetProfiling)
+        .Prop(_SC("QueueSize"), &SQLiteConnection::QueueSize)
         // Member Methods
-        .Func(_SC("Release"), &Connection::Release)
-        .FmtFunc(_SC("Exec"), &Connection::Exec)
-        .FmtFunc(_SC("Queue"), &Connection::Queue)
-        .FmtFunc(_SC("Query"), &Connection::Query)
-        .FmtFunc(_SC("TableExists"), &Connection::TableExists)
-        .Func(_SC("InterruptOperation"), &Connection::InterruptOperation)
-        .Func(_SC("SetBusyTimeout"), &Connection::SetBusyTimeout)
-        .Func(_SC("ReleaseMemory"), &Connection::ReleaseMemory)
-        .Func(_SC("ReserveQueue"), &Connection::ReserveQueue)
-        .Func(_SC("CompactQueue"), &Connection::CompactQueue)
-        .Func(_SC("ClearQueue"), &Connection::ClearQueue)
-        .Func(_SC("PopQueue"), &Connection::PopQueue)
+        .Func(_SC("Release"), &SQLiteConnection::Release)
+        .FmtFunc(_SC("Exec"), &SQLiteConnection::Exec)
+        .FmtFunc(_SC("Queue"), &SQLiteConnection::Queue)
+        .FmtFunc(_SC("Query"), &SQLiteConnection::Query)
+        .FmtFunc(_SC("TableExists"), &SQLiteConnection::TableExists)
+        .Func(_SC("InterruptOperation"), &SQLiteConnection::InterruptOperation)
+        .Func(_SC("SetBusyTimeout"), &SQLiteConnection::SetBusyTimeout)
+        .Func(_SC("ReleaseMemory"), &SQLiteConnection::ReleaseMemory)
+        .Func(_SC("ReserveQueue"), &SQLiteConnection::ReserveQueue)
+        .Func(_SC("CompactQueue"), &SQLiteConnection::CompactQueue)
+        .Func(_SC("ClearQueue"), &SQLiteConnection::ClearQueue)
+        .Func(_SC("PopQueue"), &SQLiteConnection::PopQueue)
         // Member Overloads
-        .Overload< void (Connection::*)(StackStrF &) >(_SC("Open"), &Connection::Open)
-        .Overload< void (Connection::*)(StackStrF &, Int32) >(_SC("Open"), &Connection::Open)
-        .Overload< void (Connection::*)(StackStrF &, Int32, StackStrF &) >(_SC("Open"), &Connection::Open)
-        .Overload< Int32 (Connection::*)(Int32) >(_SC("GetInfo"), &Connection::GetInfo)
-        .Overload< Int32 (Connection::*)(Int32, bool) >(_SC("GetInfo"), &Connection::GetInfo)
-        .Overload< Int32 (Connection::*)(Int32, bool, bool) >(_SC("GetInfo"), &Connection::GetInfo)
-        .Overload< Int32 (Connection::*)(void) >(_SC("Flush"), &Connection::Flush)
-        .Overload< Int32 (Connection::*)(SQInteger) >(_SC("Flush"), &Connection::Flush)
-        .Overload< Int32 (Connection::*)(Object &, Function &) >(_SC("Flush"), &Connection::Flush)
-        .Overload< Int32 (Connection::*)(SQInteger, Object &, Function &) >(_SC("Flush"), &Connection::Flush)
+        .Overload< void (SQLiteConnection::*)(StackStrF &) >(_SC("Open"), &SQLiteConnection::Open)
+        .Overload< void (SQLiteConnection::*)(StackStrF &, Int32) >(_SC("Open"), &SQLiteConnection::Open)
+        .Overload< void (SQLiteConnection::*)(StackStrF &, Int32, StackStrF &) >(_SC("Open"), &SQLiteConnection::Open)
+        .Overload< Int32 (SQLiteConnection::*)(Int32) >(_SC("GetInfo"), &SQLiteConnection::GetInfo)
+        .Overload< Int32 (SQLiteConnection::*)(Int32, bool) >(_SC("GetInfo"), &SQLiteConnection::GetInfo)
+        .Overload< Int32 (SQLiteConnection::*)(Int32, bool, bool) >(_SC("GetInfo"), &SQLiteConnection::GetInfo)
+        .Overload< Int32 (SQLiteConnection::*)(void) >(_SC("Flush"), &SQLiteConnection::Flush)
+        .Overload< Int32 (SQLiteConnection::*)(SQInteger) >(_SC("Flush"), &SQLiteConnection::Flush)
+        .Overload< Int32 (SQLiteConnection::*)(Object &, Function &) >(_SC("Flush"), &SQLiteConnection::Flush)
+        .Overload< Int32 (SQLiteConnection::*)(SQInteger, Object &, Function &) >(_SC("Flush"), &SQLiteConnection::Flush)
     );
 
     sqlns.Bind(_SC("Parameter"),
-        Class< Parameter >(sqlns.GetVM(), SQLiteParameterTypename::Str)
+        Class< SQLiteParameter >(sqlns.GetVM(), SQLiteParameterTypename::Str)
         // Constructors
         .Ctor()
-        .Ctor< const Parameter & >()
+        .Ctor< const SQLiteParameter & >()
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &SQLiteParameterTypename::Fn)
-        .Func(_SC("_tostring"), &Parameter::ToString)
+        .Func(_SC("_tostring"), &SQLiteParameter::ToString)
         // Properties
-        .Prop(_SC("IsValid"), &Parameter::IsValid)
-        .Prop(_SC("References"), &Parameter::GetRefCount)
-        .Prop(_SC("Index"), &Parameter::GetIndex)
-        .Prop(_SC("Statement"), &Parameter::GetStatement)
-        .Prop(_SC("Connection"), &Parameter::GetConnection)
-        .Prop(_SC("References"), &Parameter::GetRefCount)
-        .Prop(_SC("Name"), &Parameter::GetName)
+        .Prop(_SC("IsValid"), &SQLiteParameter::IsValid)
+        .Prop(_SC("References"), &SQLiteParameter::GetRefCount)
+        .Prop(_SC("Index"), &SQLiteParameter::GetIndex)
+        .Prop(_SC("Statement"), &SQLiteParameter::GetStatement)
+        .Prop(_SC("Connection"), &SQLiteParameter::GetConnection)
+        .Prop(_SC("References"), &SQLiteParameter::GetRefCount)
+        .Prop(_SC("Name"), &SQLiteParameter::GetName)
         // Member Methods
-        .Func(_SC("Release"), &Parameter::Release)
-        .Func(_SC("SetValue"), &Parameter::SetValue)
-        .Func(_SC("SetBool"), &Parameter::SetBool)
-        .Func(_SC("SetChar"), &Parameter::SetChar)
-        .Func(_SC("SetInteger"), &Parameter::SetInteger)
-        .Func(_SC("SetInt8"), &Parameter::SetInt8)
-        .Func(_SC("SetUint8"), &Parameter::SetUint8)
-        .Func(_SC("SetInt16"), &Parameter::SetInt16)
-        .Func(_SC("SetUint16"), &Parameter::SetUint16)
-        .Func(_SC("SetInt32"), &Parameter::SetInt32)
-        .Func(_SC("SetUint32"), &Parameter::SetUint32)
-        .Func(_SC("SetInt64"), &Parameter::SetInt64)
-        .Func(_SC("SetUint64"), &Parameter::SetUint64)
-        .Func(_SC("SetFloat"), &Parameter::SetFloat)
-        .Func(_SC("SetFloat32"), &Parameter::SetFloat32)
-        .Func(_SC("SetFloat64"), &Parameter::SetFloat64)
-        .FmtFunc(_SC("SetString"), &Parameter::SetString)
-        .Func(_SC("SetZeroBlob"), &Parameter::SetZeroBlob)
-        .Func(_SC("SetBlob"), &Parameter::SetBlob)
-        .Func(_SC("SetData"), &Parameter::SetData)
-        .Func(_SC("SetDataEx"), &Parameter::SetDataEx)
-        .Func(_SC("SetDate"), &Parameter::SetDate)
-        .Func(_SC("SetDateEx"), &Parameter::SetDateEx)
-        .Func(_SC("SetTime"), &Parameter::SetTime)
-        .Func(_SC("SetTimeEx"), &Parameter::SetTimeEx)
-        .Func(_SC("SetDatetime"), &Parameter::SetDatetime)
-        .Func(_SC("SetDatetimeEx"), &Parameter::SetDatetimeEx)
-        .Func(_SC("SetNow"), &Parameter::SetNow)
-        .Func(_SC("SetNull"), &Parameter::SetNull)
+        .Func(_SC("Release"), &SQLiteParameter::Release)
+        .Func(_SC("SetValue"), &SQLiteParameter::SetValue)
+        .Func(_SC("SetBool"), &SQLiteParameter::SetBool)
+        .Func(_SC("SetChar"), &SQLiteParameter::SetChar)
+        .Func(_SC("SetInteger"), &SQLiteParameter::SetInteger)
+        .Func(_SC("SetInt8"), &SQLiteParameter::SetInt8)
+        .Func(_SC("SetUint8"), &SQLiteParameter::SetUint8)
+        .Func(_SC("SetInt16"), &SQLiteParameter::SetInt16)
+        .Func(_SC("SetUint16"), &SQLiteParameter::SetUint16)
+        .Func(_SC("SetInt32"), &SQLiteParameter::SetInt32)
+        .Func(_SC("SetUint32"), &SQLiteParameter::SetUint32)
+        .Func(_SC("SetInt64"), &SQLiteParameter::SetInt64)
+        .Func(_SC("SetUint64"), &SQLiteParameter::SetUint64)
+        .Func(_SC("SetFloat"), &SQLiteParameter::SetFloat)
+        .Func(_SC("SetFloat32"), &SQLiteParameter::SetFloat32)
+        .Func(_SC("SetFloat64"), &SQLiteParameter::SetFloat64)
+        .FmtFunc(_SC("SetString"), &SQLiteParameter::SetString)
+        .Func(_SC("SetZeroBlob"), &SQLiteParameter::SetZeroBlob)
+        .Func(_SC("SetBlob"), &SQLiteParameter::SetBlob)
+        .Func(_SC("SetData"), &SQLiteParameter::SetData)
+        .Func(_SC("SetDataEx"), &SQLiteParameter::SetDataEx)
+        .Func(_SC("SetDate"), &SQLiteParameter::SetDate)
+        .Func(_SC("SetDateEx"), &SQLiteParameter::SetDateEx)
+        .Func(_SC("SetTime"), &SQLiteParameter::SetTime)
+        .Func(_SC("SetTimeEx"), &SQLiteParameter::SetTimeEx)
+        .Func(_SC("SetDatetime"), &SQLiteParameter::SetDatetime)
+        .Func(_SC("SetDatetimeEx"), &SQLiteParameter::SetDatetimeEx)
+        .Func(_SC("SetNow"), &SQLiteParameter::SetNow)
+        .Func(_SC("SetNull"), &SQLiteParameter::SetNull)
     );
 
     sqlns.Bind(_SC("Column"),
-        Class< Column >(sqlns.GetVM(), SQLiteColumnTypename::Str)
+        Class< SQLiteColumn >(sqlns.GetVM(), SQLiteColumnTypename::Str)
         // Constructors
         .Ctor()
-        .Ctor< const Column & >()
+        .Ctor< const SQLiteColumn & >()
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &SQLiteColumnTypename::Fn)
-        .Func(_SC("_tostring"), &Column::ToString)
+        .Func(_SC("_tostring"), &SQLiteColumn::ToString)
         // Properties
-        .Prop(_SC("IsValid"), &Column::IsValid)
-        .Prop(_SC("References"), &Column::GetRefCount)
-        .Prop(_SC("Index"), &Column::GetIndex)
-        .Prop(_SC("Statement"), &Column::GetStatement)
-        .Prop(_SC("Connection"), &Column::GetConnection)
-        .Prop(_SC("IsNull"), &Column::IsNull)
-        .Prop(_SC("Name"), &Column::GetName)
-        .Prop(_SC("OriginName"), &Column::GetOriginName)
-        .Prop(_SC("Type"), &Column::GetType)
-        .Prop(_SC("Bytes"), &Column::GetBytes)
-        .Prop(_SC("Value"), &Column::GetValue)
-        .Prop(_SC("Number"), &Column::GetNumber)
-        .Prop(_SC("Integer"), &Column::GetInteger)
-        .Prop(_SC("Float"), &Column::GetFloat)
-        .Prop(_SC("Long"), &Column::GetLong)
-        .Prop(_SC("String"), &Column::GetString)
-        .Prop(_SC("Boolean"), &Column::GetBoolean)
-        .Prop(_SC("Char"), &Column::GetChar)
-        .Prop(_SC("Buffer"), &Column::GetBuffer)
-        .Prop(_SC("Blob"), &Column::GetBlob)
+        .Prop(_SC("IsValid"), &SQLiteColumn::IsValid)
+        .Prop(_SC("References"), &SQLiteColumn::GetRefCount)
+        .Prop(_SC("Index"), &SQLiteColumn::GetIndex)
+        .Prop(_SC("Statement"), &SQLiteColumn::GetStatement)
+        .Prop(_SC("Connection"), &SQLiteColumn::GetConnection)
+        .Prop(_SC("IsNull"), &SQLiteColumn::IsNull)
+        .Prop(_SC("Name"), &SQLiteColumn::GetName)
+        .Prop(_SC("OriginName"), &SQLiteColumn::GetOriginName)
+        .Prop(_SC("Type"), &SQLiteColumn::GetType)
+        .Prop(_SC("Bytes"), &SQLiteColumn::GetBytes)
+        .Prop(_SC("Value"), &SQLiteColumn::GetValue)
+        .Prop(_SC("Number"), &SQLiteColumn::GetNumber)
+        .Prop(_SC("Integer"), &SQLiteColumn::GetInteger)
+        .Prop(_SC("Float"), &SQLiteColumn::GetFloat)
+        .Prop(_SC("Long"), &SQLiteColumn::GetLong)
+        .Prop(_SC("String"), &SQLiteColumn::GetString)
+        .Prop(_SC("Boolean"), &SQLiteColumn::GetBoolean)
+        .Prop(_SC("Char"), &SQLiteColumn::GetChar)
+        .Prop(_SC("Buffer"), &SQLiteColumn::GetBuffer)
+        .Prop(_SC("Blob"), &SQLiteColumn::GetBlob)
         // Member Methods
-        .Func(_SC("Release"), &Column::Release)
+        .Func(_SC("Release"), &SQLiteColumn::Release)
     );
 
     sqlns.Bind(_SC("Statement"),
-        Class< Statement >(sqlns.GetVM(), SQLiteStatementTypename::Str)
+        Class< SQLiteStatement >(sqlns.GetVM(), SQLiteStatementTypename::Str)
         // Constructors
         .Ctor()
-        .Ctor< const Statement & >()
-        .Ctor< const Connection &, StackStrF & >()
+        .Ctor< const SQLiteStatement & >()
+        .Ctor< const SQLiteConnection &, StackStrF & >()
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &SQLiteStatementTypename::Fn)
-        .Func(_SC("_tostring"), &Statement::ToString)
+        .Func(_SC("_tostring"), &SQLiteStatement::ToString)
         // Properties
-        .Prop(_SC("IsValid"), &Statement::IsValid)
-        .Prop(_SC("Prepared"), &Statement::IsPrepared)
-        .Prop(_SC("References"), &Statement::GetReferences)
-        .Prop(_SC("Connection"), &Statement::GetConnection)
-        .Prop(_SC("Status"), &Statement::GetStatus)
-        .Prop(_SC("ErrCode"), &Statement::GetErrorCode)
-        .Prop(_SC("ExErrCode"), &Statement::GetExtendedErrorCode)
-        .Prop(_SC("ExtendedErrCode"), &Statement::GetExtendedErrorCode)
-        .Prop(_SC("ErrStr"), &Statement::GetErrStr)
-        .Prop(_SC("ErrMsg"), &Statement::GetErrMsg)
-        .Prop(_SC("Columns"), &Statement::GetColumns)
-        .Prop(_SC("Parameters"), &Statement::GetParameters)
-        .Prop(_SC("Query"), &Statement::GetQuery)
-        .Prop(_SC("Good"), &Statement::GetGood)
-        .Prop(_SC("Done"), &Statement::GetDone)
-        .Prop(_SC("DataCount"), &Statement::GetDataCount)
+        .Prop(_SC("IsValid"), &SQLiteStatement::IsValid)
+        .Prop(_SC("Prepared"), &SQLiteStatement::IsPrepared)
+        .Prop(_SC("References"), &SQLiteStatement::GetReferences)
+        .Prop(_SC("Connection"), &SQLiteStatement::GetConnection)
+        .Prop(_SC("Status"), &SQLiteStatement::GetStatus)
+        .Prop(_SC("ErrCode"), &SQLiteStatement::GetErrorCode)
+        .Prop(_SC("ExErrCode"), &SQLiteStatement::GetExtendedErrorCode)
+        .Prop(_SC("ExtendedErrCode"), &SQLiteStatement::GetExtendedErrorCode)
+        .Prop(_SC("ErrStr"), &SQLiteStatement::GetErrStr)
+        .Prop(_SC("ErrMsg"), &SQLiteStatement::GetErrMsg)
+        .Prop(_SC("Columns"), &SQLiteStatement::GetColumns)
+        .Prop(_SC("Parameters"), &SQLiteStatement::GetParameters)
+        .Prop(_SC("Query"), &SQLiteStatement::GetQuery)
+        .Prop(_SC("Good"), &SQLiteStatement::GetGood)
+        .Prop(_SC("Done"), &SQLiteStatement::GetDone)
+        .Prop(_SC("DataCount"), &SQLiteStatement::GetDataCount)
         // Member Methods
-        .Func(_SC("Release"), &Statement::Release)
-        .Func(_SC("CheckParameter"), &Statement::CheckParameter)
-        .FmtFunc(_SC("GetParameterIndex"), &Statement::GetParameterIndex)
-        .Func(_SC("GetParameterName"), &Statement::GetParameterName)
-        .Func(_SC("CheckColumn"), &Statement::CheckColumn)
-        .Func(_SC("IsColumnNull"), &Statement::IsColumnNull)
-        .FmtFunc(_SC("ColumnIndex"), &Statement::GetColumnIndex)
-        .Func(_SC("ColumnName"), &Statement::GetColumnName)
-        .Func(_SC("ColumnOriginName"), &Statement::GetColumnOriginName)
-        .Func(_SC("ColumnType"), &Statement::GetColumnType)
-        .Func(_SC("ColumnBytes"), &Statement::GetColumnBytes)
-        .Func(_SC("Reset"), &Statement::Reset)
-        .Func(_SC("Clear"), &Statement::Clear)
-        .Func(_SC("Exec"), &Statement::Exec)
-        .Func(_SC("Step"), &Statement::Step)
-        .Func(_SC("Param"), &Statement::GetParameter)
-        .Func(_SC("Parameter"), &Statement::GetParameter)
-        .Func(_SC("SetValue"), &Statement::SetValue)
-        .Func(_SC("SetBool"), &Statement::SetBool)
-        .Func(_SC("SetChar"), &Statement::SetChar)
-        .Func(_SC("SetInteger"), &Statement::SetInteger)
-        .Func(_SC("SetInt8"), &Statement::SetInt8)
-        .Func(_SC("SetUint8"), &Statement::SetUint8)
-        .Func(_SC("SetInt16"), &Statement::SetInt16)
-        .Func(_SC("SetUint16"), &Statement::SetUint16)
-        .Func(_SC("SetInt32"), &Statement::SetInt32)
-        .Func(_SC("SetUint32"), &Statement::SetUint32)
-        .Func(_SC("SetInt64"), &Statement::SetInt64)
-        .Func(_SC("SetUint64"), &Statement::SetUint64)
-        .Func(_SC("SetFloat"), &Statement::SetFloat)
-        .Func(_SC("SetFloat32"), &Statement::SetFloat32)
-        .Func(_SC("SetFloat64"), &Statement::SetFloat64)
-        .FmtFunc(_SC("SetString"), &Statement::SetString)
-        .Func(_SC("SetZeroBlob"), &Statement::SetZeroBlob)
-        .Func(_SC("SetBlob"), &Statement::SetBlob)
-        .Func(_SC("SetData"), &Statement::SetData)
-        .Func(_SC("SetDate"), &Statement::SetDate)
-        .Func(_SC("SetDateEx"), &Statement::SetDateEx)
-        .Func(_SC("SetTime"), &Statement::SetTime)
-        .Func(_SC("SetTimeEx"), &Statement::SetTimeEx)
-        .Func(_SC("SetDatetime"), &Statement::SetDatetime)
-        .Func(_SC("SetDatetimeEx"), &Statement::SetDatetimeEx)
-        .Func(_SC("SetNow"), &Statement::SetNow)
-        .Func(_SC("SetNull"), &Statement::SetNull)
-        .Func(_SC("SetArray"), &Statement::SetArray)
-        .Func(_SC("SetTable"), &Statement::SetTable)
-        .Func(_SC("Field"), &Statement::GetColumn)
-        .Func(_SC("Column"), &Statement::GetColumn)
-        .Func(_SC("GetValue"), &Statement::GetValue)
-        .Func(_SC("GetNumber"), &Statement::GetNumber)
-        .Func(_SC("GetInteger"), &Statement::GetInteger)
-        .Func(_SC("GetFloat"), &Statement::GetFloat)
-        .Func(_SC("GetLong"), &Statement::GetLong)
-        .Func(_SC("GetString"), &Statement::GetString)
-        .Func(_SC("GetBoolean"), &Statement::GetBoolean)
-        .Func(_SC("GetChar"), &Statement::GetChar)
-        .Func(_SC("GetBuffer"), &Statement::GetBuffer)
-        .Func(_SC("GetBlob"), &Statement::GetBlob)
+        .Func(_SC("Release"), &SQLiteStatement::Release)
+        .Func(_SC("CheckParameter"), &SQLiteStatement::CheckParameter)
+        .FmtFunc(_SC("GetParameterIndex"), &SQLiteStatement::GetParameterIndex)
+        .Func(_SC("GetParameterName"), &SQLiteStatement::GetParameterName)
+        .Func(_SC("CheckColumn"), &SQLiteStatement::CheckColumn)
+        .Func(_SC("IsColumnNull"), &SQLiteStatement::IsColumnNull)
+        .FmtFunc(_SC("ColumnIndex"), &SQLiteStatement::GetColumnIndex)
+        .Func(_SC("ColumnName"), &SQLiteStatement::GetColumnName)
+        .Func(_SC("ColumnOriginName"), &SQLiteStatement::GetColumnOriginName)
+        .Func(_SC("ColumnType"), &SQLiteStatement::GetColumnType)
+        .Func(_SC("ColumnBytes"), &SQLiteStatement::GetColumnBytes)
+        .Func(_SC("Reset"), &SQLiteStatement::Reset)
+        .Func(_SC("Clear"), &SQLiteStatement::Clear)
+        .Func(_SC("Exec"), &SQLiteStatement::Exec)
+        .Func(_SC("Step"), &SQLiteStatement::Step)
+        .Func(_SC("Param"), &SQLiteStatement::GetParameter)
+        .Func(_SC("Parameter"), &SQLiteStatement::GetParameter)
+        .Func(_SC("SetValue"), &SQLiteStatement::SetValue)
+        .Func(_SC("SetBool"), &SQLiteStatement::SetBool)
+        .Func(_SC("SetChar"), &SQLiteStatement::SetChar)
+        .Func(_SC("SetInteger"), &SQLiteStatement::SetInteger)
+        .Func(_SC("SetInt8"), &SQLiteStatement::SetInt8)
+        .Func(_SC("SetUint8"), &SQLiteStatement::SetUint8)
+        .Func(_SC("SetInt16"), &SQLiteStatement::SetInt16)
+        .Func(_SC("SetUint16"), &SQLiteStatement::SetUint16)
+        .Func(_SC("SetInt32"), &SQLiteStatement::SetInt32)
+        .Func(_SC("SetUint32"), &SQLiteStatement::SetUint32)
+        .Func(_SC("SetInt64"), &SQLiteStatement::SetInt64)
+        .Func(_SC("SetUint64"), &SQLiteStatement::SetUint64)
+        .Func(_SC("SetFloat"), &SQLiteStatement::SetFloat)
+        .Func(_SC("SetFloat32"), &SQLiteStatement::SetFloat32)
+        .Func(_SC("SetFloat64"), &SQLiteStatement::SetFloat64)
+        .FmtFunc(_SC("SetString"), &SQLiteStatement::SetString)
+        .Func(_SC("SetZeroBlob"), &SQLiteStatement::SetZeroBlob)
+        .Func(_SC("SetBlob"), &SQLiteStatement::SetBlob)
+        .Func(_SC("SetData"), &SQLiteStatement::SetData)
+        .Func(_SC("SetDate"), &SQLiteStatement::SetDate)
+        .Func(_SC("SetDateEx"), &SQLiteStatement::SetDateEx)
+        .Func(_SC("SetTime"), &SQLiteStatement::SetTime)
+        .Func(_SC("SetTimeEx"), &SQLiteStatement::SetTimeEx)
+        .Func(_SC("SetDatetime"), &SQLiteStatement::SetDatetime)
+        .Func(_SC("SetDatetimeEx"), &SQLiteStatement::SetDatetimeEx)
+        .Func(_SC("SetNow"), &SQLiteStatement::SetNow)
+        .Func(_SC("SetNull"), &SQLiteStatement::SetNull)
+        .Func(_SC("SetArray"), &SQLiteStatement::SetArray)
+        .Func(_SC("SetTable"), &SQLiteStatement::SetTable)
+        .Func(_SC("Field"), &SQLiteStatement::GetColumn)
+        .Func(_SC("Column"), &SQLiteStatement::GetColumn)
+        .Func(_SC("GetValue"), &SQLiteStatement::GetValue)
+        .Func(_SC("GetNumber"), &SQLiteStatement::GetNumber)
+        .Func(_SC("GetInteger"), &SQLiteStatement::GetInteger)
+        .Func(_SC("GetFloat"), &SQLiteStatement::GetFloat)
+        .Func(_SC("GetLong"), &SQLiteStatement::GetLong)
+        .Func(_SC("GetString"), &SQLiteStatement::GetString)
+        .Func(_SC("GetBoolean"), &SQLiteStatement::GetBoolean)
+        .Func(_SC("GetChar"), &SQLiteStatement::GetChar)
+        .Func(_SC("GetBuffer"), &SQLiteStatement::GetBuffer)
+        .Func(_SC("GetBlob"), &SQLiteStatement::GetBlob)
         // Member overloads
-        .Overload< Array (Statement::*)(void) const >(_SC("GetArray"), &Statement::GetArray)
-        .Overload< Array (Statement::*)(Int32) const >(_SC("GetArray"), &Statement::GetArray)
-        .Overload< Array (Statement::*)(Int32, Int32) const >(_SC("GetArray"), &Statement::GetArray)
-        .Overload< Table (Statement::*)(void) const >(_SC("GetTable"), &Statement::GetTable)
-        .Overload< Table (Statement::*)(Int32) const >(_SC("GetTable"), &Statement::GetTable)
-        .Overload< Table (Statement::*)(Int32, Int32) const >(_SC("GetTable"), &Statement::GetTable)
+        .Overload< Array (SQLiteStatement::*)(void) const >(_SC("GetArray"), &SQLiteStatement::GetArray)
+        .Overload< Array (SQLiteStatement::*)(Int32) const >(_SC("GetArray"), &SQLiteStatement::GetArray)
+        .Overload< Array (SQLiteStatement::*)(Int32, Int32) const >(_SC("GetArray"), &SQLiteStatement::GetArray)
+        .Overload< Table (SQLiteStatement::*)(void) const >(_SC("GetTable"), &SQLiteStatement::GetTable)
+        .Overload< Table (SQLiteStatement::*)(Int32) const >(_SC("GetTable"), &SQLiteStatement::GetTable)
+        .Overload< Table (SQLiteStatement::*)(Int32, Int32) const >(_SC("GetTable"), &SQLiteStatement::GetTable)
     );
 
     sqlns.Bind(_SC("Transaction"),
-        Class< Transaction, NoCopy< Transaction > >(sqlns.GetVM(), SQLiteTransactionTypename::Str)
+        Class< SQLiteTransaction, NoCopy< SQLiteTransaction > >(sqlns.GetVM(), SQLiteTransactionTypename::Str)
         // Constructors
-        .Ctor< const Connection & >()
+        .Ctor< const SQLiteConnection & >()
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &SQLiteTransactionTypename::Fn)
-        .Func(_SC("_tostring"), &Transaction::ToString)
+        .Func(_SC("_tostring"), &SQLiteTransaction::ToString)
         // Properties
-        .Prop(_SC("IsValid"), &Transaction::IsValid)
-        .Prop(_SC("Committed"), &Transaction::Commited)
+        .Prop(_SC("IsValid"), &SQLiteTransaction::IsValid)
+        .Prop(_SC("Committed"), &SQLiteTransaction::Commited)
         // Member Methods
-        .Func(_SC("Commit"), &Transaction::Commit)
+        .Func(_SC("Commit"), &SQLiteTransaction::Commit)
     );
 
     RootTable(vm).Bind(_SC("SQLite"), sqlns);

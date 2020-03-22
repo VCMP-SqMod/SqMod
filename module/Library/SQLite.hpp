@@ -25,10 +25,11 @@ namespace SqMod {
 /* ------------------------------------------------------------------------------------------------
  * Forward declarations.
 */
-class Connection;
-class Statement;
-class Column;
-class Transaction;
+class SQLiteConnection;
+class SQLiteStatement;
+class SQLiteParameter;
+class SQLiteColumn;
+class SQLiteTransaction;
 
 /* ------------------------------------------------------------------------------------------------
  * Handle validation.
@@ -68,14 +69,14 @@ class Transaction;
 /* ------------------------------------------------------------------------------------------------
  * Forward declarations.
 */
-struct ConnHnd;
-struct StmtHnd;
+struct SQLiteConnHnd;
+struct SQLiteStmtHnd;
 
 /* ------------------------------------------------------------------------------------------------
  * Common typedefs.
 */
-typedef SharedPtr< ConnHnd > ConnRef;
-typedef SharedPtr< StmtHnd > StmtRef;
+typedef SharedPtr< SQLiteConnHnd > ConnRef;
+typedef SharedPtr< SQLiteStmtHnd > StmtRef;
 
 /* ------------------------------------------------------------------------------------------------
  * Obtain a script object from a connection handle. (meant to avoid having to include the header)
@@ -140,7 +141,7 @@ CCStr TableToQueryColumns(Table & tbl);
 /* ------------------------------------------------------------------------------------------------
  * The structure that holds the data associated with a certain connection.
 */
-struct ConnHnd
+struct SQLiteConnHnd
 {
 public:
 
@@ -182,32 +183,32 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    ConnHnd();
+    SQLiteConnHnd();
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
     */
-    ConnHnd(const ConnHnd & o) = delete;
+    SQLiteConnHnd(const SQLiteConnHnd & o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor. (disabled)
     */
-    ConnHnd(ConnHnd && o) = delete;
+    SQLiteConnHnd(SQLiteConnHnd && o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~ConnHnd();
+    ~SQLiteConnHnd();
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator. (disabled)
     */
-    ConnHnd & operator = (const ConnHnd & o) = delete;
+    SQLiteConnHnd & operator = (const SQLiteConnHnd & o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator. (disabled)
     */
-    ConnHnd & operator = (ConnHnd && o) = delete;
+    SQLiteConnHnd & operator = (SQLiteConnHnd && o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Create the database connection resource.
@@ -255,7 +256,7 @@ public:
 /* ------------------------------------------------------------------------------------------------
  * The structure that holds the data associated with a certain statement.
 */
-struct StmtHnd
+struct SQLiteStmtHnd
 {
 public:
 
@@ -299,32 +300,32 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    explicit StmtHnd(ConnRef conn);
+    explicit SQLiteStmtHnd(ConnRef conn);
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
     */
-    StmtHnd(const StmtHnd & o) = delete;
+    SQLiteStmtHnd(const SQLiteStmtHnd & o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor. (disabled)
     */
-    StmtHnd(StmtHnd && o) = delete;
+    SQLiteStmtHnd(SQLiteStmtHnd && o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~StmtHnd();
+    ~SQLiteStmtHnd();
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator. (disabled)
     */
-    StmtHnd & operator = (const StmtHnd & o) = delete;
+    SQLiteStmtHnd & operator = (const SQLiteStmtHnd & o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator. (disabled)
     */
-    StmtHnd & operator = (StmtHnd && o) = delete;
+    SQLiteStmtHnd & operator = (SQLiteStmtHnd && o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Create the database statement resource.
@@ -376,7 +377,7 @@ public:
 /* ------------------------------------------------------------------------------------------------
  * Used to manage and interact with a database connection.
 */
-class Connection
+class SQLiteConnection
 {
 private:
 
@@ -436,7 +437,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to open the specified database.
     */
-    Connection()
+    SQLiteConnection()
         : m_Handle()
     {
         /* ... */
@@ -445,8 +446,8 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
-    explicit Connection(StackStrF & name)
-        : m_Handle(new ConnHnd())
+    explicit SQLiteConnection(StackStrF & name)
+        : m_Handle(new SQLiteConnHnd())
     {
         // Effing signed/unsigned warnings everywhere. I just need it to shut up.
         constexpr unsigned OPEN_READWRITE_F = SQLITE_OPEN_READWRITE;
@@ -457,8 +458,8 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
-    Connection(StackStrF & name, Int32 flags)
-        : m_Handle(new ConnHnd())
+    SQLiteConnection(StackStrF & name, Int32 flags)
+        : m_Handle(new SQLiteConnHnd())
     {
         SQMOD_GET_VALID(*this)->Create(name.mPtr, flags, nullptr);
     }
@@ -466,8 +467,8 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
-    Connection(StackStrF & name, Int32 flags, StackStrF & vfs)
-        : m_Handle(new ConnHnd())
+    SQLiteConnection(StackStrF & name, Int32 flags, StackStrF & vfs)
+        : m_Handle(new SQLiteConnHnd())
     {
         SQMOD_GET_VALID(*this)->Create(name.mPtr, flags, vfs.mPtr);
     }
@@ -475,7 +476,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Direct handle constructor.
     */
-    explicit Connection(ConnRef c)
+    explicit SQLiteConnection(ConnRef c)
         : m_Handle(std::move(c))
     {
         /* ... */
@@ -484,27 +485,27 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    Connection(const Connection & o) = default;
+    SQLiteConnection(const SQLiteConnection & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    Connection(Connection && o) = default;
+    SQLiteConnection(SQLiteConnection && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    Connection & operator = (const Connection & o) = default;
+    SQLiteConnection & operator = (const SQLiteConnection & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator.
     */
-    Connection & operator = (Connection && o) = default;
+    SQLiteConnection & operator = (SQLiteConnection && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Perform an equality comparison between two connections.
     */
-    bool operator == (const Connection & o) const
+    bool operator == (const SQLiteConnection & o) const
     {
         return (m_Handle == o.m_Handle);
     }
@@ -512,7 +513,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Perform an inequality comparison between two connections.
     */
-    bool operator != (const Connection & o) const
+    bool operator != (const SQLiteConnection & o) const
     {
         return (m_Handle != o.m_Handle);
     }
@@ -845,10 +846,10 @@ public:
 /* ------------------------------------------------------------------------------------------------
  * Used to manage and interact with parameters from a database statement.
 */
-class Parameter
+class SQLiteParameter
 {
     // --------------------------------------------------------------------------------------------
-    friend class Statement;
+    friend class SQLiteStatement;
 
 private:
 
@@ -934,7 +935,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor (null).
     */
-    Parameter()
+    SQLiteParameter()
         : m_Index(0), m_Handle()
     {
         /* ... */
@@ -943,7 +944,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * No parameter constructor.
     */
-    explicit Parameter(StmtRef stmt)
+    explicit SQLiteParameter(StmtRef stmt)
         : m_Index(0), m_Handle(std::move(stmt))
     {
         /* ... */
@@ -952,7 +953,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Index constructor.
     */
-    Parameter(StmtRef stmt, Int32 idx)
+    SQLiteParameter(StmtRef stmt, Int32 idx)
         : m_Index(idx), m_Handle(std::move(stmt))
     {
         SQMOD_VALIDATE_PARAM(*this, m_Index);
@@ -961,7 +962,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Name constructor.
     */
-    Parameter(const StmtRef & stmt, CSStr name)
+    SQLiteParameter(const StmtRef & stmt, CSStr name)
         : m_Index(stmt ? sqlite3_bind_parameter_index(stmt->mPtr, name) : 0), m_Handle(stmt)
     {
         SQMOD_VALIDATE_PARAM(*this, m_Index);
@@ -970,7 +971,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Dynamic constructor.
     */
-    Parameter(StmtRef stmt, const Object & param)
+    SQLiteParameter(StmtRef stmt, const Object & param)
         : m_Index(0), m_Handle(std::move(stmt))
     {
         if (!m_Handle)
@@ -984,27 +985,27 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    Parameter(const Parameter & o) = default;
+    SQLiteParameter(const SQLiteParameter & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    Parameter(Parameter && o) = default;
+    SQLiteParameter(SQLiteParameter && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    Parameter & operator = (const Parameter & o) = default;
+    SQLiteParameter & operator = (const SQLiteParameter & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator.
     */
-    Parameter & operator = (Parameter && o) = default;
+    SQLiteParameter & operator = (SQLiteParameter && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Perform an equality comparison between two parameter indexes.
     */
-    bool operator == (const Parameter & o) const
+    bool operator == (const SQLiteParameter & o) const
     {
         return (m_Index == o.m_Index);
     }
@@ -1012,7 +1013,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Perform an inequality comparison between two parameter indexes.
     */
-    bool operator != (const Parameter & o) const
+    bool operator != (const SQLiteParameter & o) const
     {
         return (m_Index != o.m_Index);
     }
@@ -1244,10 +1245,10 @@ public:
 /* ------------------------------------------------------------------------------------------------
  * Used to manage and interact with statement columns.
 */
-class Column
+class SQLiteColumn
 {
     // --------------------------------------------------------------------------------------------
-    friend class Statement;
+    friend class SQLiteStatement;
 
 private:
 
@@ -1342,7 +1343,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor (null).
     */
-    Column()
+    SQLiteColumn()
         : m_Index(-1), m_Handle()
     {
         /* ... */
@@ -1351,7 +1352,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * No column constructor.
     */
-    explicit Column(StmtRef stmt)
+    explicit SQLiteColumn(StmtRef stmt)
         : m_Index(-1), m_Handle(std::move(stmt))
     {
         /* ... */
@@ -1360,7 +1361,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Index constructor.
     */
-    Column(StmtRef  stmt, Int32 idx)
+    SQLiteColumn(StmtRef  stmt, Int32 idx)
         : m_Index(idx), m_Handle(std::move(stmt))
     {
         SQMOD_VALIDATE_COLUMN(*this, m_Index);
@@ -1369,7 +1370,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Name constructor.
     */
-    Column(const StmtRef & stmt, CSStr name)
+    SQLiteColumn(const StmtRef & stmt, CSStr name)
         : m_Index(stmt ? stmt->GetColumnIndex(name) : -1), m_Handle(stmt)
     {
         SQMOD_VALIDATE_COLUMN(*this, m_Index);
@@ -1378,7 +1379,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Dynamic constructor.
     */
-    Column(StmtRef  stmt, const Object & column)
+    SQLiteColumn(StmtRef  stmt, const Object & column)
         : m_Index(-1), m_Handle(std::move(stmt))
     {
         if (!m_Handle)
@@ -1392,27 +1393,27 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    Column(const Column & o) = default;
+    SQLiteColumn(const SQLiteColumn & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    Column(Column && o) = default;
+    SQLiteColumn(SQLiteColumn && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    Column & operator = (const Column & o) = default;
+    SQLiteColumn & operator = (const SQLiteColumn & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator.
     */
-    Column & operator = (Column && o) = default;
+    SQLiteColumn & operator = (SQLiteColumn && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Perform an equality comparison between two table column indexes.
     */
-    bool operator == (const Column & o) const
+    bool operator == (const SQLiteColumn & o) const
     {
         return (m_Index == o.m_Index);
     }
@@ -1420,7 +1421,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Perform an inequality comparison between two table column indexes.
     */
-    bool operator != (const Column & o) const
+    bool operator != (const SQLiteColumn & o) const
     {
         return (m_Index != o.m_Index);
     }
@@ -1574,7 +1575,7 @@ public:
 /* ------------------------------------------------------------------------------------------------
  * Used to manage and interact a database statement.
 */
-class Statement
+class SQLiteStatement
 {
 private:
 
@@ -1651,7 +1652,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Statement()
+    SQLiteStatement()
         : m_Handle()
     {
         /* ... */
@@ -1660,8 +1661,8 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Construct a statement under the specified connection using the specified string.
     */
-    Statement(const ConnRef & connection, StackStrF & query)
-        : m_Handle(new StmtHnd(connection))
+    SQLiteStatement(const ConnRef & connection, StackStrF & query)
+        : m_Handle(new SQLiteStmtHnd(connection))
     {
         SQMOD_GET_VALID(*this)->Create(query.mPtr, query.mLen);
     }
@@ -1669,12 +1670,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Construct a statement under the specified connection using the specified string.
     */
-    Statement(const Connection & connection, StackStrF & query);
+    SQLiteStatement(const SQLiteConnection & connection, StackStrF & query);
 
     /* --------------------------------------------------------------------------------------------
      * Direct handle constructor.
     */
-    explicit Statement(StmtRef  s)
+    explicit SQLiteStatement(StmtRef  s)
         : m_Handle(std::move(s))
     {
         /* ... */
@@ -1683,27 +1684,27 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    Statement(const Statement & o) = default;
+    SQLiteStatement(const SQLiteStatement & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    Statement(Statement && o) = default;
+    SQLiteStatement(SQLiteStatement && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    Statement & operator = (const Statement & o) = default;
+    SQLiteStatement & operator = (const SQLiteStatement & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator.
     */
-    Statement & operator = (Statement && o) = default;
+    SQLiteStatement & operator = (SQLiteStatement && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Perform an equality comparison between two connections.
     */
-    bool operator == (const Statement & o) const
+    bool operator == (const SQLiteStatement & o) const
     {
         return (m_Handle.Get() == o.m_Handle.Get());
     }
@@ -1711,7 +1712,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Perform an inequality comparison between two connections.
     */
-    bool operator != (const Statement & o) const
+    bool operator != (const SQLiteStatement & o) const
     {
         return (m_Handle.Get() != o.m_Handle.Get());
     }
@@ -1978,12 +1979,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Reset the statement back to its initial position to be stepped again.
     */
-    Statement & Reset();
+    SQLiteStatement & Reset();
 
     /* --------------------------------------------------------------------------------------------
      * Clear any values binded to this statement.
     */
-    Statement & Clear();
+    SQLiteStatement & Clear();
 
     /* --------------------------------------------------------------------------------------------
      * Execute this statement and don't expect any rows to be returned.
@@ -2000,15 +2001,15 @@ public:
     */
     Object GetParameter(const Object & param) const
     {
-        return Object(new Parameter(m_Handle, param));
+        return Object(new SQLiteParameter(m_Handle, param));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a dynamic value at the specified parameter index.
     */
-    Statement & SetValue(const Object & param, const Object & value)
+    SQLiteStatement & SetValue(const Object & param, const Object & value)
     {
-        Parameter(SQMOD_GET_CREATED(*this), param).SetValue(value);
+        SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetValue(value);
         // Allow chaining of operations
         return *this;
     }
@@ -2016,9 +2017,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a boolean value at the specified parameter index.
     */
-    Statement & SetBool(const Object & param, bool value)
+    SQLiteStatement & SetBool(const Object & param, bool value)
     {
-        Parameter(SQMOD_GET_CREATED(*this), param).SetBool(value);
+        SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetBool(value);
         // Allow chaining of operations
         return *this;
     }
@@ -2026,9 +2027,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a character value at the specified parameter index.
     */
-    Statement & SetChar(const Object & param, SQInteger value)
+    SQLiteStatement & SetChar(const Object & param, SQInteger value)
     {
-        Parameter(SQMOD_GET_CREATED(*this), param).SetChar(value);
+        SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetChar(value);
         // Allow chaining of operations
         return *this;
     }
@@ -2036,9 +2037,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a native integer value at the specified parameter index.
     */
-    Statement & SetInteger(const Object & param, SQInteger value)
+    SQLiteStatement & SetInteger(const Object & param, SQInteger value)
     {
-        Parameter(SQMOD_GET_CREATED(*this), param).SetInteger(value);
+        SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetInteger(value);
         // Allow chaining of operations
         return *this;
     }
@@ -2046,9 +2047,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a signed 8 bit integer value at the specified parameter index.
     */
-    Statement & SetInt8(const Object & param, SQInteger value)
+    SQLiteStatement & SetInt8(const Object & param, SQInteger value)
     {
-        Parameter(SQMOD_GET_CREATED(*this), param).SetInt8(value);
+        SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetInt8(value);
         // Allow chaining of operations
         return *this;
     }
@@ -2056,9 +2057,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind an unsigned 8 bit integer value at the specified parameter index.
     */
-    Statement & SetUint8(const Object & param, SQInteger value)
+    SQLiteStatement & SetUint8(const Object & param, SQInteger value)
     {
-        Parameter(SQMOD_GET_CREATED(*this), param).SetUint8(value);
+        SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetUint8(value);
         // Allow chaining of operations
         return *this;
     }
@@ -2066,9 +2067,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a signed 16 bit integer value at the specified parameter index.
     */
-    Statement & SetInt16(const Object & param, SQInteger value)
+    SQLiteStatement & SetInt16(const Object & param, SQInteger value)
     {
-        Parameter(SQMOD_GET_CREATED(*this), param).SetInt16(value);
+        SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetInt16(value);
         // Allow chaining of operations
         return *this;
     }
@@ -2076,9 +2077,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind an unsigned 16 bit integer value at the specified parameter index.
     */
-    Statement & SetUint16(const Object & param, SQInteger value)
+    SQLiteStatement & SetUint16(const Object & param, SQInteger value)
     {
-        Parameter(SQMOD_GET_CREATED(*this), param).SetUint16(value);
+        SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetUint16(value);
         // Allow chaining of operations
         return *this;
     }
@@ -2086,9 +2087,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a signed 32 bit integer value at the specified parameter index.
     */
-    Statement & SetInt32(const Object & param, SQInteger value)
+    SQLiteStatement & SetInt32(const Object & param, SQInteger value)
     {
-        Parameter(SQMOD_GET_CREATED(*this), param).SetInt32(value);
+        SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetInt32(value);
         // Allow chaining of operations
         return *this;
     }
@@ -2096,9 +2097,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind an unsigned 32 bit integer value at the specified parameter index.
     */
-    Statement & SetUint32(const Object & param, SQInteger value)
+    SQLiteStatement & SetUint32(const Object & param, SQInteger value)
     {
-        Parameter(SQMOD_GET_CREATED(*this), param).SetUint32(value);
+        SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetUint32(value);
         // Allow chaining of operations
         return *this;
     }
@@ -2106,9 +2107,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a signed 64 bit integer value at the specified parameter index.
     */
-    Statement & SetInt64(const Object & param, const Object & value)
+    SQLiteStatement & SetInt64(const Object & param, const Object & value)
     {
-        Parameter(SQMOD_GET_CREATED(*this), param).SetInt64(value);
+        SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetInt64(value);
         // Allow chaining of operations
         return *this;
     }
@@ -2116,9 +2117,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind an unsigned 64 bit integer value at the specified parameter index.
     */
-    Statement & SetUint64(const Object & param, const Object & value)
+    SQLiteStatement & SetUint64(const Object & param, const Object & value)
     {
-        Parameter(SQMOD_GET_CREATED(*this), param).SetUint64(value);
+        SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetUint64(value);
         // Allow chaining of operations
         return *this;
     }
@@ -2126,9 +2127,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a native floating point value at the specified parameter index.
     */
-    Statement & SetFloat(const Object & param, SQFloat value)
+    SQLiteStatement & SetFloat(const Object & param, SQFloat value)
     {
-        Parameter(SQMOD_GET_CREATED(*this), param).SetFloat(value);
+        SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetFloat(value);
         // Allow chaining of operations
         return *this;
     }
@@ -2136,9 +2137,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a 32 bit floating point value at the specified parameter index.
     */
-    Statement & SetFloat32(const Object & param, SQFloat value)
+    SQLiteStatement & SetFloat32(const Object & param, SQFloat value)
     {
-        Parameter(SQMOD_GET_CREATED(*this), param).SetFloat32(value);
+        SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetFloat32(value);
         // Allow chaining of operations
         return *this;
     }
@@ -2146,9 +2147,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a 64 bit floating point value at the specified parameter index.
     */
-    Statement & SetFloat64(const Object & param, SQFloat value)
+    SQLiteStatement & SetFloat64(const Object & param, SQFloat value)
     {
-        Parameter(SQMOD_GET_CREATED(*this), param).SetFloat64(value);
+        SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetFloat64(value);
         // Allow chaining of operations
         return *this;
     }
@@ -2156,9 +2157,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a string value at the specified parameter index.
     */
-    Statement & SetString(const Object & param, StackStrF & value)
+    SQLiteStatement & SetString(const Object & param, StackStrF & value)
     {
-        Parameter(SQMOD_GET_CREATED(*this), param).SetString(value);
+        SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetString(value);
         // Allow chaining of operations
         return *this;
     }
@@ -2166,9 +2167,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a zeroed blob value at the specified parameter index.
     */
-    Statement & SetZeroBlob(const Object & param, SQInteger size)
+    SQLiteStatement & SetZeroBlob(const Object & param, SQInteger size)
     {
-        Parameter(SQMOD_GET_CREATED(*this), param).SetZeroBlob(size);
+        SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetZeroBlob(size);
         // Allow chaining of operations
         return *this;
     }
@@ -2176,9 +2177,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a blob value at the specified parameter index.
     */
-    Statement & SetBlob(const Object & param, const Object & value)
+    SQLiteStatement & SetBlob(const Object & param, const Object & value)
     {
-        Parameter(SQMOD_GET_CREATED(*this), param).SetBlob(value);
+        SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetBlob(value);
         // Allow chaining of operations
         return *this;
     }
@@ -2186,9 +2187,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a buffer value at the specified parameter index.
     */
-    Statement & SetData(const Object & param, const Object & value)
+    SQLiteStatement & SetData(const Object & param, const Object & value)
     {
-        Parameter(SQMOD_GET_CREATED(*this), param).SetData(value.Cast< const SqBuffer & >());
+        SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetData(value.Cast< const SqBuffer & >());
         // Allow chaining of operations
         return *this;
     }
@@ -2196,9 +2197,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a date value at the specified parameter index.
     */
-    Statement & SetDate(const Object & param, const Object & value)
+    SQLiteStatement & SetDate(const Object & param, const Object & value)
     {
-        Parameter(SQMOD_GET_CREATED(*this), param).SetDate(value.Cast< const Date & >());
+        SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetDate(value.Cast< const Date & >());
         // Allow chaining of operations
         return *this;
     }
@@ -2206,9 +2207,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a date value at the specified parameter index.
     */
-    Statement & SetDateEx(const Object & param, SQInteger year, SQInteger month, SQInteger day)
+    SQLiteStatement & SetDateEx(const Object & param, SQInteger year, SQInteger month, SQInteger day)
     {
-        Parameter(SQMOD_GET_CREATED(*this), param).SetDateEx(year, month, day);
+        SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetDateEx(year, month, day);
         // Allow chaining of operations
         return *this;
     }
@@ -2216,9 +2217,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a time value at the specified parameter index.
     */
-    Statement & SetTime(const Object & param, const Object & value)
+    SQLiteStatement & SetTime(const Object & param, const Object & value)
     {
-        Parameter(SQMOD_GET_CREATED(*this), param).SetTime(value.Cast< const Time & >());
+        SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetTime(value.Cast< const Time & >());
         // Allow chaining of operations
         return *this;
     }
@@ -2226,9 +2227,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a time value at the specified parameter index.
     */
-    Statement & SetTimeEx(const Object & param, SQInteger hour, SQInteger minute, SQInteger second)
+    SQLiteStatement & SetTimeEx(const Object & param, SQInteger hour, SQInteger minute, SQInteger second)
     {
-        Parameter(SQMOD_GET_CREATED(*this), param).SetTimeEx(hour, minute, second);
+        SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetTimeEx(hour, minute, second);
         // Allow chaining of operations
         return *this;
     }
@@ -2236,9 +2237,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a date-time value at the specified parameter index.
     */
-    Statement & SetDatetime(const Object & param, const Object & value)
+    SQLiteStatement & SetDatetime(const Object & param, const Object & value)
     {
-        Parameter(SQMOD_GET_CREATED(*this), param).SetDatetime(value.Cast< const Datetime & >());
+        SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetDatetime(value.Cast< const Datetime & >());
         // Allow chaining of operations
         return *this;
     }
@@ -2246,10 +2247,10 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a date-time value at the specified parameter index.
     */
-    Statement & SetDatetimeEx(const Object & param, SQInteger year, SQInteger month, SQInteger day,
+    SQLiteStatement & SetDatetimeEx(const Object & param, SQInteger year, SQInteger month, SQInteger day,
                                     SQInteger hour, SQInteger minute, SQInteger second)
     {
-        Parameter(SQMOD_GET_CREATED(*this), param).SetDatetimeEx(year, month, day, hour, minute, second);
+        SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetDatetimeEx(year, month, day, hour, minute, second);
         // Allow chaining of operations
         return *this;
     }
@@ -2257,9 +2258,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the current timestamp at the specified parameter index.
     */
-    Statement & SetNow(const Object & param)
+    SQLiteStatement & SetNow(const Object & param)
     {
-        Parameter(SQMOD_GET_CREATED(*this), param).SetNow();
+        SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetNow();
         // Allow chaining of operations
         return *this;
     }
@@ -2267,9 +2268,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a null value at the specified parameter index.
     */
-    Statement & SetNull(const Object & param)
+    SQLiteStatement & SetNull(const Object & param)
     {
-        Parameter(SQMOD_GET_CREATED(*this), param).SetNull();
+        SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetNull();
         // Allow chaining of operations
         return *this;
     }
@@ -2277,19 +2278,19 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the values from an array starting at the specified index.
     */
-    Statement & SetArray(Int32 idx, const Array & arr);
+    SQLiteStatement & SetArray(Int32 idx, const Array & arr);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind the values from an associative container.
     */
-    Statement & SetTable(const Table & tbl);
+    SQLiteStatement & SetTable(const Table & tbl);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the column with the specified name or index.
     */
     Object GetColumn(const Object & column) const
     {
-        return Object(new Column(m_Handle, column));
+        return Object(new SQLiteColumn(m_Handle, column));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2297,7 +2298,7 @@ public:
     */
     Object GetValue(const Object & column) const
     {
-        return Column(SQMOD_GET_CREATED(*this), column).GetValue();
+        return SQLiteColumn(SQMOD_GET_CREATED(*this), column).GetValue();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2305,7 +2306,7 @@ public:
     */
     Object GetNumber(const Object & column) const
     {
-        return Column(SQMOD_GET_CREATED(*this), column).GetNumber();
+        return SQLiteColumn(SQMOD_GET_CREATED(*this), column).GetNumber();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2313,7 +2314,7 @@ public:
     */
     SQInteger GetInteger(const Object & column) const
     {
-        return Column(SQMOD_GET_CREATED(*this), column).GetInteger();
+        return SQLiteColumn(SQMOD_GET_CREATED(*this), column).GetInteger();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2321,7 +2322,7 @@ public:
     */
     SQFloat GetFloat(const Object & column) const
     {
-        return Column(SQMOD_GET_CREATED(*this), column).GetFloat();
+        return SQLiteColumn(SQMOD_GET_CREATED(*this), column).GetFloat();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2329,7 +2330,7 @@ public:
     */
     Object GetLong(const Object & column) const
     {
-        return Column(SQMOD_GET_CREATED(*this), column).GetLong();
+        return SQLiteColumn(SQMOD_GET_CREATED(*this), column).GetLong();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2337,7 +2338,7 @@ public:
     */
     Object GetString(const Object & column) const
     {
-        return Column(SQMOD_GET_CREATED(*this), column).GetString();
+        return SQLiteColumn(SQMOD_GET_CREATED(*this), column).GetString();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2345,7 +2346,7 @@ public:
     */
     bool GetBoolean(const Object & column) const
     {
-        return Column(SQMOD_GET_CREATED(*this), column).GetBoolean();
+        return SQLiteColumn(SQMOD_GET_CREATED(*this), column).GetBoolean();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2353,7 +2354,7 @@ public:
     */
     SQChar GetChar(const Object & column) const
     {
-        return Column(SQMOD_GET_CREATED(*this), column).GetChar();
+        return SQLiteColumn(SQMOD_GET_CREATED(*this), column).GetChar();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2361,7 +2362,7 @@ public:
     */
     Object GetBuffer(const Object & column) const
     {
-        return Column(SQMOD_GET_CREATED(*this), column).GetBuffer();
+        return SQLiteColumn(SQMOD_GET_CREATED(*this), column).GetBuffer();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2369,7 +2370,7 @@ public:
     */
     Object GetBlob(const Object & column) const
     {
-        return Column(SQMOD_GET_CREATED(*this), column).GetBlob();
+        return SQLiteColumn(SQMOD_GET_CREATED(*this), column).GetBlob();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2430,44 +2431,44 @@ public:
 /* ------------------------------------------------------------------------------------------------
  * Implements the RAII pattern for database transactions.
 */
-class Transaction
+class SQLiteTransaction
 {
 public:
 
     /* --------------------------------------------------------------------------------------------
      * Construct by taking the handle from a connection.
     */
-    explicit Transaction(const Connection & db);
+    explicit SQLiteTransaction(const SQLiteConnection & db);
 
     /* --------------------------------------------------------------------------------------------
      * Construct using the direct connection handle.
     */
-    explicit Transaction(ConnRef db);
+    explicit SQLiteTransaction(ConnRef db);
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
     */
-    Transaction(const Transaction & o) = delete;
+    SQLiteTransaction(const SQLiteTransaction & o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor. (disabled)
     */
-    Transaction(Transaction && o) = delete;
+    SQLiteTransaction(SQLiteTransaction && o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~Transaction();
+    ~SQLiteTransaction();
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator. (disabled)
     */
-    Transaction & operator = (const Transaction & o) = delete;
+    SQLiteTransaction & operator = (const SQLiteTransaction & o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator. (disabled)
     */
-    Transaction & operator = (Transaction && o) = delete;
+    SQLiteTransaction & operator = (SQLiteTransaction && o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
