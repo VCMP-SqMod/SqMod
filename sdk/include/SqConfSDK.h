@@ -327,28 +327,17 @@ typedef std::basic_string< SQChar > String;
 #define SQMOD_DECL_UNUSED_VAR(t, n, v) t n = v; (void)(n)
 #define SQMOD_UNUSED_VAR(n) (void)(n)
 
-#define VALID_ENTITY(e) (e >= 0)
-#define INVALID_ENTITY(e) (e < 0)
+#define VALID_ENTITY(e) ((e) >= 0)
+#define INVALID_ENTITY(e) ((e) < 0)
 
-#define VALID_ENTITYEX(e, m) ((e >= 0) && (e < m))
-#define INVALID_ENTITYEX(e, m) ((e < 0) || (e >= m))
+#define VALID_ENTITYEX(e, m) (((e) >= 0) && ((e) < (m)))
+#define INVALID_ENTITYEX(e, m) (((e) < 0) || ((e) >= (m)))
 
-#define VALID_ENTITYGET(e) ((e >= 0) ? e : -1)
-#define VALID_ENTITYGETEX(e, m) ((e >= 0) && (e < m) ? e : -1)
+#define VALID_ENTITYGET(e) (((e) >= 0) ? (e) : -1)
+#define VALID_ENTITYGETEX(e, m) (((e) >= 0) && ((e) < (m)) ? (e) : -1)
 
-#define VALID_VEHCOL(e) ((e >= 0) && (e <= 94))
-#define INVALID_VEHCOL(e) ((e < 0) && (e > 94))
-
-/* ------------------------------------------------------------------------------------------------
- * COLOR PACKING
-*/
-
-#define SQMOD_PACK_RGB(r, g, b) static_cast< Uint32 >(r << 16 | g << 8 | b)
-#define SQMOD_PACK_RGBA(r, g, b, a) static_cast< Uint32 >(r << 24 | g << 16 | b << 8 | a)
-#define SQMOD_PACK_ARGB(a, r, g, b) static_cast< Uint32 >(a << 24 | r << 16 | g << 8 | b)
-
-#define SQMOD_PACK_RGB_TO_RGBA(r, g, b) static_cast< Uint32 >(r << 24 | g << 16 | b << 8 | 0)
-#define SQMOD_PACK_RGB_TO_ARGB(r, g, b) static_cast< Uint32 >(0 << 24 | r << 16 | g << 8 | b)
+#define VALID_VEHCOL(e) (((e) >= 0) && ((e) <= 94))
+#define INVALID_VEHCOL(e) (((e) < 0) && ((e) > 94))
 
 /* ------------------------------------------------------------------------------------------------
  * GENERAL RESPONSES
@@ -356,7 +345,7 @@ typedef std::basic_string< SQChar > String;
 
 #define SQMOD_SUCCESS     1
 #define SQMOD_FAILURE     0
-#define SQMOD_UNKNOWN     -1
+#define SQMOD_UNKNOWN     (-1)
 #define SQMOD_TRUE        1
 #define SQMOD_FALSE       0
 #define SQMOD_NULL        NULL
