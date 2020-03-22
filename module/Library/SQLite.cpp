@@ -21,6 +21,10 @@ SQMODE_DECL_TYPENAME(SQLiteColumnTypename, _SC("SQLiteColumn"))
 SQMODE_DECL_TYPENAME(SQLiteStatementTypename, _SC("SQLiteStatement"))
 SQMODE_DECL_TYPENAME(SQLiteTransactionTypename, _SC("SQLiteTransaction"))
 
+// ------------------------------------------------------------------------------------------------
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "hicpp-signed-bitwise"
+
 /* ------------------------------------------------------------------------------------------------
  * Helper class that represents an integral enumeration value. Used to reduce compilation times.
 */
@@ -367,6 +371,7 @@ static const SEnumElement g_MainEnum[] = {
     {_SC("WARNING"),                              SQLITE_WARNING},
     {_SC("WARNING_AUTOINDEX"),                    SQLITE_WARNING_AUTOINDEX}
 };
+#pragma clang diagnostic pop
 
 // ------------------------------------------------------------------------------------------------
 static inline bool IsDigitsOnly(CSStr str)
@@ -2864,9 +2869,9 @@ void Register_SQLite(HSQUIRRELVM vm)
 {
     Enumeration e(vm);
 
-    for (Uint32 n = 0; n < (sizeof(g_MainEnum) / sizeof(EnumElement)); ++n)
+    for (auto n : g_MainEnum)
     {
-        e.Const(g_MainEnum[n].Name, g_MainEnum[n].Value);
+        e.Const(n.Name, n.Value);
     }
 
     ConstTable(vm).Enum(_SC("SQLiteOpt"), e);

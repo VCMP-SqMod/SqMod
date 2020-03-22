@@ -12,6 +12,7 @@
 #include "Library/Chrono/Timestamp.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <utility>
 #include <vector>
 #include <map>
 
@@ -87,11 +88,6 @@ Object GetConnectionObj(const ConnRef & conn);
 Object GetStatementObj(const StmtRef & stmt);
 
 /* ------------------------------------------------------------------------------------------------
- * Generate a formatted query.
-*/
-CSStr QFmtStr(CSStr str, ...);
-
-/* ------------------------------------------------------------------------------------------------
  * Tests if a certain query string is empty.
 */
 bool IsQueryEmpty(CSStr str);
@@ -153,11 +149,11 @@ public:
 
     // --------------------------------------------------------------------------------------------
     typedef Type*           Pointer; // Pointer to the managed type.
-    typedef const Type*     ConstPtr; // Constant pointer to the managed type.
+    typedef const Type*     SQ_UNUSED_TYPEDEF(ConstPtr); // Constant pointer to the managed type.
 
     // --------------------------------------------------------------------------------------------
     typedef Type&           Reference; // Reference to the managed type.
-    typedef const Type&     ConstRef; // Constant reference to the managed type.
+    typedef const Type&     SQ_UNUSED_TYPEDEF(ConstRef); // Constant reference to the managed type.
 
     // --------------------------------------------------------------------------------------------
     typedef std::vector< String > QueryList; // Container used to queue queries.
@@ -268,11 +264,11 @@ public:
 
     // --------------------------------------------------------------------------------------------
     typedef Type*           Pointer; // Pointer to the managed type.
-    typedef const Type*     ConstPtr; // Constant pointer to the managed type.
+    typedef const Type*     SQ_UNUSED_TYPEDEF(ConstPtr); // Constant pointer to the managed type.
 
     // --------------------------------------------------------------------------------------------
     typedef Type&           Reference; // Reference to the managed type.
-    typedef const Type&     ConstRef; // Constant reference to the managed type.
+    typedef const Type&     SQ_UNUSED_TYPEDEF(ConstRef); // Constant reference to the managed type.
 
     // --------------------------------------------------------------------------------------------
     typedef std::map< String, int > Indexes; // Container used to identify column indexes.
@@ -303,7 +299,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    StmtHnd(ConnRef conn);
+    explicit StmtHnd(ConnRef conn);
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
@@ -947,8 +943,8 @@ public:
     /* --------------------------------------------------------------------------------------------
      * No parameter constructor.
     */
-    Parameter(const StmtRef & stmt)
-        : m_Index(0), m_Handle(stmt)
+    explicit Parameter(StmtRef stmt)
+        : m_Index(0), m_Handle(std::move(stmt))
     {
         /* ... */
     }
@@ -956,8 +952,8 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Index constructor.
     */
-    Parameter(const StmtRef & stmt, Int32 idx)
-        : m_Index(idx), m_Handle(stmt)
+    Parameter(StmtRef stmt, Int32 idx)
+        : m_Index(idx), m_Handle(std::move(stmt))
     {
         SQMOD_VALIDATE_PARAM(*this, m_Index);
     }
@@ -974,8 +970,8 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Dynamic constructor.
     */
-    Parameter(const StmtRef & stmt, const Object & param)
-        : m_Index(0), m_Handle(stmt)
+    Parameter(StmtRef stmt, const Object & param)
+        : m_Index(0), m_Handle(std::move(stmt))
     {
         if (!m_Handle)
         {
@@ -1024,7 +1020,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to boolean for use in boolean operations.
     */
-    operator bool () const
+    operator bool () const // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
     {
         return m_Index >= 0;
     }
@@ -1355,8 +1351,8 @@ public:
     /* --------------------------------------------------------------------------------------------
      * No column constructor.
     */
-    Column(const StmtRef & stmt)
-        : m_Index(-1), m_Handle(stmt)
+    explicit Column(StmtRef stmt)
+        : m_Index(-1), m_Handle(std::move(stmt))
     {
         /* ... */
     }
@@ -1364,8 +1360,8 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Index constructor.
     */
-    Column(const StmtRef & stmt, Int32 idx)
-        : m_Index(idx), m_Handle(stmt)
+    Column(StmtRef  stmt, Int32 idx)
+        : m_Index(idx), m_Handle(std::move(stmt))
     {
         SQMOD_VALIDATE_COLUMN(*this, m_Index);
     }
@@ -1382,8 +1378,8 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Dynamic constructor.
     */
-    Column(const StmtRef & stmt, const Object & column)
-        : m_Index(-1), m_Handle(stmt)
+    Column(StmtRef  stmt, const Object & column)
+        : m_Index(-1), m_Handle(std::move(stmt))
     {
         if (!m_Handle)
         {
@@ -1432,7 +1428,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to boolean for use in boolean operations.
     */
-    operator bool () const
+    operator bool () const // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
     {
         return m_Index >= 0;
     }
@@ -1678,8 +1674,8 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Direct handle constructor.
     */
-    Statement(const StmtRef & s)
-        : m_Handle(s)
+    explicit Statement(StmtRef  s)
+        : m_Handle(std::move(s))
     {
         /* ... */
     }
@@ -1723,7 +1719,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to the raw connection handle.
     */
-    operator sqlite3_stmt * ()
+    operator sqlite3_stmt * () // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
     {
         return m_Handle ? m_Handle->mPtr : nullptr;
     }
@@ -1731,7 +1727,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to the raw connection handle.
     */
-    operator sqlite3_stmt * () const
+    operator sqlite3_stmt * () const // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
     {
         return m_Handle ? m_Handle->mPtr : nullptr;
     }
@@ -2441,12 +2437,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Construct by taking the handle from a connection.
     */
-    Transaction(const Connection & db);
+    explicit Transaction(const Connection & db);
 
     /* --------------------------------------------------------------------------------------------
      * Construct using the direct connection handle.
     */
-    Transaction(ConnRef  db);
+    explicit Transaction(ConnRef db);
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
@@ -2479,14 +2475,6 @@ public:
     const String & ToString() const
     {
         return m_Handle ? m_Handle->mName : NullString();
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the associated statement handle.
-    */
-    const ConnRef & GetHandle() const
-    {
-        return m_Handle;
     }
 
     /* --------------------------------------------------------------------------------------------
