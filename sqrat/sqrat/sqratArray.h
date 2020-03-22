@@ -152,6 +152,7 @@ public:
     ///
     /// \param index The index in the array being assigned a function
     /// \param func  Squirrel function that is being placed in the Array
+    /// \param name  The name to associate with the function.
     ///
     /// \return The Array itself so the call can be chained
     ///
@@ -162,6 +163,31 @@ public:
         sq_newclosure(vm, func, 0);
         // Set the closure name (for debug purposes)
         if (name) sq_setnativeclosurename(vm, -1, name);
+        sq_set(vm, -3);
+        sq_pop(vm,1); // pop array
+        return *this;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Binds a raw Squirrel closure to the Array
+    ///
+    /// \param index The index in the array being assigned a function
+    /// \param func  Squirrel function that is being placed in the Array
+    /// \param name  The name to associate with the function.
+    /// \param pnum  Number of parameters the function expects.
+    /// \param mask  Types of parameters the function expects.
+    ///
+    /// \return The Array itself so the call can be chained
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ArrayBase& SquirrelFunc(const SQInteger index, SQFUNCTION func, SQInteger pnum, const SQChar * mask, const SQChar* name = nullptr) {
+        sq_pushobject(vm, GetObject());
+        sq_pushinteger(vm, index);
+        sq_newclosure(vm, func, 0);
+        // Set the closure name (for debug purposes)
+        if (name) sq_setnativeclosurename(vm, -1, name);
+        // Set parameter validation
+        sq_setparamscheck(vm, pnum, mask);
         sq_set(vm, -3);
         sq_pop(vm,1); // pop array
         return *this;

@@ -186,6 +186,30 @@ public:
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Binds a raw Squirrel closure to the Table
+    ///
+    /// \param name The key in the table being assigned a function
+    /// \param func Squirrel function that is being placed in the Table
+    /// \param pnum Number of parameters the function expects.
+    /// \param mask Types of parameters the function expects.
+    ///
+    /// \return The Table itself so the call can be chained
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    TableBase& SquirrelFunc(const SQChar* name, SQFUNCTION func, SQInteger pnum, const SQChar * mask) {
+        sq_pushobject(vm, GetObject());
+        sq_pushstring(vm, name, -1);
+        sq_newclosure(vm, func, 0);
+        // Set the closure name (for debug purposes)
+        sq_setnativeclosurename(vm, -1, name);
+        // Set parameter validation
+        sq_setparamscheck(vm, pnum, mask);
+        sq_newslot(vm, -3, false);
+        sq_pop(vm,1); // pop table
+        return *this;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Sets a key in the Table to a specific value
     ///
     /// \param name The key in the table being assigned a value
