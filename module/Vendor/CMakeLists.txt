@@ -6,3 +6,7 @@ add_subdirectory(PUGIXML)
 add_subdirectory(SQLite)
 add_subdirectory(TinyDir)
 add_subdirectory(Whirlpool)
+# Build our own mysql client on windows
+if(WIN32)
+    add_subdirectory(MDBC)
+endif(WIN32)
