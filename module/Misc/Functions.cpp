@@ -243,7 +243,7 @@ Uint32 GetServerFlags()
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetMaxPlayers(void)
+Int32 GetMaxPlayers()
 {
     return _Func->GetMaxPlayers();
 }
@@ -469,7 +469,7 @@ void SetWastedSettings(Uint32 dt, Uint32 ft, Float32 fis, Float32 fos,
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetTimeRate(void)
+Int32 GetTimeRate()
 {
     return _Func->GetTimeRate();
 }
@@ -481,7 +481,7 @@ void SetTimeRate(Uint32 rate)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetHour(void)
+Int32 GetHour()
 {
     return _Func->GetHour();
 }
@@ -493,7 +493,7 @@ void SetHour(Int32 hour)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetMinute(void)
+Int32 GetMinute()
 {
     return _Func->GetMinute();
 }
@@ -505,7 +505,7 @@ void SetMinute(Int32 minute)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetWeather(void)
+Int32 GetWeather()
 {
     return _Func->GetWeather();
 }
@@ -517,7 +517,7 @@ void SetWeather(Int32 weather)
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 GetGravity(void)
+Float32 GetGravity()
 {
     return _Func->GetGravity();
 }
@@ -529,7 +529,7 @@ void SetGravity(Float32 gravity)
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 GetGameSpeed(void)
+Float32 GetGameSpeed()
 {
     return _Func->GetGameSpeed();
 }
@@ -541,7 +541,7 @@ void SetGameSpeed(Float32 speed)
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 GetWaterLevel(void)
+Float32 GetWaterLevel()
 {
     return _Func->GetWaterLevel();
 }
@@ -553,7 +553,7 @@ void SetWaterLevel(Float32 level)
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 GetMaximumFlightAltitude(void)
+Float32 GetMaximumFlightAltitude()
 {
     return _Func->GetMaximumFlightAltitude();
 }
@@ -565,7 +565,7 @@ void SetMaximumFlightAltitude(Float32 height)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetKillCommandDelay(void)
+Int32 GetKillCommandDelay()
 {
     return _Func->GetKillCommandDelay();
 }
@@ -577,7 +577,7 @@ void SetKillCommandDelay(Int32 delay)
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 GetVehiclesForcedRespawnHeight(void)
+Float32 GetVehiclesForcedRespawnHeight()
 {
     return _Func->GetVehiclesForcedRespawnHeight();
 }
@@ -639,9 +639,9 @@ void PlaySoundForWorld(Int32 world, Int32 sound)
 void HideMapObject(Int32 model, const Vector3 & pos)
 {
     _Func->HideMapObject(model,
-        static_cast< Int16 >(std::floor(pos.x * 10.0f) + 0.5f),
-        static_cast< Int16 >(std::floor(pos.y * 10.0f) + 0.5f),
-        static_cast< Int16 >(std::floor(pos.z * 10.0f) + 0.5f)
+        static_cast< Int16 >(std::lround(std::floor(pos.x * 10.0f) + 0.5f)),
+        static_cast< Int16 >(std::lround(std::floor(pos.y * 10.0f) + 0.5f)),
+        static_cast< Int16 >(std::lround(std::floor(pos.z * 10.0f) + 0.5f))
     );
 }
 
@@ -649,9 +649,9 @@ void HideMapObject(Int32 model, const Vector3 & pos)
 void HideMapObjectEx(Int32 model, Float32 x, Float32 y, Float32 z)
 {
     _Func->HideMapObject(model,
-        static_cast< Int16 >(std::floor(x * 10.0f) + 0.5f),
-        static_cast< Int16 >(std::floor(y * 10.0f) + 0.5f),
-        static_cast< Int16 >(std::floor(z * 10.0f) + 0.5f)
+        static_cast< Int16 >(std::lround(std::floor(x * 10.0f) + 0.5f)),
+        static_cast< Int16 >(std::lround(std::floor(y * 10.0f) + 0.5f)),
+        static_cast< Int16 >(std::lround(std::floor(z * 10.0f) + 0.5f))
     );
 }
 
@@ -665,9 +665,9 @@ void HideMapObjectRaw(Int32 model, Int16 x, Int16 y, Int16 z)
 void ShowMapObject(Int32 model, const Vector3 & pos)
 {
     _Func->ShowMapObject(model,
-        static_cast< Int16 >(std::floor(pos.x * 10.0f) + 0.5f),
-        static_cast< Int16 >(std::floor(pos.y * 10.0f) + 0.5f),
-        static_cast< Int16 >(std::floor(pos.z * 10.0f) + 0.5f)
+        static_cast< Int16 >(std::lround(std::floor(pos.x * 10.0f) + 0.5f)),
+        static_cast< Int16 >(std::lround(std::floor(pos.y * 10.0f) + 0.5f)),
+        static_cast< Int16 >(std::lround(std::floor(pos.z * 10.0f) + 0.5f))
     );
 }
 
@@ -675,9 +675,9 @@ void ShowMapObject(Int32 model, const Vector3 & pos)
 void ShowMapObjectEx(Int32 model, Float32 x, Float32 y, Float32 z)
 {
     _Func->ShowMapObject(model,
-        static_cast< Int16 >(std::floor(x * 10.0f) + 0.5f),
-        static_cast< Int16 >(std::floor(y * 10.0f) + 0.5f),
-        static_cast< Int16 >(std::floor(z * 10.0f) + 0.5f)
+        static_cast< Int16 >(std::lround(std::floor(x * 10.0f) + 0.5f)),
+        static_cast< Int16 >(std::lround(std::floor(y * 10.0f) + 0.5f)),
+        static_cast< Int16 >(std::lround(std::floor(z * 10.0f) + 0.5f))
     );
 }
 

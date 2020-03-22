@@ -61,7 +61,7 @@ SQRESULT SqGrabPlayerMessageColor(HSQUIRRELVM vm, Int32 idx, Uint32 & color, Int
                         && SqCanBeInteger(vm, idx+2)
                         && SqCanBeInteger(vm, idx+3))
     {
-        color = SQMOD_PACK_RGBA(ConvTo< Uint8 >::From(PopStackInteger(vm, idx)),
+        color = SQMOD_PACK_RGBA(ConvTo< Uint8 >::From(PopStackInteger(vm, idx)), // NOLINT(hicpp-signed-bitwise)
                                 ConvTo< Uint8 >::From(PopStackInteger(vm, idx+1)),
                                 ConvTo< Uint8 >::From(PopStackInteger(vm, idx+2)),
                                 ConvTo< Uint8 >::From(PopStackInteger(vm, idx+3)));
@@ -73,7 +73,7 @@ SQRESULT SqGrabPlayerMessageColor(HSQUIRRELVM vm, Int32 idx, Uint32 & color, Int
                         && SqCanBeInteger(vm, idx+1)
                         && SqCanBeInteger(vm, idx+2))
     {
-        color = SQMOD_PACK_RGBA(ConvTo< Uint8 >::From(PopStackInteger(vm, idx)),
+        color = SQMOD_PACK_RGBA(ConvTo< Uint8 >::From(PopStackInteger(vm, idx)), // NOLINT(hicpp-signed-bitwise)
                                 ConvTo< Uint8 >::From(PopStackInteger(vm, idx+1)),
                                 ConvTo< Uint8 >::From(PopStackInteger(vm, idx+2)),
                                 0xFFu);
