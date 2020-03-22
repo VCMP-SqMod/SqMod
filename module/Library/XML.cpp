@@ -211,7 +211,7 @@ void Register_XML(HSQUIRRELVM vm)
 {
     Table xmlns(vm);
 
-    xmlns.Bind(_SC("XmlParseResult"), Class< XmlParseResult >(vm, XmlParseResultTypename::Str)
+    xmlns.Bind(_SC("ParseResult"), Class< XmlParseResult >(vm, XmlParseResultTypename::Str)
         // Constructors
         .Ctor()
         .Ctor< const XmlParseResult & >()
@@ -231,7 +231,7 @@ void Register_XML(HSQUIRRELVM vm)
         .Func(_SC("Check"), &XmlParseResult::Check)
     );
 
-    xmlns.Bind(_SC("XmlAttribute"), Class< XmlAttribute >(vm, XmlAttributeTypename::Str)
+    xmlns.Bind(_SC("Attribute"), Class< XmlAttribute >(vm, XmlAttributeTypename::Str)
         // Constructors
         .Ctor()
         .Ctor< const XmlAttribute & >()
@@ -276,7 +276,7 @@ void Register_XML(HSQUIRRELVM vm)
         .Func(_SC("SetBool"), &XmlAttribute::ApplyBool)
     );
 
-    xmlns.Bind(_SC("XmlText"), Class< XmlText >(vm, XmlTextTypename::Str)
+    xmlns.Bind(_SC("Text"), Class< XmlText >(vm, XmlTextTypename::Str)
         // Constructors
         .Ctor()
         .Ctor< const XmlText & >()
@@ -316,7 +316,7 @@ void Register_XML(HSQUIRRELVM vm)
         .Func(_SC("SetBool"), &XmlText::ApplyBool)
     );
 
-    xmlns.Bind(_SC("XmlNode"), Class< XmlNode >(vm, XmlNodeTypename::Str)
+    xmlns.Bind(_SC("Node"), Class< XmlNode >(vm, XmlNodeTypename::Str)
         // Constructors
         .Ctor()
         .Ctor< const XmlNode & >()
@@ -341,7 +341,7 @@ void Register_XML(HSQUIRRELVM vm)
         .Prop(_SC("PrevSibling"), &XmlNode::GetPrevSibling)
         .Prop(_SC("Parent"), &XmlNode::GetParent)
         .Prop(_SC("Root"), &XmlNode::GetRoot)
-        .Prop(_SC("XmlText"), &XmlNode::GetText)
+        .Prop(_SC("Text"), &XmlNode::GetText)
         .Prop(_SC("ChildValue"), &XmlNode::GetChildValue)
         // Member Methods
         .Overload< XmlParseResult (XmlNode::*)(CSStr) >(_SC("AppendBuffer"), &XmlNode::AppendBuffer)
@@ -392,7 +392,7 @@ void Register_XML(HSQUIRRELVM vm)
         .Func(_SC("FindElemByPath"), &XmlNode::FindElemByPath)
     );
 
-    xmlns.Bind(_SC("XmlDocument"), Class< XmlDocument, NoCopy< XmlDocument > >(vm, XmlDocumentTypename::Str)
+    xmlns.Bind(_SC("Document"), Class< XmlDocument, NoCopy< XmlDocument > >(vm, XmlDocumentTypename::Str)
         // Constructors
         .Ctor()
         // Core Meta-methods
@@ -402,7 +402,7 @@ void Register_XML(HSQUIRRELVM vm)
         // Properties
         .Prop(_SC("Valid"), &XmlDocument::IsValid)
         .Prop(_SC("References"), &XmlDocument::GetRefCount)
-        .Prop(_SC("XmlNode"), &XmlDocument::GetNode)
+        .Prop(_SC("Node"), &XmlDocument::GetNode)
         // Member Methods
         .Overload< void (XmlDocument::*)(void) > (_SC("Reset"), &XmlDocument::Reset)
         .Overload < void (XmlDocument::*)(const XmlDocument &) >(_SC("Reset"), &XmlDocument::Reset)
