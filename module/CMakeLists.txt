@@ -77,8 +77,13 @@ target_link_libraries(SqModule VCMP Squirrel Sqrat SqSDK)
 # Link to third-party libraries
 target_link_libraries(SqModule SimpleINI HashLib B64Lib AES256Lib WhirlpoolLib TinyDir PUGIXML SQLite MaxmindDB)
 # Link to mysql client library
-if(WIN32 AND ENABLE_MYSQL)
-	target_link_libraries(SqModule mariadbclient)
+if(ENABLE_MYSQL)
+	if(WIN32 OR MINGW)
+		target_link_libraries(SqModule mariadbclient)
+	else()
+		find_package(MySQL)
+		target_link_libraries(SqModule MySQL::MySQL)
+	endif()
 endif()
 #
 if(FORCE_32BIT_BIN)

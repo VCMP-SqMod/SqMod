@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(SqMod)
 
+# Tell CMake where to find our scripts
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+
 # Several plugin options
 option(BUILTIN_RUNTIMES "Include the MinGW runtime into the binary itself." ON)
 option(FORCE_32BIT_BIN "Create a 32-bit executable binary if the compiler defaults to 64-bit." OFF)
