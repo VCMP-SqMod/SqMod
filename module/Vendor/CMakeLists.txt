@@ -8,6 +8,6 @@ add_subdirectory(SQLite)
 add_subdirectory(TinyDir)
 add_subdirectory(Whirlpool)
 # Build our own mysql client on windows
-if(WIN32)
+if(WIN32 AND ENABLE_MYSQL)
     add_subdirectory(MDBC)
-endif(WIN32)
+endif()

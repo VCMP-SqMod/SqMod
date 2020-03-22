@@ -4,6 +4,7 @@ project(SqMod)
 # Several plugin options
 option(BUILTIN_RUNTIMES "Include the MinGW runtime into the binary itself." ON)
 option(FORCE_32BIT_BIN "Create a 32-bit executable binary if the compiler defaults to 64-bit." OFF)
+option(ENABLE_MYSQL "Enable the MySQL library." OFF)
 
 # Default to c++14 standard
 if(CMAKE_VERSION VERSION_LESS "3.1")
