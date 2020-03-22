@@ -41,16 +41,7 @@ add_library(SqModule MODULE
 	Library/IO.cpp Library/IO.hpp
 	Library/IO/File.cpp Library/IO/File.hpp
 	Library/IO/INI.cpp Library/IO/INI.hpp
-
 	Library/MySQL.cpp Library/MySQL.hpp
-	Library/MySQL/Account.cpp Library/MySQL/Account.hpp
-	Library/MySQL/Common.cpp Library/MySQL/Common.hpp
-	Library/MySQL/Connection.cpp Library/MySQL/Connection.hpp
-	Library/MySQL/Field.cpp Library/MySQL/Field.hpp
-	Library/MySQL/Parameter.cpp Library/MySQL/Parameter.hpp
-	Library/MySQL/ResultSet.cpp Library/MySQL/ResultSet.hpp
-	Library/MySQL/Statement.cpp Library/MySQL/Statement.hpp
-
 	Library/Numeric.cpp Library/Numeric.hpp
 	Library/Numeric/LongInt.cpp Library/Numeric/LongInt.hpp
 	Library/Numeric/Math.cpp Library/Numeric/Math.hpp
