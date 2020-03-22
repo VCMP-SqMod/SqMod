@@ -42,7 +42,6 @@ add_library(SqModule MODULE
 	Library/IO/File.cpp Library/IO/File.hpp
 	Library/IO/INI.cpp Library/IO/INI.hpp
 	Library/MMDB.cpp Library/MMDB.hpp
-	Library/MySQL.cpp Library/MySQL.hpp
 	Library/Numeric.cpp Library/Numeric.hpp
 	Library/Numeric/LongInt.cpp Library/Numeric/LongInt.hpp
 	Library/Numeric/Math.cpp Library/Numeric/Math.hpp
@@ -78,6 +77,9 @@ target_link_libraries(SqModule VCMP Squirrel Sqrat SqSDK)
 target_link_libraries(SqModule SimpleINI HashLib B64Lib AES256Lib WhirlpoolLib TinyDir PUGIXML SQLite MaxmindDB)
 # Link to mysql client library
 if(ENABLE_MYSQL)
+	# Include the implementation 
+	target_sources(SqModule PRIVATE Library/MySQL.cpp Library/MySQL.hpp)
+	# Use builting client on windows (for now)
 	if(WIN32 OR MINGW)
 		target_link_libraries(SqModule mariadbclient)
 	else()
@@ -85,17 +87,17 @@ if(ENABLE_MYSQL)
 		target_link_libraries(SqModule MySQL::MySQL)
 	endif()
 endif()
-#
+# Force 32-bit binaries when necessary
 if(FORCE_32BIT_BIN)
 	set_target_properties(SqModule PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
 endif()
-
+# Size of a pointer in bytes. To identify CPU architecture.
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 	target_compile_definitions(SqModule PRIVATE _SQ64)
 endif()
-
+# Don't prefix the module binary.
 set_target_properties(SqModule PROPERTIES PREFIX "")
-
+# Custmize module binary name/
 if(WIN32)
 	if(CMAKE_SIZEOF_VOID_P EQUAL 8 AND NOT FORCE_32BIT_BIN)
 		set_target_properties(SqModule PROPERTIES OUTPUT_NAME "mod_squirrel_64")
@@ -109,9 +111,9 @@ else(WIN32)
 		set_target_properties(SqModule PROPERTIES OUTPUT_NAME "mod_squirrel_32")
 	endif()
 endif(WIN32)
-
+# Include current directory in the search path
 target_include_directories(SqModule PRIVATE ${CMAKE_CURRENT_LIST_DIR})
-
-if(WIN32)
+# Link to windows libraryes if on windos
+if(WIN32 OR MINGW)
   target_link_libraries(SqModule wsock32 ws2_32)
 endif()
