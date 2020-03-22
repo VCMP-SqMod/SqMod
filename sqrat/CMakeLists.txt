@@ -1,0 +1,28 @@
+# Create the Sqrat library
+add_library(Sqrat STATIC sqrat.cpp sqrat.h
+	sqrat/sqratAllocator.h
+	sqrat/sqratArray.h
+	sqrat/sqratClass.h
+	sqrat/sqratConst.h
+	sqrat/sqratFunction.h
+	sqrat/sqratGlobalMethods.h
+	sqrat/sqratMemberMethods.h
+	sqrat/sqratObject.h
+	sqrat/sqratOverloadMethods.h
+	sqrat/sqratScript.h
+	sqrat/sqratTable.h
+	sqrat/sqratTypes.h
+	sqrat/sqratUtil.h
+)
+# Set library compiler options
+target_compile_definitions(Sqrat PUBLIC SCRAT_USE_EXCEPTIONS=1 SCRAT_USE_CXX11_OPTIMIZATIONS=1)
+# Set specific compiler options
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	#target_compile_options(Sqrat PRIVATE -w
+	#)
+endif()
+# Library includes
+target_include_directories(Sqrat PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(Sqrat PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
+# Link to required libraries
+target_link_libraries(Sqrat PUBLIC Squirrel)

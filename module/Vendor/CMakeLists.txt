@@ -1,0 +1,13 @@
+add_subdirectory(SimpleIni)
+add_subdirectory(AES256)
+add_subdirectory(B64)
+add_subdirectory(Hash)
+add_subdirectory(MaxmindDB)
+add_subdirectory(PUGIXML)
+add_subdirectory(SQLite)
+add_subdirectory(TinyDir)
+add_subdirectory(Whirlpool)
+# Build our own mysql client on windows
+if(WIN32 AND ENABLE_MYSQL)
+    add_subdirectory(MDBC)
+endif()
