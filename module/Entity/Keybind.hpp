@@ -34,7 +34,7 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    CKeybind(Int32 id);
+    explicit CKeybind(Int32 id);
 
 public:
 
@@ -52,11 +52,6 @@ public:
      * Move constructor. (disabled)
     */
     CKeybind(CKeybind &&) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~CKeybind();
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator. (disabled)

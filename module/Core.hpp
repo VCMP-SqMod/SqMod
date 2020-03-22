@@ -1266,7 +1266,7 @@ public:
     void EmitVehicleTyreStatus(Int32 vehicle_id, Int32 tyre, Int32 old_status, Int32 new_status);
     void EmitVehicleDamageData(Int32 vehicle_id, Uint32 old_data, Uint32 new_data);
     void EmitVehicleRadio(Int32 vehicle_id, Int32 old_radio, Int32 new_radio);
-    void EmitVehicleHandlingRule(Int32 vehicle_id, Int32 rule, Float32 old_data, Float32 new_data);
+    void EmitVehicleHandlingRule(Int32 vehicle_id, Int32 rule, SQFloat old_data, SQFloat new_data);
     void EmitVehicleEnterArea(Int32 player_id, LightObj & area_obj);
     void EmitVehicleLeaveArea(Int32 player_id, LightObj & area_obj);
     void EmitServerOption(Int32 option, bool value, Int32 header, LightObj & payload);

@@ -43,12 +43,6 @@ CObject::CObject(Int32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-CObject::~CObject()
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
 const String & CObject::ToString() const
 {
     return m_Tag;
@@ -65,7 +59,7 @@ void CObject::SetTag(StackStrF & tag)
 {
     if (tag.mLen > 0)
     {
-        m_Tag.assign(tag.mPtr, tag.mLen);
+        m_Tag.assign(tag.mPtr, static_cast< size_t >(tag.mLen));
     }
     else
     {
@@ -407,7 +401,7 @@ void CObject::SetShotReport(bool toggle)
         return;
     }
     // Avoid property unwind from a recursive call
-    _Func->SetObjectShotReportEnabled(m_ID, toggle);
+    _Func->SetObjectShotReportEnabled(m_ID, static_cast< uint8_t >(toggle));
     // Avoid infinite recursive event loops
     if (!(m_CircularLocks & OBJECTCL_EMIT_OBJECT_REPORT))
     {
@@ -440,7 +434,7 @@ void CObject::SetTouchedReport(bool toggle)
         return;
     }
     // Avoid property unwind from a recursive call
-    _Func->SetObjectTouchedReportEnabled(m_ID, toggle);
+    _Func->SetObjectTouchedReportEnabled(m_ID, static_cast< uint8_t >(toggle));
     // Avoid infinite recursive event loops
     if (!(m_CircularLocks & OBJECTCL_EMIT_OBJECT_REPORT))
     {
@@ -867,7 +861,10 @@ static LightObj & Object_Create(Int32 model, Int32 world, const Vector3 & pos, I
 }
 
 // ================================================================================================
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_CObject(HSQUIRRELVM vm)
+#pragma clang diagnostic pop
 {
     RootTable(vm).Bind(Typename::Str,
         Class< CObject, NoConstructor< CObject > >(vm, Typename::Str)

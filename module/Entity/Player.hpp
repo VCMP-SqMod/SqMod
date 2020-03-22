@@ -12,16 +12,16 @@ namespace SqMod {
 */
 enum PlayerCircularLocks
 {
-    PLAYERCL_EMIT_PLAYER_OPTION          = (1 << 0),
-    PLAYERCL_EMIT_PLAYER_ADMIN           = (1 << 1),
-    PLAYERCL_EMIT_PLAYER_WORLD           = (1 << 2),
-    PLAYERCL_EMIT_PLAYER_TEAM            = (1 << 3),
-    PLAYERCL_EMIT_PLAYER_SKIN            = (1 << 4),
-    PLAYERCL_EMIT_PLAYER_MONEY           = (1 << 5),
-    PLAYERCL_EMIT_PLAYER_SCORE           = (1 << 6),
-    PLAYERCL_EMIT_PLAYER_WANTED_LEVEL    = (1 << 7),
-    PLAYERCL_EMIT_PLAYER_IMMUNITY        = (1 << 8),
-    PLAYERCL_EMIT_PLAYER_ALPHA           = (1 << 9)
+    PLAYERCL_EMIT_PLAYER_OPTION          = (1u << 0u),
+    PLAYERCL_EMIT_PLAYER_ADMIN           = (1u << 1u),
+    PLAYERCL_EMIT_PLAYER_WORLD           = (1u << 2u),
+    PLAYERCL_EMIT_PLAYER_TEAM            = (1u << 3u),
+    PLAYERCL_EMIT_PLAYER_SKIN            = (1u << 4u),
+    PLAYERCL_EMIT_PLAYER_MONEY           = (1u << 5u),
+    PLAYERCL_EMIT_PLAYER_SCORE           = (1u << 6u),
+    PLAYERCL_EMIT_PLAYER_WANTED_LEVEL    = (1u << 7u),
+    PLAYERCL_EMIT_PLAYER_IMMUNITY        = (1u << 8u),
+    PLAYERCL_EMIT_PLAYER_ALPHA           = (1u << 9u)
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -65,7 +65,7 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    CPlayer(Int32 id);
+    explicit CPlayer(Int32 id);
 
 public:
 
@@ -136,11 +136,6 @@ public:
      * Move constructor. (disabled)
     */
     CPlayer(CPlayer &&) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~CPlayer();
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator. (disabled)
@@ -467,7 +462,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the frames per second of the managed player entity.
     */
-    Float32 GetFPS() const;
+    SQFloat GetFPS() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the current health of the managed player entity.

@@ -36,12 +36,6 @@ CPickup::CPickup(Int32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-CPickup::~CPickup()
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
 const String & CPickup::ToString() const
 {
     return m_Tag;
@@ -58,7 +52,7 @@ void CPickup::SetTag(StackStrF & tag)
 {
     if (tag.mLen > 0)
     {
-        m_Tag.assign(tag.mPtr, tag.mLen);
+        m_Tag.assign(tag.mPtr, static_cast< size_t >(tag.mLen));
     }
     else
     {
@@ -153,7 +147,7 @@ void CPickup::SetOption(Int32 option_id, bool toggle)
     const bool value = _Func->GetPickupOption(m_ID, static_cast< vcmpPickupOption >(option_id));
     // Attempt to modify the current value of the specified option
     if (_Func->SetPickupOption(m_ID, static_cast< vcmpPickupOption >(option_id),
-                                toggle) == vcmpErrorArgumentOutOfBounds)
+                               static_cast< uint8_t >(toggle)) == vcmpErrorArgumentOutOfBounds)
     {
         STHROWF("Invalid option identifier: %d", option_id);
     }
@@ -173,7 +167,7 @@ void CPickup::SetOptionEx(Int32 option_id, bool toggle, Int32 header, LightObj &
     const bool value = _Func->GetPickupOption(m_ID, static_cast< vcmpPickupOption >(option_id));
     // Attempt to modify the current value of the specified option
     if (_Func->SetPickupOption(m_ID, static_cast< vcmpPickupOption >(option_id),
-                                toggle) == vcmpErrorArgumentOutOfBounds)
+                               static_cast< uint8_t >(toggle)) == vcmpErrorArgumentOutOfBounds)
     {
         STHROWF("Invalid option identifier: %d", option_id);
     }
@@ -274,7 +268,7 @@ void CPickup::SetAutomatic(bool toggle)
         return;
     }
     // Avoid property unwind from a recursive call
-    _Func->SetPickupIsAutomatic(m_ID, toggle);
+    _Func->SetPickupIsAutomatic(m_ID, static_cast< uint8_t >(toggle));
     // Avoid infinite recursive event loops
     if (!(m_CircularLocks & PICKUPCL_EMIT_PICKUP_AUTOMATIC))
     {
@@ -307,7 +301,7 @@ void CPickup::SetAutoTimer(Int32 timer)
         return;
     }
     // Avoid property unwind from a recursive call
-    _Func->SetPickupAutoTimer(m_ID, timer);
+    _Func->SetPickupAutoTimer(m_ID, static_cast< uint32_t >(timer));
     // Avoid infinite recursive event loops
     if (!(m_CircularLocks & PICKUPCL_EMIT_PICKUP_AUTOTIMER))
     {
@@ -485,7 +479,10 @@ static LightObj & Pickup_Create(Int32 model, Int32 world, Int32 quantity, const 
 }
 
 // ================================================================================================
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_CPickup(HSQUIRRELVM vm)
+#pragma clang diagnostic pop
 {
     RootTable(vm).Bind(Typename::Str,
         Class< CPickup, NoConstructor< CPickup > >(vm, Typename::Str)

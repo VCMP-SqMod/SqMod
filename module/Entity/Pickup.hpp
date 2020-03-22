@@ -11,11 +11,11 @@ namespace SqMod {
 */
 enum PickupCircularLocks
 {
-    PICKUPCL_EMIT_PICKUP_OPTION     = (1 << 0),
-    PICKUPCL_EMIT_PICKUP_WORLD      = (1 << 1),
-    PICKUPCL_EMIT_PICKUP_ALPHA      = (1 << 2),
-    PICKUPCL_EMIT_PICKUP_AUTOMATIC  = (1 << 3),
-    PICKUPCL_EMIT_PICKUP_AUTOTIMER  = (1 << 4)
+    PICKUPCL_EMIT_PICKUP_OPTION     = (1u << 0u),
+    PICKUPCL_EMIT_PICKUP_WORLD      = (1u << 1u),
+    PICKUPCL_EMIT_PICKUP_ALPHA      = (1u << 2u),
+    PICKUPCL_EMIT_PICKUP_AUTOMATIC  = (1u << 3u),
+    PICKUPCL_EMIT_PICKUP_AUTOTIMER  = (1u << 4u)
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -51,7 +51,7 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    CPickup(Int32 id);
+    explicit CPickup(Int32 id);
 
 public:
 
@@ -69,11 +69,6 @@ public:
      * Move constructor. (disabled)
     */
     CPickup(CPickup &&) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~CPickup();
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator. (disabled)

@@ -34,12 +34,6 @@ CKeybind::CKeybind(Int32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-CKeybind::~CKeybind()
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
 const String & CKeybind::ToString() const
 {
     return m_Tag;
@@ -56,7 +50,7 @@ void CKeybind::SetTag(StackStrF & tag)
 {
     if (tag.mLen > 0)
     {
-        m_Tag.assign(tag.mPtr, tag.mLen);
+        m_Tag.assign(tag.mPtr, static_cast< size_t >(tag.mLen));
     }
     else
     {
@@ -149,7 +143,7 @@ bool CKeybind::IsRelease() const
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return Core::Get().GetKeybind(m_ID).mRelease;
+    return static_cast< bool >(Core::Get().GetKeybind(m_ID).mRelease);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -186,7 +180,10 @@ static SQInteger Keybind_UnusedSlot()
 }
 
 // ================================================================================================
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_CKeybind(HSQUIRRELVM vm)
+#pragma clang diagnostic pop
 {
     RootTable(vm).Bind(Typename::Str,
         Class< CKeybind, NoConstructor< CKeybind > >(vm, Typename::Str)

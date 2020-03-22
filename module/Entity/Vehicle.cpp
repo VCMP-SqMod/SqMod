@@ -39,12 +39,6 @@ CVehicle::CVehicle(Int32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-CVehicle::~CVehicle()
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
 const String & CVehicle::ToString() const
 {
     return m_Tag;
@@ -61,7 +55,7 @@ void CVehicle::SetTag(StackStrF & tag)
 {
     if (tag.mLen > 0)
     {
-        m_Tag.assign(tag.mPtr, tag.mLen);
+        m_Tag.assign(tag.mPtr, static_cast< size_t >(tag.mLen));
     }
     else
     {
@@ -156,7 +150,7 @@ void CVehicle::SetOption(Int32 option_id, bool toggle)
     const bool value = _Func->GetVehicleOption(m_ID, static_cast< vcmpVehicleOption >(option_id));
     // Attempt to modify the current value of the specified option
     if (_Func->SetVehicleOption(m_ID, static_cast< vcmpVehicleOption >(option_id),
-                                toggle) == vcmpErrorArgumentOutOfBounds)
+                                static_cast< uint8_t >(toggle)) == vcmpErrorArgumentOutOfBounds)
     {
         STHROWF("Invalid option identifier: %d", option_id);
     }
@@ -176,7 +170,7 @@ void CVehicle::SetOptionEx(Int32 option_id, bool toggle, Int32 header, LightObj 
     const bool value = _Func->GetVehicleOption(m_ID, static_cast< vcmpVehicleOption >(option_id));
     // Attempt to modify the current value of the specified option
     if (_Func->SetVehicleOption(m_ID, static_cast< vcmpVehicleOption >(option_id),
-                                toggle) == vcmpErrorArgumentOutOfBounds)
+                                static_cast< uint8_t >(toggle)) == vcmpErrorArgumentOutOfBounds)
     {
         STHROWF("Invalid option identifier: %d", option_id);
     }
@@ -328,7 +322,7 @@ void CVehicle::SetImmunity(Int32 flags)
     // Grab the current value for this property
     const Int32 current = _Func->GetVehicleImmunityFlags(m_ID);
     // Avoid property unwind from a recursive call
-    _Func->SetVehicleImmunityFlags(m_ID, flags);
+    _Func->SetVehicleImmunityFlags(m_ID, static_cast< uint32_t >(flags));
     // Avoid infinite recursive event loops
     if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_IMMUNITY))
     {
@@ -376,7 +370,7 @@ void CVehicle::SetPosition(const Vector3 & pos) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehiclePosition(m_ID, pos.x, pos.y, pos.z, false);
+    _Func->SetVehiclePosition(m_ID, pos.x, pos.y, pos.z, static_cast< uint8_t >(false));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -385,7 +379,7 @@ void CVehicle::SetPositionEx(const Vector3 & pos, bool empty) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehiclePosition(m_ID, pos.x, pos.y, pos.z, empty);
+    _Func->SetVehiclePosition(m_ID, pos.x, pos.y, pos.z, static_cast< uint8_t >(empty));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -394,7 +388,7 @@ void CVehicle::SetPositionEx(Float32 x, Float32 y, Float32 z) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehiclePosition(m_ID, x, y, z, false);
+    _Func->SetVehiclePosition(m_ID, x, y, z, static_cast< uint8_t >(false));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -403,7 +397,7 @@ void CVehicle::SetPositionEx(Float32 x, Float32 y, Float32 z, bool empty) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehiclePosition(m_ID, x, y, z, empty);
+    _Func->SetVehiclePosition(m_ID, x, y, z, static_cast< uint8_t >(empty));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -476,7 +470,7 @@ Vector3 CVehicle::GetSpeed() const
     // Create a default vector instance
     Vector3 vec;
     // Query the server for the values
-    _Func->GetVehicleSpeed(m_ID, &vec.x, &vec.y, &vec.z, false);
+    _Func->GetVehicleSpeed(m_ID, &vec.x, &vec.y, &vec.z, static_cast< uint8_t >(false));
     // Return the requested information
     return vec;
 }
@@ -487,7 +481,8 @@ void CVehicle::SetSpeed(const Vector3 & vel) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleSpeed(m_ID, vel.x, vel.y, vel.z, false, false);
+    _Func->SetVehicleSpeed(m_ID, vel.x, vel.y, vel.z,
+                           static_cast< uint8_t >(false), static_cast< uint8_t >(false));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -496,7 +491,7 @@ void CVehicle::SetSpeedEx(Float32 x, Float32 y, Float32 z) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleSpeed(m_ID, x, y, z, false, false);
+    _Func->SetVehicleSpeed(m_ID, x, y, z, static_cast< uint8_t >(false), static_cast< uint8_t >(false));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -505,7 +500,8 @@ void CVehicle::AddSpeed(const Vector3 & vel) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleSpeed(m_ID, vel.x, vel.y, vel.z, true, false);
+    _Func->SetVehicleSpeed(m_ID, vel.x, vel.y, vel.z,
+                           static_cast< uint8_t >(true), static_cast< uint8_t >(false));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -514,7 +510,7 @@ void CVehicle::AddSpeedEx(Float32 x, Float32 y, Float32 z) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleSpeed(m_ID, x, y, z, true, false);
+    _Func->SetVehicleSpeed(m_ID, x, y, z, static_cast< uint8_t >(true), static_cast< uint8_t >(false));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -525,7 +521,7 @@ Vector3 CVehicle::GetRelativeSpeed() const
     // Create a default vector instance
     Vector3 vec;
     // Query the server for the values
-    _Func->GetVehicleSpeed(m_ID, &vec.x, &vec.y, &vec.z, true);
+    _Func->GetVehicleSpeed(m_ID, &vec.x, &vec.y, &vec.z, static_cast< uint8_t >(true));
     // Return the requested information
     return vec;
 }
@@ -536,7 +532,8 @@ void CVehicle::SetRelativeSpeed(const Vector3 & vel) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleSpeed(m_ID, vel.x, vel.y, vel.z, false, true);
+    _Func->SetVehicleSpeed(m_ID, vel.x, vel.y, vel.z,
+                           static_cast< uint8_t >(false), static_cast< uint8_t >(true));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -545,7 +542,7 @@ void CVehicle::SetRelativeSpeedEx(Float32 x, Float32 y, Float32 z) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleSpeed(m_ID, x, y, z, false, true);
+    _Func->SetVehicleSpeed(m_ID, x, y, z, static_cast< uint8_t >(false), static_cast< uint8_t >(true));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -554,7 +551,8 @@ void CVehicle::AddRelativeSpeed(const Vector3 & vel) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleSpeed(m_ID, vel.x, vel.y, vel.z, true, true);
+    _Func->SetVehicleSpeed(m_ID, vel.x, vel.y, vel.z,
+                           static_cast< uint8_t >(true), static_cast< uint8_t >(true));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -563,7 +561,7 @@ void CVehicle::AddRelativeSpeedEx(Float32 x, Float32 y, Float32 z) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleSpeed(m_ID, x, y, z, true, true);
+    _Func->SetVehicleSpeed(m_ID, x, y, z, static_cast< uint8_t >(true), static_cast< uint8_t >(true));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -574,7 +572,7 @@ Vector3 CVehicle::GetTurnSpeed() const
     // Create a default vector instance
     Vector3 vec;
     // Query the server for the values
-    _Func->GetVehicleTurnSpeed(m_ID, &vec.x, &vec.y, &vec.z, false);
+    _Func->GetVehicleTurnSpeed(m_ID, &vec.x, &vec.y, &vec.z, static_cast< uint8_t >(false));
     // Return the requested information
     return vec;
 }
@@ -585,7 +583,8 @@ void CVehicle::SetTurnSpeed(const Vector3 & vel) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleTurnSpeed(m_ID, vel.x, vel.y, vel.z, false, false);
+    _Func->SetVehicleTurnSpeed(m_ID, vel.x, vel.y, vel.z,
+                               static_cast< uint8_t >(false), static_cast< uint8_t >(false));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -594,7 +593,8 @@ void CVehicle::SetTurnSpeedEx(Float32 x, Float32 y, Float32 z) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleTurnSpeed(m_ID, x, y, z, false, false);
+    _Func->SetVehicleTurnSpeed(m_ID, x, y, z, static_cast< uint8_t >(false),
+                               static_cast< uint8_t >(false));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -603,7 +603,8 @@ void CVehicle::AddTurnSpeed(const Vector3 & vel) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleTurnSpeed(m_ID, vel.x, vel.y, vel.z, true, false);
+    _Func->SetVehicleTurnSpeed(m_ID, vel.x, vel.y, vel.z,
+                               static_cast< uint8_t >(true), static_cast< uint8_t >(false));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -612,7 +613,8 @@ void CVehicle::AddTurnSpeedEx(Float32 x, Float32 y, Float32 z) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleTurnSpeed(m_ID, x, y, z, true, false);
+    _Func->SetVehicleTurnSpeed(m_ID, x, y, z, static_cast< uint8_t >(true),
+                               static_cast< uint8_t >(false));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -623,7 +625,7 @@ Vector3 CVehicle::GetRelativeTurnSpeed() const
     // Create a default vector instance
     Vector3 vec;
     // Query the server for the values
-    _Func->GetVehicleTurnSpeed(m_ID, &vec.x, &vec.y, &vec.z, true);
+    _Func->GetVehicleTurnSpeed(m_ID, &vec.x, &vec.y, &vec.z, static_cast< uint8_t >(true));
     // Return the requested information
     return vec;
 }
@@ -634,7 +636,8 @@ void CVehicle::SetRelativeTurnSpeed(const Vector3 & vel) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleTurnSpeed(m_ID, vel.x, vel.y, vel.z, false, true);
+    _Func->SetVehicleTurnSpeed(m_ID, vel.x, vel.y, vel.z,
+                               static_cast< uint8_t >(false), static_cast< uint8_t >(true));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -643,7 +646,8 @@ void CVehicle::SetRelativeTurnSpeedEx(Float32 x, Float32 y, Float32 z) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleTurnSpeed(m_ID, x, y, z, false, true);
+    _Func->SetVehicleTurnSpeed(m_ID, x, y, z, static_cast< uint8_t >(false),
+                               static_cast< uint8_t >(true));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -652,7 +656,8 @@ void CVehicle::AddRelativeTurnSpeed(const Vector3 & vel) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleTurnSpeed(m_ID, vel.x, vel.y, vel.z, true, true);
+    _Func->SetVehicleTurnSpeed(m_ID, vel.x, vel.y, vel.z,
+                               static_cast< uint8_t >(true), static_cast< uint8_t >(true));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -661,7 +666,8 @@ void CVehicle::AddRelativeTurnSpeedEx(Float32 x, Float32 y, Float32 z) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetVehicleTurnSpeed(m_ID, x, y, z, true, true);
+    _Func->SetVehicleTurnSpeed(m_ID, x, y, z, static_cast< uint8_t >(true),
+                               static_cast< uint8_t >(true));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1045,12 +1051,12 @@ bool CVehicle::ExistsHandlingRule(Int32 rule) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CVehicle::GetHandlingRule(Int32 rule) const
+SQFloat CVehicle::GetHandlingRule(Int32 rule) const
 {
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return _Func->GetInstHandlingRule(m_ID, rule);
+    return static_cast< SQFloat >(_Func->GetInstHandlingRule(m_ID, rule));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1059,7 +1065,7 @@ void CVehicle::SetHandlingRule(Int32 rule, Float32 data)
     // Validate the managed identifier
     Validate();
     // Grab the current value for this property
-    const Float32 current = _Func->GetInstHandlingRule(m_ID, rule);
+    const auto current = static_cast< SQFloat >(_Func->GetInstHandlingRule(m_ID, rule));
     // Avoid property unwind from a recursive call
     _Func->SetInstHandlingRule(m_ID, rule, data);
     // Avoid infinite recursive event loops
@@ -1078,7 +1084,7 @@ void CVehicle::ResetHandlingRule(Int32 rule)
     // Validate the managed identifier
     Validate();
     // Grab the current value for this property
-    const Float32 current = _Func->GetInstHandlingRule(m_ID, rule);
+    const auto current = static_cast< SQFloat >(_Func->GetInstHandlingRule(m_ID, rule));
     // Avoid property unwind from a recursive call
     _Func->ResetInstHandlingRule(m_ID, rule);
     // Avoid infinite recursive event loops
@@ -1087,7 +1093,7 @@ void CVehicle::ResetHandlingRule(Int32 rule)
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_HANDLINGRULE);
         // Now forward the event call
-        Core::Get().EmitVehicleHandlingRule(m_ID, rule, current, _Func->GetInstHandlingRule(m_ID, rule));
+        Core::Get().EmitVehicleHandlingRule(m_ID, rule, current, static_cast< SQFloat >(_Func->GetInstHandlingRule(m_ID, rule)));
     }
 }
 
@@ -1115,7 +1121,7 @@ void CVehicle::SetLightsData(Int32 data) const
     // Validate the managed identifier
     Validate();
     // Apply the requested data
-    _Func->SetVehicleLightsData(m_ID, data);
+    _Func->SetVehicleLightsData(m_ID, static_cast< uint32_t >(data));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1129,7 +1135,8 @@ bool CVehicle::Embark(CPlayer & player) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    return (_Func->PutPlayerInVehicle(player.GetID(), m_ID, 0, true, true)
+    return (_Func->PutPlayerInVehicle(player.GetID(), m_ID, 0,
+        static_cast< uint8_t >(true), static_cast< uint8_t >(true))
             != vcmpErrorRequestDenied);
 }
 
@@ -1144,8 +1151,8 @@ bool CVehicle::Embark(CPlayer & player, Int32 slot, bool allocate, bool warp) co
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    return (_Func->PutPlayerInVehicle(player.GetID(), m_ID, slot, allocate, warp)
-            != vcmpErrorRequestDenied);
+    return (_Func->PutPlayerInVehicle(player.GetID(), m_ID, slot,
+        static_cast< uint8_t >(allocate), static_cast< uint8_t >(warp)) != vcmpErrorRequestDenied);
 }
 #if SQMOD_SDK_LEAST(2, 1)
 // ------------------------------------------------------------------------------------------------
@@ -1190,7 +1197,7 @@ bool CVehicle::GetCollideAreas() const
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return (Core::Get().GetVehicle(m_ID).mFlags & ENF_AREA_TRACK);
+    return static_cast< bool >(Core::Get().GetVehicle(m_ID).mFlags & ENF_AREA_TRACK);
 }
 
 void CVehicle::SetCollideAreas(bool toggle) const
@@ -1391,7 +1398,7 @@ void CVehicle::SetPositionX(Float32 x) const
     // Retrieve the current values for unchanged components
     _Func->GetVehiclePosition(m_ID, &dummy, &y, &z);
     // Perform the requested operation
-    _Func->SetVehiclePosition(m_ID, x, y, z, false);
+    _Func->SetVehiclePosition(m_ID, x, y, z, static_cast< uint8_t >(false));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1404,7 +1411,7 @@ void CVehicle::SetPositionY(Float32 y) const
     // Retrieve the current values for unchanged components
     _Func->GetVehiclePosition(m_ID, &x, &dummy, &z);
     // Perform the requested operation
-    _Func->SetVehiclePosition(m_ID, x, y, z, false);
+    _Func->SetVehiclePosition(m_ID, x, y, z, static_cast< uint8_t >(false));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1417,7 +1424,7 @@ void CVehicle::SetPositionZ(Float32 z) const
     // Retrieve the current values for unchanged components
     _Func->GetVehiclePosition(m_ID, &x, &y, &dummy);
     // Perform the requested operation
-    _Func->SetVehiclePosition(m_ID, z, y, z, false);
+    _Func->SetVehiclePosition(m_ID, z, y, z, static_cast< uint8_t >(false));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1611,7 +1618,7 @@ Float32 CVehicle::GetSpeedX() const
     // Clear previous information, if any
     Float32 x = 0.0f, dummy;
     // Query the server for the requested component value
-    _Func->GetVehicleSpeed(m_ID, &x, &dummy, &dummy, false);
+    _Func->GetVehicleSpeed(m_ID, &x, &dummy, &dummy, static_cast< uint8_t >(false));
     // Return the requested information
     return x;
 }
@@ -1624,7 +1631,7 @@ Float32 CVehicle::GetSpeedY() const
     // Clear previous information, if any
     Float32 y = 0.0f, dummy;
     // Query the server for the requested component value
-    _Func->GetVehicleSpeed(m_ID, &dummy, &y, &dummy, false);
+    _Func->GetVehicleSpeed(m_ID, &dummy, &y, &dummy, static_cast< uint8_t >(false));
     // Return the requested information
     return y;
 }
@@ -1637,7 +1644,7 @@ Float32 CVehicle::GetSpeedZ() const
     // Clear previous information, if any
     Float32 z = 0.0f, dummy;
     // Query the server for the requested component value
-    _Func->GetVehicleSpeed(m_ID, &dummy, &dummy, &z, false);
+    _Func->GetVehicleSpeed(m_ID, &dummy, &dummy, &z, static_cast< uint8_t >(false));
     // Return the requested information
     return z;
 }
@@ -1650,9 +1657,9 @@ void CVehicle::SetSpeedX(Float32 x) const
     // Reserve some temporary floats to retrieve the missing components
     Float32 y, z, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetVehicleSpeed(m_ID, &dummy, &y, &z, false);
+    _Func->GetVehicleSpeed(m_ID, &dummy, &y, &z, static_cast< uint8_t >(false));
     // Perform the requested operation
-    _Func->SetVehicleSpeed(m_ID, x, y, z, false, false);
+    _Func->SetVehicleSpeed(m_ID, x, y, z, static_cast< uint8_t >(false), static_cast< uint8_t >(false));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1663,9 +1670,9 @@ void CVehicle::SetSpeedY(Float32 y) const
     // Reserve some temporary floats to retrieve the missing components
     Float32 x, z, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetVehicleSpeed(m_ID, &x, &dummy, &z, false);
+    _Func->GetVehicleSpeed(m_ID, &x, &dummy, &z, static_cast< uint8_t >(false));
     // Perform the requested operation
-    _Func->SetVehicleSpeed(m_ID, x, y, z, false, false);
+    _Func->SetVehicleSpeed(m_ID, x, y, z, static_cast< uint8_t >(false), static_cast< uint8_t >(false));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1676,9 +1683,9 @@ void CVehicle::SetSpeedZ(Float32 z) const
     // Reserve some temporary floats to retrieve the missing components
     Float32 x, y, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetVehicleSpeed(m_ID, &x, &y, &dummy, false);
+    _Func->GetVehicleSpeed(m_ID, &x, &y, &dummy, static_cast< uint8_t >(false));
     // Perform the requested operation
-    _Func->SetVehicleSpeed(m_ID, z, y, z, false, false);
+    _Func->SetVehicleSpeed(m_ID, z, y, z, static_cast< uint8_t >(false), static_cast< uint8_t >(false));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1689,7 +1696,7 @@ Float32 CVehicle::GetRelativeSpeedX() const
     // Clear previous information, if any
     Float32 x = 0.0f, dummy;
     // Query the server for the requested component value
-    _Func->GetVehicleSpeed(m_ID, &x, &dummy, &dummy, true);
+    _Func->GetVehicleSpeed(m_ID, &x, &dummy, &dummy, static_cast< uint8_t >(true));
     // Return the requested information
     return x;
 }
@@ -1702,7 +1709,7 @@ Float32 CVehicle::GetRelativeSpeedY() const
     // Clear previous information, if any
     Float32 y = 0.0f, dummy;
     // Query the server for the requested component value
-    _Func->GetVehicleSpeed(m_ID, &dummy, &y, &dummy, true);
+    _Func->GetVehicleSpeed(m_ID, &dummy, &y, &dummy, static_cast< uint8_t >(true));
     // Return the requested information
     return y;
 }
@@ -1715,7 +1722,7 @@ Float32 CVehicle::GetRelativeSpeedZ() const
     // Clear previous information, if any
     Float32 z = 0.0f, dummy;
     // Query the server for the requested component value
-    _Func->GetVehicleSpeed(m_ID, &dummy, &dummy, &z, true);
+    _Func->GetVehicleSpeed(m_ID, &dummy, &dummy, &z, static_cast< uint8_t >(true));
     // Return the requested information
     return z;
 }
@@ -1728,9 +1735,9 @@ void CVehicle::SetRelativeSpeedX(Float32 x) const
     // Reserve some temporary floats to retrieve the missing components
     Float32 y, z, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetVehicleSpeed(m_ID, &dummy, &y, &z, true);
+    _Func->GetVehicleSpeed(m_ID, &dummy, &y, &z, static_cast< uint8_t >(true));
     // Perform the requested operation
-    _Func->SetVehicleSpeed(m_ID, x, y, z, false, true);
+    _Func->SetVehicleSpeed(m_ID, x, y, z, static_cast< uint8_t >(false), static_cast< uint8_t >(true));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1741,9 +1748,9 @@ void CVehicle::SetRelativeSpeedY(Float32 y) const
     // Reserve some temporary floats to retrieve the missing components
     Float32 x, z, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetVehicleSpeed(m_ID, &x, &dummy, &z, true);
+    _Func->GetVehicleSpeed(m_ID, &x, &dummy, &z, static_cast< uint8_t >(true));
     // Perform the requested operation
-    _Func->SetVehicleSpeed(m_ID, x, y, z, false, true);
+    _Func->SetVehicleSpeed(m_ID, x, y, z, static_cast< uint8_t >(false), static_cast< uint8_t >(true));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1754,9 +1761,9 @@ void CVehicle::SetRelativeSpeedZ(Float32 z) const
     // Reserve some temporary floats to retrieve the missing components
     Float32 x, y, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetVehicleSpeed(m_ID, &x, &y, &dummy, true);
+    _Func->GetVehicleSpeed(m_ID, &x, &y, &dummy, static_cast< uint8_t >(true));
     // Perform the requested operation
-    _Func->SetVehicleSpeed(m_ID, z, y, z, false, true);
+    _Func->SetVehicleSpeed(m_ID, z, y, z, static_cast< uint8_t >(false), static_cast< uint8_t >(true));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1767,7 +1774,7 @@ Float32 CVehicle::GetTurnSpeedX() const
     // Clear previous information, if any
     Float32 x = 0.0f, dummy;
     // Query the server for the requested component value
-    _Func->GetVehicleTurnSpeed(m_ID, &x, &dummy, &dummy, false);
+    _Func->GetVehicleTurnSpeed(m_ID, &x, &dummy, &dummy, static_cast< uint8_t >(false));
     // Return the requested information
     return x;
 }
@@ -1780,7 +1787,7 @@ Float32 CVehicle::GetTurnSpeedY() const
     // Clear previous information, if any
     Float32 y = 0.0f, dummy;
     // Query the server for the requested component value
-    _Func->GetVehicleTurnSpeed(m_ID, &dummy, &y, &dummy, false);
+    _Func->GetVehicleTurnSpeed(m_ID, &dummy, &y, &dummy, static_cast< uint8_t >(false));
     // Return the requested information
     return y;
 }
@@ -1793,7 +1800,7 @@ Float32 CVehicle::GetTurnSpeedZ() const
     // Clear previous information, if any
     Float32 z = 0.0f, dummy;
     // Query the server for the requested component value
-    _Func->GetVehicleTurnSpeed(m_ID, &dummy, &dummy, &z, false);
+    _Func->GetVehicleTurnSpeed(m_ID, &dummy, &dummy, &z, static_cast< uint8_t >(false));
     // Return the requested information
     return z;
 }
@@ -1806,9 +1813,9 @@ void CVehicle::SetTurnSpeedX(Float32 x) const
     // Reserve some temporary floats to retrieve the missing components
     Float32 y, z, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetVehicleTurnSpeed(m_ID, &dummy, &y, &z, false);
+    _Func->GetVehicleTurnSpeed(m_ID, &dummy, &y, &z, static_cast< uint8_t >(false));
     // Perform the requested operation
-    _Func->SetVehicleTurnSpeed(m_ID, x, y, z, false, false);
+    _Func->SetVehicleTurnSpeed(m_ID, x, y, z, static_cast< uint8_t >(false), static_cast< uint8_t >(false));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1819,9 +1826,9 @@ void CVehicle::SetTurnSpeedY(Float32 y) const
     // Reserve some temporary floats to retrieve the missing components
     Float32 x, z, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetVehicleTurnSpeed(m_ID, &x, &dummy, &z, false);
+    _Func->GetVehicleTurnSpeed(m_ID, &x, &dummy, &z, static_cast< uint8_t >(false));
     // Perform the requested operation
-    _Func->SetVehicleTurnSpeed(m_ID, x, y, z, false, false);
+    _Func->SetVehicleTurnSpeed(m_ID, x, y, z, static_cast< uint8_t >(false), static_cast< uint8_t >(false));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1832,9 +1839,9 @@ void CVehicle::SetTurnSpeedZ(Float32 z) const
     // Reserve some temporary floats to retrieve the missing components
     Float32 x, y, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetVehicleTurnSpeed(m_ID, &x, &y, &dummy, false);
+    _Func->GetVehicleTurnSpeed(m_ID, &x, &y, &dummy, static_cast< uint8_t >(false));
     // Perform the requested operation
-    _Func->SetVehicleTurnSpeed(m_ID, z, y, z, false, false);
+    _Func->SetVehicleTurnSpeed(m_ID, z, y, z, static_cast< uint8_t >(false), static_cast< uint8_t >(false));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1845,7 +1852,7 @@ Float32 CVehicle::GetRelativeTurnSpeedX() const
     // Clear previous information, if any
     Float32 x = 0.0f, dummy;
     // Query the server for the requested component value
-    _Func->GetVehicleTurnSpeed(m_ID, &x, &dummy, &dummy, true);
+    _Func->GetVehicleTurnSpeed(m_ID, &x, &dummy, &dummy, static_cast< uint8_t >(true));
     // Return the requested information
     return x;
 }
@@ -1858,7 +1865,7 @@ Float32 CVehicle::GetRelativeTurnSpeedY() const
     // Clear previous information, if any
     Float32 y = 0.0f, dummy;
     // Query the server for the requested component value
-    _Func->GetVehicleTurnSpeed(m_ID, &dummy, &y, &dummy, true);
+    _Func->GetVehicleTurnSpeed(m_ID, &dummy, &y, &dummy, static_cast< uint8_t >(true));
     // Return the requested information
     return y;
 }
@@ -1871,7 +1878,7 @@ Float32 CVehicle::GetRelativeTurnSpeedZ() const
     // Clear previous information, if any
     Float32 z = 0.0f, dummy;
     // Query the server for the requested component value
-    _Func->GetVehicleTurnSpeed(m_ID, &dummy, &dummy, &z, true);
+    _Func->GetVehicleTurnSpeed(m_ID, &dummy, &dummy, &z, static_cast< uint8_t >(true));
     // Return the requested information
     return z;
 }
@@ -1884,9 +1891,9 @@ void CVehicle::SetRelativeTurnSpeedX(Float32 x) const
     // Reserve some temporary floats to retrieve the missing components
     Float32 y, z, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetVehicleTurnSpeed(m_ID, &dummy, &y, &z, true);
+    _Func->GetVehicleTurnSpeed(m_ID, &dummy, &y, &z, static_cast< uint8_t >(true));
     // Perform the requested operation
-    _Func->SetVehicleTurnSpeed(m_ID, x, y, z, false, true);
+    _Func->SetVehicleTurnSpeed(m_ID, x, y, z, static_cast< uint8_t >(false), static_cast< uint8_t >(true));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1897,9 +1904,9 @@ void CVehicle::SetRelativeTurnSpeedY(Float32 y) const
     // Reserve some temporary floats to retrieve the missing components
     Float32 x, z, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetVehicleTurnSpeed(m_ID, &x, &dummy, &z, true);
+    _Func->GetVehicleTurnSpeed(m_ID, &x, &dummy, &z, static_cast< uint8_t >(true));
     // Perform the requested operation
-    _Func->SetVehicleTurnSpeed(m_ID, x, y, z, false, true);
+    _Func->SetVehicleTurnSpeed(m_ID, x, y, z, static_cast< uint8_t >(false), static_cast< uint8_t >(true));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1910,9 +1917,9 @@ void CVehicle::SetRelativeTurnSpeedZ(Float32 z) const
     // Reserve some temporary floats to retrieve the missing components
     Float32 x, y, dummy;
     // Retrieve the current values for unchanged components
-    _Func->GetVehicleTurnSpeed(m_ID, &x, &y, &dummy, true);
+    _Func->GetVehicleTurnSpeed(m_ID, &x, &y, &dummy, static_cast< uint8_t >(true));
     // Perform the requested operation
-    _Func->SetVehicleTurnSpeed(m_ID, z, y, z, false, true);
+    _Func->SetVehicleTurnSpeed(m_ID, z, y, z, static_cast< uint8_t >(false), static_cast< uint8_t >(true));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1946,7 +1953,10 @@ static LightObj & Vehicle_Create(Int32 model, Int32 world, const Vector3 & pos, 
 }
 
 // ================================================================================================
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_CVehicle(HSQUIRRELVM vm)
+#pragma clang diagnostic pop
 {
     RootTable(vm).Bind(Typename::Str,
         Class< CVehicle, NoConstructor< CVehicle > >(vm, Typename::Str)

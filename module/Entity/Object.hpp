@@ -11,9 +11,9 @@ namespace SqMod {
 */
 enum ObjectCircularLocks
 {
-    OBJECTCL_EMIT_OBJECT_WORLD  = (1 << 0),
-    OBJECTCL_EMIT_OBJECT_ALPHA  = (2 << 0),
-    OBJECTCL_EMIT_OBJECT_REPORT = (3 << 0)
+    OBJECTCL_EMIT_OBJECT_WORLD  = (1u << 0u),
+    OBJECTCL_EMIT_OBJECT_ALPHA  = (2u << 0u),
+    OBJECTCL_EMIT_OBJECT_REPORT = (3u << 0u)
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -49,7 +49,7 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    CObject(Int32 id);
+    explicit CObject(Int32 id);
 
 public:
 
@@ -85,11 +85,6 @@ public:
      * Move constructor. (disabled)
     */
     CObject(CObject &&) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~CObject();
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator. (disabled)

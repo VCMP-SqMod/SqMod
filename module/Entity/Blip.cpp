@@ -34,12 +34,6 @@ CBlip::CBlip(Int32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-CBlip::~CBlip()
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
 const String & CBlip::ToString() const
 {
     return m_Tag;
@@ -56,7 +50,7 @@ void CBlip::SetTag(StackStrF & tag)
 {
     if (tag.mLen > 0)
     {
-        m_Tag.assign(tag.mPtr, tag.mLen);
+        m_Tag.assign(tag.mPtr, static_cast< size_t >(tag.mLen));
     }
     else
     {
@@ -228,7 +222,7 @@ Int32 CBlip::GetColorA() const
 static LightObj & Blip_CreateEx(Int32 world, Float32 x, Float32 y, Float32 z, Int32 scale,
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a, Int32 sprid)
 {
-    return Core::Get().NewBlip(-1, world, x, y, z, scale, SQMOD_PACK_RGBA(r, g, b, a), sprid,
+    return Core::Get().NewBlip(-1, world, x, y, z, scale, SQMOD_PACK_RGBA(r, g, b, a), sprid, // NOLINT(hicpp-signed-bitwise)
                             SQMOD_CREATE_DEFAULT, NullLightObj());
 }
 
@@ -236,7 +230,7 @@ static LightObj & Blip_CreateEx(Int32 world, Float32 x, Float32 y, Float32 z, In
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a, Int32 sprid,
                             Int32 header, LightObj & payload)
 {
-    return Core::Get().NewBlip(-1, world, x, y, z, scale, SQMOD_PACK_RGBA(r, g, b, a), sprid,
+    return Core::Get().NewBlip(-1, world, x, y, z, scale, SQMOD_PACK_RGBA(r, g, b, a), sprid, // NOLINT(hicpp-signed-bitwise)
                             header, payload);
 }
 
@@ -244,7 +238,7 @@ static LightObj & Blip_CreateEx(Int32 world, Float32 x, Float32 y, Float32 z, In
 static LightObj & Blip_CreateEx(Int32 index, Int32 world, Float32 x, Float32 y, Float32 z,
                             Int32 scale, Uint8 r, Uint8 g, Uint8 b, Uint8 a, Int32 sprid)
 {
-    return Core::Get().NewBlip(index, world, x, y, z, scale, SQMOD_PACK_RGBA(r, g, b, a), sprid,
+    return Core::Get().NewBlip(index, world, x, y, z, scale, SQMOD_PACK_RGBA(r, g, b, a), sprid, // NOLINT(hicpp-signed-bitwise)
                             SQMOD_CREATE_DEFAULT, NullLightObj());
 }
 
@@ -252,7 +246,7 @@ static LightObj & Blip_CreateEx(Int32 index, Int32 world, Float32 x, Float32 y, 
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a, Int32 sprid,
                             Int32 header, LightObj & payload)
 {
-    return Core::Get().NewBlip(index, world, x, y, z, scale, SQMOD_PACK_RGBA(r, g, b, a), sprid,
+    return Core::Get().NewBlip(index, world, x, y, z, scale, SQMOD_PACK_RGBA(r, g, b, a), sprid, // NOLINT(hicpp-signed-bitwise)
                             header, payload);
 }
 
@@ -287,7 +281,10 @@ static LightObj & Blip_Create(Int32 index, Int32 world, const Vector3 & pos, Int
 }
 
 // ================================================================================================
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_CBlip(HSQUIRRELVM vm)
+#pragma clang diagnostic pop
 {
     RootTable(vm).Bind(Typename::Str,
         Class< CBlip, NoConstructor< CBlip > >(vm, Typename::Str)

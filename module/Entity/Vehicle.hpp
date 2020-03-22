@@ -11,14 +11,14 @@ namespace SqMod {
 */
 enum VehicleCircularLocks
 {
-    VEHICLECL_EMIT_VEHICLE_OPTION       = (1 << 0),
-    VEHICLECL_EMIT_VEHICLE_WORLD        = (1 << 1),
-    VEHICLECL_EMIT_VEHICLE_IMMUNITY     = (1 << 2),
-    VEHICLECL_EMIT_VEHICLE_PARTSTATUS   = (1 << 3),
-    VEHICLECL_EMIT_VEHICLE_TYRESTATUS   = (1 << 4),
-    VEHICLECL_EMIT_VEHICLE_DAMAGEDATA   = (1 << 5),
-    VEHICLECL_EMIT_VEHICLE_RADIO        = (1 << 6),
-    VEHICLECL_EMIT_VEHICLE_HANDLINGRULE = (1 << 7)
+    VEHICLECL_EMIT_VEHICLE_OPTION       = (1u << 0u),
+    VEHICLECL_EMIT_VEHICLE_WORLD        = (1u << 1u),
+    VEHICLECL_EMIT_VEHICLE_IMMUNITY     = (1u << 2u),
+    VEHICLECL_EMIT_VEHICLE_PARTSTATUS   = (1u << 3u),
+    VEHICLECL_EMIT_VEHICLE_TYRESTATUS   = (1u << 4u),
+    VEHICLECL_EMIT_VEHICLE_DAMAGEDATA   = (1u << 5u),
+    VEHICLECL_EMIT_VEHICLE_RADIO        = (1u << 6u),
+    VEHICLECL_EMIT_VEHICLE_HANDLINGRULE = (1u << 7u)
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -54,7 +54,7 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    CVehicle(Int32 id);
+    explicit CVehicle(Int32 id);
 
 public:
 
@@ -72,11 +72,6 @@ public:
      * Move constructor. (disabled)
     */
     CVehicle(CVehicle &&) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~CVehicle();
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator. (disabled)
@@ -584,7 +579,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the handling data of the managed vehicle entity.
     */
-    Float32 GetHandlingRule(Int32 rule) const;
+    SQFloat GetHandlingRule(Int32 rule) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the handling data of the managed vehicle entity.

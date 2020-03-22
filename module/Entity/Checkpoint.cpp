@@ -37,12 +37,6 @@ CCheckpoint::CCheckpoint(Int32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-CCheckpoint::~CCheckpoint()
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
 const String & CCheckpoint::ToString() const
 {
     return m_Tag;
@@ -59,7 +53,7 @@ void CCheckpoint::SetTag(StackStrF & tag)
 {
     if (tag.mLen > 0)
     {
-        m_Tag.assign(tag.mPtr, tag.mLen);
+        m_Tag.assign(tag.mPtr, static_cast< size_t >(tag.mLen));
     }
     else
     {
@@ -185,8 +179,8 @@ Color4 CCheckpoint::GetColor() const
     // Query the server for the color values
     _Func->GetCheckPointColour(m_ID, &r, &g, &b, &a);
     // Return the requested information
-    return Color4(ConvTo< Color4::Value >::From(r), ConvTo< Color4::Value >::From(g),
-                  ConvTo< Color4::Value >::From(b), ConvTo< Color4::Value >::From(a));
+    return {ConvTo< Color4::Value >::From(r), ConvTo< Color4::Value >::From(g),
+            ConvTo< Color4::Value >::From(b), ConvTo< Color4::Value >::From(a)};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -508,7 +502,10 @@ static LightObj & Checkpoint_Create(Int32 world, bool sphere, const Vector3 & po
 }
 
 // ================================================================================================
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_CCheckpoint(HSQUIRRELVM vm)
+#pragma clang diagnostic pop
 {
     RootTable(vm).Bind(Typename::Str,
         Class< CCheckpoint, NoConstructor< CCheckpoint > >(vm, Typename::Str)

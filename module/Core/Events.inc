@@ -1258,7 +1258,7 @@ void Core::EmitVehicleRadio(Int32 vehicle_id, Int32 old_radio, Int32 new_radio)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehicleHandlingRule(Int32 vehicle_id, Int32 rule, Float32 old_data, Float32 new_data)
+void Core::EmitVehicleHandlingRule(Int32 vehicle_id, Int32 rule, SQFloat old_data, SQFloat new_data)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::VehicleHandlingRule(%d, %d, %f, %f)", vehicle_id, rule, old_data, new_data)
     VehicleInst & _vehicle = m_Vehicles.at(static_cast< size_t >(vehicle_id));

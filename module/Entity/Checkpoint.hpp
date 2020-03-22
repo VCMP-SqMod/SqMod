@@ -11,8 +11,8 @@ namespace SqMod {
 */
 enum CheckpointCircularLocks
 {
-    CHECKPOINTCL_EMIT_CHECKPOINT_WORLD  = (1 << 0),
-    CHECKPOINTCL_EMIT_CHECKPOINT_RADIUS = (1 << 1)
+    CHECKPOINTCL_EMIT_CHECKPOINT_WORLD  = (1u << 0u),
+    CHECKPOINTCL_EMIT_CHECKPOINT_RADIUS = (1u << 1u)
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -48,7 +48,7 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    CCheckpoint(Int32 id);
+    explicit CCheckpoint(Int32 id);
 
 public:
 
@@ -66,11 +66,6 @@ public:
      * Move constructor. (disabled)
     */
     CCheckpoint(CCheckpoint &&) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~CCheckpoint();
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator. (disabled)
