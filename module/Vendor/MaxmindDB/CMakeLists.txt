@@ -27,6 +27,8 @@ add_library(MaxmindDB STATIC include/maxminddb_config.h.in
 	src/data-pool.h src/data-pool.c
 	src/maxminddb-compat-util.h
 )
+# Set C standard
+set_property(TARGET MaxmindDB PROPERTY C_STANDARD 99)
 # Configure include folders
 target_include_directories(MaxmindDB PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_include_directories(MaxmindDB PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
