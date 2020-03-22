@@ -19,15 +19,15 @@ namespace SqMod {
 */
 enum LogLvl
 {
-    LOGL_NIL = (1 << 0),
-    LOGL_DBG = (1 << 1),
-    LOGL_USR = (1 << 2),
-    LOGL_SCS = (1 << 3),
-    LOGL_INF = (1 << 4),
-    LOGL_WRN = (1 << 5),
-    LOGL_ERR = (1 << 6),
-    LOGL_FTL = (1 << 7),
-    LOGL_ANY = 0xFF
+    LOGL_NIL = (1u << 0u),
+    LOGL_DBG = (1u << 1u),
+    LOGL_USR = (1u << 2u),
+    LOGL_SCS = (1u << 3u),
+    LOGL_INF = (1u << 4u),
+    LOGL_WRN = (1u << 5u),
+    LOGL_ERR = (1u << 6u),
+    LOGL_FTL = (1u << 7u),
+    LOGL_ANY = 0xFFu
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -43,32 +43,12 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Logger();
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy constructor. (disabled)
-    */
-    Logger(const Logger & o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Move constructor. (disabled)
-    */
-    Logger(Logger && o) = delete;
+    Logger() noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
     ~Logger();
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator. (disabled)
-    */
-    Logger & operator = (const Logger & o) = delete;
-
-    /* --------------------------------------------------------------------------------------------
-     * Move assignment operator. (disabled)
-    */
-    Logger & operator = (Logger && o) = delete;
 
 private:
 
@@ -92,7 +72,7 @@ private:
     std::string m_Filename; // The name of the file where the logs are saved.
 
     // --------------------------------------------------------------------------------------------
-	Function m_LogCb[7]; //Callback to receive debug information instead of console.
+    Function m_LogCb[7]; //Callback to receive debug information instead of console.
 
 protected:
 
@@ -110,6 +90,26 @@ public:
     {
         return s_Inst;
     }
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    Logger(const Logger & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor. (disabled)
+    */
+    Logger(Logger && o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator. (disabled)
+    */
+    Logger & operator = (const Logger & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator. (disabled)
+    */
+    Logger & operator = (Logger && o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Flush buffered data and close the logging file.

@@ -59,7 +59,7 @@ void DoReload()
         return; // Don't even bother!
     }
     // Make sure reloading is disabled at the end of this function
-    const ReloadGuard rg;
+    const ReloadGuard rg();
     // Tell the central core to attempt to reload
     if (!Core::Get().Reload())
     {
@@ -80,7 +80,7 @@ void DoReload()
 #define SQMOD_RELOAD_CHECK(exp) if (exp) DoReload();
 
 // ------------------------------------------------------------------------------------------------
-static uint8_t OnServerInitialise(void)
+static uint8_t OnServerInitialise()
 {
     // Mark the initialization as successful by default
     const CoreState cs(SQMOD_SUCCESS);
@@ -125,10 +125,10 @@ struct CallbackUnbinder
 };
 
 // ------------------------------------------------------------------------------------------------
-static void OnServerShutdown(void)
+static void OnServerShutdown()
 {
     // The server still triggers callbacks and we deallocated everything!
-    const CallbackUnbinder cu;
+    const CallbackUnbinder cu();
     // Attempt to forward the event
     try
     {
@@ -507,6 +507,7 @@ static void OnPlayerActionChange(int32_t player_id, int32_t old_action, int32_t 
             case SQMOD_PLAYER_ACTION_EXITING_VEHICLE:
                 Core::Get().EmitActionDisembarking(player_id, old_action);
             break;
+            default: break;
         }
         SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerActionChange")
     }

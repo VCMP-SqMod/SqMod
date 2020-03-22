@@ -3,7 +3,6 @@
 #include "Logger.hpp"
 #include "Misc/Signal.hpp"
 #include "Misc/Areas.hpp"
-#include "Misc/Signal.hpp"
 #include "Base/Buffer.hpp"
 #include "Library/Utils/Buffer.hpp"
 
@@ -68,7 +67,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    ScriptLoader(CSimpleIniA & conf)
+    explicit ScriptLoader(CSimpleIniA & conf)
         : m_Config(conf)
     {
         /* ... */
@@ -137,7 +136,7 @@ public:
 Core Core::s_Inst;
 
 // ------------------------------------------------------------------------------------------------
-Core::Core()
+Core::Core() noexcept
     : m_State(0)
     , m_VM(nullptr)
     , m_Scripts()

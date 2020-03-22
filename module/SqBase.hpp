@@ -123,9 +123,9 @@
 /* ------------------------------------------------------------------------------------------------
  * VCMP SDK VERSION CHECK.
 */
-#define SQMOD_SDK_MATCH(MJR, MNR) ((PLUGIN_API_MAJOR == MJR) && (PLUGIN_API_MINOR == MNR))
-#define SQMOD_SDK_LEAST(MJR, MNR) ((PLUGIN_API_MAJOR >= MJR) && (PLUGIN_API_MINOR >= MNR))
-#define SQMOD_SDK_PRIOR(MJR, MNR) ((PLUGIN_API_MAJOR < MJR) && (PLUGIN_API_MINOR < MNR))
+#define SQMOD_SDK_MATCH(MJR, MNR) ((PLUGIN_API_MAJOR == (MJR)) && (PLUGIN_API_MINOR == (MNR)))
+#define SQMOD_SDK_LEAST(MJR, MNR) ((PLUGIN_API_MAJOR >= (MJR)) && (PLUGIN_API_MINOR >= (MNR)))
+#define SQMOD_SDK_PRIOR(MJR, MNR) ((PLUGIN_API_MAJOR < (MJR)) && (PLUGIN_API_MINOR < (MNR)))
 
 /* ------------------------------------------------------------------------------------------------
  * SQUIRREL FORWARD DECLARATIONS
@@ -436,9 +436,9 @@ enum EventType
 enum EntityFlags
 {
     ENF_DEFAULT     = (0),
-    ENF_OWNED       = (1 << 1),
-    ENF_LOCKED      = (1 << 2),
-    ENF_AREA_TRACK  = (1 << 3)
+    ENF_OWNED       = (1u << 1u),
+    ENF_LOCKED      = (1u << 2u),
+    ENF_AREA_TRACK  = (1u << 3u)
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -608,28 +608,28 @@ enum EntityType
 #define SQMOD_DECL_UNUSED_VAR(t, n, v) t n = v; (void)(n)
 #define SQMOD_UNUSED_VAR(n) (void)(n)
 
-#define VALID_ENTITY(e) (e >= 0)
-#define INVALID_ENTITY(e) (e < 0)
+#define VALID_ENTITY(e) ((e) >= 0)
+#define INVALID_ENTITY(e) ((e) < 0)
 
-#define VALID_ENTITYEX(e, m) ((e >= 0) && (e < m))
-#define INVALID_ENTITYEX(e, m) ((e < 0) || (e >= m))
+#define VALID_ENTITYEX(e, m) (((e) >= 0) && ((e) < (m)))
+#define INVALID_ENTITYEX(e, m) (((e) < 0) || ((e) >= (m)))
 
-#define VALID_ENTITYGET(e) ((e >= 0) ? e : -1)
-#define VALID_ENTITYGETEX(e, m) ((e >= 0) && (e < m) ? e : -1)
+#define VALID_ENTITYGET(e) (((e) >= 0) ? (e) : -1)
+#define VALID_ENTITYGETEX(e, m) (((e) >= 0) && ((e) < (m)) ? (e) : -1)
 
-#define VALID_VEHCOL(e) ((e >= 0) && (e <= 94))
-#define INVALID_VEHCOL(e) ((e < 0) && (e > 94))
+#define VALID_VEHCOL(e) (((e) >= 0) && ((e) <= 94))
+#define INVALID_VEHCOL(e) (((e) < 0) && ((e) > 94))
 
 /* ------------------------------------------------------------------------------------------------
  * COLOR PACKING
 */
 
-#define SQMOD_PACK_RGB(r, g, b) static_cast< Uint32 >(r << 16u | g << 8u | b)
-#define SQMOD_PACK_RGBA(r, g, b, a) static_cast< Uint32 >(r << 24u | g << 16u | b << 8u | a)
-#define SQMOD_PACK_ARGB(a, r, g, b) static_cast< Uint32 >(a << 24u | r << 16u | g << 8u | b)
+#define SQMOD_PACK_RGB(r, g, b) static_cast< Uint32 >((r) << 16u | (g) << 8u | (b))
+#define SQMOD_PACK_RGBA(r, g, b, a) static_cast< Uint32 >((r) << 24u | (g) << 16u | (b) << 8u | (a))
+#define SQMOD_PACK_ARGB(a, r, g, b) static_cast< Uint32 >((a) << 24u | (r) << 16u | (g) << 8u | (b))
 
-#define SQMOD_PACK_RGB_TO_RGBA(r, g, b) static_cast< Uint32 >(r << 24u | g << 16u | b << 8u | 0u)
-#define SQMOD_PACK_RGB_TO_ARGB(r, g, b) static_cast< Uint32 >(0u << 24u | r << 16u | g << 8u | b)
+#define SQMOD_PACK_RGB_TO_RGBA(r, g, b) static_cast< Uint32 >((r) << 24u | (g) << 16u | (b) << 8u | 0u)
+#define SQMOD_PACK_RGB_TO_ARGB(r, g, b) static_cast< Uint32 >(0u << 24u | (r) << 16u | (g) << 8u | (b))
 
 /* ------------------------------------------------------------------------------------------------
  * GENERAL RESPONSES
@@ -637,7 +637,7 @@ enum EntityType
 
 #define SQMOD_SUCCESS     1
 #define SQMOD_FAILURE     0
-#define SQMOD_UNKNOWN     -1
+#define SQMOD_UNKNOWN     (-1)
 #define SQMOD_TRUE        1
 #define SQMOD_FALSE       0
 #define SQMOD_NULL        NULL
@@ -676,18 +676,18 @@ enum EntityType
 */
 
 #define SQMOD_CREATE_DEFAULT    0
-#define SQMOD_CREATE_MANUAL     -3
-#define SQMOD_CREATE_POOL       -4
-#define SQMOD_CREATE_AUTOMATIC  -5
-#define SQMOD_CREATE_OVERWRITE  -6
-#define SQMOD_CREATE_IMPORT     -7
+#define SQMOD_CREATE_MANUAL     (-3)
+#define SQMOD_CREATE_POOL       (-4)
+#define SQMOD_CREATE_AUTOMATIC  (-5)
+#define SQMOD_CREATE_OVERWRITE  (-6)
+#define SQMOD_CREATE_IMPORT     (-7)
 
 #define SQMOD_DESTROY_DEFAULT   0
-#define SQMOD_DESTROY_MANUAL    -3
-#define SQMOD_DESTROY_POOL      -4
-#define SQMOD_DESTROY_AUTOMATIC -5
-#define SQMOD_DESTROY_OVERWRITE -6
-#define SQMOD_DESTROY_CLEANUP   -7
+#define SQMOD_DESTROY_MANUAL    (-3)
+#define SQMOD_DESTROY_POOL      (-4)
+#define SQMOD_DESTROY_AUTOMATIC (-5)
+#define SQMOD_DESTROY_OVERWRITE (-6)
+#define SQMOD_DESTROY_CLEANUP   (-7)
 
 /* ------------------------------------------------------------------------------------------------
  * MODEL ID LIMITS

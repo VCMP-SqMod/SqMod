@@ -232,6 +232,8 @@ void Core::EmitServerFrame(Float32 elapsed_time)
     //SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::ServerFrame")
 }
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "MemberFunctionCanBeStatic"
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPluginCommand(Uint32 command_identifier, CCStr message)
 {
@@ -245,6 +247,7 @@ void Core::EmitPluginCommand(Uint32 command_identifier, CCStr message)
     (void)message;
 #endif
 }
+#pragma clang diagnostic pop
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitIncomingConnection(CStr player_name, size_t name_buffer_size, CCStr user_password, CCStr ip_address)
@@ -1819,9 +1822,9 @@ void Core::EmitClientScriptData(Int32 player_id, const uint8_t * data, size_t si
         return;
     }
     // Allocate a buffer with the received size
-    Buffer b(size);
+    Buffer b(static_cast< Buffer::SzType >(size));
     // Replicate the data to the allocated buffer
-    b.Write(0, reinterpret_cast< Buffer::ConstPtr >(data), size);
+    b.Write(0, reinterpret_cast< Buffer::ConstPtr >(data), static_cast< Buffer::SzType >(size));
     // Prepare an object for the obtained buffer
     LightObj o;
     // Attempt to create the requested buffer

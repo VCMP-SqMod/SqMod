@@ -1,7 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Logger.hpp"
 #include "Core.hpp"
-#include "Base/Utility.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <ctime>
@@ -20,7 +19,8 @@
 
 // ------------------------------------------------------------------------------------------------
 namespace {
-
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "hicpp-signed-bitwise"
 /* ------------------------------------------------------------------------------------------------
  * Common windows colors.
 */
@@ -42,7 +42,7 @@ enum
     LC_LIGHT_MAGENTA    = FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_BLUE,
     LC_DARK_MAGENTA     = FOREGROUND_RED | FOREGROUND_BLUE
 };
-
+#pragma clang diagnostic pop
 /* ------------------------------------------------------------------------------------------------
  * Logging colors.
 */
@@ -209,7 +209,7 @@ static inline CCStr GetTimeStampStr()
 Logger Logger::s_Inst;
 
 // ------------------------------------------------------------------------------------------------
-Logger::Logger()
+Logger::Logger() noexcept
     : m_Buffer()
     , m_ConsoleLevels(LOGL_ANY)
     , m_LogFileLevels(~LOGL_DBG)
@@ -332,9 +332,9 @@ void Logger::Terminate()
 // ------------------------------------------------------------------------------------------------
 void Logger::Release()
 {
-    for (Uint8 i = 0; i < 7; ++i)
+    for (auto & f : m_LogCb)
     {
-        m_LogCb[i].ReleaseGently();
+        f.ReleaseGently();
     }
 }
 
@@ -362,7 +362,8 @@ SQBool Logger::ProcessCb(Uint8 level, bool sub)
     // Specify whether this is a sub message
     sq_pushbool(vm, static_cast< SQBool >(sub));
     // Make the function call and store the result
-    SQRESULT res = sq_call(vm, 3, true, ErrorHandling::IsEnabled());
+    SQRESULT res = sq_call(vm, 3, static_cast< SQBool >(true),
+                           static_cast< SQBool >(ErrorHandling::IsEnabled()));
     // Default to non greedy callback
     SQBool ret = SQFalse;
     // Did the function succeeded and is the returned value not null?
@@ -385,7 +386,7 @@ void Logger::Proccess(Uint8 level, bool sub)
         // Lock the logger to prevent a cyclic dependency
         m_CyclicLock = true;
         // Attempt to process the script callback first
-        const bool greedy = ProcessCb(level, sub);
+        const bool greedy = static_cast< bool >(ProcessCb(level, sub));
         // Unlock the logger after the callback was invoked
         m_CyclicLock = false;
         // Is the callback for this level greedy?
@@ -483,7 +484,7 @@ void Logger::Debug(CCStr fmt, va_list args)
             // Valid line of code?
             if (!code.empty())
             {
-                m_Buffer.WriteF(ret, "\n[\n=>Location: %s\n=>Line: %d\n=>Function: %s\n=>Code: %s\n]"
+                m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "\n[\n=>Location: %s\n=>Line: %d\n=>Function: %s\n=>Code: %s\n]"
                         , si.source, si.line, si.funcname ? si.funcname : _SC("unknown"), code.c_str());
                 fall_back = false; // No need to fall back to normal message!
             }
@@ -491,7 +492,7 @@ void Logger::Debug(CCStr fmt, va_list args)
         // Should the regular message be shown instead?
         if (fall_back)
         {
-            m_Buffer.WriteF(ret, "\n[\n=>Location: %s\n=>Line: %d\n=>Function: %s\n]"
+            m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "\n[\n=>Location: %s\n=>Line: %d\n=>Function: %s\n]"
                     , si.source ? si.source : _SC("unknown")
                     , si.line
                     , si.funcname ? si.funcname : _SC("unknown"));
@@ -499,7 +500,8 @@ void Logger::Debug(CCStr fmt, va_list args)
     }
     else
     {
-        m_Buffer.WriteF(ret, "\n[\n=>Location: unknown\n=>Line: unknown\n=>Function: unknown\n]");
+        m_Buffer.WriteF(
+          static_cast< Buffer::SzType >(ret), "\n[\n=>Location: unknown\n=>Line: unknown\n=>Function: unknown\n]");
     }
     // Process the message in the buffer
     Proccess(LOGL_ERR, true);
@@ -508,17 +510,17 @@ void Logger::Debug(CCStr fmt, va_list args)
     // Traceback the function call
     for (Int32 level = 1; SQ_SUCCEEDED(sq_stackinfos(vm, level, &si)); ++level)
     {
-        ret += m_Buffer.WriteF(ret, "=> [%d] %s (%d) [%s]\n", level
+        ret += m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "=> [%d] %s (%d) [%s]\n", level
                                     , si.source ? si.source : _SC("unknown")
                                     , si.line
                                     , si.funcname ? si.funcname : _SC("unknown"));
     }
     // End the function call traceback
-    m_Buffer.WriteF(ret, "]");
+    m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "]");
     // Process the message in the buffer
     Proccess(LOGL_INF, true);
     // Temporary variables to retrieve stack information
-    CSStr s_ = 0, name = 0;
+    CSStr s_ = nullptr, name = nullptr;
     SQInteger i_, seq = 0;
     SQFloat f_;
     SQUserPointer p_;
@@ -530,41 +532,47 @@ void Logger::Debug(CCStr fmt, va_list args)
     {
         seq = 0;
         // Display all locals in the current stack level
-        while((name = sq_getlocal(vm, level, seq)))
+        while((name = sq_getlocal(vm, static_cast< SQUnsignedInteger >(level), static_cast< SQUnsignedInteger >(seq))))
         {
             ++seq;
             switch(sq_gettype(vm, -1))
             {
                 case OT_NULL:
-                    ret += m_Buffer.WriteF(ret, "=> [%d] NULL [%s]\n", level, name);
+                    ret += m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "=> [%d] NULL [%s]\n", level, name);
                     break;
                 case OT_INTEGER:
                     sq_getinteger(vm, -1, &i_);
-                    ret += m_Buffer.WriteF(ret, "=> [%d] INTEGER [%s] with value: %" PRINT_INT_FMT "\n", level, name, i_);
+                    ret += m_Buffer.WriteF(
+                        static_cast< Buffer::SzType >(ret), "=> [%d] INTEGER [%s] with value: %" PRINT_INT_FMT "\n", level, name, i_);
                     break;
                 case OT_FLOAT:
                     sq_getfloat(vm, -1, &f_);
-                    ret += m_Buffer.WriteF(ret, "=> [%d] FLOAT [%s] with value: %f\n", level, name, f_);
+                    ret += m_Buffer.WriteF(
+                        static_cast< Buffer::SzType >(ret), "=> [%d] FLOAT [%s] with value: %f\n", level, name, f_);
                     break;
                 case OT_USERPOINTER:
                     sq_getuserpointer(vm, -1, &p_);
-                    ret += m_Buffer.WriteF(ret, "=> [%d] USERPOINTER [%s] pointing at: %p\n", level, name, p_);
+                    ret += m_Buffer.WriteF(
+                        static_cast< Buffer::SzType >(ret), "=> [%d] USERPOINTER [%s] pointing at: %p\n", level, name, p_);
                     break;
                 case OT_STRING:
                     sq_getstringandsize(vm, -1, &s_, &i_);
                     if (i_ > 0) {
-                        ret += m_Buffer.WriteF(ret, "=> [%d] STRING [%s] of %" PRINT_INT_FMT " characters: %.*s\n", level, name, i_, m_StringTruncate, s_);
+                        ret += m_Buffer.WriteF(
+                          static_cast< Buffer::SzType >(ret), "=> [%d] STRING [%s] of %" PRINT_INT_FMT " characters: %.*s\n", level, name, i_, m_StringTruncate, s_);
                     } else {
-                        ret += m_Buffer.WriteF(ret, "=> [%d] STRING [%s] empty\n", level, name);
+                        ret += m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "=> [%d] STRING [%s] empty\n", level, name);
                     }
                     break;
                 case OT_TABLE:
                     i_ = sq_getsize(vm, -1);
-                    ret += m_Buffer.WriteF(ret, "=> [%d] TABLE [%s] with %" PRINT_INT_FMT " elements\n", level, name, i_);
+                    ret += m_Buffer.WriteF(
+                        static_cast< Buffer::SzType >(ret), "=> [%d] TABLE [%s] with %" PRINT_INT_FMT " elements\n", level, name, i_);
                     break;
                 case OT_ARRAY:
                     i_ = sq_getsize(vm, -1);
-                    ret += m_Buffer.WriteF(ret, "=> [%d] ARRAY [%s] with %" PRINT_INT_FMT " elements\n", level, name, i_);
+                    ret += m_Buffer.WriteF(
+                        static_cast< Buffer::SzType >(ret), "=> [%d] ARRAY [%s] with %" PRINT_INT_FMT " elements\n", level, name, i_);
                     break;
                 case OT_CLOSURE:
                     s_ = _SC("@anonymous");
@@ -574,7 +582,7 @@ void Logger::Debug(CCStr fmt, va_list args)
                         }
                         sq_poptop(vm);
                     }
-                    ret += m_Buffer.WriteF(ret, "=> [%d] CLOSURE [%s] with name: %s\n", level, name, s_);
+                    ret += m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "=> [%d] CLOSURE [%s] with name: %s\n", level, name, s_);
                     break;
                 case OT_NATIVECLOSURE:
                     s_ = _SC("@unknown");
@@ -584,16 +592,17 @@ void Logger::Debug(CCStr fmt, va_list args)
                         }
                         sq_poptop(vm);
                     }
-                    ret += m_Buffer.WriteF(ret, "=> [%d] NATIVECLOSURE [%s] with name: %s\n", level, name, s_);
+                    ret += m_Buffer.WriteF(
+                        static_cast< Buffer::SzType >(ret), "=> [%d] NATIVECLOSURE [%s] with name: %s\n", level, name, s_);
                     break;
                 case OT_GENERATOR:
-                    ret += m_Buffer.WriteF(ret, "=> [%d] GENERATOR [%s]\n", level, name);
+                    ret += m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "=> [%d] GENERATOR [%s]\n", level, name);
                     break;
                 case OT_USERDATA:
-                    ret += m_Buffer.WriteF(ret, "=> [%d] USERDATA [%s]\n", level, name);
+                    ret += m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "=> [%d] USERDATA [%s]\n", level, name);
                     break;
                 case OT_THREAD:
-                    ret += m_Buffer.WriteF(ret, "=> [%d] THREAD [%s]\n", level, name);
+                    ret += m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "=> [%d] THREAD [%s]\n", level, name);
                     break;
                 case OT_CLASS:
                     // Brute force our way into getting the name of this class without blowing up
@@ -611,7 +620,7 @@ void Logger::Debug(CCStr fmt, va_list args)
                         // Pop the dummy instance
                         sq_poptop(vm);
                     }
-                    ret += m_Buffer.WriteF(ret, "=> [%d] CLASS [%s] of type: %s\n", level, name, s_);
+                    ret += m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "=> [%d] CLASS [%s] of type: %s\n", level, name, s_);
                     break;
                 case OT_INSTANCE:
                     s_ = _SC("@unknown");
@@ -621,7 +630,8 @@ void Logger::Debug(CCStr fmt, va_list args)
                         }
                         sq_poptop(vm);
                     }
-                    ret += m_Buffer.WriteF(ret, "=> [%d] INSTANCE [%s] of type: %s\n", level, name, s_);
+                    ret += m_Buffer.WriteF(
+                        static_cast< Buffer::SzType >(ret), "=> [%d] INSTANCE [%s] of type: %s\n", level, name, s_);
                     break;
                 case OT_WEAKREF:
                     s_ = _SC("@unknown");
@@ -638,21 +648,21 @@ void Logger::Debug(CCStr fmt, va_list args)
                         // Pop the referenced value
                         sq_poptop(vm);
                     }
-                    ret += m_Buffer.WriteF(ret, "=> [%d] WEAKREF [%s] of type: %s\n", level, name, s_);
+                    ret += m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "=> [%d] WEAKREF [%s] of type: %s\n", level, name, s_);
                     break;
                 case OT_BOOL:
                     sq_getinteger(vm, -1, &i_);
-                    ret += m_Buffer.WriteF(ret, "=> [%d] BOOL [%s] with value: %s\n", level, name, i_ ? _SC("true") : _SC("false"));
+                    ret += m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "=> [%d] BOOL [%s] with value: %s\n", level, name, i_ ? _SC("true") : _SC("false"));
                     break;
                 default:
-                    ret += m_Buffer.WriteF(ret, "=> [%d] UNKNOWN [%s]\n", level, name);
+                    ret += m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "=> [%d] UNKNOWN [%s]\n", level, name);
                 break;
             }
             sq_pop(vm, 1);
         }
     }
     // End the variables information
-    m_Buffer.WriteF(ret, "]");
+    m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "]");
     // Process the message in the buffer
     Proccess(LOGL_INF, true);
 }
@@ -723,7 +733,7 @@ SQMOD_CLOG(cLogSFtl, LOGL_FTL, true)
 // ------------------------------------------------------------------------------------------------
 template < Uint8 L, bool S > static SQInteger LogBasicMessage(HSQUIRRELVM vm)
 {
-    const Int32 top = sq_gettop(vm);
+    const auto top = sq_gettop(vm);
     // Was the message value specified?
     if (top <= 1)
     {
