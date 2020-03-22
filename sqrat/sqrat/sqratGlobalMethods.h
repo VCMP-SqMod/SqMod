@@ -101,6 +101,17 @@ template<> struct SqGlobalParamCheck<true> {
     }
 };
 
+template<bool> struct SqGlobalParamInspect {
+    static inline bool Invalid(SQInteger need, SQInteger have) {
+        return need != have;
+    }
+};
+template<> struct SqGlobalParamInspect<true> {
+    static inline bool Invalid(SQInteger need, SQInteger have) {
+        return need < (have - 1);
+    }
+};
+
 //
 // Squirrel Global Functions
 //

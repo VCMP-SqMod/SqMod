@@ -232,7 +232,7 @@ struct Function  {
     template<class R, class... Args> SharedPtr<R> Evaluate(Args &&... args) {
         static constexpr unsigned ARGC = sizeof...(Args) + 1; // + environment
         HSQUIRRELVM vm = DefaultVM::Get_();
-        SQInteger top = sq_gettop(vm);
+        const SQInteger top = sq_gettop(vm);
         // Push the environment followed by the function
         sq_pushobject(vm, mObj);
         sq_pushobject(vm, mEnv);
@@ -240,7 +240,8 @@ struct Function  {
 #if !defined (SCRAT_NO_ERROR_CHECKING)
         SQInteger nparams;
         SQInteger nfreevars;
-        if (SQ_SUCCEEDED(sq_getclosureinfo(vm, -2, &nparams, &nfreevars)) && (nparams != ARGC)) {
+        if (SQ_SUCCEEDED(sq_getclosureinfo(vm, -2, &nparams, &nfreevars)) &&
+            SqGlobalParamInspect< ArgFwd<Args...>::HASFMT >::Invalid(nparams, ARGC)) {
             sq_pop(vm, 2);
             SQTHROW(vm, _SC("wrong number of parameters"));
             return SharedPtr<R>();
@@ -271,7 +272,7 @@ struct Function  {
     void Execute(Args &&... args) {
         static constexpr unsigned ARGC = sizeof...(Args) + 1; // + environment
         HSQUIRRELVM vm = DefaultVM::Get_();
-        SQInteger top = sq_gettop(vm);
+        const SQInteger top = sq_gettop(vm);
         // Push the environment followed by the function
         sq_pushobject(vm, mObj);
         sq_pushobject(vm, mEnv);
@@ -279,7 +280,8 @@ struct Function  {
 #if !defined (SCRAT_NO_ERROR_CHECKING)
         SQInteger nparams;
         SQInteger nfreevars;
-        if (SQ_SUCCEEDED(sq_getclosureinfo(vm, -2, &nparams, &nfreevars)) && (nparams != ARGC)) {
+        if (SQ_SUCCEEDED(sq_getclosureinfo(vm, -2, &nparams, &nfreevars)) &&
+            SqGlobalParamInspect< ArgFwd<Args...>::HASFMT >::Invalid(nparams, ARGC)) {
             sq_pop(vm, 2);
             SQTHROW(vm, _SC("wrong number of parameters"));
             return;
