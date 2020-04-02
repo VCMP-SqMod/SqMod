@@ -348,7 +348,7 @@ void Register_Routine(HSQUIRRELVM vm)
         .Func(_SC("Terminate"), &Routine::Terminate)
         .Func(_SC("GetArgument"), &Routine::GetArgument)
         .Func(_SC("DropEnv"), &Routine::DropEnv)
-        .StaticFunc(_SC("ActiveCount"), &Routine::GetUsed)
+        .StaticFunc(_SC("UsedCount"), &Routine::GetUsed)
     );
     // Global functions
     RootTable(vm).SquirrelFunc(_SC("SqRoutine"), &Routine::Create);
