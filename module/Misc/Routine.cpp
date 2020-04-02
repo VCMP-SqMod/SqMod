@@ -11,7 +11,7 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQMODE_DECL_TYPENAME(Typename, _SC("SqRoutineBase"))
+SQMODE_DECL_TYPENAME(Typename, _SC("SqRoutineInstance"))
 
 // ------------------------------------------------------------------------------------------------
 Routine::Time       Routine::s_Last = 0;
@@ -348,6 +348,7 @@ void Register_Routine(HSQUIRRELVM vm)
         .Func(_SC("Terminate"), &Routine::Terminate)
         .Func(_SC("GetArgument"), &Routine::GetArgument)
         .Func(_SC("DropEnv"), &Routine::DropEnv)
+        .StaticFunc(_SC("ActiveCount"), &Routine::GetUsed)
     );
     // Global functions
     RootTable(vm).SquirrelFunc(_SC("SqRoutine"), &Routine::Create);
