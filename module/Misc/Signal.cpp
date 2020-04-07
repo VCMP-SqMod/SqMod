@@ -5,7 +5,7 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQMODE_DECL_TYPENAME(Typename, _SC("SqSignalImpl"))
+SQMODE_DECL_TYPENAME(Typename, _SC("SqSignalBase"))
 
 // ------------------------------------------------------------------------------------------------
 Signal::SignalPool  Signal::s_Signals;
