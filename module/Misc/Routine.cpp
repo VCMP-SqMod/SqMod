@@ -18,6 +18,7 @@ Routine::Time       Routine::s_Last = 0;
 Routine::Time       Routine::s_Prev = 0;
 Routine::Interval   Routine::s_Intervals[SQMOD_MAX_ROUTINES];
 Routine::Instance   Routine::s_Instances[SQMOD_MAX_ROUTINES];
+bool                Routine::s_Silenced = false;
 
 // ------------------------------------------------------------------------------------------------
 void Routine::Process()
@@ -57,6 +58,7 @@ void Routine::Process()
 void Routine::Initialize()
 {
     std::memset(s_Intervals, 0, sizeof(s_Intervals));
+    SetSilenced(!ErrorHandling::IsEnabled());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -349,6 +351,8 @@ void Register_Routine(HSQUIRRELVM vm)
         .Func(_SC("GetArgument"), &Routine::GetArgument)
         .Func(_SC("DropEnv"), &Routine::DropEnv)
         .StaticFunc(_SC("UsedCount"), &Routine::GetUsed)
+        .StaticFunc(_SC("AreSilenced"), &Routine::GetSilenced)
+        .StaticFunc(_SC("SetSilenced"), &Routine::SetSilenced)
     );
     // Global functions
     RootTable(vm).SquirrelFunc(_SC("SqRoutine"), &Routine::Create);

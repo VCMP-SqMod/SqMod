@@ -54,7 +54,7 @@ private:
             , mIterations(0)
             , mInterval(0)
             , mSuspended(false)
-            , mQuiet(ErrorHandling::IsEnabled())
+            , mQuiet(GetSilenced())
             , mEndure(false)
             , mArgc(0)
             , mArgv()
@@ -213,6 +213,7 @@ private:
     static Time         s_Prev; // Previous time point.
     static Interval     s_Intervals[SQMOD_MAX_ROUTINES]; // List of intervals to be processed.
     static Instance     s_Instances[SQMOD_MAX_ROUTINES]; // List of routines to be executed.
+    static bool         s_Silenced; // Error reporting independent from global setting.
 
 private:
 
@@ -638,6 +639,22 @@ public:
     void DropEnv()
     {
         GetValid().mEnv.Release();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * See if error reporting is enabled for all newlly created routines.
+    */
+    static bool GetSilenced()
+    {
+        return s_Silenced;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Set if error reporting should be enabled for all newlly created routines.
+    */
+    static void SetSilenced(bool toggle)
+    {
+        s_Silenced = toggle;
     }
 };
 
