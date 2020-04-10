@@ -545,17 +545,17 @@ public:
         const StackGuard sg(vm);
         sq_pushobject(vm,obj);
         sq_pushnull(vm);
-		SQRESULT res = SQ_OK;
+        SQRESULT res = SQ_OK;
         for(SQInteger i = 0; SQ_SUCCEEDED(sq_next(vm,-2)); ++i)
         {
-			res = func(vm, i);
+            res = func(vm, i);
             if (SQ_FAILED(res))
             {
                 break;
             }
             sq_pop(vm,2);
         }
-		return res;
+        return res;
     }
 
 protected:
