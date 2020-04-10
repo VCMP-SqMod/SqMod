@@ -2653,6 +2653,30 @@ Array ResultSet::GetFieldsArray() const
 }
 
 // ------------------------------------------------------------------------------------------------
+Array ResultSet::FetchFieldsArray(Array & fields) const
+{
+    SQMOD_VALIDATE_CREATED(*this);
+    // Is there even something to process?
+    if (!m_Handle->mFieldCount || fields.Length() == 0)
+    {
+        return Array(DefaultVM::Get(), 0);
+    }
+    // Create a field instance to insert as copy
+    Field field(m_Handle);
+    // Allocate an array with the same amount of elements as the number of fields
+    Array arr(DefaultVM::Get(), fields.Length());
+	// Iterate the specified fields array
+	fields.Foreach([&field, &arr](HSQUIRRELVM vm, SQInteger i) -> SQRESULT {
+        // Update the field index
+        field.SetIndex(Object(-1, vm));
+        // Insert a copy of the field instance into the array
+        arr.SetValue(i, field);
+	});
+    // Return the resulted array
+    return arr;
+}
+
+// ------------------------------------------------------------------------------------------------
 Table ResultSet::GetFieldsTable() const
 {
     SQMOD_VALIDATE_CREATED(*this);
@@ -2678,6 +2702,32 @@ Table ResultSet::GetFieldsTable() const
         tbl.SetValue((fields[n].name == nullptr) ? ToStrF("<field_%ld>", n) : fields[n].name, field);
     }
     // Return the resulted table
+    return tbl;
+}
+
+// ------------------------------------------------------------------------------------------------
+Table ResultSet::FetchFieldsTable(Array & fields) const
+{
+    SQMOD_VALIDATE_CREATED(*this);
+    // Is there even something to process?
+    if (!m_Handle->mFieldCount || fields.Length() == 0)
+    {
+        return Table();
+    }
+    // Create a field instance to insert as copy
+    Field field(m_Handle);
+    // Allocate a table to be populated with field instances
+    Table tbl(DefaultVM::Get(), fields.Length());
+    // Grab the array with field instances
+    const ResHnd::FieldType * pfields = m_Handle->mFields;
+	// Iterate the specified fields array
+	fields.Foreach([&field, &tbl, pfields](HSQUIRRELVM vm, SQInteger i) -> SQRESULT {
+        // Update the field index
+        field.SetIndex(Object(-1, vm));
+        // Insert a copy of the field instance into the table
+        tbl.SetValue((pfields[field.GetIndex()].name == nullptr) ? ToStrF("<field_%ld>", field.GetIndex()) : pfields[field.GetIndex()].name, field);
+	});
+    // Return the resulted array
     return tbl;
 }
 
@@ -3254,6 +3304,8 @@ void Register_MySQL(HSQUIRRELVM vm)
         .Func(_SC("GetString"), &ResultSet::GetString)
         .Func(_SC("GetBuffer"), &ResultSet::GetBuffer)
         .Func(_SC("GetBlob"), &ResultSet::GetBlob)
+        .Func(_SC("GetFieldsArray"), &ResultSet::FetchFieldsArray)
+        .Func(_SC("GetFieldsTable"), &ResultSet::FetchFieldsTable)
     );
 
     sqlns.Bind(_SC("Statement")

@@ -20,7 +20,7 @@ void Area::AddArray(const Sqrat::Array & a)
 {
     float values[2];
 
-    a.Foreach([this, &values, n = int(0)](HSQUIRRELVM vm) mutable -> bool {
+    a.Foreach([this, &values, n = int(0)](HSQUIRRELVM vm, SQInteger i) mutable -> SQRESULT {
         // Retrieve the type of the value
         const SQObjectType type = sq_gettype(vm, -1);
         // Are we dealing with a vector?
@@ -44,7 +44,7 @@ void Area::AddArray(const Sqrat::Array & a)
             }
         }
         // Ignore anything else
-        return true;
+        return SQ_OK;
     });
 }
 #pragma clang diagnostic pop

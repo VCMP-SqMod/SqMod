@@ -2083,9 +2083,19 @@ public:
     Array GetFieldsArray() const;
 
     /* --------------------------------------------------------------------------------------------
+     * Returns an array with wrapper instances for the specified fields in the managed result set.
+    */
+    Array FetchFieldsArray(Array & fields) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Returns a table with wrapper instances for all the field available in the managed result set.
     */
     Table GetFieldsTable() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns a table with wrapper instances for all the specified fields in the managed result set.
+    */
+    Table FetchFieldsTable(Array & fields) const;
 
     /* --------------------------------------------------------------------------------------------
      * Returns the current position of the row cursor for the last Next().

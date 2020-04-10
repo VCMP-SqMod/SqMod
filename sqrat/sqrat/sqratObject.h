@@ -540,19 +540,22 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template<class F>
-    void Foreach(F&& func) const
+    SQRESULT Foreach(F&& func) const
     {
         const StackGuard sg(vm);
         sq_pushobject(vm,obj);
         sq_pushnull(vm);
-        while(SQ_SUCCEEDED(sq_next(vm,-2)))
+		SQRESULT res = SQ_OK;
+        for(SQInteger i = 0; SQ_SUCCEEDED(sq_next(vm,-2)); ++i)
         {
-            if (!func(vm))
+			res = func(vm, i);
+            if (SQ_FAILED(res))
             {
-                return;
+                break;
             }
             sq_pop(vm,2);
         }
+		return res;
     }
 
 protected:
