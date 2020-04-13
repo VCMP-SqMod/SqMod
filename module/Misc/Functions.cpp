@@ -418,7 +418,7 @@ Table GetWorldBounds()
     // Retrieve the current world bounds
     _Func->GetWorldBounds(&max.x, &min.x, &max.y, &min.y);
     // Allocate a script table
-    Table tbl;
+    Table tbl(SqVM(), 2);
     // Populate the table with the obtained values
     tbl.SetValue(_SC("max"), max);
     tbl.SetValue(_SC("min"), min);
@@ -448,7 +448,7 @@ Table GetWastedSettings()
     // Convert the packed color
     c.SetRGB(fc);
     // Allocate a script table
-    Table tbl;
+    Table tbl(SqVM(), 8);
     // Populate the table with the obtained values
     tbl.SetValue(_SC("DeathTimerOut"), dt);
     tbl.SetValue(_SC("FadeTimer"), ft);
