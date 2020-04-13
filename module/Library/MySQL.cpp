@@ -1551,7 +1551,7 @@ void Account::SetSSL(CSStr key, CSStr cert, CSStr ca, CSStr ca_path, CSStr ciphe
 Table Account::GetOptionsTable() const
 {
     // Allocate an empty table
-    Table tbl(DefaultVM::Get());
+    Table tbl(DefaultVM::Get(), m_Options.size());
     // Insert every option into the table
     for (const auto & opt : m_Options)
     {
