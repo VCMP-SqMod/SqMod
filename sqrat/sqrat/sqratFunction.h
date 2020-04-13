@@ -60,7 +60,7 @@ struct Function  {
         sq_addref(DefaultVM::Get_(), &mObj);
     }
     // Move constructor
-    Function(Function&& sf) : mEnv(sf.mEnv), mObj(sf.mObj) {
+    Function(Function&& sf) noexcept : mEnv(sf.mEnv), mObj(sf.mObj) {
         sq_resetobject(&sf.GetEnv());
         sq_resetobject(&sf.GetFunc());
     }
@@ -121,7 +121,7 @@ struct Function  {
         return *this;
     }
     // Move Assignment operator
-    Function& operator=(Function&& sf) {
+    Function& operator=(Function&& sf) noexcept {
         Release();
         mEnv = sf.mEnv;
         mObj = sf.mObj;
