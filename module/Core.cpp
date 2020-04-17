@@ -32,11 +32,6 @@
 #include <algorithm>
 
 // ------------------------------------------------------------------------------------------------
-#ifdef GetObject
-    #undef GetObject
-#endif // ef you MS
-
-// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
@@ -371,6 +366,8 @@ bool Core::Initialize()
     // Initialize routines and tasks
     InitializeRoutines();
     InitializeTasks();
+    // Initialize third-party
+    
 
     // Initialization successful
     return true;
@@ -478,6 +475,8 @@ void Core::Terminate(bool shutdown)
     const ContainerCleaner cc_blips(m_Blips, ENT_BLIP, !shutdown);
     const ContainerCleaner cc_keybinds(m_Keybinds, ENT_KEYBIND, !shutdown);
     cLogDbg(m_Verbosity >= 1, "Terminating routines an commands");
+    // Release third-party
+    
     // Release all resources from routines and tasks
     TerminateRoutines();
     TerminateTasks();

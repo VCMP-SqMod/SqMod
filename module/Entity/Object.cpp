@@ -18,7 +18,7 @@ const Int32 CObject::Max = SQMOD_OBJECT_POOL;
 // ------------------------------------------------------------------------------------------------
 SQInteger CObject::SqGetNull(HSQUIRRELVM vm)
 {
-    sq_pushobject(vm, Core::Get().GetNullObject().GetObject());
+    sq_pushobject(vm, Core::Get().GetNullObject().GetObj());
     return 1;
 }
 
@@ -107,7 +107,7 @@ LightObj & CObject::GetEvents() const
     // Validate the managed identifier
     Validate();
     // Return the associated event table
-    return Core::Get().GetObject(m_ID).mEvents;
+    return Core::Get().GetObj(m_ID).mEvents;
 }
 
 // ------------------------------------------------------------------------------------------------

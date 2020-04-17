@@ -158,9 +158,9 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     void Bind(const SQChar* name, Object& obj) {
-        sq_pushobject(vm, GetObject());
+        sq_pushobject(vm, GetObj());
         sq_pushstring(vm, name, -1);
-        sq_pushobject(vm, obj.GetObject());
+        sq_pushobject(vm, obj.GetObj());
         sq_newslot(vm, -3, false);
         sq_pop(vm,1); // pop table
     }
@@ -176,9 +176,9 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     void Bind(const SQChar* name, LightObj& obj) {
-        sq_pushobject(vm, GetObject());
+        sq_pushobject(vm, GetObj());
         sq_pushstring(vm, name, -1);
-        sq_pushobject(vm, obj.GetObject());
+        sq_pushobject(vm, obj.GetObj());
         sq_newslot(vm, -3, false);
         sq_pop(vm,1); // pop table
     }
@@ -193,7 +193,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     TableBase& SquirrelFunc(const SQChar* name, SQFUNCTION func) {
-        sq_pushobject(vm, GetObject());
+        sq_pushobject(vm, GetObj());
         sq_pushstring(vm, name, -1);
         sq_newclosure(vm, func, 0);
         // Set the closure name (for debug purposes)
@@ -215,7 +215,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     TableBase& SquirrelFunc(const SQChar* name, SQFUNCTION func, SQInteger pnum, const SQChar * mask) {
-        sq_pushobject(vm, GetObject());
+        sq_pushobject(vm, GetObj());
         sq_pushstring(vm, name, -1);
         sq_newclosure(vm, func, 0);
         // Set the closure name (for debug purposes)
@@ -469,7 +469,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     Function GetFunction(const SQChar* name) {
         HSQOBJECT funcObj;
-        sq_pushobject(vm, GetObject());
+        sq_pushobject(vm, GetObj());
         sq_pushstring(vm, name, -1);
 #if !defined (SCRAT_NO_ERROR_CHECKING)
         if(SQ_FAILED(sq_get(vm, -2))) {
@@ -485,7 +485,7 @@ public:
         sq_get(vm, -2);
 #endif
         sq_getstackobj(vm, -1, &funcObj);
-        Function ret(vm, GetObject(), funcObj); // must addref before the pop!
+        Function ret(vm, GetObj(), funcObj); // must addref before the pop!
         sq_pop(vm, 2);
         return ret;
     }
@@ -500,7 +500,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     Function GetFunction(const SQInteger index) {
         HSQOBJECT funcObj;
-        sq_pushobject(vm, GetObject());
+        sq_pushobject(vm, GetObj());
         sq_pushinteger(vm, index);
 #if !defined (SCRAT_NO_ERROR_CHECKING)
         if(SQ_FAILED(sq_get(vm, -2))) {
@@ -516,7 +516,7 @@ public:
         sq_get(vm, -2);
 #endif
         sq_getstackobj(vm, -1, &funcObj);
-        Function ret(vm, GetObject(), funcObj); // must addref before the pop!
+        Function ret(vm, GetObj(), funcObj); // must addref before the pop!
         sq_pop(vm, 2);
         return ret;
     }
@@ -722,7 +722,7 @@ struct Var<Table> {
     static void push(HSQUIRRELVM vm, const Table& value) {
         HSQOBJECT obj;
         sq_resetobject(&obj);
-        obj = value.GetObject();
+        obj = value.GetObj();
         sq_pushobject(vm,obj);
     }
 };

@@ -27,7 +27,7 @@ const Int32 CPlayer::Max = SQMOD_PLAYER_POOL;
 // ------------------------------------------------------------------------------------------------
 SQInteger CPlayer::SqGetNull(HSQUIRRELVM vm)
 {
-    sq_pushobject(vm, Core::Get().GetNullPlayer().GetObject());
+    sq_pushobject(vm, Core::Get().GetNullPlayer().GetObj());
     return 1;
 }
 
@@ -1329,7 +1329,7 @@ LightObj & CPlayer::StandingOnObject() const
     if (VALID_ENTITYEX(id, SQMOD_OBJECT_POOL))
     {
         // Return the requested information
-        return Core::Get().GetObject(id).mObj;
+        return Core::Get().GetObj(id).mObj;
     }
     // Default to a null object
     return Core::Get().GetNullObject();

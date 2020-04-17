@@ -20,7 +20,7 @@ const Int32 CVehicle::Max = SQMOD_VEHICLE_POOL;
 // ------------------------------------------------------------------------------------------------
 SQInteger CVehicle::SqGetNull(HSQUIRRELVM vm)
 {
-    sq_pushobject(vm, Core::Get().GetNullVehicle().GetObject());
+    sq_pushobject(vm, Core::Get().GetNullVehicle().GetObj());
     return 1;
 }
 

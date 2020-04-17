@@ -712,7 +712,7 @@ template <> struct InstSpec< CObject >
     */
     static inline Instances::const_iterator CBegin()
     {
-        return Core::Get().GetObjects().cbegin();
+        return Core::Get().GetObjs().cbegin();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -720,7 +720,7 @@ template <> struct InstSpec< CObject >
     */
     static inline Instances::const_iterator CEnd()
     {
-        return Core::Get().GetObjects().cend();
+        return Core::Get().GetObjs().cend();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -907,7 +907,7 @@ template < typename T > struct AppendElemFunc
     void operator () (const typename InstSpec< T >::Instance & inst) const
     {
         // Push the script object on the stack
-        sq_pushobject(mVM, inst.mObj.GetObject());
+        sq_pushobject(mVM, inst.mObj.GetObj());
         // Append the object at the back of the array
         if (SQ_FAILED(sq_arrayappend(mVM, mIdx)))
         {

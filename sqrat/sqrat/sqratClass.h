@@ -132,7 +132,7 @@ public:
     /// \return Squirrel object representing the Squirrel class
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual HSQOBJECT GetObject() const {
+    virtual HSQOBJECT GetObj() const {
         return ClassType<C>::getClassData(vm)->classObj;
     }
 
@@ -142,7 +142,7 @@ public:
     /// \return Squirrel object representing the Squirrel class
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual HSQOBJECT& GetObject() {
+    virtual HSQOBJECT& GetObj() {
         return ClassType<C>::getClassData(vm)->classObj;
     }
 

@@ -65,10 +65,10 @@ struct Function  {
         sq_resetobject(&sf.GetFunc());
     }
     // Constructs a Function from a slot in an Object
-    Function(const Object& e, const SQChar* slot) : mEnv(e.GetObject()) {
+    Function(const Object& e, const SQChar* slot) : mEnv(e.GetObj()) {
         sq_addref(DefaultVM::Get_(), &mEnv);
         Object so = e.GetSlot(slot);
-        mObj = so.GetObject();
+        mObj = so.GetObj();
         sq_addref(DefaultVM::Get_(), &mObj);
 #if !defined (SCRAT_NO_ERROR_CHECKING)
         SQObjectType value_type = so.GetType();

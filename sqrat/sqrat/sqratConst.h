@@ -359,9 +359,9 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ConstTable& Enum(const SQChar* name, Enumeration& en) {
-        sq_pushobject(vm, GetObject());
+        sq_pushobject(vm, GetObj());
         sq_pushstring(vm, name, -1);
-        sq_pushobject(vm, en.GetObject());
+        sq_pushobject(vm, en.GetObj());
         sq_newslot(vm, -3, false);
         sq_pop(vm,1); // pop table
         return *this;

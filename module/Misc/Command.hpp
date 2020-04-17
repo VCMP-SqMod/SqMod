@@ -640,7 +640,7 @@ public:
         }
         else
         {
-            m_OnFail = Function(env.GetVM(), env.GetObject(), func.GetFunc());
+            m_OnFail = Function(env.GetVM(), env.GetObj(), func.GetFunc());
         }
     }
 
@@ -669,7 +669,7 @@ public:
         }
         else
         {
-            m_OnAuth = Function(env.GetVM(), env.GetObject(), func.GetFunc());
+            m_OnAuth = Function(env.GetVM(), env.GetObj(), func.GetFunc());
         }
     }
 
@@ -1761,7 +1761,7 @@ public:
         }
         else
         {
-            m_OnExec = Function(env.GetVM(), env.GetObject(), func.GetFunc());
+            m_OnExec = Function(env.GetVM(), env.GetObj(), func.GetFunc());
         }
     }
 
@@ -1790,7 +1790,7 @@ public:
         }
         else
         {
-            m_OnAuth = Function(env.GetVM(), env.GetObject(), func.GetFunc());
+            m_OnAuth = Function(env.GetVM(), env.GetObj(), func.GetFunc());
         }
     }
 
@@ -1819,7 +1819,7 @@ public:
         }
         else
         {
-            m_OnPost = Function(env.GetVM(), env.GetObject(), func.GetFunc());
+            m_OnPost = Function(env.GetVM(), env.GetObj(), func.GetFunc());
         }
     }
 
@@ -1848,7 +1848,7 @@ public:
         }
         else
         {
-            m_OnFail = Function(env.GetVM(), env.GetObject(), func.GetFunc());
+            m_OnFail = Function(env.GetVM(), env.GetObj(), func.GetFunc());
         }
     }
 

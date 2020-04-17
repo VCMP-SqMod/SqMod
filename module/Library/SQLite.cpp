@@ -661,7 +661,7 @@ Int32 SQLiteConnHnd::Flush(Uint32 num, Object & env, Function & func)
         num = mQueue.size();
     }
     // Generate the function that should be called upon error
-    Function callback = Function(env.GetVM(), env.GetObject(), func.GetFunc());
+    Function callback = Function(env.GetVM(), env.GetObj(), func.GetFunc());
     // Obtain iterators to the range of queries that should be flushed
     auto itr = mQueue.begin();
     auto end = mQueue.begin() + num;

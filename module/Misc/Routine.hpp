@@ -434,7 +434,7 @@ public:
     */
     void SetEnv(const LightObj & env)
     {
-        GetValid().mEnv = env.IsNull() ? LightObj(RootTable().GetObject()) : env;
+        GetValid().mEnv = env.IsNull() ? LightObj(RootTable().GetObj()) : env;
     }
 
     /* --------------------------------------------------------------------------------------------

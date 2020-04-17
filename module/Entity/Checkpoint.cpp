@@ -18,7 +18,7 @@ const Int32 CCheckpoint::Max = SQMOD_CHECKPOINT_POOL;
 // ------------------------------------------------------------------------------------------------
 SQInteger CCheckpoint::SqGetNull(HSQUIRRELVM vm)
 {
-    sq_pushobject(vm, Core::Get().GetNullCheckpoint().GetObject());
+    sq_pushobject(vm, Core::Get().GetNullCheckpoint().GetObj());
     return 1;
 }
 

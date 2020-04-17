@@ -17,7 +17,7 @@ const Int32 CPickup::Max = SQMOD_PICKUP_POOL;
 // ------------------------------------------------------------------------------------------------
 SQInteger CPickup::SqGetNull(HSQUIRRELVM vm)
 {
-    sq_pushobject(vm, Core::Get().GetNullPickup().GetObject());
+    sq_pushobject(vm, Core::Get().GetNullPickup().GetObj());
     return 1;
 }
 

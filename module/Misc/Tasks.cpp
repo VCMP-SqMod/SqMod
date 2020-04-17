@@ -190,7 +190,7 @@ LightObj & Tasks::FindEntity(Int32 id, Int32 type)
         case ENT_BLIP:          return Core::Get().GetBlip(id).mObj;
         case ENT_CHECKPOINT:    return Core::Get().GetCheckpoint(id).mObj;
         case ENT_KEYBIND:       return Core::Get().GetKeybind(id).mObj;
-        case ENT_OBJECT:        return Core::Get().GetObject(id).mObj;
+        case ENT_OBJECT:        return Core::Get().GetObj(id).mObj;
         case ENT_PICKUP:        return Core::Get().GetPickup(id).mObj;
         case ENT_PLAYER:        return Core::Get().GetPlayer(id).mObj;
         case ENT_VEHICLE:       return Core::Get().GetVehicle(id).mObj;
@@ -244,7 +244,7 @@ SQInteger Tasks::Create(Int32 id, Int32 type, HSQUIRRELVM vm)
     // Attempt to retrieve the entity instance
     try
     {
-        inst =  FindEntity(id, type).GetObject();
+        inst =  FindEntity(id, type).GetObj();
     }
     catch (const std::exception & e)
     {

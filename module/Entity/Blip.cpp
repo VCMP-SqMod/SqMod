@@ -15,7 +15,7 @@ const Int32 CBlip::Max = SQMOD_BLIP_POOL;
 // ------------------------------------------------------------------------------------------------
 SQInteger CBlip::SqGetNull(HSQUIRRELVM vm)
 {
-    sq_pushobject(vm, Core::Get().GetNullBlip().GetObject());
+    sq_pushobject(vm, Core::Get().GetNullBlip().GetObj());
     return 1;
 }
 

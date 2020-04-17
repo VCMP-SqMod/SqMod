@@ -193,7 +193,7 @@ static LightObj & SqGetKeybind(Int32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-static LightObj & SqGetObject(Int32 id)
+static LightObj & SqGetObj(Int32 id)
 {
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_OBJECT_POOL))
@@ -201,7 +201,7 @@ static LightObj & SqGetObject(Int32 id)
         STHROWF("Out of range object identifier: %d", id);
     }
     // Return the requested information
-    return Core::Get().GetObject(id).mObj;
+    return Core::Get().GetObj(id).mObj;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -345,7 +345,7 @@ void Register_Core(HSQUIRRELVM vm)
         .Func(_SC("GetBlip"), &SqGetBlip)
         .Func(_SC("GetCheckpoint"), &SqGetCheckpoint)
         .Func(_SC("GetKeybind"), &SqGetKeybind)
-        .Func(_SC("GetObject"), &SqGetObject)
+        .Func(_SC("GetObj"), &SqGetObj)
         .Func(_SC("GetPickup"), &SqGetPickup)
         .Func(_SC("GetPlayer"), &SqGetPlayer)
         .Func(_SC("GetVehicle"), &SqGetVehicle)

@@ -1056,7 +1056,7 @@ public:
     BlipInst & GetBlip(Int32 id) { return m_Blips.at(static_cast< size_t >(id)); }
     CheckpointInst & GetCheckpoint(Int32 id) { return m_Checkpoints.at(static_cast< size_t >(id)); }
     KeybindInst & GetKeybind(Int32 id) { return m_Keybinds.at(static_cast< size_t >(id)); }
-    ObjectInst & GetObject(Int32 id) { return m_Objects.at(static_cast< size_t >(id)); }
+    ObjectInst & GetObj(Int32 id) { return m_Objects.at(static_cast< size_t >(id)); }
     PickupInst & GetPickup(Int32 id) { return m_Pickups.at(static_cast< size_t >(id)); }
     PlayerInst & GetPlayer(Int32 id) { return m_Players.at(static_cast< size_t >(id)); }
     VehicleInst & GetVehicle(Int32 id) { return m_Vehicles.at(static_cast< size_t >(id)); }
@@ -1067,7 +1067,7 @@ public:
     const Blips & GetBlips() const { return m_Blips; }
     const Checkpoints & GetCheckpoints() const { return m_Checkpoints; }
     const Keybinds & GetKeybinds() const { return m_Keybinds; }
-    const Objects & GetObjects() const { return m_Objects; }
+    const Objects & GetObjs() const { return m_Objects; }
     const Pickups & GetPickups() const { return m_Pickups; }
     const Players & GetPlayers() const { return m_Players; }
     const Vehicles & GetVehicles() const { return m_Vehicles; }

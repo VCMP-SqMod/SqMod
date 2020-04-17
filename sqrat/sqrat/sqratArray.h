@@ -140,9 +140,9 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     void Bind(const SQInteger index, Object& obj) {
-        sq_pushobject(vm, GetObject());
+        sq_pushobject(vm, GetObj());
         sq_pushinteger(vm, index);
-        sq_pushobject(vm, obj.GetObject());
+        sq_pushobject(vm, obj.GetObj());
         sq_set(vm, -3);
         sq_pop(vm,1); // pop array
     }
@@ -158,7 +158,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ArrayBase& SquirrelFunc(const SQInteger index, SQFUNCTION func, const SQChar* name = nullptr) {
-        sq_pushobject(vm, GetObject());
+        sq_pushobject(vm, GetObj());
         sq_pushinteger(vm, index);
         sq_newclosure(vm, func, 0);
         // Set the closure name (for debug purposes)
@@ -181,7 +181,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ArrayBase& SquirrelFunc(const SQInteger index, SQFUNCTION func, SQInteger pnum, const SQChar * mask, const SQChar* name = nullptr) {
-        sq_pushobject(vm, GetObject());
+        sq_pushobject(vm, GetObj());
         sq_pushinteger(vm, index);
         sq_newclosure(vm, func, 0);
         // Set the closure name (for debug purposes)
@@ -206,7 +206,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template<class V>
     ArrayBase& SetValue(const SQInteger index, const V& val) {
-        sq_pushobject(vm, GetObject());
+        sq_pushobject(vm, GetObj());
         sq_pushinteger(vm, index);
         PushVar(vm, val);
         sq_set(vm, -3);
@@ -303,7 +303,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     Function GetFunction(const SQInteger index) {
         HSQOBJECT funcObj;
-        sq_pushobject(vm, GetObject());
+        sq_pushobject(vm, GetObj());
         sq_pushinteger(vm, index);
 #if !defined (SCRAT_NO_ERROR_CHECKING)
         if(SQ_FAILED(sq_get(vm, -2))) {
@@ -319,7 +319,7 @@ public:
         sq_get(vm, -2);
 #endif
         sq_getstackobj(vm, -1, &funcObj);
-        Function ret(vm, GetObject(), funcObj); // must addref before the pop!
+        Function ret(vm, GetObj(), funcObj); // must addref before the pop!
         sq_pop(vm, 2);
         return ret;
     }
@@ -339,7 +339,7 @@ public:
     template <typename T>
     void GetArray(T* array, int size) const
     {
-        HSQOBJECT value = GetObject();
+        HSQOBJECT value = GetObj();
         sq_pushobject(vm, value);
 #if !defined (SCRAT_NO_ERROR_CHECKING)
         if (size > sq_getsize(vm, -1)) {
@@ -384,7 +384,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template<class V>
     ArrayBase& Append(const V& val) {
-        sq_pushobject(vm, GetObject());
+        sq_pushobject(vm, GetObj());
         PushVar(vm, val);
         sq_arrayappend(vm, -2);
         sq_pop(vm,1); // pop array
@@ -403,7 +403,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template<class V>
     ArrayBase& Append(V* val) {
-        sq_pushobject(vm, GetObject());
+        sq_pushobject(vm, GetObj());
         PushVar(vm, val);
         sq_arrayappend(vm, -2);
         sq_pop(vm,1); // pop array
@@ -423,7 +423,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template<class V>
     ArrayBase& Insert(const SQInteger destpos, const V& val) {
-        sq_pushobject(vm, GetObject());
+        sq_pushobject(vm, GetObj());
         PushVar(vm, val);
         sq_arrayinsert(vm, -2, destpos);
         sq_pop(vm,1); // pop array
@@ -443,7 +443,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template<class V>
     ArrayBase& Insert(const SQInteger destpos, V* val) {
-        sq_pushobject(vm, GetObject());
+        sq_pushobject(vm, GetObj());
         PushVar(vm, val);
         sq_arrayinsert(vm, -2, destpos);
         sq_pop(vm,1); // pop array
@@ -458,7 +458,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     Object Pop() {
         HSQOBJECT slotObj;
-        sq_pushobject(vm, GetObject());
+        sq_pushobject(vm, GetObj());
         if(SQ_FAILED(sq_arraypop(vm, -1, true))) {
             sq_pop(vm, 1);
             return Object(); // Return a NULL object
@@ -479,7 +479,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ArrayBase& Remove(const SQInteger itemidx) {
-        sq_pushobject(vm, GetObject());
+        sq_pushobject(vm, GetObj());
         sq_arrayremove(vm, -1, itemidx);
         sq_pop(vm,1); // pop array
         return *this;
@@ -494,7 +494,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ArrayBase& Resize(const SQInteger newsize) {
-        sq_pushobject(vm, GetObject());
+        sq_pushobject(vm, GetObj());
         sq_arrayresize(vm, -1, newsize);
         sq_pop(vm,1); // pop array
         return *this;
@@ -507,7 +507,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ArrayBase& Reverse() {
-        sq_pushobject(vm, GetObject());
+        sq_pushobject(vm, GetObj());
         sq_arrayreverse(vm, -1);
         sq_pop(vm,1); // pop array
         return *this;
@@ -539,7 +539,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template<class F>
     ArrayBase& AppendFrom(F&& func) {
-        sq_pushobject(vm, GetObject());
+        sq_pushobject(vm, GetObj());
         while (func(vm))
         {
             sq_arrayappend(vm, -2);
@@ -695,7 +695,7 @@ struct Var<Array> {
     static void push(HSQUIRRELVM vm, const Array& value) {
         HSQOBJECT obj;
         sq_resetobject(&obj);
-        obj = value.GetObject();
+        obj = value.GetObj();
         sq_pushobject(vm,obj);
     }
 };

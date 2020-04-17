@@ -15,7 +15,7 @@ const Int32 CKeybind::Max = SQMOD_KEYBIND_POOL;
 // ------------------------------------------------------------------------------------------------
 SQInteger CKeybind::SqGetNull(HSQUIRRELVM vm)
 {
-    sq_pushobject(vm, Core::Get().GetNullKeybind().GetObject());
+    sq_pushobject(vm, Core::Get().GetNullKeybind().GetObj());
     return 1;
 }
 

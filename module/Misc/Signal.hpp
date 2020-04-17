@@ -113,7 +113,7 @@ protected:
          * Forwarding constructor.
         */
         Slot(Object & env, Function & func)
-            : Slot(env.GetObject(), func.GetFunc())
+            : Slot(env.GetObj(), func.GetFunc())
         {
             /* ... */
         }
