@@ -596,6 +596,19 @@ template < class T > struct SqDefaultDelete< T[] > {
 template < class T, unsigned N > struct SqDefaultDelete< T[N] >;
 // ====================================================================================================================
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Primary template of `SqDefaultNoDelete`. Will do absolutely nothing.
+///
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template < class T > struct SqDefaultNoDelete {
+    // The type given via template parameter.
+    using ValueType = T;
+    // Default constructor.
+    constexpr SqDefaultNoDelete() noexcept = default;
+    // Dummy function call operator.
+    void operator () (T * SQ_UNUSED_ARG(p)) const { }
+};
+// ====================================================================================================================
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Primary template of `SqDefaultDestructor`. Will only invoke the instance destructor and not free the associated memory.
 ///
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -632,6 +645,19 @@ template < class T > struct SqDefaultDestructor< T[] > {
 // Omit specialization for array objects with a compile time length.
 template < class T, unsigned N > struct SqDefaultDestructor< T[N] >;
 
+// ====================================================================================================================
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Primary template of `SqDefaultNoDestructor`. Will do absolutely nothing.
+///
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template < class T > struct SqDefaultNoDestructor {
+    // The type given via template parameter.
+    using ValueType = T;
+    // Default constructor.
+    constexpr SqDefaultNoDestructor() noexcept = default;
+    // Dummy function call operator.
+    void operator () (T * SQ_UNUSED_ARG(p)) const { }
+};
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Used internally to store the counters of managed pointers.
 ///
