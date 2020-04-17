@@ -537,10 +537,10 @@ public:
     /// \return The Array itself so the call can be chained
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    template<class F>
-    ArrayBase& AppendFrom(F&& func) {
+    template<class F, class... A>
+    ArrayBase& AppendFrom(F&& func, A &&... a) {
         sq_pushobject(vm, GetObj());
-        while (func(vm))
+        while (func(vm, std::forward< A >(a)...))
         {
             sq_arrayappend(vm, -2);
         }
