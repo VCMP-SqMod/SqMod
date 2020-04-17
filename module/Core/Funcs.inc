@@ -359,7 +359,7 @@ void Register_Core(HSQUIRRELVM vm)
         .Func(_SC("OnPostLoad"), &SqGetPostLoadEvent)
         .Func(_SC("OnUnload"), &SqGetUnloadEvent)
         .SquirrelFunc(_SC("ForceEnableNullEntities"), &SqForceEnableNullEntities)
-        .SquirrelFunc(_SC("LoadScript"), &SqLoadScript)
+        .SquirrelFunc(_SC("LoadScript"), &SqLoadScript, -3, ".b.")
         .SquirrelFunc(_SC("On"), &SqGetEvents);
 
     RootTable(vm).Bind(_SC("SqCore"), corens);

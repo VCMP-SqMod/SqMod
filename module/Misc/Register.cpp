@@ -129,8 +129,8 @@ void Register_Misc(HSQUIRRELVM vm)
     RootTable(vm).Bind(_SC("SqServer"), srvns);
 
     RootTable(vm)
-    .SquirrelFunc(_SC("FindPlayer"), &Player_FindAuto)
-    .SquirrelFunc(_SC("PlayerExists"), &Player_ExistsAuto)
+    .SquirrelFunc(_SC("FindPlayer"), &Player_FindAuto, -2, ".i|f|s")
+    .SquirrelFunc(_SC("PlayerExists"), &Player_ExistsAuto, -2, ".i|f|s")
     .Func(_SC("GetKeyCodeName"), &GetKeyCodeName)
     .FmtFunc(_SC("SetKeyCodeName"), &SetKeyCodeName)
     .Func(_SC("GetModelName"), &GetModelName)
