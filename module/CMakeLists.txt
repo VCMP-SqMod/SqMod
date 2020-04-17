@@ -117,3 +117,5 @@ target_include_directories(SqModule PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 if(WIN32 OR MINGW)
   target_link_libraries(SqModule wsock32 ws2_32)
 endif()
+# Copy module into the plugins folder
+add_custom_command(TARGET SqModule POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:SqModule> "${PROJECT_SOURCE_DIR}/bin/plugins")
