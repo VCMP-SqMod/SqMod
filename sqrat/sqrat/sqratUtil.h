@@ -203,7 +203,7 @@ struct SqDefaultDestructor;
 template <class T, class D=SqDefaultDelete<T>>
 class SharedPtr;
 
-template <class T>
+template <class T, class D=SqDefaultDelete<T>>
 class WeakPtr;
 
 /// @endcond
@@ -703,7 +703,7 @@ class SharedPtr
     template <class U, class V>
     friend class SharedPtr;
 
-    template <class U>
+    template <class U, class V>
     friend class WeakPtr;
 
     typedef SqReferenceCounter Counter;
@@ -815,7 +815,7 @@ public:
     /// \param copy SharedPtr to copy
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    SharedPtr(const SharedPtr<T>& copy)
+    SharedPtr(const SharedPtr<T,D>& copy)
         : SharedPtr(copy.m_Ptr, copy.m_Ref)
     {
     }
@@ -829,7 +829,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template <class U>
-    SharedPtr(const SharedPtr<U>& copy)
+    SharedPtr(const SharedPtr<U,D>& copy)
         : SharedPtr(static_cast<T*>(copy.m_Ptr), copy.m_Ref)
     {
     }
@@ -840,7 +840,7 @@ public:
     /// \param other SharedPtr to move
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    SharedPtr(SharedPtr<T>&& other) noexcept
+    SharedPtr(SharedPtr<T,D>&& other) noexcept
         : m_Ptr(other.m_Ptr)
         , m_Ref(other.m_Ref)
     {
@@ -857,7 +857,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template <class U>
-    SharedPtr(SharedPtr<U>&& other) noexcept
+    SharedPtr(SharedPtr<U,D>&& other) noexcept
         : m_Ptr(static_cast<T*>(other.m_Ptr))
         , m_Ref(other.m_Ref)
     {
@@ -873,7 +873,7 @@ public:
     /// \tparam U Type of copy (usually doesnt need to be defined explicitly)
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    SharedPtr(const WeakPtr<T>& copy)
+    SharedPtr(const WeakPtr<T,D>& copy)
         : SharedPtr(copy.m_Ptr, copy.m_Ref)
     {
     }
@@ -887,7 +887,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template <class U>
-    SharedPtr(const WeakPtr<U>& copy)
+    SharedPtr(const WeakPtr<U,D>& copy)
         : SharedPtr(static_cast<T*>(copy.m_Ptr), copy.m_Ref)
     {
     }
@@ -909,7 +909,7 @@ public:
     /// \return The SharedPtr itself
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    SharedPtr<T>& operator=(const SharedPtr<T>& copy)
+    SharedPtr<T,D>& operator=(const SharedPtr<T,D>& copy)
     {
         Assign(copy.m_Ptr, copy.m_Ref);
 
@@ -927,7 +927,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template <class U>
-    SharedPtr<T>& operator=(const SharedPtr<U>& copy)
+    SharedPtr<T,D>& operator=(const SharedPtr<U,D>& copy)
     {
         Assign(static_cast<T*>(copy.m_Ptr), copy.m_Ref);
 
@@ -942,7 +942,7 @@ public:
     /// \return The SharedPtr itself
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    SharedPtr<T>& operator=(SharedPtr<T>&& other) noexcept
+    SharedPtr<T,D>& operator=(SharedPtr<T,D>&& other) noexcept
     {
         if (m_Ptr != other.m_Ptr)
         {
@@ -969,7 +969,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template <class U>
-    SharedPtr<T>& operator=(SharedPtr<U>&& other) noexcept
+    SharedPtr<T,D>& operator=(SharedPtr<U,D>&& other) noexcept
     {
         if (m_Ptr != static_cast<T*>(other.m_Ptr))
         {
@@ -1060,7 +1060,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template <typename U>
-    bool operator ==(const SharedPtr<U>& right) const
+    bool operator ==(const SharedPtr<U,D>& right) const
     {
         return m_Ptr == right.m_Ptr;
     }
@@ -1069,7 +1069,7 @@ public:
     /// Compares with another SharedPtr
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    bool operator ==(const SharedPtr<T>& right) const
+    bool operator ==(const SharedPtr<T,D>& right) const
     {
         return m_Ptr == right.m_Ptr;
     }
@@ -1079,7 +1079,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template <typename U>
-    bool friend operator ==(const SharedPtr<T>& left, const U* right)
+    bool friend operator ==(const SharedPtr<T,D>& left, const U* right)
     {
         return left.m_Ptr == right;
     }
@@ -1088,7 +1088,7 @@ public:
     /// Compares with another pointer
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    bool friend operator ==(const SharedPtr<T>& left, const T* right)
+    bool friend operator ==(const SharedPtr<T,D>& left, const T* right)
     {
         return left.m_Ptr == right;
     }
@@ -1098,7 +1098,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template <typename U>
-    bool friend operator ==(const U* left, const SharedPtr<T>& right)
+    bool friend operator ==(const U* left, const SharedPtr<T,D>& right)
     {
         return left == right.m_Ptr;
     }
@@ -1107,7 +1107,7 @@ public:
     /// Compares with another pointer
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    bool friend operator ==(const T* left, const SharedPtr<T>& right)
+    bool friend operator ==(const T* left, const SharedPtr<T,D>& right)
     {
         return left == right.m_Ptr;
     }
@@ -1117,7 +1117,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template <typename U>
-    bool operator !=(const SharedPtr<U>& right) const
+    bool operator !=(const SharedPtr<U,D>& right) const
     {
         return m_Ptr != right.m_Ptr;
     }
@@ -1126,7 +1126,7 @@ public:
     /// Compares with another SharedPtr
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    bool operator !=(const SharedPtr<T>& right) const
+    bool operator !=(const SharedPtr<T,D>& right) const
     {
         return m_Ptr != right.m_Ptr;
     }
@@ -1136,7 +1136,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template <typename U>
-    bool friend operator !=(const SharedPtr<T>& left, const U* right)
+    bool friend operator !=(const SharedPtr<T,D>& left, const U* right)
     {
         return left.m_Ptr != right;
     }
@@ -1145,7 +1145,7 @@ public:
     /// Compares with another pointer
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    bool friend operator !=(const SharedPtr<T>& left, const T* right)
+    bool friend operator !=(const SharedPtr<T,D>& left, const T* right)
     {
         return left.m_Ptr != right;
     }
@@ -1155,7 +1155,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template <typename U>
-    bool friend operator !=(const U* left, const SharedPtr<T>& right)
+    bool friend operator !=(const U* left, const SharedPtr<T,D>& right)
     {
         return left != right.m_Ptr;
     }
@@ -1164,7 +1164,7 @@ public:
     /// Compares with another pointer
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    bool friend operator !=(const T* left, const SharedPtr<T>& right)
+    bool friend operator !=(const T* left, const SharedPtr<T,D>& right)
     {
         return left != right.m_Ptr;
     }
@@ -1224,10 +1224,10 @@ public:
 /// std::weak_ptr was not used because it is a C++11 feature.
 ///
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-template <class T>
+template <class T, class D>
 class WeakPtr
 {
-    template <class U, class D>
+    template <class U, class V>
     friend class SharedPtr;
 
     typedef SqReferenceCounter Counter;
@@ -1310,7 +1310,7 @@ public:
     /// \param copy WeakPtr to copy
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    WeakPtr(const WeakPtr<T>& copy)
+    WeakPtr(const WeakPtr<T,D>& copy)
     {
         Initialize(copy.m_Ptr, copy.m_Ref);
     }
@@ -1324,7 +1324,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template <class U>
-    WeakPtr(const WeakPtr<U>& copy)
+    WeakPtr(const WeakPtr<U,D>& copy)
     {
         Initialize(static_cast<T*>(copy.m_Ptr), copy.m_Ref);
     }
@@ -1335,7 +1335,7 @@ public:
     /// \param other WeakPtr to move
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    WeakPtr(WeakPtr<T>&& other) noexcept
+    WeakPtr(WeakPtr<T,D>&& other) noexcept
         : m_Ptr(other.m_Ptr)
         , m_Ref(other.m_Ref)
     {
@@ -1352,7 +1352,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template <class U>
-    WeakPtr(WeakPtr<U>&& other) noexcept
+    WeakPtr(WeakPtr<U,D>&& other) noexcept
         : m_Ptr(static_cast<T*>(other.m_Ptr))
         , m_Ref(other.m_Ref)
     {
@@ -1366,7 +1366,7 @@ public:
     /// \param copy SharedPtr to copy
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    WeakPtr(const SharedPtr<T>& copy)
+    WeakPtr(const SharedPtr<T,D>& copy)
     {
         Initialize(copy.m_Ptr, copy.m_Ref);
     }
@@ -1380,7 +1380,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template <class U>
-    WeakPtr(const SharedPtr<U>& copy)
+    WeakPtr(const SharedPtr<U,D>& copy)
     {
         Initialize(static_cast<T*>(copy.m_Ptr), copy.m_Ref);
     }
@@ -1402,7 +1402,7 @@ public:
     /// \return The WeakPtr itself
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    WeakPtr<T>& operator=(const WeakPtr<T>& copy)
+    WeakPtr<T,D>& operator=(const WeakPtr<T,D>& copy)
     {
         Assign(copy.m_Ptr, copy.m_Ref);
 
@@ -1420,7 +1420,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template <class U>
-    WeakPtr<T>& operator=(const WeakPtr<U>& copy)
+    WeakPtr<T,D>& operator=(const WeakPtr<U,D>& copy)
     {
         Assign(static_cast<T*>(copy.m_Ptr), copy.m_Ref);
 
@@ -1435,7 +1435,7 @@ public:
     /// \return The WeakPtr itself
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    WeakPtr<T>& operator=(WeakPtr<T>&& other) noexcept
+    WeakPtr<T,D>& operator=(WeakPtr<T,D>&& other) noexcept
     {
         if (m_Ptr != other.m_Ptr)
         {
@@ -1462,7 +1462,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template <class U>
-    WeakPtr<T>& operator=(WeakPtr<U>&& other) noexcept
+    WeakPtr<T,D>& operator=(WeakPtr<U,D>&& other) noexcept
     {
         if (m_Ptr != static_cast<T*>(other.m_Ptr))
         {
@@ -1486,7 +1486,7 @@ public:
     /// \return The WeakPtr itself
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    WeakPtr<T>& operator=(const SharedPtr<T>& copy)
+    WeakPtr<T,D>& operator=(const SharedPtr<T,D>& copy)
     {
         Assign(copy.m_Ptr, copy.m_Ref);
 
@@ -1504,7 +1504,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template <class U>
-    WeakPtr<T>& operator=(const SharedPtr<U>& copy)
+    WeakPtr<T,D>& operator=(const SharedPtr<U,D>& copy)
     {
         Assign(static_cast<T*>(copy.m_Ptr), copy.m_Ref);
 
@@ -1528,9 +1528,9 @@ public:
     /// \return A SharedPtr which shares ownership of the managed object
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    SharedPtr<T> Lock() const
+    SharedPtr<T,D> Lock() const
     {
-        return SharedPtr<T>(m_Ptr, m_Ref);
+        return SharedPtr<T,D>(m_Ptr, m_Ref);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2272,8 +2272,8 @@ template<class T> struct remove_volatile<volatile T>                            
 template<class T> struct remove_cv                                                   {typedef typename remove_volatile<typename remove_const<T>::type>::type type;};
 template<class T> struct is_pointer_helper                                           {static constexpr bool value = false;};
 template<class T> struct is_pointer_helper<T*>                                       {static constexpr bool value = true;};
-template<class T> struct is_pointer_helper<SharedPtr<T> >                            {static constexpr bool value = true;};
-template<class T> struct is_pointer_helper<WeakPtr<T> >                              {static constexpr bool value = true;};
+template<class T,class D> struct is_pointer_helper<SharedPtr<T,D> >                            {static constexpr bool value = true;};
+template<class T,class D> struct is_pointer_helper<WeakPtr<T,D> >                              {static constexpr bool value = true;};
 template<class T> struct is_pointer : is_pointer_helper<typename remove_cv<T>::type> {};
 template<class T> struct is_reference                                                {static constexpr bool value = false;};
 template<class T> struct is_reference<T&>                                            {static constexpr bool value = true;};
