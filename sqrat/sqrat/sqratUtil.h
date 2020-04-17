@@ -193,8 +193,14 @@ static std::string wstring_to_string(const std::wstring& wstr)
 }
 
 #endif // SQUNICODE
+template < class T >
+struct SqDefaultAllocator;
+template < class T >
+struct SqDefaultDelete;
+template < class T >
+struct SqDefaultDestructor;
 
-template <class T>
+template <class T, class D=SqDefaultDelete<T>>
 class SharedPtr;
 
 template <class T>
@@ -515,6 +521,116 @@ inline string LastErrorString(HSQUIRRELVM vm) {
     sq_pop(vm, 2);
     return string(sqErr, size);
 }
+        
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Primary template of `SqDefaultAllocator`.
+///
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template < class T > struct SqDefaultAllocator {
+    // ----------------------------------------------------------------------------------------------------------------
+    // Type of value used to store a single element of the given type with the proper alignment.
+    using StorageType = typename std::aligned_storage< sizeof(T), alignof(T) >::type;
+    // ----------------------------------------------------------------------------------------------------------------
+    // Allocate memory (possibly uninitialized) for the specialized type.
+    template < class... A > static T * New(A&&... a) { return new T(std::forward< A >(a)...); }
+    // Allocate memory (preferably uninitialized) for the specialized type.
+    static T * NewRaw() { return reinterpret_cast< T * >(new StorageType); }
+    // ----------------------------------------------------------------------------------------------------------------
+    // Allocate memory (possibly uninitialized) for the specialized type.
+    template < class... A > static T * NewN(size_t n, A&&... a) {
+        T * p = NewRawN(n);
+        assert(p);
+        for (size_t i = 0; i < n; ++i) {
+            new (&p[i]) T(std::forward< A >(a)...); // Invoke constructor
+        }
+        return p;
+    }
+    // Allocate memory (preferably uninitialized) for the specialized type.
+    static T * NewRawN(size_t n) { return reinterpret_cast< T * >(new StorageType[n]); }
+    // ----------------------------------------------------------------------------------------------------------------
+    // Deallocate memory (possibly uninitialized) for the specialized type.
+    static void Delete(T * p) { delete p; }
+    // Deallocate memory (preferably uninitialized) for the specialized type.
+    static void DeleteRaw(T * p) { delete reinterpret_cast< StorageType * >(p); }
+    // ----------------------------------------------------------------------------------------------------------------
+    // Deallocate memory (possibly uninitialized) for the specialized type.
+    static void Delete(T * p, size_t SQ_UNUSED_ARG(n)) { delete[] p; }
+    // Deallocate memory (preferably uninitialized) for the specialized type.
+    static void DeleteRaw(T * p, size_t SQ_UNUSED_ARG(n)) { delete[] reinterpret_cast< StorageType * >(p); }
+};
+// ====================================================================================================================
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Primary template of `SqDefaultDelete`. Will invoke the instance destructor and free the associated memory.
+///
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template < class T > struct SqDefaultDelete {
+    // The type given via template parameter.
+    using ValueType = T;
+    // Default constructor.
+    constexpr SqDefaultDelete() noexcept = default;
+    // Function call operator that forwards the call to delete on the given pointer.
+    void operator () (T * p) const {
+        static_assert(!std::is_void< T >::value, "Cannot delete pointer to incomplete type.");
+        static_assert(sizeof(T), "Cannot delete pointer to incomplete type.");
+        delete p;
+    }
+};
+// --------------------------------------------------------------------------------------------------------------------
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Specialization of `SqDefaultDelete` for arrays. Will invoke each instance destructor and free the associated memory.
+///
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template < class T > struct SqDefaultDelete< T[] > {
+    // The type given via template parameter.
+    using ValueType = T;
+    // Default constructor.
+    constexpr SqDefaultDelete() noexcept = default;
+    // Function call operator that forwards the call to delete on the given pointer.
+    void operator () (T * p, size_t SQ_UNUSED_ARG(n)) const {
+        static_assert(sizeof(T), "Cannot delete pointer to incomplete type.");
+        delete[] p;
+    }
+};
+// --------------------------------------------------------------------------------------------------------------------
+// Omit specialization for array objects with a compile time length.
+template < class T, unsigned N > struct SqDefaultDelete< T[N] >;
+// ====================================================================================================================
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Primary template of `SqDefaultDestructor`. Will only invoke the instance destructor and not free the associated memory.
+///
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template < class T > struct SqDefaultDestructor {
+    // The type given via template parameter.
+    using ValueType = T;
+    // Default constructor.
+    constexpr SqDefaultDestructor() noexcept = default;
+    // Function call operator that forwards the call ro `~T()` on the given pointer.
+    void operator () (T * p) const {
+        static_assert(!std::is_void< T >::value, "Cannot destroy pointer to incomplete type.");
+        static_assert(sizeof(T), "Cannot destroy pointer to incomplete type.");
+        assert(p == nullptr);
+        p->~T();
+    }
+};
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Specialization of `SqDefaultDestructor` for arrays. Will only invoke each instance destructor and not free the associated memory.
+///
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template < class T > struct SqDefaultDestructor< T[] > {
+    // The type given via template parameter.
+    using ValueType = T;
+    // Default constructor.
+    constexpr SqDefaultDestructor() noexcept = default;
+    // Function call operator that forwards the call to `~T()` on the given pointer.
+    void operator () (T * p, size_t SQ_UNUSED_ARG(n)) const {
+        static_assert(sizeof(T), "Cannot destroy pointer to incomplete type.");
+        assert(p == nullptr && n > 0);
+        for (size_t i = 0; i < n; ++i) p[i].~T(); // Invoke destructor
+    }
+};
+// --------------------------------------------------------------------------------------------------------------------
+// Omit specialization for array objects with a compile time length.
+template < class T, unsigned N > struct SqDefaultDestructor< T[N] >;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Used internally to store the counters of managed pointers.
@@ -555,10 +671,10 @@ struct SqReferenceCounter {
 /// std::shared_ptr was not used because it is a C++11 feature.
 ///
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-template <class T>
+template <class T, class D>
 class SharedPtr
 {
-    template <class U>
+    template <class U, class V>
     friend class SharedPtr;
 
     template <class U>
@@ -880,7 +996,7 @@ public:
 
             if (m_Ref->mHard == 0)
             {
-                delete m_Ptr;
+                D{}(m_Ptr);
             }
 
             --(m_Ref->mSoft);
@@ -899,7 +1015,7 @@ public:
     /// Checks if there is an associated managed object
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    operator bool () const
+    operator bool () const // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
     {
         return m_Ptr;
     }
@@ -1085,7 +1201,7 @@ public:
 template <class T>
 class WeakPtr
 {
-    template <class U>
+    template <class U, class D>
     friend class SharedPtr;
 
     typedef SqReferenceCounter Counter;
