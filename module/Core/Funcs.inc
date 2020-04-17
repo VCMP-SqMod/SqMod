@@ -51,6 +51,12 @@ static SQInteger SqGetEvents(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
+static void SqEmitCustomEvent(Int32 group, Int32 header, LightObj & payload)
+{
+    Core::Get().EmitCustomEvent(group, header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
 static SQInteger SqForceEnableNullEntities(HSQUIRRELVM vm)
 {
     Core::Get().EnableNullEntities();
@@ -335,6 +341,7 @@ void Register_Core(HSQUIRRELVM vm)
         .Func(_SC("SetReloadInfo"), &SqSetReloadInfo)
         .Func(_SC("GetReloadHeader"), &SqGetReloadHeader)
         .Func(_SC("GetReloadPayload"), &SqGetReloadPayload)
+        .Func(_SC("EmitCustomEvent"), &SqEmitCustomEvent)
         .Func(_SC("GetState"), &SqGetState)
         .Func(_SC("SetState"), &SqSetState)
         .Func(_SC("AreasEnabled"), &SqGetAreasEnabled)
