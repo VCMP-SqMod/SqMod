@@ -38,6 +38,7 @@ extern void Register_Entity(HSQUIRRELVM vm);
 extern void Register_Chrono(HSQUIRRELVM vm);
 extern void Register_Crypt(HSQUIRRELVM vm);
 extern void Register_IO(HSQUIRRELVM vm);
+extern void Register_MMDB(HSQUIRRELVM vm);
 extern void Register_Numeric(HSQUIRRELVM vm);
 extern void Register_SQLite(HSQUIRRELVM vm);
 extern void Register_String(HSQUIRRELVM vm);
@@ -85,6 +86,7 @@ bool RegisterAPI(HSQUIRRELVM vm)
     Register_Chrono(vm);
     Register_Crypt(vm);
     Register_IO(vm);
+    Register_MMDB(vm);
     Register_Numeric(vm);
     Register_SQLite(vm);
     Register_String(vm);
