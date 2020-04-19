@@ -40,38 +40,42 @@ void SqBuffer::WriteUint64(const ULongInt & val)
 }
 
 // ------------------------------------------------------------------------------------------------
-void SqBuffer::WriteString(CSStr val)
+void SqBuffer::WriteRawString(StackStrF & val)
 {
     // Validate the managed buffer reference
     Validate();
     // Is the given string value even valid?
-    if (!val)
+    if (!val.mLen)
     {
         STHROWF("Invalid string argument: null");
     }
     // Calculate the string length
-    Uint16 length = ConvTo< Uint16 >::From(std::strlen(val));
+    Buffer::SzType length = ConvTo< Buffer::SzType >::From(val.mLen);
+    // Write the the string contents
+    m_Buffer->AppendS(val.mPtr, length);
+}
+
+// ------------------------------------------------------------------------------------------------
+void SqBuffer::WriteClientString(StackStrF & val)
+{
+    // Validate the managed buffer reference
+    Validate();
+    // Is the given string value even valid?
+    if (!val.mLen)
+    {
+        STHROWF("Invalid string argument: null");
+    }
+    else if (val.mLen > 0xFFFF)
+    {
+        STHROWF("String too large");
+    }
+    // Calculate the string length
+    Uint16 length = ConvTo< Uint16 >::From(val.mLen);
     // Change the size endianness to big endian
     Uint16 size = ((length >> 8) & 0xFF) | ((length & 0xFF) << 8);
     // Write the size and then the string contents
     m_Buffer->Push< Uint16 >(size);
-    m_Buffer->AppendS(val, length);
-}
-
-// ------------------------------------------------------------------------------------------------
-void SqBuffer::WriteRawString(CSStr val)
-{
-    // Validate the managed buffer reference
-    Validate();
-    // Is the given string value even valid?
-    if (!val)
-    {
-        STHROWF("Invalid string argument: null");
-    }
-    // Calculate the string length
-    Uint16 length = ConvTo< Uint16 >::From(std::strlen(val));
-    // Write the the string contents
-    m_Buffer->AppendS(val, length);
+    m_Buffer->AppendS(val.mPtr, length);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -191,7 +195,47 @@ ULongInt SqBuffer::ReadUint64()
 }
 
 // ------------------------------------------------------------------------------------------------
-Object SqBuffer::ReadString()
+LightObj SqBuffer::ReadRawString(SQInteger length)
+{
+    // Validate the managed buffer reference
+    ValidateDeeper();
+    // Start with a length of zero
+    Buffer::SzType len = 0;
+    // Should we Identify the string length ourselves?
+    if (length < 0)
+    {
+        // Grab the buffer range to search for
+        CCStr ptr = &m_Buffer->Cursor(), itr = ptr, end = m_Buffer->End();
+        // Attempt to look for a string terminator
+        while (itr != end && *itr != '\0')
+        {
+            ++itr;
+        }
+        // If nothing was found, consider the remaining buffer part of the requested string
+        len = static_cast< Buffer::SzType >(ptr - itr);
+    }
+    else
+    {
+        len = ConvTo< Buffer::SzType >::From(length);
+    }
+    // Validate the obtained length
+    if ((m_Buffer->Position() + len) > m_Buffer->Capacity())
+    {
+        STHROWF("String of size (%u) starting at (%u) is out of buffer capacity (%u)",
+                    len, m_Buffer->Position(), m_Buffer->Capacity());
+    }
+    // Remember the current stack size
+    const StackGuard sg;
+    // Attempt to create the string as an object
+    sq_pushstring(DefaultVM::Get(), &m_Buffer->Cursor(), len);
+    // Advance the cursor after the string
+    m_Buffer->Advance(len);
+    // Return the resulted object
+    return LightObj(-1, SqVM());
+}
+
+// ------------------------------------------------------------------------------------------------
+LightObj SqBuffer::ReadClientString()
 {
     // Validate the managed buffer reference
     ValidateDeeper();
@@ -214,47 +258,7 @@ Object SqBuffer::ReadString()
     // Advance the cursor after the string
     m_Buffer->Advance(length);
     // Return the resulted object
-    return Var< Object >(DefaultVM::Get(), -1).value;
-}
-
-// ------------------------------------------------------------------------------------------------
-Object SqBuffer::ReadRawString(SQInteger length)
-{
-    // Validate the managed buffer reference
-    ValidateDeeper();
-    // Start with a length of zero
-    Uint32 len = 0;
-    // Should we Identify the string length ourselves?
-    if (length < 0)
-    {
-        // Grab the buffer range to search for
-        CCStr ptr = &m_Buffer->Cursor(), itr = ptr, end = m_Buffer->End();
-        // Attempt to look for a string terminator
-        while (itr != end && *itr != '\0')
-        {
-            ++itr;
-        }
-        // If nothing was found, consider the remaining buffer part of the requested string
-        len = static_cast< Uint32 >(ptr - itr);
-    }
-    else
-    {
-        len = ConvTo< Uint32 >::From(length);
-    }
-    // Validate the obtained length
-    if ((m_Buffer->Position() + len) > m_Buffer->Capacity())
-    {
-        STHROWF("String of size (%u) starting at (%u) is out of buffer capacity (%u)",
-                    len, m_Buffer->Position(), m_Buffer->Capacity());
-    }
-    // Remember the current stack size
-    const StackGuard sg;
-    // Attempt to create the string as an object
-    sq_pushstring(DefaultVM::Get(), &m_Buffer->Cursor(), len);
-    // Advance the cursor after the string
-    m_Buffer->Advance(len);
-    // Return the resulted object
-    return Var< Object >(DefaultVM::Get(), -1).value;
+    return LightObj(-1, SqVM());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -433,8 +437,8 @@ void Register_Buffer(HSQUIRRELVM vm)
         .Func(_SC("WriteUint64"), &SqBuffer::WriteUint64)
         .Func(_SC("WriteFloat32"), &SqBuffer::WriteFloat32)
         .Func(_SC("WriteFloat64"), &SqBuffer::WriteFloat64)
-        .Func(_SC("WriteString"), &SqBuffer::WriteString)
         .Func(_SC("WriteRawString"), &SqBuffer::WriteRawString)
+        .Func(_SC("WriteClientString"), &SqBuffer::WriteClientString)
         .Func(_SC("WriteAABB"), &SqBuffer::WriteAABB)
         .Func(_SC("WriteCircle"), &SqBuffer::WriteCircle)
         .Func(_SC("WriteColor3"), &SqBuffer::WriteColor3)
@@ -459,8 +463,8 @@ void Register_Buffer(HSQUIRRELVM vm)
         .Func(_SC("ReadUint64"), &SqBuffer::ReadUint64)
         .Func(_SC("ReadFloat32"), &SqBuffer::ReadFloat32)
         .Func(_SC("ReadFloat64"), &SqBuffer::ReadFloat64)
-        .Func(_SC("ReadString"), &SqBuffer::ReadString)
         .Func(_SC("ReadRawString"), &SqBuffer::ReadRawString)
+        .Func(_SC("ReadClientString"), &SqBuffer::ReadClientString)
         .Func(_SC("ReadAABB"), &SqBuffer::ReadAABB)
         .Func(_SC("ReadCircle"), &SqBuffer::ReadCircle)
         .Func(_SC("ReadColor3"), &SqBuffer::ReadColor3)

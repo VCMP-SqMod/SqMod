@@ -581,14 +581,14 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Write a string to the buffer.
-    */
-    void WriteString(CSStr val);
-
-    /* --------------------------------------------------------------------------------------------
      * Write a raw string to the buffer.
     */
-    void WriteRawString(CSStr val);
+    void WriteRawString(StackStrF & val);
+
+    /* --------------------------------------------------------------------------------------------
+     * Write a client encoded string to the buffer.
+    */
+    void WriteClientString(StackStrF & val);
 
     /* --------------------------------------------------------------------------------------------
      * Write a AABB to the buffer.
@@ -771,14 +771,14 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Read a string from the buffer.
-    */
-    Object ReadString();
-
-    /* --------------------------------------------------------------------------------------------
      * Read a raw string from the buffer.
     */
-    Object ReadRawString(SQInteger length);
+    LightObj ReadRawString(SQInteger length);
+
+    /* --------------------------------------------------------------------------------------------
+     * Read a string from the buffer.
+    */
+    LightObj ReadClientString();
 
     /* --------------------------------------------------------------------------------------------
      * Read a AABB from the buffer.
