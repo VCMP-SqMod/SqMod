@@ -46,6 +46,7 @@ add_library(SqModule MODULE
 	Library/Numeric/LongInt.cpp Library/Numeric/LongInt.hpp
 	Library/Numeric/Math.cpp Library/Numeric/Math.hpp
 	Library/Numeric/Random.cpp Library/Numeric/Random.hpp
+	Library/Socket.cpp Library/Socket.hpp
 	Library/SQLite.cpp Library/SQLite.hpp
 	Library/String.cpp Library/String.hpp
 	Library/System.cpp Library/System.hpp
@@ -74,7 +75,7 @@ add_library(SqModule MODULE
 # Link to base libraries
 target_link_libraries(SqModule VCMP Squirrel Sqrat SqSDK)
 # Link to third-party libraries
-target_link_libraries(SqModule SimpleINI HashLib B64Lib AES256Lib WhirlpoolLib TinyDir PUGIXML SQLite MaxmindDB)
+target_link_libraries(SqModule SimpleINI HashLib B64Lib AES256Lib WhirlpoolLib TinyDir PUGIXML SQLite MaxmindDB SimpleSocket)
 # Link to mysql client library
 if(ENABLE_MYSQL)
 	# Include the implementation 

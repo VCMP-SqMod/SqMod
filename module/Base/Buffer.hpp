@@ -284,7 +284,7 @@ public:
         , m_Mem(MemRef::Get())
     {
         Request(size < 8 ? 8 : size);
-        m_Cur += Write(m_Cur, data, size);
+        Write(m_Cur, data, size);
         Move(pos);
     }
 

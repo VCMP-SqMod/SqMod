@@ -112,7 +112,7 @@ protected:
         /* ----------------------------------------------------------------------------------------
          * Forwarding constructor.
         */
-        Slot(Object & env, Function & func)
+        Slot(Object & env, ::Sqrat::Function & func)
             : Slot(env.GetObj(), func.GetFunc())
         {
             /* ... */

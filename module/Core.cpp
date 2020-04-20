@@ -367,7 +367,6 @@ bool Core::Initialize()
     InitializeRoutines();
     InitializeTasks();
     // Initialize third-party
-    
 
     // Initialization successful
     return true;
@@ -476,7 +475,7 @@ void Core::Terminate(bool shutdown)
     const ContainerCleaner cc_keybinds(m_Keybinds, ENT_KEYBIND, !shutdown);
     cLogDbg(m_Verbosity >= 1, "Terminating routines an commands");
     // Release third-party
-    
+
     // Release all resources from routines and tasks
     TerminateRoutines();
     TerminateTasks();
