@@ -1228,23 +1228,48 @@ inline void PushVarR(HSQUIRRELVM vm, T& value) {
     }
 }
 
+// Forward declaration
+struct Function;
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// Helper used to process formatted arguments when necessary.
+/// Helper used to identify optional arguments when necessary.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-template<class> struct ArgFwdHasFmt { static constexpr bool value = false; };
-template<> struct ArgFwdHasFmt<StackStrF> { static constexpr bool value = true; };
-template<> struct ArgFwdHasFmt<const StackStrF> { static constexpr bool value = true; };
-template<> struct ArgFwdHasFmt<StackStrF&> { static constexpr bool value = true; };
-template<> struct ArgFwdHasFmt<const StackStrF&> { static constexpr bool value = true; };
+template<class> struct ArgFwdHasOpt { static constexpr bool value = false; };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Helper used to process formatted arguments when necessary.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-template<class T, bool> struct ArgFwdFmtVar : Var<T> {
-    ArgFwdFmtVar(HSQUIRRELVM vm, SQInteger idx) : Var<T>(vm, idx) {}
+template<> struct ArgFwdHasOpt<StackStrF> { static constexpr bool value = true; };
+template<> struct ArgFwdHasOpt<const StackStrF> { static constexpr bool value = true; };
+template<> struct ArgFwdHasOpt<StackStrF&> { static constexpr bool value = true; };
+template<> struct ArgFwdHasOpt<const StackStrF&> { static constexpr bool value = true; };
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Helper used to process callback arguments when necessary.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template<> struct ArgFwdHasOpt<Function> { static constexpr bool value = true; };
+template<> struct ArgFwdHasOpt<const Function> { static constexpr bool value = true; };
+template<> struct ArgFwdHasOpt<Function&> { static constexpr bool value = true; };
+template<> struct ArgFwdHasOpt<const Function&> { static constexpr bool value = true; };
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Helper used to process optional arguments when necessary.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template<class T, bool> struct ArgFwdOptVar : public Var<T> {
+    ArgFwdOptVar(HSQUIRRELVM vm, SQInteger idx) : Var<T>(vm, idx) {}
 };
-template<class T> struct ArgFwdFmtVar<T, true> : Var<T> {
-    ArgFwdFmtVar(HSQUIRRELVM vm, SQInteger idx) : Var<T>(vm, idx, true, Var<T>::DropFuncPtr) {}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Helper used to process formatted arguments when necessary.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template<> struct ArgFwdOptVar<StackStrF, true> : public Var<StackStrF> {
+    ArgFwdOptVar(HSQUIRRELVM vm, SQInteger idx) : Var<StackStrF>(vm, idx, true, Var<StackStrF>::DropFuncPtr) {}
+};
+template<> struct ArgFwdOptVar<StackStrF&, true> : public Var<StackStrF&> {
+    ArgFwdOptVar(HSQUIRRELVM vm, SQInteger idx) : Var<StackStrF&>(vm, idx, true, Var<StackStrF>::DropFuncPtr) {}
+};
+template<> struct ArgFwdOptVar<const StackStrF&, true> : public Var<const StackStrF&> {
+    ArgFwdOptVar(HSQUIRRELVM vm, SQInteger idx) : Var<const StackStrF&>(vm, idx, true, Var<StackStrF>::DropFuncPtr) {}
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1263,7 +1288,7 @@ template<class...> struct ArgFwd;
 template<>
 struct ArgFwd<> {
     // Used to tell whether the last template parameter is a StackStrF type
-    static constexpr bool HASFMT = false;
+    static constexpr bool HASOPT = false;
     // Forward the arguments to a function object
     template<class F> inline auto Call(HSQUIRRELVM vm, SQInteger /*idx*/, F f) {
         return f(vm);
@@ -1276,10 +1301,10 @@ struct ArgFwd<> {
 template<class T1>
 struct ArgFwd<T1> {
     // Used to tell whether the last template parameter is a StackStrF type
-    static constexpr bool HASFMT = ArgFwdHasFmt<T1>::value;
+    static constexpr bool HASOPT = ArgFwdHasOpt<T1>::value;
     // Forward the arguments to a function object
     template<class F> inline auto Call(HSQUIRRELVM vm, SQInteger idx, F f) {
-        ArgFwdFmtVar<T1, HASFMT> a1(vm, idx);
+        ArgFwdOptVar<T1, HASOPT> a1(vm, idx);
         return f(vm,a1.value);
     }
 };
@@ -1287,11 +1312,11 @@ struct ArgFwd<T1> {
 template<class T1,class T2>
 struct ArgFwd<T1,T2> {
     // Used to tell whether the last template parameter is a StackStrF type
-    static constexpr bool HASFMT = ArgFwdHasFmt<T2>::value;
+    static constexpr bool HASOPT = ArgFwdHasOpt<T2>::value;
     // Forward the arguments to a function object
     template<class F> inline auto Call(HSQUIRRELVM vm, SQInteger idx, F f) {
         Var<T1> a1(vm, idx++);
-        ArgFwdFmtVar<T2, HASFMT> a2(vm, idx);
+        ArgFwdOptVar<T2, HASOPT> a2(vm, idx);
         return f(vm,a1.value,a2.value);
     }
 };
@@ -1299,12 +1324,12 @@ struct ArgFwd<T1,T2> {
 template<class T1,class T2,class T3>
 struct ArgFwd<T1,T2,T3> {
     // Used to tell whether the last template parameter is a StackStrF type
-    static constexpr bool HASFMT = ArgFwdHasFmt<T3>::value;
+    static constexpr bool HASOPT = ArgFwdHasOpt<T3>::value;
     // Forward the arguments to a function object
     template<class F> inline auto Call(HSQUIRRELVM vm, SQInteger idx, F f) {
         Var<T1> a1(vm, idx++);
         Var<T2> a2(vm, idx++);
-        ArgFwdFmtVar<T3, HASFMT> a3(vm, idx);
+        ArgFwdOptVar<T3, HASOPT> a3(vm, idx);
         return f(vm,a1.value,a2.value,a3.value);
     }
 };
@@ -1313,13 +1338,13 @@ struct ArgFwd<T1,T2,T3> {
 template<class T1,class T2,class T3,class T4>
 struct ArgFwd<T1,T2,T3,T4> {
     // Used to tell whether the last template parameter is a StackStrF type
-    static constexpr bool HASFMT = ArgFwdHasFmt<T4>::value;
+    static constexpr bool HASOPT = ArgFwdHasOpt<T4>::value;
     // Forward the arguments to a function object
     template<class F> inline auto Call(HSQUIRRELVM vm, SQInteger idx, F f) {
         Var<T1> a1(vm, idx++);
         Var<T2> a2(vm, idx++);
         Var<T3> a3(vm, idx++);
-        ArgFwdFmtVar<T4, HASFMT> a4(vm, idx);
+        ArgFwdOptVar<T4, HASOPT> a4(vm, idx);
         return f(vm,a1.value,a2.value,a3.value,a4.value);
     }
 };
@@ -1327,14 +1352,14 @@ struct ArgFwd<T1,T2,T3,T4> {
 template<class T1,class T2,class T3,class T4,class T5>
 struct ArgFwd<T1,T2,T3,T4,T5> {
     // Used to tell whether the last template parameter is a StackStrF type
-    static constexpr bool HASFMT = ArgFwdHasFmt<T5>::value;
+    static constexpr bool HASOPT = ArgFwdHasOpt<T5>::value;
     // Forward the arguments to a function object
     template<class F> inline auto Call(HSQUIRRELVM vm, SQInteger idx, F f) {
         Var<T1> a1(vm, idx++);
         Var<T2> a2(vm, idx++);
         Var<T3> a3(vm, idx++);
         Var<T4> a4(vm, idx++);
-        ArgFwdFmtVar<T5, HASFMT> a5(vm, idx);
+        ArgFwdOptVar<T5, HASOPT> a5(vm, idx);
         return f(vm,a1.value,a2.value,a3.value,a4.value,a5.value);
     }
 };
@@ -1342,7 +1367,7 @@ struct ArgFwd<T1,T2,T3,T4,T5> {
 template<class T1,class T2,class T3,class T4,class T5,class T6>
 struct ArgFwd<T1,T2,T3,T4,T5,T6> {
     // Used to tell whether the last template parameter is a StackStrF type
-    static constexpr bool HASFMT = ArgFwdHasFmt<T6>::value;
+    static constexpr bool HASOPT = ArgFwdHasOpt<T6>::value;
     // Forward the arguments to a function object
     template<class F> inline auto Call(HSQUIRRELVM vm, SQInteger idx, F f) {
         Var<T1> a1(vm, idx++);
@@ -1350,7 +1375,7 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6> {
         Var<T3> a3(vm, idx++);
         Var<T4> a4(vm, idx++);
         Var<T5> a5(vm, idx++);
-        ArgFwdFmtVar<T6, HASFMT> a6(vm, idx);
+        ArgFwdOptVar<T6, HASOPT> a6(vm, idx);
         return f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value);
     }
 };
@@ -1358,7 +1383,7 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6> {
 template<class T1,class T2,class T3,class T4,class T5,class T6,class T7>
 struct ArgFwd<T1,T2,T3,T4,T5,T6,T7> {
     // Used to tell whether the last template parameter is a StackStrF type
-    static constexpr bool HASFMT = ArgFwdHasFmt<T7>::value;
+    static constexpr bool HASOPT = ArgFwdHasOpt<T7>::value;
     // Forward the arguments to a function object
     template<class F> inline auto Call(HSQUIRRELVM vm, SQInteger idx, F f) {
         Var<T1> a1(vm, idx++);
@@ -1367,7 +1392,7 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7> {
         Var<T4> a4(vm, idx++);
         Var<T5> a5(vm, idx++);
         Var<T6> a6(vm, idx++);
-        ArgFwdFmtVar<T7, HASFMT> a7(vm, idx);
+        ArgFwdOptVar<T7, HASOPT> a7(vm, idx);
         return f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value);
     }
 };
@@ -1375,7 +1400,7 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7> {
 template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8>
 struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8> {
     // Used to tell whether the last template parameter is a StackStrF type
-    static constexpr bool HASFMT = ArgFwdHasFmt<T8>::value;
+    static constexpr bool HASOPT = ArgFwdHasOpt<T8>::value;
     // Forward the arguments to a function object
     template<class F> inline auto Call(HSQUIRRELVM vm, SQInteger idx, F f) {
         Var<T1> a1(vm, idx++);
@@ -1385,7 +1410,7 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8> {
         Var<T5> a5(vm, idx++);
         Var<T6> a6(vm, idx++);
         Var<T7> a7(vm, idx++);
-        ArgFwdFmtVar<T8, HASFMT> a8(vm, idx);
+        ArgFwdOptVar<T8, HASOPT> a8(vm, idx);
         return f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value);
     }
 };
@@ -1393,7 +1418,7 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8> {
 template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8,class T9>
 struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9> {
     // Used to tell whether the last template parameter is a StackStrF type
-    static constexpr bool HASFMT = ArgFwdHasFmt<T9>::value;
+    static constexpr bool HASOPT = ArgFwdHasOpt<T9>::value;
     // Forward the arguments to a function object
     template<class F> inline auto Call(HSQUIRRELVM vm, SQInteger idx, F f) {
         Var<T1> a1(vm, idx++);
@@ -1404,7 +1429,7 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9> {
         Var<T6> a6(vm, idx++);
         Var<T7> a7(vm, idx++);
         Var<T8> a8(vm, idx++);
-        ArgFwdFmtVar<T9, HASFMT> a9(vm, idx);
+        ArgFwdOptVar<T9, HASOPT> a9(vm, idx);
         return f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value,a9.value);
     }
 };
@@ -1412,7 +1437,7 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9> {
 template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8,class T9,class T10>
 struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> {
     // Used to tell whether the last template parameter is a StackStrF type
-    static constexpr bool HASFMT = ArgFwdHasFmt<T10>::value;
+    static constexpr bool HASOPT = ArgFwdHasOpt<T10>::value;
     // Forward the arguments to a function object
     template<class F> inline auto Call(HSQUIRRELVM vm, SQInteger idx, F f) {
         Var<T1> a1(vm, idx++);
@@ -1424,7 +1449,7 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> {
         Var<T7> a7(vm, idx++);
         Var<T8> a8(vm, idx++);
         Var<T9> a9(vm, idx++);
-        ArgFwdFmtVar<T10, HASFMT> a10(vm, idx);
+        ArgFwdOptVar<T10, HASOPT> a10(vm, idx);
         return f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value,a9.value,a10.value);
     }
 };
@@ -1432,7 +1457,7 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> {
 template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8,class T9,class T10,class T11>
 struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> {
     // Used to tell whether the last template parameter is a StackStrF type
-    static constexpr bool HASFMT = ArgFwdHasFmt<T11>::value;
+    static constexpr bool HASOPT = ArgFwdHasOpt<T11>::value;
     // Forward the arguments to a function object
     template<class F> inline auto Call(HSQUIRRELVM vm, SQInteger idx, F f) {
         Var<T1> a1(vm, idx++);
@@ -1445,7 +1470,7 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> {
         Var<T8> a8(vm, idx++);
         Var<T9> a9(vm, idx++);
         Var<T10> a10(vm, idx++);
-        ArgFwdFmtVar<T11, HASFMT> a11(vm, idx);
+        ArgFwdOptVar<T11, HASOPT> a11(vm, idx);
         return f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value,a9.value,a10.value,a11.value);
     }
 };
@@ -1453,7 +1478,7 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> {
 template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8,class T9,class T10,class T11,class T12>
 struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> {
     // Used to tell whether the last template parameter is a StackStrF type
-    static constexpr bool HASFMT = ArgFwdHasFmt<T12>::value;
+    static constexpr bool HASOPT = ArgFwdHasOpt<T12>::value;
     // Forward the arguments to a function object
     template<class F> inline auto Call(HSQUIRRELVM vm, SQInteger idx, F f) {
         Var<T1> a1(vm, idx++);
@@ -1467,7 +1492,7 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> {
         Var<T9> a9(vm, idx++);
         Var<T10> a10(vm, idx++);
         Var<T11> a11(vm, idx++);
-        ArgFwdFmtVar<T12, HASFMT> a12(vm, idx);
+        ArgFwdOptVar<T12, HASOPT> a12(vm, idx);
         return f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value,a9.value,a10.value,a11.value,a12.value);
     }
 };
@@ -1475,7 +1500,7 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> {
 template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8,class T9,class T10,class T11,class T12,class T13>
 struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> {
     // Used to tell whether the last template parameter is a StackStrF type
-    static constexpr bool HASFMT = ArgFwdHasFmt<T13>::value;
+    static constexpr bool HASOPT = ArgFwdHasOpt<T13>::value;
     // Forward the arguments to a function object
     template<class F> inline auto Call(HSQUIRRELVM vm, SQInteger idx, F f) {
         Var<T1> a1(vm, idx++);
@@ -1490,7 +1515,7 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> {
         Var<T10> a10(vm, idx++);
         Var<T11> a11(vm, idx++);
         Var<T12> a12(vm, idx++);
-        ArgFwdFmtVar<T13, HASFMT> a13(vm, idx);
+        ArgFwdOptVar<T13, HASOPT> a13(vm, idx);
         return f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value,a9.value,a10.value,a11.value,a12.value,a13.value);
     }
 };
@@ -1498,7 +1523,7 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> {
 template<class T1,class T2,class T3,class T4,class T5,class T6,class T7,class T8,class T9,class T10,class T11,class T12,class T13,class T14>
 struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> {
     // Used to tell whether the last template parameter is a StackStrF type
-    static constexpr bool HASFMT = ArgFwdHasFmt<T14>::value;
+    static constexpr bool HASOPT = ArgFwdHasOpt<T14>::value;
     // Forward the arguments to a function object
     template<class F> inline auto Call(HSQUIRRELVM vm, SQInteger idx, F f) {
         Var<T1> a1(vm, idx++);
@@ -1514,7 +1539,7 @@ struct ArgFwd<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> {
         Var<T11> a11(vm, idx++);
         Var<T12> a12(vm, idx++);
         Var<T13> a13(vm, idx++);
-        ArgFwdFmtVar<T14, HASFMT> a14(vm, idx);
+        ArgFwdOptVar<T14, HASOPT> a14(vm, idx);
         return f(vm,a1.value,a2.value,a3.value,a4.value,a5.value,a6.value,a7.value,a8.value,a9.value,a10.value,a11.value,a12.value,a13.value,a14.value);
     }
 };

@@ -241,7 +241,7 @@ struct Function  {
         SQInteger nparams;
         SQInteger nfreevars;
         if (SQ_SUCCEEDED(sq_getclosureinfo(vm, -2, &nparams, &nfreevars)) &&
-            SqGlobalParamInspect< ArgFwd<Args...>::HASFMT >::Invalid(nparams, ARGC)) {
+            SqGlobalParamInspect< ArgFwd<Args...>::HASOPT >::Invalid(nparams, ARGC)) {
             sq_pop(vm, 2);
             SQTHROW(vm, _SC("wrong number of parameters"));
             return SharedPtr<R>();
@@ -281,7 +281,7 @@ struct Function  {
         SQInteger nparams;
         SQInteger nfreevars;
         if (SQ_SUCCEEDED(sq_getclosureinfo(vm, -2, &nparams, &nfreevars)) &&
-            SqGlobalParamInspect< ArgFwd<Args...>::HASFMT >::Invalid(nparams, ARGC)) {
+            SqGlobalParamInspect< ArgFwd<Args...>::HASOPT >::Invalid(nparams, ARGC)) {
             sq_pop(vm, 2);
             SQTHROW(vm, _SC("wrong number of parameters"));
             return;
@@ -318,6 +318,10 @@ template<> struct Var<Function> {
     // Assumes the Function environment is at index 1.
     Var(HSQUIRRELVM vm, SQInteger idx) : value(vm, idx) {
     }
+    // Attempts to get the value off the stack at idx as a Function
+    // Assumes the Function environment is at index 1.
+    Var(HSQUIRRELVM vm, SQInteger idx1, SQInteger idx2) : value(vm, idx1, idx2) {
+    }
     // Called by Sqrat::PushVar to put a Function on the stack
     static void push(HSQUIRRELVM vm, const Function& value) {
         sq_pushobject(vm, value.GetFunc());
@@ -328,12 +332,31 @@ template<> struct Var<Function&> : public Var<Function> {
     Var(HSQUIRRELVM vm, SQInteger idx) : Var<Function>(vm, idx)
     {
     }
+    Var(HSQUIRRELVM vm, SQInteger idx1, SQInteger idx2) : Var<Function>(vm, idx1, idx2)
+    {
+    }
 };
 // Used to get and push Function instances to and from the stack as references (functions are always references in Squirrel)
 template<> struct Var<const Function&> : public Var<Function> {
     Var(HSQUIRRELVM vm, SQInteger idx) : Var<Function>(vm, idx)
     {
     }
+    Var(HSQUIRRELVM vm, SQInteger idx1, SQInteger idx2) : Var<Function>(vm, idx1, idx2)
+    {
+    }
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Helper used to process callback arguments when necessary.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+template<> struct ArgFwdOptVar<Function, true> : public Var<Function> {
+    ArgFwdOptVar(HSQUIRRELVM vm, SQInteger idx) : Var<Function>(vm, idx, idx+1) {}
+};
+template<> struct ArgFwdOptVar<Function&, true> : public Var<Function&> {
+    ArgFwdOptVar(HSQUIRRELVM vm, SQInteger idx) : Var<Function&>(vm, idx, idx+1) {}
+};
+template<> struct ArgFwdOptVar<const Function&, true> : public Var<const Function&> {
+    ArgFwdOptVar(HSQUIRRELVM vm, SQInteger idx) : Var<const Function&>(vm, idx, idx+1) {}
 };
 
 }

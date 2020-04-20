@@ -151,7 +151,7 @@ template <class C,class R> struct SqMember {
         return +[](HSQUIRRELVM vm) -> SQInteger {
 #if !defined (SCRAT_NO_ERROR_CHECKING)
             if (!SQRAT_CONST_CONDITION(overloaded) &&
-                SqGlobalParamCheck< ArgFwd<A...>::HASFMT >::Invalid(sq_gettop(vm), 2 + sizeof...(A))) {
+                SqGlobalParamCheck< ArgFwd<A...>::HASOPT >::Invalid(sq_gettop(vm), 2 + sizeof...(A))) {
                 return sq_throwerror(vm, _SC("wrong number of parameters"));
             }
 #endif
@@ -170,7 +170,7 @@ template <class C,class R> struct SqMember {
         return +[](HSQUIRRELVM vm) -> SQInteger {
 #if !defined (SCRAT_NO_ERROR_CHECKING)
             if (!SQRAT_CONST_CONDITION(overloaded) &&
-                SqGlobalParamCheck< ArgFwd<A...>::HASFMT >::Invalid(sq_gettop(vm), 2 + sizeof...(A))) {
+                SqGlobalParamCheck< ArgFwd<A...>::HASOPT >::Invalid(sq_gettop(vm), 2 + sizeof...(A))) {
                 return sq_throwerror(vm, _SC("wrong number of parameters"));
             }
 #endif
@@ -196,7 +196,7 @@ template <class C, class R> struct SqMember<C,R&> {
         return +[](HSQUIRRELVM vm) -> SQInteger {
 #if !defined (SCRAT_NO_ERROR_CHECKING)
             if (!SQRAT_CONST_CONDITION(overloaded) &&
-                SqGlobalParamCheck< ArgFwd<A...>::HASFMT >::Invalid(sq_gettop(vm), 2 + sizeof...(A))) {
+                SqGlobalParamCheck< ArgFwd<A...>::HASOPT >::Invalid(sq_gettop(vm), 2 + sizeof...(A))) {
                 return sq_throwerror(vm, _SC("wrong number of parameters"));
             }
 #endif
@@ -215,7 +215,7 @@ template <class C, class R> struct SqMember<C,R&> {
         return +[](HSQUIRRELVM vm) -> SQInteger {
 #if !defined (SCRAT_NO_ERROR_CHECKING)
             if (!SQRAT_CONST_CONDITION(overloaded) &&
-                SqGlobalParamCheck< ArgFwd<A...>::HASFMT >::Invalid(sq_gettop(vm), 2 + sizeof...(A))) {
+                SqGlobalParamCheck< ArgFwd<A...>::HASOPT >::Invalid(sq_gettop(vm), 2 + sizeof...(A))) {
                 return sq_throwerror(vm, _SC("wrong number of parameters"));
             }
 #endif
@@ -242,7 +242,7 @@ template <class C> struct SqMember<C, void> {
         return +[](HSQUIRRELVM vm) -> SQInteger {
 #if !defined (SCRAT_NO_ERROR_CHECKING)
             if (!SQRAT_CONST_CONDITION(overloaded) &&
-                SqGlobalParamCheck< ArgFwd<A...>::HASFMT >::Invalid(sq_gettop(vm), 2 + sizeof...(A))) {
+                SqGlobalParamCheck< ArgFwd<A...>::HASOPT >::Invalid(sq_gettop(vm), 2 + sizeof...(A))) {
                 return sq_throwerror(vm, _SC("wrong number of parameters"));
             }
 #endif
@@ -261,7 +261,7 @@ template <class C> struct SqMember<C, void> {
         return +[](HSQUIRRELVM vm) -> SQInteger {
 #if !defined (SCRAT_NO_ERROR_CHECKING)
             if (!SQRAT_CONST_CONDITION(overloaded) &&
-                SqGlobalParamCheck< ArgFwd<A...>::HASFMT >::Invalid(sq_gettop(vm), 2 + sizeof...(A))) {
+                SqGlobalParamCheck< ArgFwd<A...>::HASOPT >::Invalid(sq_gettop(vm), 2 + sizeof...(A))) {
                 return sq_throwerror(vm, _SC("wrong number of parameters"));
             }
 #endif
