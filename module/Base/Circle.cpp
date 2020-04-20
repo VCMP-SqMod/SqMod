@@ -468,6 +468,33 @@ Circle Circle::Abs() const
 }
 
 // ------------------------------------------------------------------------------------------------
+Array Circle::ToPointsArray(SQInteger num_segments) const
+{
+    // Allocate an array with the same amount of elements as the number of segments
+    Array arr(SqVM(), num_segments);
+    // Iterate the specified segments array
+    arr.AppendFromCounted([this](HSQUIRRELVM vm, SQInteger i, SQInteger num_segments) -> bool {
+        if (i >= num_segments) return false;
+        // Get the current angle
+#ifdef SQUSEDOUBLE
+        SQFloat theta = 2.0d * SQMOD_PI64 * static_cast< SQFloat >(i) / static_cast< SQFloat >(num_segments);
+#else
+        SQFloat theta = 2.0f * SQMOD_PI * static_cast< SQFloat >(i) / static_cast< SQFloat >(num_segments);
+#endif // SQUSEDOUBLE
+        // Calculate the x component
+        SQFloat x = (rad * std::cos(theta)) + pos.x;
+        // Calculate the y component
+        SQFloat y = (rad * std::sin(theta)) + pos.y;
+        // Push the Vector2 instance on the stack
+        Var< Vector2 >::push(vm, Vector2{x, y});
+        // Insert the element on the stack into the array
+        return true;
+    }, num_segments);
+    // Return the resulted array
+    return arr;
+}
+
+// ------------------------------------------------------------------------------------------------
 const Circle & Circle::Get(StackStrF & str)
 {
     return Circle::GetEx(Circle::Delim, str);
@@ -539,6 +566,7 @@ void Register_Circle(HSQUIRRELVM vm)
         .Func(_SC("SetPositionEx"), &Circle::SetPositionEx)
         .FmtFunc(_SC("SetStr"), &Circle::SetStr)
         .Func(_SC("Clear"), &Circle::Clear)
+        .Func(_SC("ToPointsArray"), &Circle::ToPointsArray)
         // Member Overloads
         .Overload< void (Circle::*)(void) >(_SC("Generate"), &Circle::Generate)
         .Overload< void (Circle::*)(Val, Val, bool) >(_SC("Generate"), &Circle::Generate)

@@ -2,6 +2,7 @@
 
 // ------------------------------------------------------------------------------------------------
 #include "Base/Shared.hpp"
+#include "Base/Circle.hpp"
 #include "Base/Vector2.hpp"
 #include "Base/Vector4.hpp"
 #include "Base/Vector2i.hpp"
@@ -401,6 +402,19 @@ struct Area
      * Add an array of points to the point list.
     */
     void AddArray(const Sqrat::Array & a);
+
+    /* --------------------------------------------------------------------------------------------
+     * Add a 2D circle to the point list.
+    */
+    void AddCircle(const Circle & c, SQInteger num_segments)
+    {
+        AddCircleEx(c.pos.x, c.pos.y, c.rad, num_segments);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Add a 2D circle to the point list.
+    */
+    void AddCircleEx(SQFloat cx, SQFloat cy, SQFloat cr, SQInteger num_segments);
 
     /* --------------------------------------------------------------------------------------------
      * Test if a point is inside the bounding box and then the area.

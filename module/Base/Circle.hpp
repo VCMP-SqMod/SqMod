@@ -412,6 +412,11 @@ struct Circle
     Circle Abs() const;
 
     /* --------------------------------------------------------------------------------------------
+     * Transform this into an array of Vector2 points that form a circle.
+    */
+    Array ToPointsArray(SQInteger num_segments) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Circle type from a string.
     */
     static const Circle & Get(StackStrF & str);

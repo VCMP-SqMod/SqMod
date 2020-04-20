@@ -48,6 +48,28 @@ void Area::AddArray(const Sqrat::Array & a)
     });
 }
 #pragma clang diagnostic pop
+// ------------------------------------------------------------------------------------------------
+void Area::AddCircleEx(SQFloat cx, SQFloat cy, SQFloat cr, SQInteger num_segments)
+{
+    for(SQInteger i = 0; i < num_segments; ++i)
+    {
+        CheckLock();
+        // Get the current angle
+#ifdef SQUSEDOUBLE
+        SQFloat theta = 2.0d * SQMOD_PI64 * static_cast< SQFloat >(i) / static_cast< SQFloat >(num_segments);
+#else
+        SQFloat theta = 2.0f * SQMOD_PI * static_cast< SQFloat >(i) / static_cast< SQFloat >(num_segments);
+#endif // SQUSEDOUBLE
+        // Calculate the x component
+        SQFloat x = (cr * std::cos(theta)) + cx;
+        // Calculate the y component
+        SQFloat y = (cr * std::sin(theta)) + cy;
+        // Insert the point into the list
+        mPoints.emplace_back(x, y);
+        // Update the bounding box
+        Expand(x, y);
+    }
+}
 
 // ------------------------------------------------------------------------------------------------
 bool Area::Manage()
@@ -456,6 +478,8 @@ void Register_Areas(HSQUIRRELVM vm)
         .Func(_SC("AddEx"), &Area::AddPointEx)
         .Func(_SC("AddVirtual"), &Area::AddVirtualPoint)
         .Func(_SC("AddVirtualEx"), &Area::AddVirtualPointEx)
+        .Func(_SC("AddCircle"), &Area::AddCircle)
+        .Func(_SC("AddCircleEx"), &Area::AddCircleEx)
         .Func(_SC("AddFake"), &Area::AddVirtualPoint)
         .Func(_SC("AddFakeEx"), &Area::AddVirtualPointEx)
         .Func(_SC("AddArray"), &Area::AddArray)
