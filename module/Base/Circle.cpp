@@ -471,7 +471,7 @@ Circle Circle::Abs() const
 Array Circle::ToPointsArray(SQInteger num_segments) const
 {
     // Allocate an array with the same amount of elements as the number of segments
-    Array arr(SqVM(), num_segments);
+    Array arr(SqVM());
     // Iterate the specified segments array
     arr.AppendFromCounted([this](HSQUIRRELVM vm, SQInteger i, SQInteger num_segments) -> bool {
         if (i >= num_segments) return false;
