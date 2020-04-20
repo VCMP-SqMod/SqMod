@@ -40,7 +40,7 @@ void SqBuffer::WriteUint64(const ULongInt & val)
 }
 
 // ------------------------------------------------------------------------------------------------
-void SqBuffer::WriteRawString(StackStrF & val)
+SQInteger SqBuffer::WriteRawString(StackStrF & val)
 {
     // Validate the managed buffer reference
     Validate();
@@ -53,10 +53,12 @@ void SqBuffer::WriteRawString(StackStrF & val)
     Buffer::SzType length = ConvTo< Buffer::SzType >::From(val.mLen);
     // Write the the string contents
     m_Buffer->AppendS(val.mPtr, length);
+    // Return the length of the written string
+    return val.mLen;
 }
 
 // ------------------------------------------------------------------------------------------------
-void SqBuffer::WriteClientString(StackStrF & val)
+SQInteger SqBuffer::WriteClientString(StackStrF & val)
 {
     // Validate the managed buffer reference
     Validate();
@@ -76,6 +78,8 @@ void SqBuffer::WriteClientString(StackStrF & val)
     // Write the size and then the string contents
     m_Buffer->Push< Uint16 >(size);
     m_Buffer->AppendS(val.mPtr, length);
+    // Return the length of the written string
+    return val.mLen;
 }
 
 // ------------------------------------------------------------------------------------------------

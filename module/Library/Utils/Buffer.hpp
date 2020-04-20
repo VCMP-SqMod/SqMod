@@ -583,12 +583,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Write a raw string to the buffer.
     */
-    void WriteRawString(StackStrF & val);
+    SQInteger WriteRawString(StackStrF & val);
 
     /* --------------------------------------------------------------------------------------------
      * Write a client encoded string to the buffer.
     */
-    void WriteClientString(StackStrF & val);
+    SQInteger WriteClientString(StackStrF & val);
 
     /* --------------------------------------------------------------------------------------------
      * Write a AABB to the buffer.
