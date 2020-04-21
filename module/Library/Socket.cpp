@@ -44,6 +44,7 @@ LightObj PassiveSocket::Accept()
     // Return a null object
     return LightObj{};
 }
+
 // ================================================================================================
 void Register_Socket(HSQUIRRELVM vm)
 {
@@ -52,10 +53,12 @@ void Register_Socket(HSQUIRRELVM vm)
     skns.Bind(_SC("Simple"),
         Class< SimpleSocket, NoConstructor< SimpleSocket > >(vm, SimpleSocketTypename::Str)
         // Properties
+        .Prop(_SC("Tag"), &SimpleSocket::GetTag, &SimpleSocket::SetTag)
+        .Prop(_SC("Data"), &SimpleSocket::GetData, &SimpleSocket::SetData)
         .Prop(_SC("IsValid"), &SimpleSocket::IsSocketValid)
         .Prop(_SC("ErrorDescription"), &SimpleSocket::DescribeError)
         .Prop(_SC("NonBlocking"), &SimpleSocket::IsNonBlocking)
-        .Prop(_SC("Data"), &SimpleSocket::GetData)
+        .Prop(_SC("InternalData"), &SimpleSocket::GetInternalData)
         .Prop(_SC("BytesReceived"), &SimpleSocket::GetBytesReceived)
         .Prop(_SC("BytesSent"), &SimpleSocket::GetBytesSent)
         .Prop(_SC("ConnectTimeoutSec"), &SimpleSocket::GetConnectTimeoutSec)
@@ -79,6 +82,7 @@ void Register_Socket(HSQUIRRELVM vm)
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &SimpleSocketTypename::Fn)
         // Member Methods
+        .FmtFunc(_SC("SetTag"), &SimpleSocket::ApplyTag)
         .Func(_SC("Initialize"), &SimpleSocket::Initialize)
         .Func(_SC("Close"), &SimpleSocket::Close)
         .Func(_SC("Shutdown"), &SimpleSocket::Shutdown)
@@ -112,7 +116,7 @@ void Register_Socket(HSQUIRRELVM vm)
         DerivedClass< PassiveSocket, SimpleSocket, NoCopy< PassiveSocket > >(vm, PassiveSocketTypename::Str)
         // Constructors
         .Ctor()
-        .Ctor< int >()
+        .Ctor< SQInteger >()
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &PassiveSocketTypename::Fn)
         .Func(_SC("_tostring"), &PassiveSocket::ToString)
@@ -128,7 +132,7 @@ void Register_Socket(HSQUIRRELVM vm)
         DerivedClass< ActiveSocket, SimpleSocket, NoCopy< ActiveSocket > >(vm, ActiveSocketTypename::Str)
         // Constructors
         .Ctor()
-        .Ctor< int >()
+        .Ctor< SQInteger >()
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &ActiveSocketTypename::Fn)
         .Func(_SC("_tostring"), &ActiveSocket::ToString)

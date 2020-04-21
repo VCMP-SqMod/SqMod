@@ -399,7 +399,7 @@ Vector4 SqBuffer::ReadVector4()
 void Register_Buffer(HSQUIRRELVM vm)
 {
     RootTable(vm).Bind(Typename::Str,
-        Class< SqBuffer >(vm, Typename::Str)
+        Class< SqBuffer, NoCopy< SqBuffer > >(vm, Typename::Str)
         // Constructors
         .Ctor()
         .Ctor< SQInteger >()

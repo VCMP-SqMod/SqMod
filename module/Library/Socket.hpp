@@ -12,6 +12,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
+using namespace moodycamel;
+
 /* ------------------------------------------------------------------------------------------------
  * Handle validation.
 */
@@ -20,6 +22,10 @@ namespace SqMod {
 #else
     #define SQMOD_VALIDATE(x)               (x).Validate()
 #endif // _DEBUG
+
+// ------------------------------------------------------------------------------------------------
+using CSimpleSocketPtr = SharedPtr< CSimpleSocket >;
+using CSimpleSocketRef = WeakPtr< CSimpleSocket >;
 
 /* ------------------------------------------------------------------------------------------------
  * Provides a platform independent class to for socket development. This class is designed
@@ -33,9 +39,20 @@ protected:
     */
     CSimpleSocket * m_Socket;
     /* --------------------------------------------------------------------------------------------
+     * User tag associated with this instance.
+    */
+    String      m_Tag;
+    /* --------------------------------------------------------------------------------------------
+     * User data associated with this instance.
+    */
+    LightObj    m_Data;
+    /* --------------------------------------------------------------------------------------------
      * Default constructor. Initializes everything to null.
     */
-    SimpleSocket() : m_Socket(nullptr) { }
+    SimpleSocket()
+        : m_Socket(nullptr)
+    {
+    }
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor. Initializes with the given socket instance.
     */
@@ -86,6 +103,49 @@ public:
     */
     SimpleSocket & operator = (SimpleSocket &&) = delete;
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated user tag.
+    */
+    const String & GetTag() const
+    {
+        return m_Tag;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated user tag.
+    */
+    void SetTag(StackStrF & tag)
+    {
+        if (tag.mLen > 0)
+        {
+            m_Tag.assign(tag.mPtr, static_cast< size_t >(tag.mLen));
+        }
+        else
+        {
+            m_Tag.clear();
+        }
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated user tag.
+    */
+    SimpleSocket & ApplyTag(StackStrF & tag)
+    {
+        SetTag(tag);
+        return *this;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated user data.
+    */
+    LightObj & GetData()
+    {
+        return m_Data;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated user data.
+    */
+    void SetData(LightObj & data)
+    {
+        m_Data = data;
+    }
+    /* --------------------------------------------------------------------------------------------
      * Initialize instance of CSocket.  This method MUST be called before an object can be used.
     */
     bool Initialize()
@@ -130,7 +190,6 @@ public:
         SQMOD_VALIDATE(*this);
         return m_Socket->Select(static_cast< Int32 >(timeout_sec), static_cast< Int32 >(timeout_usec));
     }
-
     /* --------------------------------------------------------------------------------------------
      * Does the current instance of the socket object contain a valid socket descriptor.
     */
@@ -165,6 +224,7 @@ public:
     }
     /* --------------------------------------------------------------------------------------------
      * Attempts to receive a block of data on an established connection. Buffer cursor is not affected!
+     * This is potentially broken because by the time a job is processed, another one could have override internal buffer.
     */
     SQInteger Receive(Buffer::SzType max_bytes)
     {
@@ -242,7 +302,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Returns a copy of the internal buffer used to receive data. Very ineffective. Use carefully.
     */
-    SqBuffer GetData()
+    SqBuffer GetInternalData()
     {
         SQMOD_VALIDATE(*this);
         return SqBuffer(reinterpret_cast< Buffer::ConstPtr >(m_Socket->GetData()),
@@ -396,7 +456,8 @@ public:
         return m_Socket->SetSendTimeout(timeout_sec, timeout_usec);
     }
     /* --------------------------------------------------------------------------------------------
-     * 
+     * Returns the last error that occured for the instace of the SimpleSocket instance.
+     * This method should be called immediately to retrieve the error code for the failing mehtod call.
     */
     SQInteger GetSocketError()
     {
@@ -692,9 +753,5 @@ public:
                             static_cast< size_t >(str.mLen) * (sizeof(SQChar) / sizeof(uint8_t)));
     }
 };
-// ------------------------------------------------------------------------------------------------
-
-
-
 
 } // Namespace:: SqMod

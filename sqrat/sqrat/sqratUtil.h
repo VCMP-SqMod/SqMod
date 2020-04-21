@@ -786,7 +786,7 @@ public:
     /// \param ptr Should be the return value from a call to the new operator
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    SharedPtr(T* ptr)
+    explicit SharedPtr(T* ptr)
         : m_Ptr(NULL)
         , m_Ref(NULL)
     {
@@ -802,7 +802,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template <class U>
-    SharedPtr(U* ptr)
+    explicit SharedPtr(U* ptr)
         : m_Ptr(NULL)
         , m_Ref(NULL)
     {
