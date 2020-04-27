@@ -137,7 +137,7 @@ bool CSimpleSocket::Initialize()
 {
     errno = CSimpleSocket::SocketSuccess;
 
-#ifdef WIN32
+#ifdef _WIN32
     //-------------------------------------------------------------------------
     // Data structure containing general Windows Sockets Info
     //-------------------------------------------------------------------------
@@ -831,7 +831,7 @@ bool CSimpleSocket::SetNonblocking(void)
 {
     int32  nCurFlags;
 
-#if WIN32
+#if _WIN32
     nCurFlags = 1;
 
     if (ioctlsocket(m_socket, FIONBIO, (ULONG *)&nCurFlags) != 0)
@@ -870,7 +870,7 @@ bool CSimpleSocket::SetBlocking(void)
 {
     int32 nCurFlags;
 
-#if WIN32
+#if _WIN32
     nCurFlags = 0;
 
     if (ioctlsocket(m_socket, FIONBIO, (ULONG *)&nCurFlags) != 0)
@@ -1010,7 +1010,7 @@ void CSimpleSocket::TranslateSocketError(void)
         break;
     }
 #endif
-#ifdef WIN32
+#ifdef _WIN32
     int32 nError = WSAGetLastError();
     switch (nError)
     {
