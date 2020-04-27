@@ -44,6 +44,9 @@
 #ifndef __HOST_H__
 #define __HOST_H__
 
+#include <stddef.h>
+#include <stdint.h>
+#include <assert.h>
 #include <limits.h>
 
 #ifdef __cplusplus
@@ -62,12 +65,6 @@ extern "C"
 #endif
 
 #if defined(_LINUX) || defined(_DARWIN)
-    typedef unsigned char  uint8;
-    typedef char           int8;
-    typedef unsigned short uint16;
-    typedef short          int16;
-    typedef unsigned int   uint32;
-    typedef int            int32;
     typedef int            SOCKET;
 #endif
 
@@ -76,55 +73,10 @@ extern "C"
         void  *iov_base;
         size_t iov_len;
     };
-
-    typedef unsigned char  uint8;
-    typedef char           int8;
-    typedef unsigned short uint16;
-    typedef short          int16;
-    typedef unsigned int   uint32;
-    typedef int            int32;
 #endif
 
 #ifdef _WIN32
     typedef int socklen_t;
-#endif
-
-#if defined(_WIN32)
-    typedef unsigned long long int uint64;
-    typedef long long int          int64;
-#elif (__WORDSIZE == 32)
-    __extension__
-    typedef long long int          int64;
-    __extension__
-    typedef unsigned long long int uint64;
-#elif (__WORDSIZE == 64)
-    typedef unsigned long int uint64;
-    typedef long int          int64;
-#endif
-
-#ifdef _WIN32
-
-  #ifndef UINT8_MAX
-    #define UINT8_MAX  (UCHAR_MAX)
-  #endif
-  #ifndef UINT16_MAX
-    #define UINT16_MAX (USHRT_MAX)
-  #endif
-  #ifndef UINT32_MAX
-    #define UINT32_MAX (ULONG_MAX)
-  #endif
-
-  #if __WORDSIZE == 64
-    #define SIZE_MAX (18446744073709551615UL)
-  #else
-    #ifndef SIZE_MAX
-    #define SIZE_MAX (4294967295U)
-  #endif
-  #endif
-#endif
-
-#if defined(_WIN32)
-  #define ssize_t size_t
 #endif
 
 #ifndef TRUE
@@ -140,8 +92,8 @@ extern "C"
 #define htonll(x)   (x)
 #define ntohll(x)   (x)
 #else
-#define htonll(x)   ((((uint64)htonl(x)) << 32) + htonl(x >> 32))
-#define ntohll(x)   ((((uint64)ntohl(x)) << 32) + ntohl(x >> 32))
+#define htonll(x)   ((((uint64_t)htonl(x)) << 32) + htonl(x >> 32))
+#define ntohll(x)   ((((uint64_t)ntohl(x)) << 32) + ntohl(x >> 32))
 #endif
 #endif
 
@@ -161,7 +113,7 @@ extern "C"
 #define RECV(a,b,c,d)          recv(a, (char *)b, c, d)
 #define RECVFROM(a,b,c,d,e,f)  recvfrom(a, (char *)b, c, d, (sockaddr *)e, (int *)f)
 #define RECV_FLAGS             MSG_WAITALL
-#define SELECT(a,b,c,d,e)      select((int32)a,b,c,d,e)
+#define SELECT(a,b,c,d,e)      select((int32_t)a,b,c,d,e)
 #define SEND(a,b,c,d)          send(a, (const char *)b, (int)c, d)
 #define SENDTO(a,b,c,d,e,f)    sendto(a, (const char *)b, (int)c, d, e, f)
 #define SEND_FLAGS             0
@@ -185,8 +137,8 @@ extern "C"
 #define RECVFROM(a,b,c,d,e,f)  recvfrom(a, (char *)b, c, d, (sockaddr *)e, f)
 #define RECV_FLAGS             MSG_WAITALL
 #define SELECT(a,b,c,d,e)      select(a,b,c,d,e)
-#define SEND(a,b,c,d)          send(a, (const int8 *)b, c, d)
-#define SENDTO(a,b,c,d,e,f)    sendto(a, (const int8 *)b, c, d, e, f)
+#define SEND(a,b,c,d)          send(a, (const int8_t *)b, c, d)
+#define SENDTO(a,b,c,d,e,f)    sendto(a, (const int8_t *)b, c, d, e, f)
 #define SEND_FLAGS             0
 #define SENDFILE(a,b,c,d)      sendfile(a, b, c, d)
 #define SET_SOCKET_ERROR(x,y)  errno=y

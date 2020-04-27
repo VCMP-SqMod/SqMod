@@ -80,7 +80,7 @@ int main(int argc, char **argv)
         //----------------------------------------------------------------------
         // Send a requtest the server requesting the current time.
         //----------------------------------------------------------------------
-        if (socket.Send((const uint8 *)"\n", 1))
+        if (socket.Send((const uint8_t *)"\n", 1))
         {
             //----------------------------------------------------------------------
             // Receive response from the server.

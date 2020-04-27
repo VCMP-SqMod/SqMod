@@ -192,7 +192,7 @@ public:
     /// @param nTimeoutSec timeout in seconds for select.
     /// @param nTimeoutUSec timeout in micro seconds for select.
     /// @return true if socket has data ready, or false if not ready or timed out.
-    virtual bool Select(int32 nTimeoutSec, int32 nTimeoutUSec);
+    virtual bool Select(int32_t nTimeoutSec, int32_t nTimeoutUSec);
 
     /// Does the current instance of the socket object contain a valid socket
     /// descriptor.
@@ -221,7 +221,7 @@ public:
     /// @return number of bytes actually received.
     /// @return of zero means the connection has been shutdown on the other side.
     /// @return of -1 means that an error has occurred.
-    virtual int32 Receive(int32 nMaxBytes = 1, uint8 * pBuffer = 0);
+    virtual int32_t Receive(int32_t nMaxBytes = 1, uint8_t * pBuffer = 0);
 
     /// Attempts to send a block of data on an established connection.
     /// @param pBuf block of data to be sent.
@@ -229,7 +229,7 @@ public:
     /// @return number of bytes actually sent.
     /// @return of zero means the connection has been shutdown on the other side.
     /// @return of -1 means that an error has occurred.
-    virtual int32 Send(const uint8 *pBuf, size_t bytesToSend);
+    virtual int32_t Send(const uint8_t *pBuf, size_t bytesToSend);
 
     /// Attempts to send at most nNumItem blocks described by sendVector
     /// to the socket descriptor associated with the socket object.
@@ -239,7 +239,7 @@ public:
     /// @return number of bytes actually sent, return of zero means the
     /// connection has been shutdown on the other side, and a return of -1
     /// means that an error has occurred.
-    virtual int32 Send(const struct iovec *sendVector, int32 nNumItems);
+    virtual int32_t Send(const struct iovec *sendVector, int32_t nNumItems);
 
     /// Copies data between one file descriptor and another.
     /// On some systems this copying is done within the kernel, and thus is
@@ -253,7 +253,7 @@ public:
     /// @param pOffset from which to start reading data from input file.
     /// @param nCount number of bytes to copy between file descriptors.
     /// @return number of bytes written to the out socket descriptor.
-    virtual int32 SendFile(int32 nOutFd, int32 nInFd, off_t *pOffset, int32 nCount);
+    virtual int32_t SendFile(int32_t nOutFd, int32_t nInFd, off_t *pOffset, int32_t nCount);
 
     /// Returns blocking/non-blocking state of socket.
     /// @return true if the socket is non-blocking, else return false.
@@ -273,21 +273,21 @@ public:
     /// pointer when finished.  This memory is managed internally by the CSocket
     /// class.
     /// @return pointer to data if valid, else returns NULL.
-    uint8 *GetData(void)  {
+    uint8_t *GetData(void)  {
         return m_pBuffer;
     };
 
     /// Returns the number of bytes received on the last call to
     /// CSocket::Receive().
     /// @return number of bytes received.
-    int32 GetBytesReceived(void) {
+    int32_t GetBytesReceived(void) {
         return m_nBytesReceived;
     };
 
     /// Returns the number of bytes sent on the last call to
     /// CSocket::Send().
     /// @return number of bytes sent.
-    int32 GetBytesSent(void) {
+    int32_t GetBytesSent(void) {
         return m_nBytesSent;
     };
 
@@ -306,7 +306,7 @@ public:
     /// @param bEnable true to enable option false to disable option.
     /// @param nTime time in seconds to linger.
     /// @return true if option successfully set
-    bool SetOptionLinger(bool bEnable, uint16 nTime);
+    bool SetOptionLinger(bool bEnable, uint16_t nTime);
 
     /// Tells the kernel that even if this port is busy (in the TIME_WAIT state),
     /// go ahead and reuse it anyway.  If it is busy, but with another state,
@@ -317,14 +317,14 @@ public:
     /// Gets the timeout value that specifies the maximum number of seconds a
     /// call to CSimpleSocket::Open waits until it completes.
     /// @return the length of time in seconds
-    int32 GetConnectTimeoutSec(void) {
+    int32_t GetConnectTimeoutSec(void) {
         return  m_stConnectTimeout.tv_sec;
     };
 
     /// Gets the timeout value that specifies the maximum number of microseconds
     /// a call to CSimpleSocket::Open waits until it completes.
     /// @return the length of time in microseconds
-    int32 GetConnectTimeoutUSec(void) {
+    int32_t GetConnectTimeoutUSec(void) {
         return  m_stConnectTimeout.tv_usec;
     };
 
@@ -338,7 +338,7 @@ public:
     /// @param nConnectTimeoutSec of timeout in seconds.
     /// @param nConnectTimeoutUsec of timeout in microseconds.
     /// @return true if socket connection timeout was successfully set.
-    void SetConnectTimeout(int32 nConnectTimeoutSec, int32 nConnectTimeoutUsec = 0)
+    void SetConnectTimeout(int32_t nConnectTimeoutSec, int32_t nConnectTimeoutUsec = 0)
     {
         m_stConnectTimeout.tv_sec = nConnectTimeoutSec;
         m_stConnectTimeout.tv_usec = nConnectTimeoutUsec;
@@ -347,14 +347,14 @@ public:
     /// Gets the timeout value that specifies the maximum number of seconds a
     /// a call to CSimpleSocket::Receive waits until it completes.
     /// @return the length of time in seconds
-    int32 GetReceiveTimeoutSec(void) {
+    int32_t GetReceiveTimeoutSec(void) {
         return  m_stRecvTimeout.tv_sec;
     };
 
     /// Gets the timeout value that specifies the maximum number of microseconds
     /// a call to CSimpleSocket::Receive waits until it completes.
     /// @return the length of time in microseconds
-    int32 GetReceiveTimeoutUSec(void) {
+    int32_t GetReceiveTimeoutUSec(void) {
         return  m_stRecvTimeout.tv_usec;
     };
 
@@ -368,14 +368,14 @@ public:
     ///  @param nRecvTimeoutSec of timeout in seconds.
     ///  @param nRecvTimeoutUsec of timeout in microseconds.
     ///  @return true if socket timeout was successfully set.
-    bool SetReceiveTimeout(int32 nRecvTimeoutSec, int32 nRecvTimeoutUsec = 0);
+    bool SetReceiveTimeout(int32_t nRecvTimeoutSec, int32_t nRecvTimeoutUsec = 0);
 
     /// Enable/disable multicast for a socket.  This options is only valid for
     /// socket descriptors of type CSimpleSocket::SocketTypeUdp.
     /// @return true if multicast was enabled or false if socket type is not
     /// CSimpleSocket::SocketTypeUdp and the error will be set to
     /// CSimpleSocket::SocketProtocolError
-    bool SetMulticast(bool bEnable, uint8 multicastTTL = 1);
+    bool SetMulticast(bool bEnable, uint8_t multicastTTL = 1);
 
     /// Return true if socket is multicast or false is socket is unicast
     /// @return true if multicast is enabled
@@ -390,21 +390,21 @@ public:
     /// Gets the timeout value that specifies the maximum number of seconds a
     /// a call to CSimpleSocket::Send waits until it completes.
     /// @return the length of time in seconds
-    int32 GetSendTimeoutSec(void) {
+    int32_t GetSendTimeoutSec(void) {
         return  m_stSendTimeout.tv_sec;
     };
 
     /// Gets the timeout value that specifies the maximum number of microseconds
     /// a call to CSimpleSocket::Send waits until it completes.
     /// @return the length of time in microseconds
-    int32 GetSendTimeoutUSec(void) {
+    int32_t GetSendTimeoutUSec(void) {
         return  m_stSendTimeout.tv_usec;
     };
 
     /// Gets the timeout value that specifies the maximum amount of time a call
     /// to CSimpleSocket::Send waits until it completes.
     /// @return the length of time in seconds
-    bool SetSendTimeout(int32 nSendTimeoutSec, int32 nSendTimeoutUsec = 0);
+    bool SetSendTimeout(int32_t nSendTimeoutSec, int32_t nSendTimeoutUsec = 0);
 
     /// Returns the last error that occured for the instace of the CSimpleSocket
     /// instance.  This method should be called immediately to retrieve the
@@ -416,13 +416,13 @@ public:
 
     /// Get the total time the of the last operation in milliseconds.
     ///  @return number of milliseconds of last operation.
-    uint32 GetTotalTimeMs() {
+    uint32_t GetTotalTimeMs() {
         return m_timer.GetMilliSeconds();
     };
 
     /// Get the total time the of the last operation in microseconds.
     ///  @return number of microseconds or last operation.
-    uint32 GetTotalTimeUsec() {
+    uint32_t GetTotalTimeUsec() {
         return m_timer.GetMicroSeconds();
     };
 
@@ -457,7 +457,7 @@ public:
 
     /// Returns the port number on which the client is connected.
     ///  @return client port number.
-    uint16 GetClientPort() {
+    uint16_t GetClientPort() {
         return m_stClientSockaddr.sin_port;
     };
 
@@ -469,35 +469,35 @@ public:
 
     /// Returns the port number on which the server is connected.
     ///  @return server port number.
-    uint16 GetServerPort() {
+    uint16_t GetServerPort() {
         return ntohs(m_stServerSockaddr.sin_port);
     };
 
     /// Get the TCP receive buffer window size for the current socket object.
     /// <br><br>\b NOTE: Linux will set the receive buffer to twice the value passed.
     ///  @return zero on failure else the number of bytes of the TCP receive buffer window size if successful.
-    uint32 GetReceiveWindowSize() {
+    uint32_t GetReceiveWindowSize() {
         return GetWindowSize(SO_RCVBUF);
     };
 
     /// Get the TCP send buffer window size for the current socket object.
     /// <br><br>\b NOTE: Linux will set the send buffer to twice the value passed.
     ///  @return zero on failure else the number of bytes of the TCP receive buffer window size if successful.
-    uint32 GetSendWindowSize() {
+    uint32_t GetSendWindowSize() {
         return GetWindowSize(SO_SNDBUF);
     };
 
     /// Set the TCP receive buffer window size for the current socket object.
     /// <br><br>\b NOTE: Linux will set the receive buffer to twice the value passed.
     ///  @return zero on failure else the number of bytes of the TCP send buffer window size if successful.
-    uint32 SetReceiveWindowSize(uint32 nWindowSize) {
+    uint32_t SetReceiveWindowSize(uint32_t nWindowSize) {
         return SetWindowSize(SO_RCVBUF, nWindowSize);
     };
 
     /// Set the TCP send buffer window size for the current socket object.
     /// <br><br>\b NOTE: Linux will set the send buffer to twice the value passed.
     ///  @return zero on failure else the number of bytes of the TCP send buffer window size if successful.
-    uint32 SetSendWindowSize(uint32 nWindowSize) {
+    uint32_t SetSendWindowSize(uint32_t nWindowSize) {
         return SetWindowSize(SO_SNDBUF, nWindowSize);
     };
 
@@ -526,11 +526,11 @@ protected:
 private:
     /// Generic function used to get the send/receive window size
     ///  @return zero on failure else the number of bytes of the TCP window size if successful.
-    uint32 GetWindowSize(uint32 nOptionName);
+    uint32_t GetWindowSize(uint32_t nOptionName);
 
     /// Generic function used to set the send/receive window size
     ///  @return zero on failure else the number of bytes of the TCP window size if successful.
-    uint32 SetWindowSize(uint32 nOptionName, uint32 nWindowSize);
+    uint32_t SetWindowSize(uint32_t nOptionName, uint32_t nWindowSize);
 
 
     /// Attempts to send at most nNumItem blocks described by sendVector
@@ -542,7 +542,7 @@ private:
     /// @return number of bytes actually sent, return of zero means the
     /// connection has been shutdown on the other side, and a return of -1
     /// means that an error has occurred.
-    int32 Writev(const struct iovec *pVector, size_t nCount);
+    int32_t Writev(const struct iovec *pVector, size_t nCount);
 
     /// Flush the socket descriptor owned by the object.
     /// @return true data was successfully sent, else return false;
@@ -553,13 +553,13 @@ private:
 protected:
     SOCKET               m_socket;            /// socket handle
     CSocketError         m_socketErrno;       /// number of last error
-    uint8               *m_pBuffer;           /// internal send/receive buffer
-    int32                m_nBufferSize;       /// size of internal send/receive buffer
-    int32                m_nSocketDomain;     /// socket type PF_INET, PF_INET6
+    uint8_t               *m_pBuffer;           /// internal send/receive buffer
+    int32_t                m_nBufferSize;       /// size of internal send/receive buffer
+    int32_t                m_nSocketDomain;     /// socket type PF_INET, PF_INET6
     CSocketType          m_nSocketType;       /// socket type - UDP, TCP or RAW
-    int32                m_nBytesReceived;    /// number of bytes received
-    int32                m_nBytesSent;        /// number of bytes sent
-    uint32               m_nFlags;            /// socket flags
+    int32_t                m_nBytesReceived;    /// number of bytes received
+    int32_t                m_nBytesSent;        /// number of bytes sent
+    uint32_t               m_nFlags;            /// socket flags
     bool                 m_bIsBlocking;       /// is socket blocking
     bool                 m_bIsMulticast;      /// is the UDP socket multicast;
     struct timeval       m_stConnectTimeout;  /// connection timeout
