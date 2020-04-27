@@ -85,7 +85,7 @@
 #define IPTOS_LOWDELAY  0x10
 
 #endif
-#include "Host.h"
+#include "HostConf.h"
 #include "StatTimer.h"
 
 //-----------------------------------------------------------------------------

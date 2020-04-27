@@ -56,7 +56,7 @@
   #include <sys/time.h>
 #endif
 
-#include "Host.h"
+#include "HostConf.h"
 
 #if defined(_WIN32)
   #define GET_CLOCK_COUNT(x) QueryPerformanceCounter((LARGE_INTEGER *)x)

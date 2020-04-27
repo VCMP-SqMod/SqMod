@@ -49,11 +49,6 @@
 #include <assert.h>
 #include <limits.h>
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
 /* OS Identification                                                 */
@@ -78,7 +73,7 @@ extern "C"
 #endif
 
 #if defined(_LINUX) || defined(_DARWIN)
-    typedef int            SOCKET;
+    typedef int SOCKET;
 #endif
 
 #ifdef _WIN32
@@ -213,10 +208,6 @@ extern "C"
   #define PRINTF   printf
   #define VPRINTF  vprintf
   #define FPRINTF  fprintf
-#endif
-
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* __HOST_H__ */
