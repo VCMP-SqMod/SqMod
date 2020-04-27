@@ -1,6 +1,6 @@
 # Create library
 add_library(SimpleSocket STATIC
-    include/Host.h
+    include/HostConf.h
     include/StatTimer.h
     include/ActiveSocket.h ActiveSocket.cpp
     include/PassiveSocket.h PassiveSocket.cpp
