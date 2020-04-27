@@ -39,7 +39,7 @@ endif ()
 target_include_directories(MaxmindDB PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_include_directories(MaxmindDB PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 # Configure macro options
-target_compile_definitions(MaxmindDB PRIVATE )
+#target_compile_definitions(MaxmindDB PRIVATE )
 # Configure build options
 if(GCC OR MINGW)
 	target_compile_options(MaxmindDB PRIVATE -Wno-unused -Wno-incompatible-pointer-types)

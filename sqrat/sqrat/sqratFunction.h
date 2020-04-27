@@ -55,14 +55,14 @@ struct Function  {
         sq_resetobject(&mObj);
     }
     // Copy constructor
-    Function(const Function& sf) : mEnv(sf.mEnv), mObj(sf.mObj) {
+    Function(const Function& o) : mEnv(o.mEnv), mObj(o.mObj) {
         sq_addref(SqVM(), &mEnv);
         sq_addref(SqVM(), &mObj);
     }
     // Move constructor
-    Function(Function&& sf) noexcept : mEnv(sf.mEnv), mObj(sf.mObj) {
-        sq_resetobject(&sf.mEnv);
-        sq_resetobject(&sf.mObj);
+    Function(Function&& o) noexcept : mEnv(o.mEnv), mObj(o.mObj) {
+        sq_resetobject(&o.mEnv);
+        sq_resetobject(&o.mObj);
     }
     // Constructs a Function from a slot in an Object
     Function(const Object& e, const SQChar* slot) : mEnv(e.GetObj()) {
@@ -110,22 +110,24 @@ struct Function  {
         Release();
     }
     // Copy Assignment operator
-    Function& operator=(const Function& sf) {
-        Release();
-        mEnv = sf.mEnv;
-        mObj = sf.mObj;
-        sq_addref(SqVM(), &mEnv);
-        sq_addref(SqVM(), &mObj);
+    Function& operator=(const Function& o) {
+        if (this != &o) {
+            Release();
+            mEnv = o.mEnv;
+            mObj = o.mObj;
+            sq_addref(SqVM(), &mEnv);
+            sq_addref(SqVM(), &mObj);
+        }
         return *this;
     }
     // Move Assignment operator
-    Function& operator=(Function&& sf) noexcept {
-        if (this != &sf) {
+    Function& operator=(Function&& o) noexcept {
+        if (this != &o) {
             Release();
-            mEnv = sf.mEnv;
-            mObj = sf.mObj;
-            sq_resetobject(&sf.mEnv);
-            sq_resetobject(&sf.mObj);
+            mEnv = o.mEnv;
+            mObj = o.mObj;
+            sq_resetobject(&o.mEnv);
+            sq_resetobject(&o.mObj);
         }
         return *this;
     }
@@ -172,7 +174,6 @@ struct Function  {
     bool Assign(HSQUIRRELVM vm, SQInteger idx1, SQInteger idx2, bool bind_null=false) {
         // Release current callback, if any
         Release();
-        printf("assigning ty1 %lld ty2 %lld top %lld\n", idx1, idx2, sq_gettop(vm));
         // Tells if the current environment was used
         bool cenv = false;
         // Retrieve the environment type
@@ -182,17 +183,14 @@ struct Function  {
             sq_pushroottable(vm); // Push it on the stack
             sq_getstackobj(vm, -1, &mEnv); // Grab it
             sq_poptop(vm); // Clean up the stack
-            printf("assigning ty1 null\n");
         // Should we use current environment?
         } else if (ty1 & (_RT_CLOSURE | _RT_NATIVECLOSURE)) {
             sq_getstackobj(vm, 1, &mEnv); // `this` as environment
             idx2 = idx1; // There is no explicit environment given
             cenv = true;
-            printf("assigning ty1 closure\n");
         // Is there a specific environment?
         } else if (ty1 & (_RT_TABLE | _RT_CLASS | _RT_INSTANCE)) {
             sq_getstackobj(vm, idx1, &mEnv); // Grab the given environment
-            printf("assigning ty1 table\n");
         } else {
 #if !defined (SCRAT_NO_ERROR_CHECKING)
             SQTHROW(vm, FormatTypeError(vm, idx1, _SC("object")));
@@ -205,23 +203,18 @@ struct Function  {
         // Can we bind null?
         if (bind_null && ty2 == OT_NULL) {
             sq_resetobject(&mEnv); // Drop the environment, if any
-            printf("assigning ty2 null\n");
             return cenv; // Just stop knowing this is what we want
         // Is the callback is valid?
         } else if (ty2 & (_RT_CLOSURE | _RT_NATIVECLOSURE)) {
-            printf("assigning ty2 closure\n");
-            sq_getstackobj(vm, idx2, &mObj);
             // Reference the environment and function
             sq_addref(vm, &mEnv);
             sq_addref(vm, &mObj);
         } else {
-            printf("assigning ty2 null\n");
             sq_resetobject(&mEnv); // Discard obtained environment
 #if !defined (SCRAT_NO_ERROR_CHECKING)
             SQTHROW(vm, FormatTypeError(vm, idx2, _SC("closure")));
 #endif
         }
-        puts("");
         // Return whether current environment was used
         return cenv;
     }
