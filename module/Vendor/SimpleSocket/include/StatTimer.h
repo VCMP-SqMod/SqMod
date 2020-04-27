@@ -40,8 +40,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *----------------------------------------------------------------------------*/
-#ifndef __CSTATTIMER_H__
-#define __CSTATTIMER_H__
+#pragma once
 
 #include <string.h>
 
@@ -111,5 +110,3 @@ private:
     struct timeval  m_startTime;
     struct timeval  m_endTime;
 };
-
-#endif // __CSTATTIMER_H__

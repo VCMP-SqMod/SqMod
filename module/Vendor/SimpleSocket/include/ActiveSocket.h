@@ -40,8 +40,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *----------------------------------------------------------------------------*/
-#ifndef __ACTIVESOCKET_H__
-#define __ACTIVESOCKET_H__
+#pragma once
 
 #include "SimpleSocket.h"
 
@@ -86,6 +85,3 @@ private:
 private:
     struct hostent *m_pHE;
 };
-
-#endif /*  __ACTIVESOCKET_H__  */
-

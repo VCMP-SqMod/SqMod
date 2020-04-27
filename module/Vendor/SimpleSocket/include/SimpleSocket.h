@@ -40,8 +40,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *----------------------------------------------------------------------------*/
-#ifndef __SOCKET_H__
-#define __SOCKET_H__
+#pragma once
 
 #ifdef _LINUX
     #define _DEFAULT_SOURCE
@@ -581,7 +580,3 @@ protected:
     fd_set               m_readFds;           /// read file descriptor set
     fd_set               m_errorFds;          /// error file descriptor set
 };
-
-
-#endif /*  __SOCKET_H__  */
-

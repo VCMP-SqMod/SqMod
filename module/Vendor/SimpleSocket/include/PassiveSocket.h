@@ -40,8 +40,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *----------------------------------------------------------------------------*/
-#ifndef __PASSIVESOCKET_H__
-#define __PASSIVESOCKET_H__
+#pragma once
+
 #include "ActiveSocket.h"
 
 /// Provides a platform independent class to create a passive socket.
@@ -115,5 +115,3 @@ private:
     struct ip_mreq  m_stMulticastRequest;   /// group address for multicast
 
 };
-
-#endif // __PASSIVESOCKET_H__
