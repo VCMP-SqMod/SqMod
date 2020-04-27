@@ -43,10 +43,10 @@
  *----------------------------------------------------------------------------*/
 #pragma once
 
-#include <stddef.h>
-#include <stdint.h>
-#include <assert.h>
-#include <limits.h>
+#include <cstddef>
+#include <cstdint>
+#include <cassert>
+#include <climits>
 
 /*---------------------------------------------------------------------------*/
 /*                                                                           */

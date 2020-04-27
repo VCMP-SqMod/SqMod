@@ -47,43 +47,45 @@
 #endif
 
 #include <sys/stat.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <errno.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cstdarg>
+#include <cerrno>
 
 #if defined(_LINUX) || defined (_DARWIN)
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netinet/tcp.h>
-#include <netinet/ip.h>
-#include <netdb.h>
+    #include <sys/socket.h>
+    #include <netinet/in.h>
+    #include <arpa/inet.h>
+    #include <netinet/tcp.h>
+    #include <netinet/ip.h>
+    #include <netdb.h>
 #endif
+
 #ifdef _LINUX
-#include <linux/if_packet.h>
-#include <linux/if_ether.h>
-#include <linux/if.h>
-#include <sys/sendfile.h>
+    #include <linux/if_packet.h>
+    #include <linux/if_ether.h>
+    #include <linux/if.h>
+    #include <sys/sendfile.h>
 #endif
+
 #ifdef _DARWIN
-#include <net/if.h>
+    #include <net/if.h>
 #endif
+
 #if defined(_LINUX) || defined (_DARWIN)
-#include <sys/time.h>
-#include <sys/uio.h>
-#include <unistd.h>
-#include <fcntl.h>
+    #include <sys/time.h>
+    #include <sys/uio.h>
+    #include <unistd.h>
+    #include <fcntl.h>
 #endif
 
 #ifdef _WIN32
-#include <io.h>
-#include <winsock2.h>
-#include <Ws2tcpip.h>
-
-#define IPTOS_LOWDELAY  0x10
-
+    #include <io.h>
+    #include <winsock2.h>
+    #include <Ws2tcpip.h>
+    #define IPTOS_LOWDELAY  0x10
 #endif
+
 #include "HostConf.h"
 #include "StatTimer.h"
 

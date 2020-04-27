@@ -46,7 +46,7 @@
 
 #if _WIN32
   #include <Winsock2.h>
-  #include <time.h>
+  #include <ctime>
 #endif
 
 #ifdef _LINUX
