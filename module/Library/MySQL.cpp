@@ -2671,6 +2671,8 @@ Array ResultSet::FetchFieldsArray(Array & fields) const
         field.SetIndex(Object(-1, vm));
         // Insert a copy of the field instance into the array
         arr.SetValue(i, field);
+        // We're good
+        return SQ_OK;
     });
     // Return the resulted array
     return arr;
@@ -2726,6 +2728,8 @@ Table ResultSet::FetchFieldsTable(Array & fields) const
         field.SetIndex(Object(-1, vm));
         // Insert a copy of the field instance into the table
         tbl.SetValue((pfields[field.GetIndex()].name == nullptr) ? ToStrF("<field_%ld>", field.GetIndex()) : pfields[field.GetIndex()].name, field);
+        // We're good
+        return SQ_OK;
     });
     // Return the resulted array
     return tbl;
