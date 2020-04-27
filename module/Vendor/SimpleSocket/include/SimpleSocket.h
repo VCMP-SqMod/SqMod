@@ -42,6 +42,9 @@
  *----------------------------------------------------------------------------*/
 #pragma once
 
+#include "HostConf.h"
+#include "StatTimer.h"
+
 #ifdef _LINUX
     #define _DEFAULT_SOURCE
 #endif
@@ -85,9 +88,6 @@
     #include <Ws2tcpip.h>
     #define IPTOS_LOWDELAY  0x10
 #endif
-
-#include "HostConf.h"
-#include "StatTimer.h"
 
 //-----------------------------------------------------------------------------
 // General class macro definitions and typedefs
