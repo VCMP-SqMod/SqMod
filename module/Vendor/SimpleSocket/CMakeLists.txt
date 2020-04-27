@@ -12,9 +12,6 @@ target_include_directories(SimpleSocket PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include
 # Configure macro options
 target_compile_definitions(SimpleSocket PRIVATE _WIN32_WINNT=0x0601)
 # OS and compiler checks. 
-if(UNIX)
-    target_compile_definitions(SimpleSocket PRIVATE _LINUX=1)
-elseif(WIN32)
-    target_compile_definitions(SimpleSocket PRIVATE _WIN32=1)
+if(WIN32)
     target_link_libraries(SimpleSocket PUBLIC Ws2_32)
 endif()

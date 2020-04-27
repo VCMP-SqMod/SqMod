@@ -56,6 +56,19 @@ extern "C"
 
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
+/* OS Identification                                                 */
+/*                                                                           */
+/*---------------------------------------------------------------------------*/
+#if defined(_WIN32) || defined(__WIN32__) || defined(_WIN64) || defined(__WIN64__) || defined(_WIN) || defined(__WIN__)
+    #ifndef _WIN32
+        #define _WIN32 // why do I even bother?
+    #endif
+#elif defined(linux) || defined(__linux) || defined(__linux__) ||  defined(__unix) || defined(__unix__)
+    #define _LINUX
+#endif
+
+/*---------------------------------------------------------------------------*/
+/*                                                                           */
 /* Type Definition Macros                                                    */
 /*                                                                           */
 /*---------------------------------------------------------------------------*/

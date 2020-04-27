@@ -43,6 +43,10 @@
 #ifndef __SOCKET_H__
 #define __SOCKET_H__
 
+#ifdef _LINUX
+    #define _DEFAULT_SOURCE
+#endif
+
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <stdio.h>
