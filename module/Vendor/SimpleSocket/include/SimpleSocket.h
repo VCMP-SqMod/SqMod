@@ -45,10 +45,6 @@
 #include "HostConf.h"
 #include "StatTimer.h"
 
-#ifdef _LINUX
-    #define _DEFAULT_SOURCE
-#endif
-
 #include <sys/stat.h>
 #include <cstdlib>
 #include <cstdio>

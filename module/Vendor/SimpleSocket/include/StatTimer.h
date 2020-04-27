@@ -50,7 +50,6 @@
 #endif
 
 #ifdef _LINUX
-    #define _DEFAULT_SOURCE
   #include <stdio.h>
   #include <sys/time.h>
 #endif
