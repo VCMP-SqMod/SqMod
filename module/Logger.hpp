@@ -293,7 +293,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Bind a script callback to a log level.
     */
-    void BindCb(Uint8 level, Object & env, Function & func);
+    void BindCb(Uint8 level, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * Send a log message.

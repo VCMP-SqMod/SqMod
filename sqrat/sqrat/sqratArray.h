@@ -319,7 +319,7 @@ public:
         sq_get(vm, -2);
 #endif
         sq_getstackobj(vm, -1, &funcObj);
-        Function ret(vm, GetObj(), funcObj); // must addref before the pop!
+        Function ret(GetObj(), funcObj, vm); // must addref before the pop!
         sq_pop(vm, 2);
         return ret;
     }

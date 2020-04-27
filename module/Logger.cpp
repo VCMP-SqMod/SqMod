@@ -280,7 +280,7 @@ void Logger::SetLogFilename(CCStr filename)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Logger::BindCb(Uint8 level, Object & env, Function & func)
+void Logger::BindCb(Uint8 level, Function & func)
 {
     // Get the index of this log level
     const Uint8 idx = GetLevelIdx(level);
@@ -291,24 +291,8 @@ void Logger::BindCb(Uint8 level, Object & env, Function & func)
     }
     // Obtain the function instance called for this log level
     Function & cb = m_LogCb[idx];
-    // Is the specified callback function null?
-    if (func.IsNull())
-    {
-        cb.Release(); // Then release the current callback
-    }
-    // Does this function need a custom environment?
-    else if (env.IsNull())
-    {
-        // Use the root table instead
-        RootTable root(SqVM());
-        // Bind the root table with the function
-        cb = Function(env.GetVM(), root, func.GetFunc());
-    }
     // Assign the specified environment and function
-    else
-    {
-        cb = Function(env.GetVM(), env, func.GetFunc());
-    }
+    cb = std::move(func);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -753,9 +737,9 @@ template < Uint8 L, bool S > static SQInteger LogBasicMessage(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-template < Uint8 L > static void BindLogCallback(Object & env, Function & func)
+template < Uint8 L > static void BindLogCallback(Function & func)
 {
-    Logger::Get().BindCb(L, env, func);
+    Logger::Get().BindCb(L, func);
 }
 
 // ------------------------------------------------------------------------------------------------

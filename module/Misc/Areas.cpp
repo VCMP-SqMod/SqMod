@@ -370,17 +370,12 @@ Vector2i AreaManager::LocateCell(float x, float y)
 }
 
 // ------------------------------------------------------------------------------------------------
-static void Areas_TestPointEx(Object & env, Function & func, float x, float y)
+static void Areas_TestPointEx(float x, float y, Function & func)
 {
     // Is the function valid?
     if (func.IsNull())
     {
         STHROWF("Invalid callback object");
-    }
-    // Should we use a custom environment?
-    else if (!env.IsNull())
-    {
-        func = Function(env.GetVM(), env, func.GetFunc());
     }
     // Begin testing
     AreaManager::Get().TestPoint([&func](AreaCell::Areas::reference ap) -> void {
@@ -389,24 +384,14 @@ static void Areas_TestPointEx(Object & env, Function & func, float x, float y)
 }
 
 // ------------------------------------------------------------------------------------------------
-static void Areas_TestPoint(Object & env, Function & func, const Vector2 & v)
+static void Areas_TestPoint(const Vector2 & v, Function & func)
 {
-    Areas_TestPointEx(env, func, v.x, v.y);
+    Areas_TestPointEx(v.x, v.y, func);
 }
 
 // ------------------------------------------------------------------------------------------------
-static void Areas_TestPointOnEx(Object & ctx, Object & env, Function & func, float x, float y)
+static void Areas_TestPointOnEx(float x, float y, Object & ctx, Function & func)
 {
-    // Is the function valid?
-    if (func.IsNull())
-    {
-        STHROWF("Invalid callback object");
-    }
-    // Should we use a custom environment?
-    else if (!env.IsNull())
-    {
-        func = Function(env.GetVM(), env, func.GetFunc());
-    }
     // Begin testing
     AreaManager::Get().TestPoint([&ctx, &func](AreaCell::Areas::reference ap) -> void {
         func.Execute(ctx, ap.second);
@@ -414,9 +399,9 @@ static void Areas_TestPointOnEx(Object & ctx, Object & env, Function & func, flo
 }
 
 // ------------------------------------------------------------------------------------------------
-static void Areas_TestPointOn(Object & ctx, Object & env, Function & func, const Vector2 & v)
+static void Areas_TestPointOn(const Vector2 & v, Object & ctx, Function & func)
 {
-    Areas_TestPointOnEx(ctx, env, func, v.x, v.y);
+    Areas_TestPointOnEx(v.x, v.y, ctx, func);
 }
 
 // ------------------------------------------------------------------------------------------------

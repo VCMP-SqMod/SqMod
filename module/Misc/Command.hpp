@@ -626,22 +626,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the error callback.
     */
-    void SetOnFail(Object & env, Function & func)
+    void SetOnFail(Function & func)
     {
-        // Are we supposed to unbind current callback?
-        if (func.IsNull())
-        {
-            m_OnFail.Release();
-        }
-        // Was there a custom environment specified?
-        else if (env.IsNull())
-        {
-            m_OnFail = func;
-        }
-        else
-        {
-            m_OnFail = Function(env.GetVM(), env.GetObj(), func.GetFunc());
-        }
+        m_OnFail = std::move(func);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -655,22 +642,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the authentication callback.
     */
-    void SetOnAuth(Object & env, Function & func)
+    void SetOnAuth(Function & func)
     {
-        // Are we supposed to unbind current callback?
-        if (func.IsNull())
-        {
-            m_OnAuth.Release();
-        }
-        // Was there a custom environment specified?
-        if (env.IsNull())
-        {
-            m_OnAuth = func;
-        }
-        else
-        {
-            m_OnAuth = Function(env.GetVM(), env.GetObj(), func.GetFunc());
-        }
+        m_OnAuth = std::move(func);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -971,9 +945,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the error callback.
     */
-    void SetOnFail(Object & env, Function & func)
+    void SetOnFail(Function & func)
     {
-        GetValid()->SetOnFail(env, func);
+        GetValid()->SetOnFail(func);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -987,9 +961,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the authentication callback.
     */
-    void SetOnAuth(Object & env, Function & func)
+    void SetOnAuth(Function & func)
     {
-        GetValid()->SetOnAuth(env, func);
+        GetValid()->SetOnAuth(func);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1043,17 +1017,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all command listeners with a function.
     */
-    void ForeachCommand(Object & env, Function & func) const
+    void ForeachCommand(Function & func) const
     {
-        if (env.IsNull())
-        {
-            GetValid()->ForeachCommand(func);
-        }
-        else
-        {
-            Function fn(env.GetVM(), env, func.GetFunc());
-            GetValid()->ForeachCommand(fn);
-        }
+        GetValid()->ForeachCommand(func);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1747,22 +1713,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the function that must be called when this command listener is executed.
     */
-    void SetOnExec(Object & env, Function & func)
+    void SetOnExec(Function & func)
     {
-        // Are we supposed to unbind current callback?
-        if (func.IsNull())
-        {
-            m_OnExec.Release();
-        }
-        // Was there a custom environment specified?
-        else if (env.IsNull())
-        {
-            m_OnExec = func;
-        }
-        else
-        {
-            m_OnExec = Function(env.GetVM(), env.GetObj(), func.GetFunc());
-        }
+        m_OnExec = std::move(func);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1776,22 +1729,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the function that must be called when this command listener needs to authenticate.
     */
-    void SetOnAuth(Object & env, Function & func)
+    void SetOnAuth(Function & func)
     {
-        // Are we supposed to unbind current callback?
-        if (func.IsNull())
-        {
-            m_OnAuth.Release();
-        }
-        // Was there a custom environment specified?
-        else if (env.IsNull())
-        {
-            m_OnAuth = func;
-        }
-        else
-        {
-            m_OnAuth = Function(env.GetVM(), env.GetObj(), func.GetFunc());
-        }
+        m_OnAuth = std::move(func);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1805,22 +1745,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the function that must be called when this command listener finished execution.
     */
-    void SetOnPost(Object & env, Function & func)
+    void SetOnPost(Function & func)
     {
-        // Are we supposed to unbind current callback?
-        if (func.IsNull())
-        {
-            m_OnPost.Release();
-        }
-        // Was there a custom environment specified?
-        else if (env.IsNull())
-        {
-            m_OnPost = func;
-        }
-        else
-        {
-            m_OnPost = Function(env.GetVM(), env.GetObj(), func.GetFunc());
-        }
+        m_OnPost = std::move(func);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1834,22 +1761,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the function that must be called when this command listener failed execution.
     */
-    void SetOnFail(Object & env, Function & func)
+    void SetOnFail(Function & func)
     {
-        // Are we supposed to unbind current callback?
-        if (func.IsNull())
-        {
-            m_OnFail.Release();
-        }
-        // Was there a custom environment specified?
-        else if (env.IsNull())
-        {
-            m_OnFail = func;
-        }
-        else
-        {
-            m_OnFail = Function(env.GetVM(), env.GetObj(), func.GetFunc());
-        }
+        m_OnFail = std::move(func);
     }
 
     /* --------------------------------------------------------------------------------------------
