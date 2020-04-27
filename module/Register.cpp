@@ -39,6 +39,9 @@ extern void Register_Chrono(HSQUIRRELVM vm);
 extern void Register_Crypt(HSQUIRRELVM vm);
 extern void Register_IO(HSQUIRRELVM vm);
 extern void Register_MMDB(HSQUIRRELVM vm);
+#ifdef SQ_ENABLE_MYSQL
+extern void Register_MySQL(HSQUIRRELVM vm);
+#endif
 extern void Register_Numeric(HSQUIRRELVM vm);
 extern void Register_Socket(HSQUIRRELVM vm);
 extern void Register_SQLite(HSQUIRRELVM vm);
@@ -88,6 +91,9 @@ bool RegisterAPI(HSQUIRRELVM vm)
     Register_Crypt(vm);
     Register_IO(vm);
     Register_MMDB(vm);
+#ifdef SQ_ENABLE_MYSQL
+    Register_MySQL(vm);
+#endif
     Register_Numeric(vm);
     Register_Socket(vm);
     Register_SQLite(vm);

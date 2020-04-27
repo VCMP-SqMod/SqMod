@@ -80,6 +80,8 @@ target_link_libraries(SqModule SimpleINI HashLib B64Lib AES256Lib WhirlpoolLib T
 if(ENABLE_MYSQL)
 	# Include the implementation 
 	target_sources(SqModule PRIVATE Library/MySQL.cpp Library/MySQL.hpp)
+	# Specify that mysql is enabled
+	target_compile_definitions(SqModule PRIVATE SQ_ENABLE_MYSQL=1)
 	# Use builting client on windows (for now)
 	if(WIN32 OR MINGW)
 		target_link_libraries(SqModule mariadbclient)
