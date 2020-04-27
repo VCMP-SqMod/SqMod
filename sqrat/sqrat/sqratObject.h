@@ -122,7 +122,7 @@ public:
     /// \param v VM that the object will exist in
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    Object(HSQOBJECT o, HSQUIRRELVM v = DefaultVM::Get()) : vm(v), obj(o), release(!sq_isnull(o)) {
+    Object(HSQOBJECT o, HSQUIRRELVM v = SqVM()) : vm(v), obj(o), release(!sq_isnull(o)) {
         sq_addref(vm, &obj);
     }
 
@@ -133,7 +133,7 @@ public:
     /// \param v VM that the object will exist in
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    Object(SQInteger i, HSQUIRRELVM v = DefaultVM::Get()) : vm(v), release(true) {
+    Object(SQInteger i, HSQUIRRELVM v = SqVM()) : vm(v), release(true) {
         if (SQ_FAILED(sq_getstackobj(vm, i, &obj))) {
             sq_resetobject(&obj);
             release = false;
@@ -152,7 +152,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template<class T>
-    Object(T* instance, HSQUIRRELVM v = DefaultVM::Get()) : vm(v), release(true) {
+    Object(T* instance, HSQUIRRELVM v = SqVM()) : vm(v), release(true) {
         // Preserve the stack state
         const StackGuard sg(vm);
         // Push the instance on the stack
@@ -794,9 +794,9 @@ template < typename T > Object MakeObject(const T & v)
     // Remember the current stack size
     const StackGuard sg;
     // Transform the specified value into a script object
-    PushVar< T >(DefaultVM::Get(), v);
+    PushVar< T >(SqVM(), v);
     // Get the object from the stack and return it
-    return Var< Object >(DefaultVM::Get(), -1).value;
+    return Var< Object >(SqVM(), -1).value;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -838,7 +838,7 @@ struct LightObj {
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     LightObj(const LightObj& so) : mObj(so.mObj) {
-        sq_addref(DefaultVM::Get(), &mObj);
+        sq_addref(SqVM(), &mObj);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -858,7 +858,7 @@ struct LightObj {
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     LightObj(HSQOBJECT o) : mObj(o) {
-        sq_addref(DefaultVM::Get(), &mObj);
+        sq_addref(SqVM(), &mObj);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -868,7 +868,7 @@ struct LightObj {
     /// \param v VM that the object will exist in
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    LightObj(SQInteger i, HSQUIRRELVM v = DefaultVM::Get()) {
+    LightObj(SQInteger i, HSQUIRRELVM v = SqVM()) {
         if (SQ_FAILED(sq_getstackobj(v, i, &mObj))) {
             sq_resetobject(&mObj);
         } else {
@@ -884,7 +884,7 @@ struct LightObj {
     /// \param v VM that the object will exist in
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    LightObj(const SQChar * s, SQInteger l, HSQUIRRELVM v = DefaultVM::Get()) {
+    LightObj(const SQChar * s, SQInteger l, HSQUIRRELVM v = SqVM()) {
         sq_pushstring(v, s, l);
         if (SQ_FAILED(sq_getstackobj(v, -1, &mObj))) {
             sq_resetobject(&mObj);
@@ -916,7 +916,7 @@ struct LightObj {
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template<class T>
-    LightObj(T* instance, HSQUIRRELVM v = DefaultVM::Get()) {
+    LightObj(T* instance, HSQUIRRELVM v = SqVM()) {
         // Preserve the stack state
         const StackGuard sg(v);
         // Push the instance on the stack
@@ -967,7 +967,7 @@ struct LightObj {
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template<class T>
-    LightObj(DeleteGuard<T> guard, HSQUIRRELVM v = DefaultVM::Get()) : LightObj(guard.Get(), v) {
+    LightObj(DeleteGuard<T> guard, HSQUIRRELVM v = SqVM()) : LightObj(guard.Get(), v) {
         guard.Release();
     }
 
@@ -991,7 +991,7 @@ struct LightObj {
         if (this != &so) {
             Release();
             mObj = so.mObj;
-            sq_addref(DefaultVM::Get(), &mObj);
+            sq_addref(SqVM(), &mObj);
         }
         return *this;
     }
@@ -1084,7 +1084,7 @@ struct LightObj {
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     inline HSQUIRRELVM GetVM() const {
-        return DefaultVM::Get();
+        return SqVM();
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1094,7 +1094,7 @@ struct LightObj {
     void Release() {
         // Should we release any object?
         if (!sq_isnull(mObj)) {
-            sq_release(DefaultVM::Get(), &mObj);
+            sq_release(SqVM(), &mObj);
             sq_resetobject(&mObj);
         }
     }
@@ -1107,7 +1107,7 @@ struct LightObj {
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     void Bind(const SQChar* name, LightObj& obj) {
-        HSQUIRRELVM vm = DefaultVM::Get();
+        HSQUIRRELVM vm = SqVM();
         sq_pushobject(vm, mObj);
         sq_pushstring(vm, name, -1);
         sq_pushobject(vm, obj.mObj);
@@ -1128,7 +1128,7 @@ struct LightObj {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template <class T>
     T Cast() const {
-        HSQUIRRELVM vm = DefaultVM::Get();
+        HSQUIRRELVM vm = SqVM();
         sq_pushobject(vm, mObj);
         Var<T> v(vm, -1);
         sq_pop(vm, 1);
@@ -1148,7 +1148,7 @@ struct LightObj {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template <class T>
     T * CastI() const {
-        HSQUIRRELVM vm = DefaultVM::Get();
+        HSQUIRRELVM vm = SqVM();
         sq_pushobject(vm, mObj);
         Var<T *> v(vm, -1);
         sq_pop(vm, 1);
@@ -1244,9 +1244,9 @@ template < typename T > LightObj MakeLightObj(const T & v)
     // Remember the current stack size
     const StackGuard sg;
     // Transform the specified value into a script object
-    PushVar< T >(DefaultVM::Get(), v);
+    PushVar< T >(SqVM(), v);
     // Get the object from the stack and return it
-    return Var< LightObj >(DefaultVM::Get(), -1).value;
+    return Var< LightObj >(SqVM(), -1).value;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

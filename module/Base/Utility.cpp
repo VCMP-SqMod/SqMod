@@ -647,11 +647,11 @@ String SqTypeName(HSQUIRRELVM vm, SQInteger idx)
 Object BufferToStrObj(const Buffer & b)
 {
     // Obtain the initial stack size
-    const StackGuard sg(DefaultVM::Get());
+    const StackGuard sg(SqVM());
     // Push the string onto the stack
-    sq_pushstring(DefaultVM::Get(), b.Data(), b.Position());
+    sq_pushstring(SqVM(), b.Data(), b.Position());
     // Obtain the object from the stack and return it
-    return Var< Object >(DefaultVM::Get(), -1).value;
+    return Var< Object >(SqVM(), -1).value;
 }
 
 // --------------------------------------------------------------------------------------------
@@ -663,11 +663,11 @@ Object BufferToStrObj(const Buffer & b, Uint32 size)
         STHROWF("The specified buffer size is out of range: %u >= %u", size, b.Capacity());
     }
     // Obtain the initial stack size
-    const StackGuard sg(DefaultVM::Get());
+    const StackGuard sg(SqVM());
     // Push the string onto the stack
-    sq_pushstring(DefaultVM::Get(), b.Data(), size);
+    sq_pushstring(SqVM(), b.Data(), size);
     // Obtain the object from the stack and return it
-    return Var< Object >(DefaultVM::Get(), -1).value;
+    return Var< Object >(SqVM(), -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------

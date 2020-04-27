@@ -321,7 +321,7 @@ LightObj GetEntryAsString(const MMDB_entry_data_s & ed)
     // Obtain the initial stack size
     const StackGuard sg;
     // The default vm
-    HSQUIRRELVM vm = DefaultVM::Get();
+    HSQUIRRELVM vm = SqVM();
     // Identify the type of entry data
     switch (ed.type)
     {

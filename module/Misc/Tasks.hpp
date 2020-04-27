@@ -179,7 +179,7 @@ private:
                 STHROWF("Invalid callback type %s", SqTypeName(mFunc.GetType()));
             }
             // Grab the virtual machine once
-            HSQUIRRELVM vm = DefaultVM::Get();
+            HSQUIRRELVM vm = SqVM();
             // Remember the current stack size
             const StackGuard sg(vm);
             // Push the callback on the stack

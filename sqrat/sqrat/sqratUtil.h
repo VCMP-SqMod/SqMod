@@ -233,8 +233,8 @@ public:
     }
 };
 
-/// Alias for DefaultVM::Get()
-inline HSQUIRRELVM SqVM() noexcept { return DefaultVM::Get(); }
+/// Alias for SqVM()
+inline HSQUIRRELVM SqVM() noexcept { return DefaultVM::Get_(); }
 
 #if !defined (SCRAT_NO_ERROR_CHECKING) && !defined (SCRAT_USE_EXCEPTIONS)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1631,7 +1631,7 @@ struct StackGuard
     /// Default constructor.
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     StackGuard()
-        : m_VM(DefaultVM::Get()), m_Top(sq_gettop(m_VM))
+        : m_VM(SqVM()), m_Top(sq_gettop(m_VM))
     {
         /* ... */
     }
@@ -1848,7 +1848,7 @@ struct StackStrF
     {
         if (!sq_isnull(mObj))
         {
-            sq_release(mVM ? mVM : DefaultVM::Get(), &mObj);
+            sq_release(mVM ? mVM : SqVM(), &mObj);
         }
     }
 
@@ -1867,7 +1867,7 @@ struct StackStrF
             // Release
             if (!sq_isnull(mObj))
             {
-                sq_release(mVM ? mVM : DefaultVM::Get(), &mObj);
+                sq_release(mVM ? mVM : SqVM(), &mObj);
                 sq_resetobject(&mObj);
             }
             // Replicate
@@ -1895,7 +1895,7 @@ struct StackStrF
     {
         if (!sq_isnull(mObj))
         {
-            sq_release(mVM ? mVM : DefaultVM::Get(), &mObj);
+            sq_release(mVM ? mVM : SqVM(), &mObj);
         }
         mPtr = _SC("");
         mLen = 0;

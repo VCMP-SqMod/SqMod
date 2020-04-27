@@ -1437,9 +1437,9 @@ void SQLiteParameter::SetValue(const Object & value)
             // Remember the current stack size
             const StackGuard sg;
             // Push the object onto the stack
-            Var< Object >::push(DefaultVM::Get(), value);
+            Var< Object >::push(SqVM(), value);
             // Pop the object from the stack as a string
-            const Var< CSStr > str(DefaultVM::Get(), -1);
+            const Var< CSStr > str(SqVM(), -1);
             // Attempt to bind the specified value
             SetStringRaw(str.value, ConvTo< SQInteger >::From(str.size));
         } break;
@@ -2187,23 +2187,23 @@ Object SQLiteColumn::GetValue() const
         // Is this a null value?
         case SQLITE_NULL:
         {
-            sq_pushnull(DefaultVM::Get());
+            sq_pushnull(SqVM());
         } break;
         // Is this an integer?
         case SQLITE_INTEGER:
         {
-            sq_pushinteger(DefaultVM::Get(), sqlite3_column_integer(m_Handle->mPtr, m_Index));
+            sq_pushinteger(SqVM(), sqlite3_column_integer(m_Handle->mPtr, m_Index));
         } break;
         // Is this a floating point?
         case SQLITE_FLOAT:
         {
-            sq_pushfloat(DefaultVM::Get(),
+            sq_pushfloat(SqVM(),
                             ConvTo< SQFloat >::From(sqlite3_column_double(m_Handle->mPtr, m_Index)));
         } break;
         // Is this a string?
         case SQLITE_TEXT:
         {
-            sq_pushstring(DefaultVM::Get(),
+            sq_pushstring(SqVM(),
                             reinterpret_cast< CSStr >(sqlite3_column_text(m_Handle->mPtr, m_Index)),
                             sqlite3_column_bytes(m_Handle->mPtr, m_Index));
         } break;
@@ -2215,13 +2215,13 @@ Object SQLiteColumn::GetValue() const
             // Retrieve the the actual blob data that must be returned
             auto data = reinterpret_cast< CCStr >(sqlite3_column_blob(m_Handle->mPtr, m_Index));
             // Attempt to create a buffer with the blob data on the stack
-            Var< const SqBuffer & >::push(DefaultVM::Get(), SqBuffer(data, size, 0));
+            Var< const SqBuffer & >::push(SqVM(), SqBuffer(data, size, 0));
         } break;
         // Unknown type
         default: STHROWF("Unknown value to fetch at index: %d", m_Index);
     }
     // Obtain the object with the value from the stack and return it
-    return Var< Object >(DefaultVM::Get(), -1).value;
+    return Var< Object >(SqVM(), -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2236,17 +2236,17 @@ Object SQLiteColumn::GetNumber() const
         // Is this a null value?
         case SQLITE_NULL:
         {
-            sq_pushinteger(DefaultVM::Get(), 0);
+            sq_pushinteger(SqVM(), 0);
         } break;
         // Is this an integer?
         case SQLITE_INTEGER:
         {
-            sq_pushinteger(DefaultVM::Get(), sqlite3_column_integer(m_Handle->mPtr, m_Index));
+            sq_pushinteger(SqVM(), sqlite3_column_integer(m_Handle->mPtr, m_Index));
         } break;
         // Is this a floating point?
         case SQLITE_FLOAT:
         {
-            sq_pushfloat(DefaultVM::Get(),
+            sq_pushfloat(SqVM(),
                             ConvTo< SQFloat >::From(sqlite3_column_double(m_Handle->mPtr, m_Index)));
         } break;
         // Is this a string?
@@ -2256,17 +2256,17 @@ Object SQLiteColumn::GetNumber() const
             // Is there even a string to parse?
             if (!str || *str == '\0')
             {
-                sq_pushinteger(DefaultVM::Get(), 0);
+                sq_pushinteger(SqVM(), 0);
             }
             // Can we treat this string as a float?
             else if (!std::strchr(str, '.'))
             {
-                sq_pushfloat(DefaultVM::Get(),
+                sq_pushfloat(SqVM(),
                                 ConvTo< SQFloat >::From(std::strtod(str, nullptr)));
             }
             else
             {
-                sq_pushinteger(DefaultVM::Get(),
+                sq_pushinteger(SqVM(),
                                 ConvTo< SQInteger >::From(std::strtoll(str, nullptr, 10)));
 
             }
@@ -2275,7 +2275,7 @@ Object SQLiteColumn::GetNumber() const
         default: STHROWF("Unknown number to fetch at index: %d", m_Index);
     }
     // Obtain the object with the value from the stack and return it
-    return Var< Object >(DefaultVM::Get(), -1).value;
+    return Var< Object >(SqVM(), -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2309,10 +2309,10 @@ Object SQLiteColumn::GetString() const
     // Obtain the initial stack size
     const StackGuard sg;
     // Push the column text on the stack
-    sq_pushstring(DefaultVM::Get(), reinterpret_cast< CSStr >(sqlite3_column_text(m_Handle->mPtr, m_Index)),
+    sq_pushstring(SqVM(), reinterpret_cast< CSStr >(sqlite3_column_text(m_Handle->mPtr, m_Index)),
                             sqlite3_column_bytes(m_Handle->mPtr, m_Index));
     // Get the object from the stack and return it
-    return Var< Object >(DefaultVM::Get(), -1).value;
+    return Var< Object >(SqVM(), -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2342,9 +2342,9 @@ Object SQLiteColumn::GetBuffer() const
     // Retrieve the the actual blob data that must be returned
     auto data = reinterpret_cast< CCStr >(sqlite3_column_blob(m_Handle->mPtr, m_Index));
     // Attempt to create a buffer with the blob data on the stack
-    Var< const SqBuffer & >::push(DefaultVM::Get(), SqBuffer(data, size, 0));
+    Var< const SqBuffer & >::push(SqVM(), SqBuffer(data, size, 0));
     // Get the object from the stack and return it
-    return Var< Object >(DefaultVM::Get(), -1).value;
+    return Var< Object >(SqVM(), -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2356,7 +2356,7 @@ Object SQLiteColumn::GetBlob() const
     // Obtain the size of the data
     const Int32 sz = sqlite3_column_bytes(m_Handle->mPtr, m_Index);
     // Allocate a blob of the same size
-    SQUserPointer p = sqstd_createblob(DefaultVM::Get(), sz);
+    SQUserPointer p = sqstd_createblob(SqVM(), sz);
     // Obtain a pointer to the data
     const void * b = sqlite3_column_blob(m_Handle->mPtr, m_Index);
     // Could the memory blob be allocated?
@@ -2368,9 +2368,9 @@ Object SQLiteColumn::GetBlob() const
     else if (!b)
     {
         // Pop the memory blob from the stack
-        sq_pop(DefaultVM::Get(), 1);
+        sq_pop(SqVM(), 1);
         // Push a null value instead
-        sq_pushnull(DefaultVM::Get());
+        sq_pushnull(SqVM());
     }
     // Copy the data into the memory blob
     else
@@ -2378,7 +2378,7 @@ Object SQLiteColumn::GetBlob() const
         std::memcpy(p, b, sz);
     }
     // Get the object from the stack and return it
-    return Var< Object >(DefaultVM::Get(), -1).value;
+    return Var< Object >(SqVM(), -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2729,7 +2729,7 @@ Array SQLiteStatement::GetArray(Int32 min, Int32 max) const
         STHROWF("Maximum is out of range: %d:%d", max, m_Handle->mColumns);
     }
     // Allocate an array large enough to hold the values from selected columns
-    Array arr(DefaultVM::Get(), max-min);
+    Array arr(SqVM(), max-min);
     // Create a column instance to retrieve the values
     SQLiteColumn column(m_Handle);
     // Array element counter
@@ -2771,7 +2771,7 @@ Table SQLiteStatement::GetTable(Int32 min, Int32 max) const
         STHROWF("Maximum is out of range: %d:%d", max, m_Handle->mColumns);
     }
     // Create a table to hold the selected column values
-    Table tbl(DefaultVM::Get());
+    Table tbl(SqVM());
     // Create a column instance to retrieve the values
     SQLiteColumn column(m_Handle);
     // Process the range of selected columns

@@ -105,9 +105,9 @@ Object & Controller::Attach(Object && obj, Listener * ptr)
         // Obtain the initial stack size
         const StackGuard sg;
         // Push the instance on the stack
-        ClassType< Listener >::PushInstance(DefaultVM::Get(), ptr);
+        ClassType< Listener >::PushInstance(SqVM(), ptr);
         // Grab the instance from the stack
-        obj = Var< Object >(DefaultVM::Get(), -1).value;
+        obj = Var< Object >(SqVM(), -1).value;
     }
     // Are we supposed to grab the instance?
     else if (ptr == nullptr)
@@ -362,7 +362,7 @@ Int32 Controller::Exec(Context & ctx)
     if (ctx.mInstance->m_Associate)
     {
         // Create the associative container
-        Table args(DefaultVM::Get());
+        Table args(SqVM());
         // Copy the arguments into the table
         for (Uint32 arg = 0; arg < ctx.mArgc; ++arg)
         {
@@ -393,7 +393,7 @@ Int32 Controller::Exec(Context & ctx)
     else
     {
         // Reserve an array for the extracted arguments
-        Array args(DefaultVM::Get(), ctx.mArgc);
+        Array args(SqVM(), ctx.mArgc);
         // Copy the arguments into the array
         for (Uint32 arg = 0; arg < ctx.mArgc; ++arg)
         {
@@ -513,15 +513,15 @@ bool Controller::Parse(Context & ctx)
             if (itr != ctx.mArgument.end())
             {
                 // Transform it into a script object
-                sq_pushstring(DefaultVM::Get(), &(*itr), std::distance(itr, ctx.mArgument.cend()));
+                sq_pushstring(SqVM(), &(*itr), std::distance(itr, ctx.mArgument.cend()));
             }
             // Just push an empty string
             else
             {
-                sq_pushstring(DefaultVM::Get(), _SC(""), 0);
+                sq_pushstring(SqVM(), _SC(""), 0);
             }
             // Get the object from the stack and add it to the argument list along with it's type
-            ctx.mArgv.emplace_back(CMDARG_STRING, Var< Object >(DefaultVM::Get(), -1).value);
+            ctx.mArgv.emplace_back(CMDARG_STRING, Var< Object >(SqVM(), -1).value);
             // Include this argument into the count
             ++ctx.mArgc;
             // Nothing left to parse
@@ -615,16 +615,16 @@ bool Controller::Parse(Context & ctx)
             if (str >= end)
             {
                 // Just push an empty string
-                sq_pushstring(DefaultVM::Get(), _SC(""), 0);
+                sq_pushstring(SqVM(), _SC(""), 0);
             }
             // Add it to the argument list along with it's type
             else
             {
                 // Transform it into a script object
-                sq_pushstring(DefaultVM::Get(), str, end - str - 1);
+                sq_pushstring(SqVM(), str, end - str - 1);
             }
             // Get the object from the stack and add it to the argument list along with it's type
-            ctx.mArgv.emplace_back(CMDARG_STRING, Var< Object >(DefaultVM::Get(), -1).value);
+            ctx.mArgv.emplace_back(CMDARG_STRING, Var< Object >(SqVM(), -1).value);
             // Advance to the next argument and obtain its flags
             arg_flags = ctx.mInstance->m_ArgSpec[++ctx.mArgc];
         }
@@ -656,9 +656,9 @@ bool Controller::Parse(Context & ctx)
                     // Remember the current stack size
                     const StackGuard sg;
                     // Transform it into a script object
-                    sq_pushinteger(DefaultVM::Get(), ConvTo< SQInteger >::From(value));
+                    sq_pushinteger(SqVM(), ConvTo< SQInteger >::From(value));
                     // Get the object from the stack and add it to the argument list along with it's type
-                    ctx.mArgv.emplace_back(CMDARG_INTEGER, Var< Object >(DefaultVM::Get(), -1).value);
+                    ctx.mArgv.emplace_back(CMDARG_INTEGER, Var< Object >(SqVM(), -1).value);
                     // We've identified the correct value type
                     identified = true;
                 }
@@ -680,9 +680,9 @@ bool Controller::Parse(Context & ctx)
                     // Remember the current stack size
                     const StackGuard sg;
                     // Transform it into a script object
-                    sq_pushfloat(DefaultVM::Get(), ConvTo< SQFloat >::From(value));
+                    sq_pushfloat(SqVM(), ConvTo< SQFloat >::From(value));
                     // Get the object from the stack and add it to the argument list along with it's type
-                    ctx.mArgv.emplace_back(CMDARG_FLOAT, Var< Object >(DefaultVM::Get(), -1).value);
+                    ctx.mArgv.emplace_back(CMDARG_FLOAT, Var< Object >(SqVM(), -1).value);
                     // We've identified the correct value type
                     identified = true;
                 }
@@ -709,7 +709,7 @@ bool Controller::Parse(Context & ctx)
                 if (std::strcmp(lc, "true") == 0 || std::strcmp(lc, "on") == 0)
                 {
                     // Transform it into a script object
-                    sq_pushbool(DefaultVM::Get(), static_cast< SQBool >(true));
+                    sq_pushbool(SqVM(), static_cast< SQBool >(true));
                     // We've identified the correct value type
                     identified = true;
                 }
@@ -717,7 +717,7 @@ bool Controller::Parse(Context & ctx)
                 else if (std::strcmp(lc, "false") == 0 || std::strcmp(lc, "off") == 0)
                 {
                     // Transform it into a script object
-                    sq_pushbool(DefaultVM::Get(), static_cast< SQBool >(false));
+                    sq_pushbool(SqVM(), static_cast< SQBool >(false));
                     // We've identified the correct value type
                     identified = true;
                 }
@@ -725,7 +725,7 @@ bool Controller::Parse(Context & ctx)
                 if (identified)
                 {
                     // Get the object from the stack and add it to the argument list along with it's type
-                    ctx.mArgv.emplace_back(CMDARG_BOOLEAN, Var< Object >(DefaultVM::Get(), -1).value);
+                    ctx.mArgv.emplace_back(CMDARG_BOOLEAN, Var< Object >(SqVM(), -1).value);
                 }
             }
             // If everything else failed then simply treat the value as a string
@@ -742,7 +742,7 @@ bool Controller::Parse(Context & ctx)
                         *chr = static_cast< CharT >(std::tolower(*str));
                     }
                     // Transform it into a script object
-                    sq_pushstring(DefaultVM::Get(), ctx.mBuffer.Get< SQChar >(), sz);
+                    sq_pushstring(SqVM(), ctx.mBuffer.Get< SQChar >(), sz);
                 }
                 // Do we have to make the string uppercase?
                 else if (arg_flags & CMDARG_UPPER)
@@ -753,15 +753,15 @@ bool Controller::Parse(Context & ctx)
                         *chr = static_cast< CharT >(std::toupper(*str));
                     }
                     // Transform it into a script object
-                    sq_pushstring(DefaultVM::Get(), ctx.mBuffer.Get< SQChar >(), sz);
+                    sq_pushstring(SqVM(), ctx.mBuffer.Get< SQChar >(), sz);
                 }
                 else
                 {
                     // Transform it into a script object
-                    sq_pushstring(DefaultVM::Get(), str, sz);
+                    sq_pushstring(SqVM(), str, sz);
                 }
                 // Get the object from the stack and add it to the argument list along with it's type
-                ctx.mArgv.emplace_back(CMDARG_STRING, Var< Object >(DefaultVM::Get(), -1).value);
+                ctx.mArgv.emplace_back(CMDARG_STRING, Var< Object >(SqVM(), -1).value);
             }
             // Advance to the next argument and obtain its flags
             arg_flags = ctx.mInstance->m_ArgSpec[++ctx.mArgc];

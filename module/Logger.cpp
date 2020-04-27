@@ -294,13 +294,13 @@ void Logger::BindCb(Uint8 level, Object & env, Function & func)
     // Is the specified callback function null?
     if (func.IsNull())
     {
-        cb.ReleaseGently(); // Then release the current callback
+        cb.Release(); // Then release the current callback
     }
     // Does this function need a custom environment?
     else if (env.IsNull())
     {
         // Use the root table instead
-        RootTable root(DefaultVM::Get_());
+        RootTable root(SqVM());
         // Bind the root table with the function
         cb = Function(env.GetVM(), root, func.GetFunc());
     }
@@ -334,7 +334,7 @@ void Logger::Release()
 {
     for (auto & f : m_LogCb)
     {
-        f.ReleaseGently();
+        f.Release();
     }
 }
 
@@ -351,7 +351,7 @@ SQBool Logger::ProcessCb(Uint8 level, bool sub)
     // Grab the associated function
     Function & fn = m_LogCb[idx];
     // Grab the default VM
-    HSQUIRRELVM vm = DefaultVM::Get_();
+    HSQUIRRELVM vm = SqVM();
     // Gram the top of the stack
     SQInteger top = sq_gettop(vm);
     // Push the function followed by the environment
@@ -467,7 +467,7 @@ void Logger::Debug(CCStr fmt, va_list args)
 {
     using namespace Sqrat;
     // Retrieve the default Squirrel VM
-    HSQUIRRELVM vm = DefaultVM::Get();
+    HSQUIRRELVM vm = SqVM();
     // Used to acquire
     SQStackInfos si;
     // Write the message to the buffer

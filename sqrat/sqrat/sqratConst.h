@@ -204,7 +204,7 @@ public:
     /// \param createTable Whether the underlying table that values are bound to is created by the constructor
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    Enumeration(HSQUIRRELVM v = DefaultVM::Get(), bool createTable = true) : Object(v, false) {
+    Enumeration(HSQUIRRELVM v = SqVM(), bool createTable = true) : Object(v, false) {
         if(createTable) {
             sq_newtable(vm);
             sq_getstackobj(vm,-1,&obj);
@@ -301,7 +301,7 @@ public:
     /// \param v VM to get the ConstTable for
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ConstTable(HSQUIRRELVM v = DefaultVM::Get()) : Enumeration(v, false) {
+    ConstTable(HSQUIRRELVM v = SqVM()) : Enumeration(v, false) {
         sq_pushconsttable(vm);
         sq_getstackobj(vm,-1, &obj);
         sq_pop(v,1); // No addref needed, since the consttable is always around

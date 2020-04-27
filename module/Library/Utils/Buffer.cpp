@@ -231,7 +231,7 @@ LightObj SqBuffer::ReadRawString(SQInteger length)
     // Remember the current stack size
     const StackGuard sg;
     // Attempt to create the string as an object
-    sq_pushstring(DefaultVM::Get(), &m_Buffer->Cursor(), len);
+    sq_pushstring(SqVM(), &m_Buffer->Cursor(), len);
     // Advance the cursor after the string
     m_Buffer->Advance(len);
     // Return the resulted object
@@ -258,7 +258,7 @@ LightObj SqBuffer::ReadClientString()
     // Remember the current stack size
     const StackGuard sg;
     // Attempt to create the string as an object
-    sq_pushstring(DefaultVM::Get(), &m_Buffer->Cursor(), length);
+    sq_pushstring(SqVM(), &m_Buffer->Cursor(), length);
     // Advance the cursor after the string
     m_Buffer->Advance(length);
     // Return the resulted object

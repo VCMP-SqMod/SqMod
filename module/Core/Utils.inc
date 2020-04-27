@@ -47,11 +47,11 @@ void Core::InitEvents()
         return;
     }
     // Create a new table on the stack
-    sq_newtableex(DefaultVM::Get(), 128);
+    sq_newtableex(SqVM(), 128);
     // Grab the table object from the stack
-    m_Events = LightObj(-1, DefaultVM::Get());
+    m_Events = LightObj(-1, SqVM());
     // Pop the table object from the stack
-    sq_pop(DefaultVM::Get(), 1);
+    sq_pop(SqVM(), 1);
     // Proceed to initializing the events
     InitSignalPair(mOnCustomEvent, m_Events, "CustomEvent");
     InitSignalPair(mOnBlipCreated, m_Events, "BlipCreated");

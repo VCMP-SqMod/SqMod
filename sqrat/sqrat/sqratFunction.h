@@ -56,8 +56,8 @@ struct Function  {
     }
     // Copy constructor
     Function(const Function& sf) : mEnv(sf.mEnv), mObj(sf.mObj) {
-        sq_addref(DefaultVM::Get_(), &mEnv);
-        sq_addref(DefaultVM::Get_(), &mObj);
+        sq_addref(SqVM(), &mEnv);
+        sq_addref(SqVM(), &mObj);
     }
     // Move constructor
     Function(Function&& sf) noexcept : mEnv(sf.mEnv), mObj(sf.mObj) {
@@ -66,15 +66,15 @@ struct Function  {
     }
     // Constructs a Function from a slot in an Object
     Function(const Object& e, const SQChar* slot) : mEnv(e.GetObj()) {
-        sq_addref(DefaultVM::Get_(), &mEnv);
+        sq_addref(SqVM(), &mEnv);
         Object so = e.GetSlot(slot);
         mObj = so.GetObj();
-        sq_addref(DefaultVM::Get_(), &mObj);
+        sq_addref(SqVM(), &mObj);
 #if !defined (SCRAT_NO_ERROR_CHECKING)
         SQObjectType value_type = so.GetType();
         if (value_type != OT_CLOSURE && value_type != OT_NATIVECLOSURE) {
             // Note that classes can also be considered functions in Squirrel
-            SQTHROW(DefaultVM::Get_(), _SC("function not found in slot"));
+            SQTHROW(SqVM(), _SC("function not found in slot"));
         }
 #endif
     }
@@ -115,8 +115,8 @@ struct Function  {
         mEnv = sf.mEnv;
         mObj = sf.mObj;
         if (!sf.IsNull()) {
-            sq_addref(DefaultVM::Get_(), &mEnv);
-            sq_addref(DefaultVM::Get_(), &mObj);
+            sq_addref(SqVM(), &mEnv);
+            sq_addref(SqVM(), &mObj);
         }
         return *this;
     }
@@ -151,27 +151,16 @@ struct Function  {
     }
     // Gets the Squirrel VM for this Function
     HSQUIRRELVM GetVM() const {
-        return DefaultVM::Get_();
+        return SqVM();
     }
     // Sets the Function to null (removing its references to underlying Squirrel objects)
     void Release() {
-        if(!IsNull()) {
-            sq_release(DefaultVM::Get_(), &mEnv);
-            sq_release(DefaultVM::Get_(), &mObj);
+        if(!sq_isnull(mEnv)) {
+            sq_release(SqVM(), &mEnv);
             sq_resetobject(&mEnv);
-            sq_resetobject(&mObj);
         }
-    }
-    // Sets the Function to null (removing its references to underlying Squirrel objects)
-    // This doesn't call release if the reference count is 1.
-    // Workaround for some weird squirrel behavior that generates an assert in debug mode.
-    void ReleaseGently() {
-        if(!IsNull()) {
-            sq_release(DefaultVM::Get_(), &mEnv);
-            if (sq_getrefcount(DefaultVM::Get_(), &mObj) > 1) {
-                sq_release(DefaultVM::Get_(), &mObj);
-            }
-            sq_resetobject(&mEnv);
+        if(!sq_isnull(mObj)) {
+            sq_release(SqVM(), &mObj);
             sq_resetobject(&mObj);
         }
     }
@@ -231,7 +220,7 @@ struct Function  {
     // Runs the Function and returns its value as a SharedPtr
     template<class R, class... Args> SharedPtr<R> Evaluate(Args &&... args) {
         static constexpr unsigned ARGC = sizeof...(Args) + 1; // + environment
-        HSQUIRRELVM vm = DefaultVM::Get_();
+        HSQUIRRELVM vm = SqVM();
         const SQInteger top = sq_gettop(vm);
         // Push the environment followed by the function
         sq_pushobject(vm, mObj);
@@ -271,7 +260,7 @@ struct Function  {
     template< class... Args >
     void Execute(Args &&... args) {
         static constexpr unsigned ARGC = sizeof...(Args) + 1; // + environment
-        HSQUIRRELVM vm = DefaultVM::Get_();
+        HSQUIRRELVM vm = SqVM();
         const SQInteger top = sq_gettop(vm);
         // Push the environment followed by the function
         sq_pushobject(vm, mObj);

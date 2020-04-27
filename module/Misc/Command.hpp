@@ -516,8 +516,8 @@ public:
             // Clear the command listeners
             ctr->Clear();
             // Release the script callbacks, if any
-            ctr->m_OnFail.ReleaseGently();
-            ctr->m_OnAuth.ReleaseGently();
+            ctr->m_OnFail.Release();
+            ctr->m_OnAuth.Release();
         }
     }
 
@@ -631,7 +631,7 @@ public:
         // Are we supposed to unbind current callback?
         if (func.IsNull())
         {
-            m_OnFail.ReleaseGently();
+            m_OnFail.Release();
         }
         // Was there a custom environment specified?
         else if (env.IsNull())
@@ -660,7 +660,7 @@ public:
         // Are we supposed to unbind current callback?
         if (func.IsNull())
         {
-            m_OnAuth.ReleaseGently();
+            m_OnAuth.Release();
         }
         // Was there a custom environment specified?
         if (env.IsNull())
@@ -743,7 +743,7 @@ public:
     Array GetCommandsArray() const
     {
         // Allocate an array with an adequate size
-        Array arr(DefaultVM::Get(), m_Commands.size());
+        Array arr(SqVM(), m_Commands.size());
         // Index of the currently processed command listener
         SQInteger index = 0;
         // Populate the array with the command listeners
@@ -761,7 +761,7 @@ public:
     Table GetCommandsTable() const
     {
         // Allocate an empty table
-        Table tbl(DefaultVM::Get());
+        Table tbl(SqVM());
         // Populate the table with the command listeners
         for (const auto & cmd : m_Commands)
         {
@@ -1296,10 +1296,10 @@ public:
             m_Controller.Lock()->Detach(this);
         }
         // Release callbacks
-        m_OnExec.ReleaseGently();
-        m_OnAuth.ReleaseGently();
-        m_OnPost.ReleaseGently();
-        m_OnFail.ReleaseGently();
+        m_OnExec.Release();
+        m_OnAuth.Release();
+        m_OnPost.Release();
+        m_OnFail.Release();
         // Is there an element behind us?
         if (m_Prev != nullptr)
         {
@@ -1420,9 +1420,9 @@ public:
         // Obtain the initial stack size
         const StackGuard sg;
         // Push the instance on the stack
-        ClassType< Manager >::PushInstance(DefaultVM::Get(), m_Controller.Lock()->m_Manager);
+        ClassType< Manager >::PushInstance(SqVM(), m_Controller.Lock()->m_Manager);
         // Grab the instance from the stack
-        return Var< Object >(DefaultVM::Get(), -1).value;
+        return Var< Object >(SqVM(), -1).value;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1515,7 +1515,7 @@ public:
     Array GetArgTags() const
     {
         // Allocate an array to encapsulate all tags
-        Array arr(DefaultVM::Get(), SQMOD_MAX_CMD_ARGS);
+        Array arr(SqVM(), SQMOD_MAX_CMD_ARGS);
         // Put the tags to the allocated array
         for (Uint32 arg = 0; arg < SQMOD_MAX_CMD_ARGS; ++arg)
         {
@@ -1752,7 +1752,7 @@ public:
         // Are we supposed to unbind current callback?
         if (func.IsNull())
         {
-            m_OnExec.ReleaseGently();
+            m_OnExec.Release();
         }
         // Was there a custom environment specified?
         else if (env.IsNull())
@@ -1781,7 +1781,7 @@ public:
         // Are we supposed to unbind current callback?
         if (func.IsNull())
         {
-            m_OnAuth.ReleaseGently();
+            m_OnAuth.Release();
         }
         // Was there a custom environment specified?
         else if (env.IsNull())
@@ -1810,7 +1810,7 @@ public:
         // Are we supposed to unbind current callback?
         if (func.IsNull())
         {
-            m_OnPost.ReleaseGently();
+            m_OnPost.Release();
         }
         // Was there a custom environment specified?
         else if (env.IsNull())
@@ -1839,7 +1839,7 @@ public:
         // Are we supposed to unbind current callback?
         if (func.IsNull())
         {
-            m_OnFail.ReleaseGently();
+            m_OnFail.Release();
         }
         // Was there a custom environment specified?
         else if (env.IsNull())

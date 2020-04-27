@@ -206,11 +206,11 @@ Object IniDocument::SaveData(bool signature)
         STHROWF("Unable to save INI document");
     }
     // Obtain the initial stack size
-    const StackGuard sg(DefaultVM::Get());
+    const StackGuard sg(SqVM());
     // Transform it into a script object
-    sq_pushstring(DefaultVM::Get(), source.c_str(), source.size());
+    sq_pushstring(SqVM(), source.c_str(), source.size());
     // Get the object from the stack and return it
-    return Var< Object >(DefaultVM::Get(), -1).value;
+    return Var< Object >(SqVM(), -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------

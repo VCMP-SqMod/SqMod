@@ -492,7 +492,7 @@ void Core::Terminate(bool shutdown)
     NullTable().Release();
     NullObject().Release();
     NullLightObj().Release();
-    NullFunction().ReleaseGently();
+    NullFunction().Release();
     // Release null entity instances
     m_NullBlip.Release();
     m_NullCheckpoint.Release();

@@ -382,11 +382,11 @@ void Core::BlipInst::InitEvents()
         return;
     }
     // Create a new table on the stack
-    sq_newtableex(DefaultVM::Get(), 4);
+    sq_newtableex(SqVM(), 4);
     // Grab the table object from the stack
-    mEvents = LightObj(-1, DefaultVM::Get());
+    mEvents = LightObj(-1, SqVM());
     // Pop the table object from the stack
-    sq_pop(DefaultVM::Get(), 1);
+    sq_pop(SqVM(), 1);
     // Proceed to initializing the events
     InitSignalPair(mOnDestroyed, mEvents, "Destroyed");
     InitSignalPair(mOnCustom, mEvents, "Custom");
@@ -409,11 +409,11 @@ void Core::CheckpointInst::InitEvents()
         return;
     }
     // Create a new table on the stack
-    sq_newtableex(DefaultVM::Get(), 8);
+    sq_newtableex(SqVM(), 8);
     // Grab the table object from the stack
-    mEvents = LightObj(-1, DefaultVM::Get());
+    mEvents = LightObj(-1, SqVM());
     // Pop the table object from the stack
-    sq_pop(DefaultVM::Get(), 1);
+    sq_pop(SqVM(), 1);
     // Proceed to initializing the events
     InitSignalPair(mOnDestroyed, mEvents, "Destroyed");
     InitSignalPair(mOnCustom, mEvents, "Custom");
@@ -450,11 +450,11 @@ void Core::KeybindInst::InitEvents()
         return;
     }
     // Create a new table on the stack
-    sq_newtableex(DefaultVM::Get(), 8);
+    sq_newtableex(SqVM(), 8);
     // Grab the table object from the stack
-    mEvents = LightObj(-1, DefaultVM::Get());
+    mEvents = LightObj(-1, SqVM());
     // Pop the table object from the stack
-    sq_pop(DefaultVM::Get(), 1);
+    sq_pop(SqVM(), 1);
     // Proceed to initializing the events
     InitSignalPair(mOnDestroyed, mEvents, "Destroyed");
     InitSignalPair(mOnCustom, mEvents, "Custom");
@@ -481,11 +481,11 @@ void Core::ObjectInst::InitEvents()
         return;
     }
     // Create a new table on the stack
-    sq_newtableex(DefaultVM::Get(), 12);
+    sq_newtableex(SqVM(), 12);
     // Grab the table object from the stack
-    mEvents = LightObj(-1, DefaultVM::Get());
+    mEvents = LightObj(-1, SqVM());
     // Pop the table object from the stack
-    sq_pop(DefaultVM::Get(), 1);
+    sq_pop(SqVM(), 1);
     // Proceed to initializing the events
     InitSignalPair(mOnDestroyed, mEvents, "Destroyed");
     InitSignalPair(mOnCustom, mEvents, "Custom");
@@ -524,11 +524,11 @@ void Core::PickupInst::InitEvents()
         return;
     }
     // Create a new table on the stack
-    sq_newtableex(DefaultVM::Get(), 16);
+    sq_newtableex(SqVM(), 16);
     // Grab the table object from the stack
-    mEvents = LightObj(-1, DefaultVM::Get());
+    mEvents = LightObj(-1, SqVM());
     // Pop the table object from the stack
-    sq_pop(DefaultVM::Get(), 1);
+    sq_pop(SqVM(), 1);
     // Proceed to initializing the events
     InitSignalPair(mOnDestroyed, mEvents, "Destroyed");
     InitSignalPair(mOnCustom, mEvents, "Custom");
@@ -573,11 +573,11 @@ void Core::PlayerInst::InitEvents()
         return;
     }
     // Create a new table on the stack
-    sq_newtableex(DefaultVM::Get(), 86);
+    sq_newtableex(SqVM(), 86);
     // Grab the table object from the stack
-    mEvents = LightObj(-1, DefaultVM::Get());
+    mEvents = LightObj(-1, SqVM());
     // Pop the table object from the stack
-    sq_pop(DefaultVM::Get(), 1);
+    sq_pop(SqVM(), 1);
     // Proceed to initializing the events
     InitSignalPair(mOnDestroyed, mEvents, "Destroyed");
     InitSignalPair(mOnCustom, mEvents, "Custom");
@@ -758,11 +758,11 @@ void Core::VehicleInst::InitEvents()
         return;
     }
     // Create a new table on the stack
-    sq_newtableex(DefaultVM::Get(), 32);
+    sq_newtableex(SqVM(), 32);
     // Grab the table object from the stack
-    mEvents = LightObj(-1, DefaultVM::Get());
+    mEvents = LightObj(-1, SqVM());
     // Pop the table object from the stack
-    sq_pop(DefaultVM::Get(), 1);
+    sq_pop(SqVM(), 1);
     // Proceed to initializing the events
     InitSignalPair(mOnDestroyed, mEvents, "Destroyed");
     InitSignalPair(mOnCustom, mEvents, "Custom");

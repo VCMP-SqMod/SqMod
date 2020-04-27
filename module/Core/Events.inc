@@ -1835,11 +1835,11 @@ void Core::EmitClientScriptData(Int32 player_id, const uint8_t * data, size_t si
         // Create a protected instance of a buffer wrapper
         DeleteGuard< SqBuffer > ad(new SqBuffer(std::move(b)));
         // Transform the pointer into a script object
-        PushVar< SqBuffer * >(DefaultVM::Get(), ad.Get());
+        PushVar< SqBuffer * >(SqVM(), ad.Get());
         // The script took over the instance now
         ad.Release();
         // Get the object from the stack and store it
-        o = Var< LightObj >(DefaultVM::Get(), -1).value;
+        o = Var< LightObj >(SqVM(), -1).value;
     }
     catch (const std::exception & e)
     {

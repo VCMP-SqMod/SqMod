@@ -142,7 +142,7 @@ private:
             else if (!mSuspended)
             {
                 // Grab the virtual machine once
-                HSQUIRRELVM vm = DefaultVM::Get();
+                HSQUIRRELVM vm = SqVM();
                 // Push the function on the stack
                 sq_pushobject(vm, mFunc);
                 // Push the environment on the stack

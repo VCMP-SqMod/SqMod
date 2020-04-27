@@ -1551,7 +1551,7 @@ void Account::SetSSL(CSStr key, CSStr cert, CSStr ca, CSStr ca_path, CSStr ciphe
 Table Account::GetOptionsTable() const
 {
     // Allocate an empty table
-    Table tbl(DefaultVM::Get(), m_Options.size());
+    Table tbl(SqVM(), m_Options.size());
     // Insert every option into the table
     for (const auto & opt : m_Options)
     {
@@ -2431,9 +2431,9 @@ Object Field::GetString() const
     // Obtain the initial stack size
     const StackGuard sg;
     // Retrieve the value directly from the row and push it on the stack
-    sq_pushstring(DefaultVM::Get(), m_Handle->mRow[m_Index], m_Handle->mLengths[m_Index]);
+    sq_pushstring(SqVM(), m_Handle->mRow[m_Index], m_Handle->mLengths[m_Index]);
     // Obtain the object from the stack
-    Object stro(-1, DefaultVM::Get());
+    Object stro(-1, SqVM());
     // Restore the stack
     sg.Restore();
     // Return it the string object
@@ -2612,10 +2612,10 @@ Array ResultSet::GetFieldNames() const
     // Is there even something to process?
     if (!fcount || !fields)
     {
-        return Array(DefaultVM::Get(), 0);
+        return Array(SqVM(), 0);
     }
     // Allocate an array with the same amount of elements as the number of fields
-    Array arr(DefaultVM::Get(), fcount);
+    Array arr(SqVM(), fcount);
     // Iterate over all the available fields and insert them into the created array
     for (SQInteger n = 0; n < fcount; ++n)
     {
@@ -2634,12 +2634,12 @@ Array ResultSet::GetFieldsArray() const
     // Is there even something to process?
     if (!fcount)
     {
-        return Array(DefaultVM::Get(), 0);
+        return Array(SqVM(), 0);
     }
     // Create a field instance to insert as copy
     Field field(m_Handle);
     // Allocate an array with the same amount of elements as the number of fields
-    Array arr(DefaultVM::Get(), fcount);
+    Array arr(SqVM(), fcount);
     // Iterate over all the available fields and insert them into the created array
     for (SQInteger n = 0; n < fcount; ++n)
     {
@@ -2659,12 +2659,12 @@ Array ResultSet::FetchFieldsArray(Array & fields) const
     // Is there even something to process?
     if (!m_Handle->mFieldCount || fields.Length() == 0)
     {
-        return Array(DefaultVM::Get(), 0);
+        return Array(SqVM(), 0);
     }
     // Create a field instance to insert as copy
     Field field(m_Handle);
     // Allocate an array with the same amount of elements as the number of fields
-    Array arr(DefaultVM::Get(), fields.Length());
+    Array arr(SqVM(), fields.Length());
     // Iterate the specified fields array
     fields.Foreach([&field, &arr](HSQUIRRELVM vm, SQInteger i) -> SQRESULT {
         // Update the field index
@@ -2694,7 +2694,7 @@ Table ResultSet::GetFieldsTable() const
     // Create a field instance to insert as copy
     Field field(m_Handle);
     // Allocate a table to be populated with field instances
-    Table tbl(DefaultVM::Get(), fcount);
+    Table tbl(SqVM(), fcount);
     // Iterate over all the available fields and insert them into the created table
     for (SQInteger n = 0; n < fcount; ++n)
     {
@@ -2719,7 +2719,7 @@ Table ResultSet::FetchFieldsTable(Array & fields) const
     // Create a field instance to insert as copy
     Field field(m_Handle);
     // Allocate a table to be populated with field instances
-    Table tbl(DefaultVM::Get(), fields.Length());
+    Table tbl(SqVM(), fields.Length());
     // Grab the array with field instances
     const ResHnd::FieldType * pfields = m_Handle->mFields;
     // Iterate the specified fields array

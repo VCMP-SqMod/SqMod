@@ -1521,11 +1521,11 @@ LightObj Signal::CreateFree()
     // Create the signal instance
     DeleteGuard< Signal > dg(new Signal());
     // Attempt to create the signal instance
-    ClassType< Signal >::PushInstance(DefaultVM::Get(), dg.Get());
+    ClassType< Signal >::PushInstance(SqVM(), dg.Get());
     // This is now managed by the script
     dg.Release();
     // Return the created signal
-    return Var< LightObj >(DefaultVM::Get(), -1).value;
+    return Var< LightObj >(SqVM(), -1).value;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1555,11 +1555,11 @@ LightObj Signal::Create(StackStrF & name)
     // Grab the signal instance pointer
     Signal * ptr = dg.Get();
     // Attempt to create the signal instance
-    ClassType< Signal >::PushInstance(DefaultVM::Get(), ptr);
+    ClassType< Signal >::PushInstance(SqVM(), ptr);
     // This is now managed by the script
     dg.Release();
     // Grab a reference to the instance created on the stack
-    s_Signals.emplace_back(hash, SignalPair(ptr, Var< LightObj >(DefaultVM::Get(), -1).value));
+    s_Signals.emplace_back(hash, SignalPair(ptr, Var< LightObj >(SqVM(), -1).value));
     // Return the created signal
     return s_Signals.back().second.second.mObj;
 }

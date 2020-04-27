@@ -127,7 +127,7 @@ protected:
             , mThisRef(env)
             , mFuncRef(func)
         {
-            HSQUIRRELVM vm = DefaultVM::Get();
+            HSQUIRRELVM vm = SqVM();
             // Remember the current stack size
             const StackGuard sg(vm);
             // Is there an explicit environment?
@@ -175,8 +175,8 @@ protected:
             // Track reference
             if (mFuncHash != 0)
             {
-                sq_addref(DefaultVM::Get(), &mThisRef);
-                sq_addref(DefaultVM::Get(), &mFuncRef);
+                sq_addref(SqVM(), &mThisRef);
+                sq_addref(SqVM(), &mFuncRef);
             }
         }
 
@@ -217,8 +217,8 @@ protected:
                 mThisRef = o.mThisRef;
                 mFuncRef = o.mFuncRef;
                 // Track reference
-                sq_addref(DefaultVM::Get(), &const_cast< HSQOBJECT & >(o.mThisRef));
-                sq_addref(DefaultVM::Get(), &const_cast< HSQOBJECT & >(o.mFuncRef));
+                sq_addref(SqVM(), &const_cast< HSQOBJECT & >(o.mThisRef));
+                sq_addref(SqVM(), &const_cast< HSQOBJECT & >(o.mFuncRef));
             }
 
             return *this;
@@ -278,7 +278,7 @@ protected:
             // Should we release any environment object?
             if (mThisHash != 0)
             {
-                sq_release(DefaultVM::Get(), &mThisRef);
+                sq_release(SqVM(), &mThisRef);
                 sq_resetobject(&mThisRef);
                 // Also reset the hash
                 mThisHash = 0;
@@ -286,7 +286,7 @@ protected:
             // Should we release any callback object?
             if (mFuncHash != 0)
             {
-                sq_release(DefaultVM::Get(), &mFuncRef);
+                sq_release(SqVM(), &mFuncRef);
                 sq_resetobject(&mFuncRef);
                 // Also reset the hash
                 mFuncHash = 0;
@@ -681,7 +681,7 @@ protected:
     */
     template < typename T > void PushParameters(T v)
     {
-        Var< T >::push(DefaultVM::Get(), v);
+        Var< T >::push(SqVM(), v);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -689,7 +689,7 @@ protected:
     */
     template < typename T, typename... Args > void PushParameters(T v, Args... args)
     {
-        Var< T >::push(DefaultVM::Get(), v);
+        Var< T >::push(SqVM(), v);
         PushParameters(args...);
     }
 
@@ -732,7 +732,7 @@ public:
         // Activate the current scope and create a guard to restore it
         const AutoAssign< Scope * > aa(m_Scope, scope.mParent, &scope);
         // Grab the default virtual machine
-        HSQUIRRELVM vm = DefaultVM::Get();
+        HSQUIRRELVM vm = SqVM();
         // Process the slots from this scope
         while (scope.mItr != scope.mEnd)
         {

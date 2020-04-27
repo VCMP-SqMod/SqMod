@@ -143,13 +143,13 @@ static inline Array Player_AllWhereNameEquals(bool neg, bool cs, CSStr name)
     // Remember the current stack size
     const StackGuard sg;
     // Allocate an empty array on the stack
-    sq_newarray(DefaultVM::Get(), 0);
+    sq_newarray(SqVM(), 0);
     // Process each entity in the pool
     EachEquals(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                ValidInstFunc< CPlayer >(), PlayerName(),
                AppendElemFunc< CPlayer >(), name, !neg, cs);
     // Return the array at the top of the stack
-    return Var< Array >(DefaultVM::Get(), -1).value;
+    return Var< Array >(SqVM(), -1).value;
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -161,13 +161,13 @@ static inline Array Player_AllWhereNameBegins(bool neg, bool cs, CSStr name)
     // Remember the current stack size
     const StackGuard sg;
     // Allocate an empty array on the stack
-    sq_newarray(DefaultVM::Get(), 0);
+    sq_newarray(SqVM(), 0);
     // Process each entity in the pool
     EachBegins(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
                 AppendElemFunc< CPlayer >(), name, strlen(name), !neg, cs);
     // Return the array at the top of the stack
-    return Var< Array >(DefaultVM::Get(), -1).value;
+    return Var< Array >(SqVM(), -1).value;
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -179,13 +179,13 @@ static inline Array Player_AllWhereNameEnds(bool neg, bool cs, CSStr name)
     // Remember the current stack size
     const StackGuard sg;
     // Allocate an empty array on the stack
-    sq_newarray(DefaultVM::Get(), 0);
+    sq_newarray(SqVM(), 0);
     // Process each entity in the pool
     EachEnds(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
                 AppendElemFunc< CPlayer >(), name, strlen(name), !neg, cs);
     // Return the array at the top of the stack
-    return Var< Array >(DefaultVM::Get(), -1).value;
+    return Var< Array >(SqVM(), -1).value;
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -197,13 +197,13 @@ static inline Array Player_AllWhereNameContains(bool neg, bool cs, CSStr name)
     // Remember the current stack size
     const StackGuard sg;
     // Allocate an empty array on the stack
-    sq_newarray(DefaultVM::Get(), 0);
+    sq_newarray(SqVM(), 0);
     // Process each entity in the pool
     EachContains(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
                 AppendElemFunc< CPlayer >(), name, !neg, cs);
     // Return the array at the top of the stack
-    return Var< Array >(DefaultVM::Get(), -1).value;
+    return Var< Array >(SqVM(), -1).value;
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -215,13 +215,13 @@ static inline Array Player_AllWhereNameMatches(bool neg, bool cs, CSStr name)
     // Remember the current stack size
     const StackGuard sg;
     // Allocate an empty array on the stack
-    sq_newarray(DefaultVM::Get(), 0);
+    sq_newarray(SqVM(), 0);
     // Process each entity in the pool
     EachMatches(InstSpec< CPlayer >::CBegin(), InstSpec< CPlayer >::CEnd(),
                 ValidInstFunc< CPlayer >(), PlayerName(),
                 AppendElemFunc< CPlayer >(), name, !neg, cs);
     // Return the array at the top of the stack
-    return Var< Array >(DefaultVM::Get(), -1).value;
+    return Var< Array >(SqVM(), -1).value;
 }
 
 /* ------------------------------------------------------------------------------------------------

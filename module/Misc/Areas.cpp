@@ -81,7 +81,7 @@ bool Area::Manage()
     }
     // We expect this to be called only from the script so that the first parameter in the vm
     // is the area instance
-    LightObj obj(1, DefaultVM::Get());
+    LightObj obj(1, SqVM());
     // Attempt to manage this area
     AreaManager::Get().InsertArea(*this, obj);
     // Return whether the area is now managed by any cells

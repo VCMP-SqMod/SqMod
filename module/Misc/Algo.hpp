@@ -895,7 +895,7 @@ template < typename T > struct AppendElemFunc
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    explicit AppendElemFunc(SQInteger idx = -2, HSQUIRRELVM vm = DefaultVM::Get())
+    explicit AppendElemFunc(SQInteger idx = -2, HSQUIRRELVM vm = SqVM())
         : mIdx(idx), mVM(vm)
     {
         /* ... */
@@ -971,7 +971,7 @@ public:
     */
     bool operator () (const typename InstSpec< T >::Instance & inst)
     {
-        HSQUIRRELVM vm = DefaultVM::Get();
+        HSQUIRRELVM vm = SqVM();
         // Push the callback object
         sq_pushobject(vm, mFunc.mObj);
         // Push the callback environment object
@@ -1045,7 +1045,7 @@ public:
     */
     bool operator () (const typename InstSpec< T >::Instance & inst)
     {
-        HSQUIRRELVM vm = DefaultVM::Get();
+        HSQUIRRELVM vm = SqVM();
         // Push the callback object
         sq_pushobject(vm, mFunc.mObj);
         // Push the callback environment object
@@ -1212,11 +1212,11 @@ public:
     {
         const StackGuard sg;
         // Allocate an empty array on the stack
-        sq_newarray(DefaultVM::Get(), 0);
+        sq_newarray(SqVM(), 0);
         // Process each entity in the pool
         Collect(Inst::CBegin(), Inst::CEnd(), ValidInst(), AppendElem());
         // Return the array at the top of the stack
-        return Var< Array >(DefaultVM::Get(), -1).value;
+        return Var< Array >(SqVM(), -1).value;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1228,11 +1228,11 @@ public:
         // Remember the current stack size
         const StackGuard sg;
         // Allocate an empty array on the stack
-        sq_newarray(DefaultVM::Get(), 0);
+        sq_newarray(SqVM(), 0);
         // Process each entity in the pool
         EachEquals(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), AppendElem(), tag, !neg, cs);
         // Return the array at the top of the stack
-        return Var< Array >(DefaultVM::Get(), -1).value;
+        return Var< Array >(SqVM(), -1).value;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1244,11 +1244,11 @@ public:
         // Remember the current stack size
         const StackGuard sg;
         // Allocate an empty array on the stack
-        sq_newarray(DefaultVM::Get(), 0);
+        sq_newarray(SqVM(), 0);
         // Process each entity in the pool
         EachBegins(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), AppendElem(), tag, strlen(tag), !neg, cs);
         // Return the array at the top of the stack
-        return Var< Array >(DefaultVM::Get(), -1).value;
+        return Var< Array >(SqVM(), -1).value;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1260,11 +1260,11 @@ public:
         // Remember the current stack size
         const StackGuard sg;
         // Allocate an empty array on the stack
-        sq_newarray(DefaultVM::Get(), 0);
+        sq_newarray(SqVM(), 0);
         // Process each entity in the pool
         EachEnds(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), AppendElem(), tag, strlen(tag), !neg, cs);
         // Return the array at the top of the stack
-        return Var< Array >(DefaultVM::Get(), -1).value;
+        return Var< Array >(SqVM(), -1).value;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1276,11 +1276,11 @@ public:
         // Remember the current stack size
         const StackGuard sg;
         // Allocate an empty array on the stack
-        sq_newarray(DefaultVM::Get(), 0);
+        sq_newarray(SqVM(), 0);
         // Process each entity in the pool
         EachContains(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), AppendElem(), tag, !neg, cs);
         // Return the array at the top of the stack
-        return Var< Array >(DefaultVM::Get(), -1).value;
+        return Var< Array >(SqVM(), -1).value;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1292,11 +1292,11 @@ public:
         // Remember the current stack size
         const StackGuard sg;
         // Allocate an empty array on the stack
-        sq_newarray(DefaultVM::Get(), 0);
+        sq_newarray(SqVM(), 0);
         // Process each entity in the pool
         EachMatches(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(), AppendElem(), tag, !neg, cs);
         // Return the array at the top of the stack
-        return Var< Array >(DefaultVM::Get(), -1).value;
+        return Var< Array >(SqVM(), -1).value;
     }
 
     /* --------------------------------------------------------------------------------------------

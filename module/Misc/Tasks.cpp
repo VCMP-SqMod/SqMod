@@ -35,7 +35,7 @@ void Tasks::Task::Init(HSQOBJECT & func, HSQOBJECT & inst, Interval intrv, Itera
     mEntity = ConvTo< Int16 >::From(id);
     mType = ConvTo< Uint8 >::From(type);
     // Grab the virtual machine once
-    HSQUIRRELVM vm = DefaultVM::Get();
+    HSQUIRRELVM vm = SqVM();
     // Remember the current stack size
     const StackGuard sg(vm);
     // Is there a valid function?
@@ -71,7 +71,7 @@ Tasks::Interval Tasks::Task::Execute()
         return 0; // Dunno how we got here but it ends now
     }
     // Grab the virtual machine once
-    HSQUIRRELVM vm = DefaultVM::Get();
+    HSQUIRRELVM vm = SqVM();
     // Push the function on the stack
     sq_pushobject(vm, mFunc);
     // Push the environment on the stack
