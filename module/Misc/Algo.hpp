@@ -957,8 +957,8 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    ForwardElemFunc(LightObj & env, Function & func)
-        : mEnv(env.IsNull() ? func.GetEnv() : env.mObj), mFunc(func.GetFunc()), mCount(0)
+    ForwardElemFunc(Function & func)
+        : mEnv(func.GetEnv()), mFunc(func.GetFunc()), mCount(0)
     {
         if (mFunc.IsNull())
         {
@@ -1031,8 +1031,8 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    ForwardElemDataFunc(LightObj & data, LightObj & env, Function & func)
-        : mEnv(env.IsNull() ? func.GetEnv() : env.mObj), mFunc(func.GetFunc()), mData(data), mCount(0)
+    ForwardElemDataFunc(LightObj & data, Function & func)
+        : mEnv(func.GetEnv()), mFunc(func.GetFunc()), mData(data), mCount(0)
     {
         if (mFunc.IsNull())
         {
@@ -1377,10 +1377,10 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all active entities of this type.
     */
-    static inline Uint32 EachActive(LightObj & env, Function & func)
+    static inline Uint32 EachActive(Function & func)
     {
         // Create a new element forwarder
-        ForwardElem fwd(env, func);
+        ForwardElem fwd(func);
         // Process each entity in the pool
         CollectWhile(Inst::CBegin(), Inst::CEnd(), ValidInst(),
                         std::reference_wrapper< ForwardElem >(fwd));
@@ -1391,10 +1391,10 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all active entities of this type.
     */
-    static inline Uint32 EachActiveData(LightObj & data, LightObj & env, Function & func)
+    static inline Uint32 EachActiveData(LightObj & data, Function & func)
     {
         // Create a new element forwarder
-        ForwardElemData fwd(data, env, func);
+        ForwardElemData fwd(data, func);
         // Process each entity in the pool
         CollectWhile(Inst::CBegin(), Inst::CEnd(), ValidInst(),
                         std::reference_wrapper< ForwardElemData >(fwd));
@@ -1405,11 +1405,11 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag matches or not the specified one.
     */
-    static inline Uint32 EachWhereTagEquals(bool neg, bool cs, CSStr tag, LightObj & env, Function & func)
+    static inline Uint32 EachWhereTagEquals(bool neg, bool cs, CSStr tag, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
-        ForwardElem fwd(env, func);
+        ForwardElem fwd(func);
         // Process each entity in the pool
         EachEqualsWhile(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
                         std::reference_wrapper< ForwardElem >(fwd), tag, !neg, cs);
@@ -1420,11 +1420,11 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag matches or not the specified one.
     */
-    static inline Uint32 EachWhereTagEqualsData(bool neg, bool cs, CSStr tag, LightObj & data, LightObj & env, Function & func)
+    static inline Uint32 EachWhereTagEqualsData(bool neg, bool cs, CSStr tag, LightObj & data, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
-        ForwardElemData fwd(data, env, func);
+        ForwardElemData fwd(data, func);
         // Process each entity in the pool
         EachEqualsWhile(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
                         std::reference_wrapper< ForwardElemData >(fwd), tag, !neg, cs);
@@ -1435,11 +1435,11 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag begins with the specified string.
     */
-    static inline Uint32 EachWhereTagBegins(bool neg, bool cs, CSStr tag, LightObj & env, Function & func)
+    static inline Uint32 EachWhereTagBegins(bool neg, bool cs, CSStr tag, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
-        ForwardElem fwd(env, func);
+        ForwardElem fwd(func);
         // Process each entity in the pool
         EachBeginsWhile(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
                         std::reference_wrapper< ForwardElem >(fwd), tag, strlen(tag), !neg, cs);
@@ -1450,11 +1450,11 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag begins with the specified string.
     */
-    static inline Uint32 EachWhereTagBeginsData(bool neg, bool cs, CSStr tag, LightObj & data, LightObj & env, Function & func)
+    static inline Uint32 EachWhereTagBeginsData(bool neg, bool cs, CSStr tag, LightObj & data, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
-        ForwardElemData fwd(data, env, func);
+        ForwardElemData fwd(data, func);
         // Process each entity in the pool
         EachBeginsWhile(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
                         std::reference_wrapper< ForwardElemData >(fwd), tag, strlen(tag), !neg, cs);
@@ -1465,11 +1465,11 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag ends or not with the specified string.
     */
-    static inline Uint32 EachWhereTagEnds(bool neg, bool cs, CSStr tag, LightObj & env, Function & func)
+    static inline Uint32 EachWhereTagEnds(bool neg, bool cs, CSStr tag, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
-        ForwardElem fwd(env, func);
+        ForwardElem fwd(func);
         // Process each entity in the pool
         EachEndsWhile(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
                         std::reference_wrapper< ForwardElem >(fwd), tag, strlen(tag), !neg, cs);
@@ -1480,11 +1480,11 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag ends or not with the specified string.
     */
-    static inline Uint32 EachWhereTagEndsData(bool neg, bool cs, CSStr tag, LightObj & data, LightObj & env, Function & func)
+    static inline Uint32 EachWhereTagEndsData(bool neg, bool cs, CSStr tag, LightObj & data, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
-        ForwardElemData fwd(data, env, func);
+        ForwardElemData fwd(data, func);
         // Process each entity in the pool
         EachEndsWhile(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
                         std::reference_wrapper< ForwardElemData >(fwd), tag, strlen(tag), !neg, cs);
@@ -1495,11 +1495,11 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag contains the specified string.
     */
-    static inline Uint32 EachWhereTagContains(bool neg, bool cs, CSStr tag, LightObj & env, Function & func)
+    static inline Uint32 EachWhereTagContains(bool neg, bool cs, CSStr tag, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
-        ForwardElem fwd(env, func);
+        ForwardElem fwd(func);
         // Process each entity in the pool
         EachContainsWhile(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
                         std::reference_wrapper< ForwardElem >(fwd), tag, !neg, cs);
@@ -1510,11 +1510,11 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag contains the specified string.
     */
-    static inline Uint32 EachWhereTagContainsData(bool neg, bool cs, CSStr tag, LightObj & data, LightObj & env, Function & func)
+    static inline Uint32 EachWhereTagContainsData(bool neg, bool cs, CSStr tag, LightObj & data, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
-        ForwardElemData fwd(data, env, func);
+        ForwardElemData fwd(data, func);
         // Process each entity in the pool
         EachContainsWhile(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
                         std::reference_wrapper< ForwardElemData >(fwd), tag, !neg, cs);
@@ -1525,11 +1525,11 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag match the specified filter.
     */
-    static inline Uint32 EachWhereTagMatches(bool neg, bool cs, CSStr tag, LightObj & env, Function & func)
+    static inline Uint32 EachWhereTagMatches(bool neg, bool cs, CSStr tag, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
-        ForwardElem fwd(env, func);
+        ForwardElem fwd(func);
         // Process each entity in the pool
         EachMatchesWhile(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
                         std::reference_wrapper< ForwardElem >(fwd), tag, !neg, cs);
@@ -1540,11 +1540,11 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag match the specified filter.
     */
-    static inline Uint32 EachWhereTagMatchesData(bool neg, bool cs, CSStr tag, LightObj & data, LightObj & env, Function & func)
+    static inline Uint32 EachWhereTagMatchesData(bool neg, bool cs, CSStr tag, LightObj & data, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
-        ForwardElemData fwd(data, env, func);
+        ForwardElemData fwd(data, func);
         // Process each entity in the pool
         EachMatchesWhile(Inst::CBegin(), Inst::CEnd(), ValidInst(), InstTag(),
                         std::reference_wrapper< ForwardElemData >(fwd), tag, !neg, cs);

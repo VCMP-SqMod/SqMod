@@ -65,7 +65,7 @@ private:
     bool        m_CyclicLock; // Prevent the script callback from entering a loop.
 
     // --------------------------------------------------------------------------------------------
-    Uint32      m_StringTruncate; // The length at which to trincate strings in debug.
+    Uint32      m_StringTruncate; // The length at which to truncate strings in debug.
 
     // --------------------------------------------------------------------------------------------
     std::FILE*  m_File; // Handle to the file where the logs should be saved.
