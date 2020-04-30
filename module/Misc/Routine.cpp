@@ -136,12 +136,12 @@ SQInteger Routine::Create(HSQUIRRELVM vm)
     // Is the specified environment a null value?
     if (use_root)
     {
-        // Preserve the stack state
-        const StackGuard sg(vm);
         // Push the root table on the stack
         sq_pushroottable(vm);
         // Attempt to retrieve the table object
         res = sq_getstackobj(vm, -1, &env);
+        // Preserve the stack state
+        sq_poptop(vm);
     }
     // Should we treat it as a valid environment object?
     else if (etype != OT_STRING)
@@ -192,7 +192,9 @@ SQInteger Routine::Create(HSQUIRRELVM vm)
     // Attempt to create a routine instance
     try
     {
-        ClassType< Routine >::PushInstance(vm, new Routine());
+        DeleteGuard< Routine > dg(new Routine());
+        ClassType< Routine >::PushInstance(vm, dg.Get());
+        dg.Release();
     }
     catch (const Sqrat::Exception & e)
     {

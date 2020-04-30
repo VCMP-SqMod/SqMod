@@ -39,6 +39,7 @@ private:
         bool        mSuspended; // Whether this instance is allowed to receive calls.
         bool        mQuiet; // Whether this instance is allowed to handle errors.
         bool        mEndure; // Whether this instance is allowed to terminate itself on errors.
+        bool        mTerminated; // Whether this instance is allowed to terminate itself on errors.
         Uint8       mArgc; // The number of arguments that the routine must forward.
         Argument    mArgv[14]; // The arguments that the routine must forward.
 
@@ -56,6 +57,7 @@ private:
             , mSuspended(false)
             , mQuiet(GetSilenced())
             , mEndure(false)
+            , mTerminated(false)
             , mArgc(0)
             , mArgv()
         {
@@ -96,19 +98,10 @@ private:
         void Init(HSQOBJECT & env, HSQOBJECT & func, HSQOBJECT & inst, Interval intrv, Iterator itr)
         {
             // Initialize the callback objects
-            if (!sq_isnull(env))
-            {
-                mEnv = LightObj(env);
-            }
-            if (!sq_isnull(func))
-            {
-                mFunc = LightObj(func);
-            }
+            mEnv = LightObj{env};
+            mFunc = LightObj{func};
             // Associate with the routine instance
-            if (!sq_isnull(inst))
-            {
-                mInst = LightObj(inst);
-            }
+            mInst = LightObj{inst};
             // Initialize the routine options
             mIterations = itr;
             mInterval = intrv;
@@ -167,14 +160,22 @@ private:
                 if (SQ_FAILED(res))
                 {
                     // Should we endure the errors?
-                    if (!mEndure)
+                    if (!mEndure && !mTerminated)
                     {
-                        Terminate(); // Destroy ourself on error
+                        Terminate(); // Destroy our self on error
                     }
                 }
             }
+            // See if we are using the slot of a previously terminated routine
+            if  (mTerminated)
+            {
+                // The old routine was terminated, we're the new routine and we're not
+                // We don't touch the iterations and return the interval of the new routine
+                // to take effect on the next frame
+                mTerminated = false;
+            }
             // Decrease the number of iterations if necessary
-            if (mIterations && (--mIterations) == 0)
+            else if (mIterations && (--mIterations) == 0)
             {
                 Terminate(); // This routine reached the end of it's life
             }
@@ -203,6 +204,8 @@ private:
         {
             Release();
             Clear();
+            // Don't attempt to terminate this routine again
+            mTerminated = true;
         }
     };
 
@@ -259,6 +262,17 @@ protected:
     }
 
 public:
+
+    /* --------------------------------------------------------------------------------------------
+     * Default constructor.
+    */
+    ~Routine()
+    {
+        if (m_Slot < SQMOD_MAX_ROUTINES)
+        {
+            Terminate();
+        }
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
