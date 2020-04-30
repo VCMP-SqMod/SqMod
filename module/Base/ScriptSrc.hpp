@@ -39,16 +39,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    ScriptSrc(HSQUIRRELVM vm, const String & path, bool delay = false, bool info = false)
-        : ScriptSrc(vm, String(path), delay, info) 
-    {
-        /* ... */
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Base constructor.
-    */
-    ScriptSrc(HSQUIRRELVM vm, String && path, bool delay = false, bool info = false);
+    ScriptSrc(HSQUIRRELVM vm, const String & path, bool delay = false, bool info = false);
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.

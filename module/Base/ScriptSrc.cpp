@@ -27,7 +27,7 @@ public:
     {
         if (!mFile)
         {
-            throw std::runtime_error(ToStrF("Unable to open script source (%s)", path));
+            STHROWF("Unable to open script source (%s)", path);
         }
     }
 
@@ -151,9 +151,9 @@ void ScriptSrc::Process()
 }
 
 // ------------------------------------------------------------------------------------------------
-ScriptSrc::ScriptSrc(HSQUIRRELVM vm, String && path, bool delay, bool info)
+ScriptSrc::ScriptSrc(HSQUIRRELVM vm, const String & path, bool delay, bool info)
     : mExec(vm)
-    , mPath(std::move(path))
+    , mPath(path)
     , mData()
     , mLine()
     , mInfo(info)

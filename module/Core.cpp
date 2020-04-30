@@ -675,23 +675,23 @@ bool Core::LoadScript(CSStr filepath, bool delay)
     else if (m_Executed)
     {
         // Create a new script container and insert it into the script pool
-        m_Scripts.emplace_back(m_VM, std::move(path), delay, m_Debugging);
+        m_Scripts.emplace_back(m_VM, path, delay, m_Debugging);
 
         // Attempt to load and compile the script file
         try
         {
-            m_Scripts.back().mExec.CompileFile(m_Scripts.back().mPath);
+            m_Scripts.back().mExec.CompileFile(path);
         }
         catch (const Sqrat::Exception & e)
         {
-            LogFtl("Unable to compile: %s", m_Scripts.back().mPath.c_str());
+            LogFtl("Unable to compile: %s", path.c_str());
             // Remove the script container since it's invalid
             m_Scripts.pop_back();
             // Failed to compile properly
             return false;
         }
         // At this point the script should be completely loaded
-        cLogDbg(m_Verbosity >= 3, "Compiled script: %s", m_Scripts.back().mPath.c_str());
+        cLogDbg(m_Verbosity >= 3, "Compiled script: %s", path.c_str());
 
         // Attempt to execute the compiled script code
         try
@@ -700,22 +700,31 @@ bool Core::LoadScript(CSStr filepath, bool delay)
         }
         catch (const Sqrat::Exception & e)
         {
-            LogFtl("Unable to execute: %s", m_Scripts.back().mPath.c_str());
+            LogFtl("Unable to execute: %s", path.c_str());
             // Remove the script container since it's invalid
             m_Scripts.pop_back();
             // Failed to execute properly
             return false;
         }
         // At this point the script should be completely loaded
-        cLogScs(m_Verbosity >= 2, "Executed script: %s", m_Scripts.back().mPath.c_str());
+        cLogScs(m_Verbosity >= 2, "Executed script: %s", path.c_str());
     }
     // We don't compile the scripts yet. We just store their path and prepare the objects
     else
     {
         cLogDbg(m_Verbosity >= 2, "Pending %s script: %s", (delay ? "deferred" : "immediate"), path.c_str());
-
-        // Create a new script container and insert it into the pending script pool
-        m_PendingScripts.emplace_back(m_VM, std::move(path), delay, m_Debugging);
+        // Attempt to queue the script
+        try
+        {
+            // Create a new script container and insert it into the pending script pool
+            m_PendingScripts.emplace_back(m_VM, path, delay, m_Debugging);
+        }
+        catch (const Sqrat::Exception & e)
+        {
+            LogFtl("Unable to queue: %s", e.what());
+            // Failed to queue script
+            return false;
+        }
     }
 
     // At this point the script exists in one of the pools
