@@ -22,8 +22,10 @@ else()
 	set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
 
-# Default to release mode
-set(CMAKE_BUILD_TYPE "Release")
+# Determine if build mode
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+	add_compile_options(-g)
+endif()
 
 # Include mingw runntime into the binary
 if (GCC OR MINGW)

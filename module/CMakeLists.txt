@@ -90,6 +90,12 @@ if(ENABLE_MYSQL)
 		target_link_libraries(SqModule MySQL::MySQL)
 	endif()
 endif()
+# Determine if build mode
+if(CMAKE_BUILD_TYPE MATCHES Release)
+	target_compile_definitions(SqModule PRIVATE NDEBUG=1)
+else()
+	target_compile_definitions(SqModule PRIVATE _DEBUG=1 SQMOD_EXCEPTLOC=1)
+endif()
 # Force 32-bit binaries when necessary
 if(FORCE_32BIT_BIN)
 	set_target_properties(SqModule PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")

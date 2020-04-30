@@ -14,6 +14,12 @@ add_library(Sqrat STATIC sqrat.cpp sqrat.h
 	sqrat/sqratTypes.h
 	sqrat/sqratUtil.h
 )
+# Determine if build mode
+if(CMAKE_BUILD_TYPE MATCHES Release)
+	target_compile_definitions(Sqrat PRIVATE NDEBUG=1)
+else()
+	target_compile_definitions(Sqrat PRIVATE _DEBUG=1)
+endif()
 # Set library compiler options
 target_compile_definitions(Sqrat PUBLIC SCRAT_USE_EXCEPTIONS=1 SCRAT_USE_CXX11_OPTIMIZATIONS=1)
 # Set specific compiler options

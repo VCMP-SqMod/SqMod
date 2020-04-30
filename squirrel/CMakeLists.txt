@@ -40,6 +40,12 @@ add_library(Squirrel STATIC
 	stdlib/sqstdstring.cpp
 	stdlib/sqstdsystem.cpp
 )
+# Determine if build mode
+if(CMAKE_BUILD_TYPE MATCHES Release)
+	target_compile_definitions(Squirrel PRIVATE NDEBUG=1)
+else()
+	target_compile_definitions(Squirrel PRIVATE _DEBUG=1)
+endif()
 # Make sure Squirrel knows this is 64 bit
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     target_compile_definitions(Squirrel PUBLIC _SQ64)
