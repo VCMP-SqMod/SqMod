@@ -206,6 +206,7 @@ struct Function  {
             return cenv; // Just stop knowing this is what we want
         // Is the callback is valid?
         } else if (ty2 & (_RT_CLOSURE | _RT_NATIVECLOSURE)) {
+            if (SQ_FAILED(sq_getstackobj(vm, idx2, &mObj))) return false;
             // Reference the environment and function
             sq_addref(vm, &mEnv);
             sq_addref(vm, &mObj);
