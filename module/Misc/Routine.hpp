@@ -394,6 +394,8 @@ public:
     void Terminate()
     {
         GetValid().Terminate();
+        s_Intervals[m_Slot] = 0;
+        m_Slot = SQMOD_MAX_ROUTINES;
     }
 
     /* --------------------------------------------------------------------------------------------

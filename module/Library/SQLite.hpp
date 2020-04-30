@@ -1361,7 +1361,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Index constructor.
     */
-    SQLiteColumn(StmtRef  stmt, Int32 idx)
+    SQLiteColumn(StmtRef stmt, Int32 idx)
         : m_Index(idx), m_Handle(std::move(stmt))
     {
         SQMOD_VALIDATE_COLUMN(*this, m_Index);
@@ -1379,7 +1379,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Dynamic constructor.
     */
-    SQLiteColumn(StmtRef  stmt, const Object & column)
+    SQLiteColumn(StmtRef stmt, const Object & column)
         : m_Index(-1), m_Handle(std::move(stmt))
     {
         if (!m_Handle)
