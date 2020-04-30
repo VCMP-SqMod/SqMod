@@ -21,7 +21,7 @@ static LightObj SqLeftStr(SQChar f, Uint32 w, StackStrF & s)
     // Is the specified width valid?
     if (!w)
     {
-        return _SC(""); // Default to an empty string!
+        return LightObj(_SC(""), 0); // Default to an empty string!
     }
     // Allocate a buffer with the requested width
     Buffer b(w + 1); // + null terminator
@@ -51,7 +51,7 @@ static LightObj SqLeftOffsetStr(SQChar f, Uint32 w, Uint32 o, StackStrF & s)
     // Is the specified width valid?
     if (!w)
     {
-        return _SC(""); // Default to an empty string!
+        return LightObj(_SC(""), 0); // Default to an empty string!
     }
     // Is the specified offset within width range?
     else if (o > w)
@@ -95,7 +95,7 @@ static LightObj SqRightStr(SQChar f, Uint32 w, StackStrF & s)
     // Is the specified width valid?
     if (!w)
     {
-        return _SC(""); // Default to an empty string!
+        return LightObj(_SC(""), 0); // Default to an empty string!
     }
     // Allocate a buffer with the requested width
     Buffer b(w + 1); // + null terminator
@@ -134,7 +134,7 @@ static LightObj SqRightOffsetStr(SQChar f, Uint32 w, Uint32 o, StackStrF & s)
     // Is the specified width valid?
     if (!w)
     {
-        return _SC(""); // Default to an empty string!
+        return LightObj(_SC(""), 0); // Default to an empty string!
     }
     // Is the specified offset within width range?
     else if (o > w)
@@ -178,7 +178,7 @@ static LightObj SqCenterStr(SQChar f, Uint32 w, StackStrF & s)
     // Is the specified width valid?
     if (!w)
     {
-        return _SC(""); // Default to an empty string!
+        return LightObj(_SC(""), 0); // Default to an empty string!
     }
     // Allocate a buffer with the requested width
     Buffer b(w + 1); // + null terminator

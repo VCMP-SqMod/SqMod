@@ -860,7 +860,7 @@ struct LightObj {
     /// \param o Squirrel object
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    LightObj(HSQOBJECT o) : mObj(o) {
+    explicit LightObj(const HSQOBJECT & o) : mObj(o) {
         sq_addref(SqVM(), &mObj);
     }
 
@@ -871,7 +871,7 @@ struct LightObj {
     /// \param v VM that the object will exist in
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    LightObj(SQInteger i, HSQUIRRELVM v = SqVM()) {
+    explicit LightObj(SQInteger i, HSQUIRRELVM v = SqVM()) {
         if (SQ_FAILED(sq_getstackobj(v, i, &mObj))) {
             sq_resetobject(&mObj);
         } else {
@@ -887,7 +887,7 @@ struct LightObj {
     /// \param v VM that the object will exist in
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    LightObj(const SQChar * s, SQInteger l, HSQUIRRELVM v = SqVM()) {
+    explicit LightObj(const SQChar * s, SQInteger l=-1, HSQUIRRELVM v = SqVM()) {
         sq_pushstring(v, s, l);
         if (SQ_FAILED(sq_getstackobj(v, -1, &mObj))) {
             sq_resetobject(&mObj);
@@ -903,7 +903,7 @@ struct LightObj {
     /// \param so Object to copy
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    LightObj(const Object& obj) : mObj(obj.GetObj()) {
+    explicit LightObj(const Object& obj) : mObj(obj.GetObj()) {
         if (!sq_isnull(mObj)) {
             sq_addref(obj.GetVM(), &mObj);
         }
@@ -919,7 +919,7 @@ struct LightObj {
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template<class T>
-    LightObj(T* instance, HSQUIRRELVM v = SqVM()) {
+    explicit LightObj(T* instance, HSQUIRRELVM v = SqVM()) {
         // Preserve the stack state
         const StackGuard sg(v);
         // Push the instance on the stack

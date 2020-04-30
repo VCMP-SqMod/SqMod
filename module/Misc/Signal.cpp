@@ -1545,7 +1545,7 @@ LightObj Signal::Create(StackStrF & name)
     {
         if (e.first == hash)
         {
-            return e.second.second.mObj; // Found a match so let's return it
+            return LightObj{e.second.second.mObj}; // Found a match so let's return it
         }
     }
     // Remember the current stack size
@@ -1561,7 +1561,7 @@ LightObj Signal::Create(StackStrF & name)
     // Grab a reference to the instance created on the stack
     s_Signals.emplace_back(hash, SignalPair(ptr, Var< LightObj >(SqVM(), -1).value));
     // Return the created signal
-    return s_Signals.back().second.second.mObj;
+    return LightObj{s_Signals.back().second.second.mObj};
 }
 
 // ------------------------------------------------------------------------------------------------
