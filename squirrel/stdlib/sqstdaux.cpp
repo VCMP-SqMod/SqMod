@@ -5,14 +5,85 @@
 #include <assert.h>
 #include <stdarg.h>
 
+void sqstd_dumptypename(HSQUIRRELVM v, SQInteger idx, const SQChar *name, SQPRINTFUNCTION pf)
+{
+    switch(sq_gettype(v,idx))
+    {
+    case OT_NULL:
+        pf(v,_SC("[%s] NULL\n"),name);
+        break;
+    case OT_INTEGER: {
+        SQInteger i;
+        sq_getinteger(v,idx,&i);
+        pf(v,_SC("[%s] " _PRINT_INT_FMT "\n"),name,i);
+    } break;
+    case OT_FLOAT: {
+        SQFloat f;
+        sq_getfloat(v,idx,&f);
+        pf(v,_SC("[%s] %.14g\n"),name,f);
+    } break;
+    case OT_USERPOINTER:
+        pf(v,_SC("[%s] USERPOINTER\n"),name);
+        break;
+    case OT_STRING:
+        const SQChar *s;
+        sq_getstring(v,idx,&s);
+        pf(v,_SC("[%s] \"%s\"\n"),name,s);
+        break;
+    case OT_TABLE:
+        pf(v,_SC("[%s] TABLE\n"),name);
+        break;
+    case OT_ARRAY:
+        pf(v,_SC("[%s] ARRAY\n"),name);
+        break;
+    case OT_CLOSURE:
+        pf(v,_SC("[%s] CLOSURE\n"),name);
+        break;
+    case OT_NATIVECLOSURE:
+        pf(v,_SC("[%s] NATIVECLOSURE\n"),name);
+        break;
+    case OT_GENERATOR:
+        pf(v,_SC("[%s] GENERATOR\n"),name);
+        break;
+    case OT_USERDATA:
+        pf(v,_SC("[%s] USERDATA\n"),name);
+        break;
+    case OT_THREAD:
+        pf(v,_SC("[%s] THREAD\n"),name);
+        break;
+    case OT_CLASS:
+        pf(v,_SC("[%s] CLASS\n"),name);
+        break;
+    case OT_INSTANCE:
+        pf(v,_SC("[%s] INSTANCE\n"),name);
+        break;
+    case OT_WEAKREF:
+        pf(v,_SC("[%s] WEAKREF\n"),name);
+        break;
+    case OT_BOOL:{
+        SQBool bval;
+        sq_getbool(v,idx,&bval);
+        pf(v,_SC("[%s] %s\n"),name,bval == SQTrue ? _SC("true"):_SC("false"));
+                 }
+        break;
+    default: assert(0); break;
+    }
+}
+void sqstd_dumpstack(HSQUIRRELVM v, SQInteger bottom, SQInteger top, SQPRINTFUNCTION pf)
+{
+    SQChar b[16];
+    while (bottom <= top)
+    {
+        scsprintf(b, sizeof(b), _PRINT_INT_FMT, bottom);
+        sqstd_dumptypename(v, bottom++, b, pf);
+    }
+}
+
 void sqstd_printcallstack(HSQUIRRELVM v)
 {
     SQPRINTFUNCTION pf = sq_geterrorfunc(v);
     if(pf) {
         SQStackInfos si;
-        SQInteger i;
-        SQFloat f;
-        const SQChar *s;
         SQInteger level=1; //1 is to skip this function that is level 0
         const SQChar *name=0;
         SQInteger seq=0;
@@ -34,64 +105,7 @@ void sqstd_printcallstack(HSQUIRRELVM v)
             while((name = sq_getlocal(v,level,seq)))
             {
                 seq++;
-                switch(sq_gettype(v,-1))
-                {
-                case OT_NULL:
-                    pf(v,_SC("[%s] NULL\n"),name);
-                    break;
-                case OT_INTEGER:
-                    sq_getinteger(v,-1,&i);
-                    pf(v,_SC("[%s] %d\n"),name,i);
-                    break;
-                case OT_FLOAT:
-                    sq_getfloat(v,-1,&f);
-                    pf(v,_SC("[%s] %.14g\n"),name,f);
-                    break;
-                case OT_USERPOINTER:
-                    pf(v,_SC("[%s] USERPOINTER\n"),name);
-                    break;
-                case OT_STRING:
-                    sq_getstring(v,-1,&s);
-                    pf(v,_SC("[%s] \"%s\"\n"),name,s);
-                    break;
-                case OT_TABLE:
-                    pf(v,_SC("[%s] TABLE\n"),name);
-                    break;
-                case OT_ARRAY:
-                    pf(v,_SC("[%s] ARRAY\n"),name);
-                    break;
-                case OT_CLOSURE:
-                    pf(v,_SC("[%s] CLOSURE\n"),name);
-                    break;
-                case OT_NATIVECLOSURE:
-                    pf(v,_SC("[%s] NATIVECLOSURE\n"),name);
-                    break;
-                case OT_GENERATOR:
-                    pf(v,_SC("[%s] GENERATOR\n"),name);
-                    break;
-                case OT_USERDATA:
-                    pf(v,_SC("[%s] USERDATA\n"),name);
-                    break;
-                case OT_THREAD:
-                    pf(v,_SC("[%s] THREAD\n"),name);
-                    break;
-                case OT_CLASS:
-                    pf(v,_SC("[%s] CLASS\n"),name);
-                    break;
-                case OT_INSTANCE:
-                    pf(v,_SC("[%s] INSTANCE\n"),name);
-                    break;
-                case OT_WEAKREF:
-                    pf(v,_SC("[%s] WEAKREF\n"),name);
-                    break;
-                case OT_BOOL:{
-                    SQBool bval;
-                    sq_getbool(v,-1,&bval);
-                    pf(v,_SC("[%s] %s\n"),name,bval == SQTrue ? _SC("true"):_SC("false"));
-                             }
-                    break;
-                default: assert(0); break;
-                }
+                sqstd_dumptypename(v,-1,name, pf);
                 sq_pop(v,1);
             }
         }
