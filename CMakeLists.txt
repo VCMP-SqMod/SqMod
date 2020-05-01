@@ -8,6 +8,7 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 option(BUILTIN_RUNTIMES "Include the MinGW runtime into the binary itself." ON)
 option(FORCE_32BIT_BIN "Create a 32-bit executable binary if the compiler defaults to 64-bit." OFF)
 option(ENABLE_MYSQL "Enable the MySQL library." OFF)
+option(ENABLE_API21 "Build for 2.1 API." OFF)
 
 # Default to c++14 standard
 if(CMAKE_VERSION VERSION_LESS "3.1")

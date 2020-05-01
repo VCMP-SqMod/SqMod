@@ -39,7 +39,7 @@ private:
         bool        mSuspended; // Whether this instance is allowed to receive calls.
         bool        mQuiet; // Whether this instance is allowed to handle errors.
         bool        mEndure; // Whether this instance is allowed to terminate itself on errors.
-        bool        mTerminated; // Whether this instance is allowed to terminate itself on errors.
+        bool        mTerminated; // Whether this instance was terminated once.
         Uint8       mArgc; // The number of arguments that the routine must forward.
         Argument    mArgv[14]; // The arguments that the routine must forward.
 
