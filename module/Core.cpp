@@ -159,6 +159,13 @@ Core::Core() noexcept
     , m_LockUnloadSignal(false)
     , m_EmptyInit(false)
     , m_Verbosity(1)
+    , m_NullBlip()
+    , m_NullCheckpoint()
+    , m_NullKeybind()
+    , m_NullObject()
+    , m_NullPickup()
+    , m_NullPlayer()
+    , m_NullVehicle()
 {
     /* ... */
 }
@@ -302,8 +309,9 @@ bool Core::Initialize()
 
     cLogDbg(m_Verbosity >= 1, "Registering the plug-in API");
     // Attempt to register the plug-in API
-    if (cLogFtl(!RegisterAPI(m_VM), "Unable to register the plug-in API"))
+    if (!RegisterAPI(m_VM))
     {
+        LogFtl("Unable to register the plug-in API");
         return false; // Can't execute scripts without a valid API!
     }
 
@@ -400,7 +408,7 @@ bool Core::Execute()
     _Func->SendPluginCommand(SQMOD_LOAD_CMD, "");
 
     // Load pending scripts while we're in the bounds of the allowed recursiveness
-    for (unsigned levels = 0; (m_PendingScripts.empty() == false) && (levels < 8); ++levels)
+    for (unsigned levels = 0; !m_PendingScripts.empty() && (levels < 8); ++levels)
     {
         // Remember the last script from the pool
         const Scripts::size_type last = m_Scripts.size();
@@ -409,7 +417,7 @@ bool Core::Execute()
         // Clear all pending scripts, if any
         m_PendingScripts.clear();
         // Process all pending scripts
-        if (DoScripts(m_Scripts.begin() + last, m_Scripts.end()) == false)
+        if (!DoScripts(m_Scripts.begin() + last, m_Scripts.end()))
         {
             return false; // One of the scripts failed to execute
         }
@@ -563,13 +571,13 @@ bool Core::Reload()
 void Core::EnableNullEntities()
 {
     // Create the null entity instances
-    if (m_NullBlip.IsNull()) m_NullBlip = LightObj(new CBlip(-1));
-    if (m_NullCheckpoint.IsNull()) m_NullBlip = LightObj(new CCheckpoint(-1));
-    if (m_NullKeybind.IsNull()) m_NullBlip = LightObj(new CKeybind(-1));
-    if (m_NullObject.IsNull()) m_NullBlip = LightObj(new CObject(-1));
-    if (m_NullPickup.IsNull()) m_NullBlip = LightObj(new CPickup(-1));
-    if (m_NullPlayer.IsNull()) m_NullBlip = LightObj(new CPlayer(-1));
-    if (m_NullVehicle.IsNull()) m_NullBlip = LightObj(new CVehicle(-1));
+    if (m_NullBlip.IsNull()) m_NullBlip = LightObj(DeleteGuard< CBlip >(new CBlip(-1)));
+    if (m_NullCheckpoint.IsNull()) m_NullCheckpoint = LightObj(DeleteGuard< CCheckpoint >(new CCheckpoint(-1)));
+    if (m_NullKeybind.IsNull()) m_NullKeybind = LightObj(DeleteGuard< CKeybind >(new CKeybind(-1)));
+    if (m_NullObject.IsNull()) m_NullObject = LightObj(DeleteGuard< CObject >(new CObject(-1)));
+    if (m_NullPickup.IsNull()) m_NullPickup = LightObj(DeleteGuard< CPickup >(new CPickup(-1)));
+    if (m_NullPlayer.IsNull()) m_NullPlayer = LightObj(DeleteGuard< CPlayer >(new CPlayer(-1)));
+    if (m_NullVehicle.IsNull()) m_NullVehicle = LightObj(DeleteGuard< CVehicle >(new CVehicle(-1)));
 }
 
 // ------------------------------------------------------------------------------------------------
