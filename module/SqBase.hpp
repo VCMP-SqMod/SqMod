@@ -438,7 +438,8 @@ enum EntityFlags
     ENF_DEFAULT     = (0),
     ENF_OWNED       = (1u << 1u),
     ENF_LOCKED      = (1u << 2u),
-    ENF_AREA_TRACK  = (1u << 3u)
+    ENF_AREA_TRACK  = (1u << 3u),
+    ENF_DIST_TRACK  = (1u << 4u)
 };
 
 /* ------------------------------------------------------------------------------------------------

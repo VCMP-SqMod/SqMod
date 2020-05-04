@@ -926,6 +926,26 @@ public:
     const Vector3 & GetLastPosition() const;
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the distance traveled by the managed player entity while tracking was enabled.
+    */
+    SQFloat GetDistance() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the distance traveled by the managed player entity.
+    */
+    void SetDistance(SQFloat distance) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Check whether distance tracking is enabled for the managed player entity.
+    */
+    bool GetTrackDistance() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set whether distance tracking is enabled for the managed player entity.
+    */
+    void SetTrackDistance(bool toggle) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Start a new stream with the default size.
     */
     void StartStream();

@@ -687,14 +687,34 @@ public:
     Float32 GetLastHealth() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the last known position for the managed player entity.
+     * Retrieve the last known position for the managed vehicle entity.
     */
     const Vector3 & GetLastPosition() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the last known rotation for the managed player entity.
+     * Retrieve the last known rotation for the managed vehicle entity.
     */
     const Quaternion & GetLastRotation() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the distance traveled by the managed vehicle entity while tracking was enabled.
+    */
+    SQFloat GetDistance() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the distance traveled by the managed vehicle entity.
+    */
+    void SetDistance(SQFloat distance) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Check whether distance tracking is enabled for the managed vehicle entity.
+    */
+    bool GetTrackDistance() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Set whether distance tracking is enabled for the managed vehicle entity.
+    */
+    void SetTrackDistance(bool toggle) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the x axis of the managed vehicle entity.

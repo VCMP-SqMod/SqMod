@@ -1781,6 +1781,49 @@ const Vector3 & CPlayer::GetLastPosition() const
 }
 
 // ------------------------------------------------------------------------------------------------
+SQFloat CPlayer::GetDistance() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return static_cast< SQFloat >(Core::Get().GetPlayer(m_ID).mDistance);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetDistance(SQFloat distance) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Assign the requested information
+    Core::Get().GetPlayer(m_ID).mDistance = static_cast< Float64 >(distance);
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CPlayer::GetTrackDistance() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return static_cast< bool >(Core::Get().GetPlayer(m_ID).mFlags & ENF_DIST_TRACK);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CPlayer::SetTrackDistance(bool toggle) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Assign the requested information
+    if (toggle)
+    {
+        Core::Get().GetPlayer(m_ID).mFlags |= ENF_DIST_TRACK;
+    }
+    else
+    {
+        Core::Get().GetPlayer(m_ID).mFlags ^= ENF_DIST_TRACK;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 void CPlayer::StartStream()
 {
     // Validate the managed identifier
@@ -2796,6 +2839,8 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Prop(_SC("LastArmour"), &CPlayer::GetLastArmour)
         .Prop(_SC("LastHeading"), &CPlayer::GetLastHeading)
         .Prop(_SC("LastPosition"), &CPlayer::GetLastPosition)
+        .Prop(_SC("Distance"), &CPlayer::GetDistance, &CPlayer::SetDistance)
+        .Prop(_SC("TrackDistance"), &CPlayer::GetTrackDistance, &CPlayer::SetTrackDistance)
         .Prop(_SC("BufferCursor"), &CPlayer::GetBufferCursor, &CPlayer::SetBufferCursor)
         .Prop(_SC("BufferCapacity"), &CPlayer::GetBufferCapacity)
         .Prop(_SC("PosX"), &CPlayer::GetPositionX, &CPlayer::SetPositionX)

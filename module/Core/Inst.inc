@@ -344,6 +344,7 @@ void Core::PlayerInst::ResetInstance()
     mID = -1;
     mFlags = ENF_DEFAULT;
     mAreas.clear();
+    mDistance = 0;
     mTrackPosition = 0;
     mTrackHeading = 0;
     mTrackPositionHeader = 0;
@@ -364,6 +365,7 @@ void Core::VehicleInst::ResetInstance()
     mID = -1;
     mFlags = ENF_DEFAULT;
     mAreas.clear();
+    mDistance = 0;
     mTrackPosition = 0;
     mTrackRotation = 0;
     mLastPrimaryColor = -1;

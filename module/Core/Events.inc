@@ -1481,7 +1481,12 @@ void Core::EmitPlayerUpdate(Int32 player_id, vcmpPlayerUpdate update_type)
             // Now emit the event
             EmitPlayerPosition(player_id);
         }
-        // Should we check for area collision
+        // Should we check for distance traveled?
+        if (inst.mFlags & ENF_DIST_TRACK)
+        {
+        	inst.mDistance += inst.mLastPosition.GetDistanceTo(pos);
+        }
+        // Should we check for area collision?
         if (inst.mFlags & ENF_AREA_TRACK)
         {
             // Eliminate existing areas first, if the player is not in them anymore
@@ -1716,7 +1721,12 @@ void Core::EmitVehicleUpdate(Int32 vehicle_id, vcmpVehicleUpdate update_type)
             Vector3 pos;
             // Retrieve the current vehicle position
             _Func->GetVehiclePosition(vehicle_id, &pos.x, &pos.y, &pos.z);
-            // Should we check for area collision
+            // Should we check for distance traveled?
+            if (inst.mFlags & ENF_DIST_TRACK)
+            {
+            	inst.mDistance += inst.mLastPosition.GetDistanceTo(pos);
+            }
+            // Should we check for area collision?
             if (inst.mFlags & ENF_AREA_TRACK)
             {
                 // Eliminate existing areas first, if the vehicle is not in them anymore

@@ -422,6 +422,7 @@ protected:
 
         // ----------------------------------------------------------------------------------------
         AreaList        mAreas{}; // Areas the player is currently in.
+        Float64         mDistance; // Distance traveled while tracking was enabled.
 
         // ----------------------------------------------------------------------------------------
         SQInteger       mTrackPosition{0}; // The number of times to track position changes.
@@ -582,6 +583,7 @@ protected:
 
         // ----------------------------------------------------------------------------------------
         AreaList        mAreas{}; // Areas the vehicle is currently in.
+        Float64         mDistance; // Distance traveled while tracking was enabled.
 
         // ----------------------------------------------------------------------------------------
         SQInteger       mTrackPosition{0}; // The number of times to track position changes.

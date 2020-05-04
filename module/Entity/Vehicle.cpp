@@ -1350,6 +1350,49 @@ const Quaternion & CVehicle::GetLastRotation() const
 }
 
 // ------------------------------------------------------------------------------------------------
+SQFloat CVehicle::GetDistance() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return static_cast< SQFloat >(Core::Get().GetVehicle(m_ID).mDistance);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CVehicle::SetDistance(SQFloat distance) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Assign the requested information
+    Core::Get().GetVehicle(m_ID).mDistance = static_cast< Float64 >(distance);
+}
+
+// ------------------------------------------------------------------------------------------------
+bool CVehicle::GetTrackDistance() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return static_cast< bool >(Core::Get().GetVehicle(m_ID).mFlags & ENF_DIST_TRACK);
+}
+
+// ------------------------------------------------------------------------------------------------
+void CVehicle::SetTrackDistance(bool toggle) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Assign the requested information
+    if (toggle)
+    {
+        Core::Get().GetVehicle(m_ID).mFlags |= ENF_DIST_TRACK;
+    }
+    else
+    {
+        Core::Get().GetVehicle(m_ID).mFlags ^= ENF_DIST_TRACK;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 Float32 CVehicle::GetPositionX() const
 {
     // Validate the managed identifier
@@ -2027,6 +2070,8 @@ void Register_CVehicle(HSQUIRRELVM vm)
         .Prop(_SC("LastHealth"), &CVehicle::GetLastHealth)
         .Prop(_SC("LastPosition"), &CVehicle::GetLastPosition)
         .Prop(_SC("LastRotation"), &CVehicle::GetLastRotation)
+        .Prop(_SC("Distance"), &CVehicle::GetDistance, &CVehicle::SetDistance)
+        .Prop(_SC("TrackDistance"), &CVehicle::GetTrackDistance, &CVehicle::SetTrackDistance)
         .Prop(_SC("PosX"), &CVehicle::GetPositionX, &CVehicle::SetPositionX)
         .Prop(_SC("PosY"), &CVehicle::GetPositionY, &CVehicle::SetPositionY)
         .Prop(_SC("PosZ"), &CVehicle::GetPositionZ, &CVehicle::SetPositionZ)
