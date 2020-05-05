@@ -39,7 +39,7 @@ private:
         bool        mSuspended; // Whether this instance is allowed to receive calls.
         bool        mQuiet; // Whether this instance is allowed to handle errors.
         bool        mEndure; // Whether this instance is allowed to terminate itself on errors.
-        bool        mTerminated; // Whether this instance was terminated once.
+        bool        mExecuting; // Whether this instance is currently being executed.
         Uint8       mArgc; // The number of arguments that the routine must forward.
         Argument    mArgv[14]; // The arguments that the routine must forward.
 
@@ -57,7 +57,7 @@ private:
             , mSuspended(false)
             , mQuiet(GetSilenced())
             , mEndure(false)
-            , mTerminated(false)
+            , mExecuting(false)
             , mArgc(0)
             , mArgv()
         {
@@ -105,6 +105,8 @@ private:
             // Initialize the routine options
             mIterations = itr;
             mInterval = intrv;
+            // This can't be true now
+            mExecuting = false;
         }
 
         /* ----------------------------------------------------------------------------------------
@@ -126,7 +128,7 @@ private:
         */
         Interval Execute()
         {
-            // is this even a valid routine?
+            // Is this even a valid routine?
             if (mInst.IsNull())
             {
                 return 0; // Dunno how we got here but it ends now
@@ -152,30 +154,26 @@ private:
                 {
                     sq_pushobject(vm, mArgv[n].mObj);
                 }
+                // This routine is currently executing
+                mExecuting = true;
                 // Make the function call and store the result
                 const SQRESULT res = sq_call(vm, mArgc + 1, static_cast< SQBool >(false), static_cast< SQBool >(!mQuiet));
+                // This routine has finished executing
+                mExecuting = false;
                 // Pop the callback object from the stack
                 sq_pop(vm, 1);
                 // Validate the result
                 if (SQ_FAILED(res))
                 {
                     // Should we endure the errors?
-                    if (!mEndure && !mTerminated)
+                    if (!mEndure)
                     {
                         Terminate(); // Destroy our self on error
                     }
                 }
             }
-            // See if we are using the slot of a previously terminated routine
-            if  (mTerminated)
-            {
-                // The old routine was terminated, we're the new routine and we're not
-                // We don't touch the iterations and return the interval of the new routine
-                // to take effect on the next frame
-                mTerminated = false;
-            }
             // Decrease the number of iterations if necessary
-            else if (mIterations && (--mIterations) == 0)
+            if (mIterations && (--mIterations) == 0)
             {
                 Terminate(); // This routine reached the end of it's life
             }
@@ -204,8 +202,6 @@ private:
         {
             Release();
             Clear();
-            // Don't attempt to terminate this routine again
-            mTerminated = true;
         }
     };
 
@@ -252,7 +248,8 @@ protected:
     {
         for (const auto & r : s_Instances)
         {
-            if (r.mInst.IsNull())
+            // Either not used or not currently being executing
+            if (r.mInst.IsNull() && !(r.mExecuting))
             {
                 return (&r - s_Instances); // Return the index of this element
             }
