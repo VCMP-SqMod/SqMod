@@ -325,7 +325,7 @@ bool Core::Initialize()
 
     CSimpleIniA::TNamesDepend scripts;
     // Attempt to retrieve the list of keys to make sure there's actually something to process
-    if (conf.GetAllKeys("Scripts", scripts) && scripts.size() > 0)
+    if (conf.GetAllKeys("Scripts", scripts) && !scripts.empty())
     {
         // Attempt to load the specified scripts
         if (!conf.ProcAllValues("Scripts", ScriptLoader(conf)))
@@ -348,7 +348,7 @@ bool Core::Initialize()
     // Read options only after loading was successful
     CSimpleIniA::TNamesDepend options;
     // Are there any options to read?
-    if (conf.GetAllKeys("Options", options) || options.size() > 0)
+    if (conf.GetAllKeys("Options", options) || !options.empty())
     {
         cLogDbg(m_Verbosity >= 1, "Found (%" PRINT_SZ_FMT ") options in the configuration file",
                     static_cast< SQUnsignedInteger >(options.size()));
@@ -583,14 +583,14 @@ void Core::EnableNullEntities()
 // ------------------------------------------------------------------------------------------------
 CSStr Core::GetOption(CSStr name) const
 {
-    Options::const_iterator elem = m_Options.find(name);
+    auto elem = m_Options.find(name);
     return (elem == m_Options.end()) ? _SC("") : elem->second.c_str();
 }
 
 // ------------------------------------------------------------------------------------------------
 CSStr Core::GetOption(CSStr name, CSStr value) const
 {
-    Options::const_iterator elem = m_Options.find(name);
+    auto elem = m_Options.find(name);
     return (elem == m_Options.end()) ? value : elem->second.c_str();
 }
 
@@ -604,7 +604,7 @@ void Core::SetOption(CSStr name, CSStr value)
 Core::Scripts::iterator Core::FindScript(const CSStr src)
 {
     // Iterate over loaded scripts
-    for (Scripts::iterator itr = m_Scripts.begin(); itr != m_Scripts.end(); ++itr)
+    for (auto itr = m_Scripts.begin(); itr != m_Scripts.end(); ++itr)
     {
         // Is this script the source we're looking for?
         if (itr->mPath.compare(0, String::npos, src) == 0)
@@ -620,7 +620,7 @@ Core::Scripts::iterator Core::FindScript(const CSStr src)
 Core::Scripts::iterator Core::FindPendingScript(const CSStr src)
 {
     // Iterate over loaded scripts
-    for (Scripts::iterator itr = m_PendingScripts.begin(); itr != m_PendingScripts.end(); ++itr)
+    for (auto itr = m_PendingScripts.begin(); itr != m_PendingScripts.end(); ++itr)
     {
         // Is this script the source we're looking for?
         if (itr->mPath.compare(0, String::npos, src) == 0)
@@ -774,7 +774,7 @@ void Core::SetIncomingName(CSStr name)
 String Core::FetchCodeLine(CSStr src, SQInteger line, bool trim)
 {
     // Find the script we're looking for
-    Scripts::iterator script = FindScript(src);
+    auto script = FindScript(src);
     // Do we have a valid script and line?
     if ((script == m_Scripts.end()) || !(script->mInfo) || (static_cast< SQInteger >(script->mLine.size()) < line))
     {
@@ -787,7 +787,7 @@ String Core::FetchCodeLine(CSStr src, SQInteger line, bool trim)
 // ------------------------------------------------------------------------------------------------
 bool Core::DoScripts(Scripts::iterator itr, Scripts::iterator end)
 {
-    Scripts::iterator itr_state = itr;
+    auto itr_state = itr;
 
     cLogDbg(Get().m_Verbosity >= 1, "Attempting to compile the specified scripts");
     // Compile scripts first so that the constants can take effect
