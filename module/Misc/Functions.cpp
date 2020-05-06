@@ -337,21 +337,15 @@ void SetGameModeText(StackStrF & text)
 }
 
 // ------------------------------------------------------------------------------------------------
-void CreateRadioStream(bool listed, StackStrF & name, StackStrF & url)
+SQInteger CreateRadioStream(bool listed, StackStrF & name, StackStrF & url)
 {
-    if (_Func->AddRadioStream(-1, name.mPtr, url.mPtr, static_cast< uint8_t >(listed)) == vcmpErrorArgumentOutOfBounds)
-    {
-        STHROWF("Invalid radio stream identifier");
-    }
+    return static_cast< SQInteger >(_Func->AddRadioStream(-1, name.mPtr, url.mPtr, static_cast< uint8_t >(listed)));
 }
 
 // ------------------------------------------------------------------------------------------------
-void CreateRadioStreamEx(Int32 id, bool listed, StackStrF & name, StackStrF & url)
+SQInteger CreateRadioStreamEx(Int32 id, bool listed, StackStrF & name, StackStrF & url)
 {
-    if (_Func->AddRadioStream(id, name.mPtr, url.mPtr, static_cast< uint8_t >(listed)) == vcmpErrorArgumentOutOfBounds)
-    {
-        STHROWF("Invalid radio stream identifier");
-    }
+    return static_cast< SQInteger >(_Func->AddRadioStream(id, name.mPtr, url.mPtr, static_cast< uint8_t >(listed)));
 }
 
 // ------------------------------------------------------------------------------------------------
