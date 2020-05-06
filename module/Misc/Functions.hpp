@@ -139,12 +139,12 @@ void SetGameModeText(StackStrF & text);
 /* ------------------------------------------------------------------------------------------------
  * Create a radio stream.
 */
-void CreateRadioStream(bool listed, StackStrF & name, StackStrF & url);
+SQInteger CreateRadioStream(bool listed, StackStrF & name, StackStrF & url);
 
 /* ------------------------------------------------------------------------------------------------
  * Create a radio stream.
 */
-void CreateRadioStreamEx(Int32 id, bool listed, StackStrF & name, StackStrF & url);
+SQInteger CreateRadioStreamEx(Int32 id, bool listed, StackStrF & name, StackStrF & url);
 
 /* ------------------------------------------------------------------------------------------------
  * Remove a radio stream.
