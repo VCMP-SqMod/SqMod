@@ -98,14 +98,6 @@
     #error This operating system is not supported by the Squirrel Module
 #endif
 
-#ifndef SQMOD_ARCHITECTURE
-     #define SQMOD_ARCHITECTURE 0
-#endif
-
-#ifndef SQMOD_PLATFORM
-     #define SQMOD_PLATFORM 0
-#endif
-
 /* ------------------------------------------------------------------------------------------------
  * SOFTWARE INFORMATION
 */

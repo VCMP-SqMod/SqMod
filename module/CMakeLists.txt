@@ -73,7 +73,7 @@ add_library(SqModule MODULE
 	Misc/Weapon.cpp Misc/Weapon.hpp
 )
 # Link to base libraries
-target_link_libraries(SqModule VCMP Squirrel Sqrat SqSDK)
+target_link_libraries(SqModule VCMP Squirrel Sqrat SqSDKAPI)
 # Link to third-party libraries
 target_link_libraries(SqModule SimpleINI HashLib B64Lib AES256Lib WhirlpoolLib TinyDir PUGIXML SQLite MaxmindDB SimpleSocket)
 # Link to mysql client library
@@ -99,10 +99,6 @@ endif()
 # Force 32-bit binaries when necessary
 if(FORCE_32BIT_BIN)
 	set_target_properties(SqModule PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
-endif()
-# Size of a pointer in bytes. To identify CPU architecture.
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-	target_compile_definitions(SqModule PRIVATE _SQ64)
 endif()
 # Don't prefix the module binary.
 set_target_properties(SqModule PROPERTIES PREFIX "")

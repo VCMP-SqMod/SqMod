@@ -37,6 +37,105 @@
 extern "C" {
 #endif
 
+    /* ------------------------------------------------------------------------------------------------
+     * ARCHITECTURE IDENTIFIERS
+    */
+
+    #define SQMOD_ARCH_ID_UNKNOWN     0
+    #define SQMOD_ARCH_ID_32_BIT      1
+    #define SQMOD_ARCH_ID_64_BIT      2
+
+    /* ------------------------------------------------------------------------------------------------
+     * PLATFORM IDENTIFIERS
+    */
+
+    #define SQMOD_PLAT_ID_UNKNOWN     0
+    #define SQMOD_PLAT_ID_WINDOWS     1
+    #define SQMOD_PLAT_ID_LINUX       2
+    #define SQMOD_PLAT_ID_MACOS       3
+    #define SQMOD_PLAT_ID_UNIX        4
+
+    /* ------------------------------------------------------------------------------------------------
+     * OS IDENTIFICATION
+    */
+
+    #if defined(_WIN32) || defined(__WIN32__) || defined(_WIN) || defined(__WIN__)
+        // Windows x32
+        #define SQMOD_OS_WINDOWS
+        #define SQMOD_OS_32
+        #define SQMOD_OS_WINDOWS32
+        #define SQMOD_ARCHITECTURE 1
+        #define SQMOD_PLATFORM 1
+    #elif defined(_WIN64) || defined(__WIN64__)
+        // Windows x64
+        #define SQMOD_OS_WINDOWS
+        #define SQMOD_OS_64
+        #define SQMOD_OS_WINDOWS64
+        #define SQMOD_ARCHITECTURE 2
+        #define SQMOD_PLATFORM 1
+    #elif defined(linux) || defined(__linux) || defined(__linux__)
+        // Linux
+        #define SQMOD_OS_LINUX
+        #if __GNUC__
+            #if __x86_64__ || __ppc64__
+                #define SQMOD_OS_64
+                #define SQMOD_OS_LINUX64
+                 #define SQMOD_ARCHITECTURE 2
+                #define SQMOD_PLATFORM 2
+            #else
+                #define SQMOD_OS_32
+                #define SQMOD_OS_LINUX32
+                #define SQMOD_ARCHITECTURE 1
+                #define SQMOD_PLATFORM 2
+            #endif
+        #endif
+    #elif defined(__APPLE__) || defined(__MACH__) || defined(MACOSX) || defined(macintosh) || defined(Macintosh)
+        // MacOS
+        #define SQMOD_OS_MACOS
+        #if __GNUC__
+            #if __x86_64__ || __ppc64__
+                #define SQMOD_OS_64
+                #define SQMOD_OS_MACOS64
+                #define SQMOD_ARCHITECTURE 2
+                #define SQMOD_PLATFORM 3
+            #else
+                #define SQMOD_OS_32
+                #define SQMOD_OS_MACOS32
+                #define SQMOD_ARCHITECTURE 1
+                #define SQMOD_PLATFORM 3
+            #endif
+        #endif
+    #elif defined(__unix) || defined(__unix__)
+        // Unix
+        #define SQMOD_OS_UNIX
+        #if __GNUC__
+            #if __x86_64__ || __ppc64__
+                #define SQMOD_OS_64
+                #define SQMOD_OS_UNIX64
+                #define SQMOD_ARCHITECTURE 2
+                #define SQMOD_PLATFORM 4
+            #else
+                #define SQMOD_OS_32
+                #define SQMOD_OS_UNIX32
+                #define SQMOD_ARCHITECTURE 1
+                #define SQMOD_PLATFORM 4
+            #endif
+        #endif
+    #else
+        // Unsupported system
+        #error This operating system is not supported by the Squirrel Module
+    #endif
+
+    /* ------------------------------------------------------------------------------------------------
+     * VCMP SDK VERSION CHECK.
+    */
+    #define SQMOD_SDK_MATCH(MJR, MNR) ((PLUGIN_API_MAJOR == (MJR)) && (PLUGIN_API_MINOR == (MNR)))
+    #define SQMOD_SDK_LEAST(MJR, MNR) ((PLUGIN_API_MAJOR >= (MJR)) && (PLUGIN_API_MINOR >= (MNR)))
+    #define SQMOD_SDK_PRIOR(MJR, MNR) ((PLUGIN_API_MAJOR < (MJR)) && (PLUGIN_API_MINOR < (MNR)))
+
+    #define SQMOD_DECL_UNUSED_VAR(t, n, v) t n = v; (void)(n)
+    #define SQMOD_UNUSED_VAR(n) (void)(n)
+
     /**< 64 bits integer types */
     #if defined(_MSC_VER)
         typedef __int64                 SqInt64;

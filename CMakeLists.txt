@@ -49,3 +49,5 @@ add_subdirectory(sqrat)
 add_subdirectory(sdk)
 # Include Module library
 add_subdirectory(module)
+# Include Sample module
+#add_subdirectory(hello)

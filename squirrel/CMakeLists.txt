@@ -67,3 +67,7 @@ target_compile_definitions(Squirrel PRIVATE GARBAGE_COLLECTOR=1)
 target_include_directories(Squirrel PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_include_directories(Squirrel PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 target_include_directories(Squirrel PRIVATE ${CMAKE_CURRENT_LIST_DIR}/stdlib)
+# Create the Squirrel library
+add_library(SquirrelAPI INTERFACE)
+# Library includes
+target_include_directories(SquirrelAPI INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
