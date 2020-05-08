@@ -846,6 +846,26 @@ static String StrCharacterSwap(SQInteger a, SQInteger b, StackStrF & val)
     return str;
 }
 
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqStrToI(SQInteger base, StackStrF & s)
+{
+#ifdef _SQ64
+	return std::stoll(s.mPtr, nullptr, ConvTo< int >::From((base)));
+#else
+	return std::stoi(s.mPtr, nullptr, ConvTo< int >::From((base)));
+#endif
+}
+
+// ------------------------------------------------------------------------------------------------
+static SQFloat SqStrToF(StackStrF & s)
+{
+#ifdef SQUSEDOUBLE
+	return std::strtod(s.mPtr, nullptr);
+#else
+	return std::strtof(s.mPtr, nullptr);
+#endif
+}
+
 // ================================================================================================
 void Register_String(HSQUIRRELVM vm)
 {
@@ -865,6 +885,8 @@ void Register_String(HSQUIRRELVM vm)
     .FmtFunc(_SC("Lowercase"), &SqToLowercase)
     .FmtFunc(_SC("Uppercase"), &SqToUppercase)
     .FmtFunc(_SC("JustAlnum"), &SqJustAlphaNum)
+    .FmtFunc(_SC("ToInt"), &SqStrToI)
+    .FmtFunc(_SC("ToFloat"), &SqStrToF)
     .FmtFunc(_SC("AreAllSpace"), &SqAllChars< std::isspace >)
     .FmtFunc(_SC("AreAllPrint"), &SqAllChars< std::isprint >)
     .FmtFunc(_SC("AreAllCntrl"), &SqAllChars< std::iscntrl >)
