@@ -66,6 +66,7 @@ add_library(SqModule MODULE
 	Misc/Functions.cpp Misc/Functions.hpp
 	Misc/Model.cpp Misc/Model.hpp
 	Misc/Player.cpp Misc/Player.hpp
+	Misc/Privilege.cpp Misc/Privilege.hpp
 	Misc/Routine.cpp Misc/Routine.hpp
 	Misc/Signal.cpp Misc/Signal.hpp
 	Misc/Tasks.cpp Misc/Tasks.hpp
