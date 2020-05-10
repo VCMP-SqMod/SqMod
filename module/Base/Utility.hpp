@@ -138,6 +138,11 @@ Function & NullFunction();
 String & NullString();
 
 /* ------------------------------------------------------------------------------------------------
+ * Retrieve a reference to a static string with a specific value.
+*/
+String & StringRef(const SQChar * str);
+
+/* ------------------------------------------------------------------------------------------------
  * Compute the next power of two for the specified number.
 */
 inline Uint32 NextPow2(Uint32 num)

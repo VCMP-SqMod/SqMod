@@ -811,17 +811,17 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value of the specified option.
     */
-    CSStr GetOption(CSStr name) const;
+    const String & GetOption(const String & name) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value of the specified option or the fall back value if it doesn't exist.
     */
-    CSStr GetOption(CSStr name, CSStr value) const;
+    const String & GetOption(const String & name, const String & value) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the value of the specified option.
     */
-    void SetOption(CSStr name, CSStr value);
+    void SetOption(const String & name, const String & value);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the script source associated with a certain path in the scripts list.

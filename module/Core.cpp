@@ -581,21 +581,21 @@ void Core::EnableNullEntities()
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr Core::GetOption(CSStr name) const
+const String & Core::GetOption(const String & name) const
 {
     auto elem = m_Options.find(name);
-    return (elem == m_Options.end()) ? _SC("") : elem->second.c_str();
+    return (elem == m_Options.end()) ? NullString() : elem->second;
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr Core::GetOption(CSStr name, CSStr value) const
+const String & Core::GetOption(const String & name, const String & value) const
 {
     auto elem = m_Options.find(name);
-    return (elem == m_Options.end()) ? value : elem->second.c_str();
+    return (elem == m_Options.end()) ? value : elem->second;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::SetOption(CSStr name, CSStr value)
+void Core::SetOption(const String & name, const String & value)
 {
     m_Options[name] = value;
 }

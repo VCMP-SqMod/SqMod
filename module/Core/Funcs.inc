@@ -145,21 +145,21 @@ static void SqSetAreasEnabled(bool toggle)
 }
 
 // ------------------------------------------------------------------------------------------------
-static CSStr SqGetOption(CSStr name)
+static const String & SqGetOption(StackStrF & name)
 {
-    return Core::Get().GetOption(name);
+    return Core::Get().GetOption(String(name.mPtr, name.mLen));
 }
 
 // ------------------------------------------------------------------------------------------------
-static CSStr SqGetOptionOr(CSStr name, CSStr value)
+static const String & SqGetOptionOr(StackStrF & name, StackStrF & value)
 {
-    return Core::Get().GetOption(name, value);
+    return Core::Get().GetOption(String(name.mPtr, name.mLen), StringRef(value.mPtr));
 }
 
 // ------------------------------------------------------------------------------------------------
-static void SqSetOption(CSStr name, CSStr value)
+static void SqSetOption(StackStrF & name, StackStrF & value)
 {
-    return Core::Get().SetOption(name, value);
+    Core::Get().SetOption(String(name.mPtr, name.mLen), String(value.mPtr, value.mLen));
 }
 
 // ------------------------------------------------------------------------------------------------
