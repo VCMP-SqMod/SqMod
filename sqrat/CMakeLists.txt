@@ -25,7 +25,7 @@ target_compile_definitions(Sqrat PUBLIC SCRAT_USE_EXCEPTIONS=1 SCRAT_USE_CXX11_O
 # Switch to plugin-development mode
 if(PLUGIN_DEVEL)
 	target_compile_definitions(Sqrat PUBLIC SQMOD_PLUGIN_API=1)
-end()
+endif()
 # Set specific compiler options
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	#target_compile_options(Sqrat PRIVATE -w

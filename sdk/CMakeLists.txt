@@ -19,4 +19,4 @@ target_link_libraries(SqSDK PRIVATE VCMP SquirrelAPI)
 # Switch to plugin-development mode
 if(PLUGIN_DEVEL)
 	target_compile_definitions(SqSDK PUBLIC SQMOD_PLUGIN_API=1)
-end()
+endif()

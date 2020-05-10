@@ -54,4 +54,4 @@ if(PLUGIN_DEVEL)
 else()
 	# Include Module library
 	add_subdirectory(module)
-end()
+endif()

@@ -74,4 +74,4 @@ target_include_directories(SquirrelAPI INTERFACE ${CMAKE_CURRENT_LIST_DIR}/inclu
 # Switch to plugin-development mode
 if(PLUGIN_DEVEL)
 	target_compile_definitions(SquirrelAPI PUBLIC SQMOD_PLUGIN_API=1)
-end()
+endif()
