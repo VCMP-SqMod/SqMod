@@ -71,3 +71,7 @@ target_include_directories(Squirrel PRIVATE ${CMAKE_CURRENT_LIST_DIR}/stdlib)
 add_library(SquirrelAPI INTERFACE)
 # Library includes
 target_include_directories(SquirrelAPI INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+# Switch to plugin-development mode
+if(PLUGIN_DEVEL)
+	target_compile_definitions(SquirrelAPI PUBLIC SQMOD_PLUGIN_API=1)
+end()
