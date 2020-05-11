@@ -42,6 +42,7 @@ extern void InitializeTasks();
 extern void InitializeRoutines();
 extern void TerminateAreas();
 extern void TerminateTasks();
+extern void TerminatePrivileges();
 extern void TerminateRoutines();
 extern void TerminateCommands();
 extern void TerminateSignals();
@@ -493,6 +494,8 @@ void Core::Terminate(bool shutdown)
     TerminateSignals();
     // Release all managed areas
     TerminateAreas();
+    // Release privilege managers
+    TerminatePrivileges();
     // In case there's a payload for reload
     m_ReloadPayload.Release();
     // Release null objects in case any reference to valid objects is stored in them

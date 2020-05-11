@@ -39,6 +39,8 @@ typedef std::vector< std::pair< SQInteger, PvUnit * > >     PvUnitList;
 
 // ------------------------------------------------------------------------------------------------
 typedef std::vector< std::pair< SQInteger, SQInteger > >    PvStatusList;
+// ------------------------------------------------------------------------------------------------
+typedef std::vector< PvManager * >                          PvManagers;
 
 /* ------------------------------------------------------------------------------------------------
  * An individual unit/entity that inherits the privileges of a class/group and can
@@ -153,6 +155,18 @@ public:
     bool operator > (const PvUnit & o) const { return m_ID > o.m_ID; }
     bool operator <= (const PvUnit & o) const { return m_ID <= o.m_ID; }
     bool operator >= (const PvUnit & o) const { return m_ID >= o.m_ID; }
+
+    /* --------------------------------------------------------------------------------------------
+     * Release all script resources. Recursively forward request.
+    */
+    void Release()
+    {
+        m_OnQuery.Release();
+        m_OnGained.Release();
+        m_OnLost.Release();
+        m_Tag.Release();
+        m_Data.Release();
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the identifier associated with this unit.
@@ -438,6 +452,18 @@ public:
     bool operator > (const PvClass & o) const { return m_ID > o.m_ID; }
     bool operator <= (const PvClass & o) const { return m_ID <= o.m_ID; }
     bool operator >= (const PvClass & o) const { return m_ID >= o.m_ID; }
+
+    /* --------------------------------------------------------------------------------------------
+     * Release all script resources. Recursively forward request.
+    */
+    void Release()
+    {
+        m_OnQuery.Release();
+        m_OnGained.Release();
+        m_OnLost.Release();
+        m_Tag.Release();
+        m_Data.Release();
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the identifier associated with this manager.
@@ -746,6 +772,20 @@ public:
     bool operator >= (const PvEntry & o) const { return m_ID >= o.m_ID; }
 
     /* --------------------------------------------------------------------------------------------
+     * Release all script resources. Recursively forward request.
+    */
+    void Release()
+    {
+        m_Tag.Release();
+        m_OnQuery.Release();
+        m_OnGained.Release();
+        m_OnLost.Release();
+        m_Data.Release();
+        m_Brief.Release();
+        m_Info.Release();
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the manager associated with this unit.
     */
     PvManager & GetManager() const
@@ -980,6 +1020,11 @@ private:
     */
     LightObj        m_Data;
 
+    /* --------------------------------------------------------------------------------------------
+     * List of active privilege managers.
+    */
+    static PvManagers   s_Managers;
+
 public:
 
     /* -------------------------------------------------------------------------------------------
@@ -990,6 +1035,7 @@ public:
         , m_OnQuery(), m_OnGained(), m_OnLost()
         , m_Tag(), m_Data()
     {
+        s_Managers.push_back(this);
     }
 
     /* -------------------------------------------------------------------------------------------
@@ -1000,6 +1046,7 @@ public:
         , m_OnQuery(), m_OnGained(), m_OnLost()
         , m_Tag(std::move(tag)), m_Data()
     {
+        s_Managers.push_back(this);
     }
 
     /* -------------------------------------------------------------------------------------------
@@ -1017,6 +1064,7 @@ public:
     */
     ~PvManager()
     {
+        s_Managers.erase(std::remove(s_Managers.begin(), s_Managers.end(), this), s_Managers.end());
     }
 
     /* -------------------------------------------------------------------------------------------
@@ -1231,6 +1279,46 @@ public:
     {
         return m_OnGained;
     }
+
+    /* --------------------------------------------------------------------------------------------
+     * Release all script resources. Recursively forward request to all classes, units and entries.
+    */
+    void Release()
+    {
+        // Release objects from entries
+        for (auto & pve : m_Entries)
+        {
+            pve.second->Release();
+        }
+        // Release objects from classes
+        for (auto & pvc : m_Classes)
+        {
+            pvc.second->Release();
+        }
+        // Release objects from units
+        for (auto & pvu : m_Units)
+        {
+            pvu.second->Release();
+        }
+        // Release objects from this instance
+        m_OnQuery.Release();
+        m_OnGained.Release();
+        m_OnLost.Release();
+        m_Tag.Release();
+        m_Data.Release();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Terminate the all managers by releasing their classes and units and callbacks.
+    */
+    static void Terminate()
+    {
+        for (auto & pvm : s_Managers)
+        {
+            pvm->Release();
+        }
+    }
+
 };
 
 } // Namespace:: SqMod

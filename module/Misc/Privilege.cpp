@@ -15,6 +15,9 @@ SQMODE_DECL_TYPENAME(ManagerTn, _SC("SqPrivilegeManager"))
 static constexpr size_t BAD_POS = ~static_cast< size_t >(0);
 
 // ------------------------------------------------------------------------------------------------
+PvManagers PvManager::s_Managers;
+
+// ------------------------------------------------------------------------------------------------
 PvManager & PvUnit::GetManager() const
 {
     return m_Class->GetManager(); // Classes must always have a manager!
@@ -319,6 +322,10 @@ std::pair< PvUnit *, LightObj > PvManager::CreateUnitImpl(SQInteger id, PvClass 
 // ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
+void TerminatePrivileges()
+{
+    PvManager::Terminate();
+}
 
 // ================================================================================================
 void Register_Privilege(HSQUIRRELVM vm)
