@@ -73,5 +73,5 @@ add_library(SquirrelAPI INTERFACE)
 target_include_directories(SquirrelAPI INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 # Switch to plugin-development mode
 if(PLUGIN_DEVEL)
-	target_compile_definitions(SquirrelAPI PUBLIC SQMOD_PLUGIN_API=1)
+	target_compile_definitions(SquirrelAPI INTERFACE SQMOD_PLUGIN_API=1)
 endif()
