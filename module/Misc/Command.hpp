@@ -1105,11 +1105,19 @@ public:
         for (Listener * node = s_Head; node != nullptr; node = node->m_Next)
         {
             node->m_Data.Release();
+            node->m_OnExec.Release();
+            node->m_OnAuth.Release();
+            node->m_OnPost.Release();
+            node->m_OnFail.Release();
         }
         // Go backwards and release resources
         for (Listener * node = s_Head; node != nullptr; node = node->m_Prev)
         {
             node->m_Data.Release();
+            node->m_OnExec.Release();
+            node->m_OnAuth.Release();
+            node->m_OnPost.Release();
+            node->m_OnFail.Release();
         }
         // Kinda useless but Squirrel doesn't play nice with loose references
         // Better safe than sorry
