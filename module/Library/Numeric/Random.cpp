@@ -306,45 +306,39 @@ Float64 GetRandomFloat64(Float64 m, Float64 n)
 // ------------------------------------------------------------------------------------------------
 void GetRandomString(String & str, String::size_type len)
 {
-    // Reserve the requested size + the null terminator
-    str.reserve(len+1);
     // Resize to the requested size and fill with 0
     str.resize(len);
     // Generate the requested amount of characters
     for (auto & c : str)
+    {
         c = String_Dist(*RG32_MT19937);
-    // Append the null terminator
-    str.push_back(0);
+    }
 }
 
 void GetRandomString(String & str, String::size_type len, String::value_type n)
 {
-    // Reserve the requested size + the null terminator
-    str.reserve(len+1);
     // Resize to the requested size and fill with 0
     str.resize(len);
     // Create the custom distribution
     std::uniform_int_distribution< String::value_type > dist(1, n);
     // Generate the requested amount of characters
     for (auto & c : str)
+    {
         c = dist(*RG32_MT19937);
-    // Append the null terminator
-    str.push_back(0);
+    }
 }
 
 void GetRandomString(String & str, String::size_type len, String::value_type m, String::value_type n)
 {
-    // Reserve the requested size + the null terminator
-    str.reserve(len+1);
     // Resize to the requested size and fill with 0
     str.resize(len);
     // Create the custom distribution
     std::uniform_int_distribution< String::value_type > dist(m, n);
     // Generate the requested amount of characters
     for (auto & c : str)
+    {
         c = dist(*RG32_MT19937);
-    // Append the null terminator
-    str.push_back(0);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
