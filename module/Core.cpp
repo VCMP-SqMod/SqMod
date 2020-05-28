@@ -16,12 +16,12 @@
 #include "Entity/Vehicle.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include <SqMod.h>
 #include <sqstdio.h>
 #include <sqstdblob.h>
 #include <sqstdmath.h>
 #include <sqstdsystem.h>
 #include <sqstdstring.h>
+#include <sqmodapi.h>
 #include <SimpleIni.h>
 
 // ------------------------------------------------------------------------------------------------

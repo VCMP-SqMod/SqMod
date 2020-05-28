@@ -68,6 +68,30 @@ extern void LogSFtl(CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 1, 2);
 
 /* ------------------------------------------------------------------------------------------------
  * Forward declarations of the logging functions to avoid including the logger everywhere.
+ * Primary logging functions.
+*/
+extern void LogDbgV(CCStr fmt, va_list vlist);
+extern void LogUsrV(CCStr fmt, va_list vlist);
+extern void LogScsV(CCStr fmt, va_list vlist);
+extern void LogInfV(CCStr fmt, va_list vlist);
+extern void LogWrnV(CCStr fmt, va_list vlist);
+extern void LogErrV(CCStr fmt, va_list vlist);
+extern void LogFtlV(CCStr fmt, va_list vlist);
+
+/* ------------------------------------------------------------------------------------------------
+ * Forward declarations of the logging functions to avoid including the logger everywhere.
+ * Secondary logging functions.
+*/
+extern void LogSDbgV(CCStr fmt, va_list vlist);
+extern void LogSUsrV(CCStr fmt, va_list vlist);
+extern void LogSScsV(CCStr fmt, va_list vlist);
+extern void LogSInfV(CCStr fmt, va_list vlist);
+extern void LogSWrnV(CCStr fmt, va_list vlist);
+extern void LogSErrV(CCStr fmt, va_list vlist);
+extern void LogSFtlV(CCStr fmt, va_list vlist);
+
+/* ------------------------------------------------------------------------------------------------
+ * Forward declarations of the logging functions to avoid including the logger everywhere.
  * Primary conditional logging functions.
 */
 extern bool cLogDbg(bool exp, CCStr fmt, ...) SQMOD_FORMAT_ATTR(printf, 2, 3);

@@ -8,7 +8,7 @@
 #include <sqstdio.h>
 #include <sqstdblob.h>
 #include <sqstdstring.h>
-#include <SqMod.h>
+#include <sqmodapi.h>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -61,6 +61,20 @@ static int32_t SqExport_PopulateModuleAPI(HSQMODAPI api, size_t size)
     api->LogSWrn                    = LogSWrn;
     api->LogSErr                    = LogSErr;
     api->LogSFtl                    = LogSFtl;
+    api->LogDbgV                    = LogDbgV;
+    api->LogUsrV                    = LogUsrV;
+    api->LogScsV                    = LogScsV;
+    api->LogInfV                    = LogInfV;
+    api->LogWrnV                    = LogWrnV;
+    api->LogErrV                    = LogErrV;
+    api->LogFtlV                    = LogFtlV;
+    api->LogSDbgV                   = LogSDbgV;
+    api->LogSUsrV                   = LogSUsrV;
+    api->LogSScsV                   = LogSScsV;
+    api->LogSInfV                   = LogSInfV;
+    api->LogSWrnV                   = LogSWrnV;
+    api->LogSErrV                   = LogSErrV;
+    api->LogSFtlV                   = LogSFtlV;
 
     //script loading
     api->LoadScript                 = SqModImpl_LoadScript;

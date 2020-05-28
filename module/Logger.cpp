@@ -681,6 +681,32 @@ SQMOD_LOG(LogSErr, LOGL_ERR, true)
 SQMOD_LOG(LogSFtl, LOGL_FTL, true)
 
 // ------------------------------------------------------------------------------------------------
+#define SQMOD_VLOG(N_, L_, S_) /*
+*/ void N_(CCStr fmt, va_list vlist) /*
+*/ { /*
+*/  Logger::Get().Send(L_, S_, fmt, vlist); /*
+*/ } /*
+*/
+
+// ------------------------------------------------------------------------------------------------
+SQMOD_VLOG(LogDbgV, LOGL_DBG, false)
+SQMOD_VLOG(LogUsrV, LOGL_USR, false)
+SQMOD_VLOG(LogScsV, LOGL_SCS, false)
+SQMOD_VLOG(LogInfV, LOGL_INF, false)
+SQMOD_VLOG(LogWrnV, LOGL_WRN, false)
+SQMOD_VLOG(LogErrV, LOGL_ERR, false)
+SQMOD_VLOG(LogFtlV, LOGL_FTL, false)
+
+// ------------------------------------------------------------------------------------------------
+SQMOD_VLOG(LogSDbgV, LOGL_DBG, true)
+SQMOD_VLOG(LogSUsrV, LOGL_USR, true)
+SQMOD_VLOG(LogSScsV, LOGL_SCS, true)
+SQMOD_VLOG(LogSInfV, LOGL_INF, true)
+SQMOD_VLOG(LogSWrnV, LOGL_WRN, true)
+SQMOD_VLOG(LogSErrV, LOGL_ERR, true)
+SQMOD_VLOG(LogSFtlV, LOGL_FTL, true)
+
+// ------------------------------------------------------------------------------------------------
 #define SQMOD_CLOG(N_, L_, S_) /*
 */bool N_(bool c, CCStr fmt, ...) /*
 */ { /*

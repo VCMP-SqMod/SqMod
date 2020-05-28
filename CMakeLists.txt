@@ -7,7 +7,6 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 # Several plugin options
 option(BUILTIN_RUNTIMES "Include the MinGW runtime into the binary itself." ON)
 option(FORCE_32BIT_BIN "Create a 32-bit executable binary if the compiler defaults to 64-bit." OFF)
-option(PLUGIN_DEVEL "Switch to plugin development." OFF)
 option(ENABLE_MYSQL "Enable the MySQL library." OFF)
 option(ENABLE_API21 "Build for 2.1 API." OFF)
 
@@ -40,18 +39,7 @@ endif()
 if(UNIX)
 	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
-# Include VCMP library
-add_subdirectory(vcmp)
-# Include Squirrel library
-add_subdirectory(squirrel)
-# Include Squat library
-add_subdirectory(sqrat)
 # Include SDK library
 add_subdirectory(sdk)
-if(PLUGIN_DEVEL)
-	# Include Sample module
-	add_subdirectory(hello)
-else()
-	# Include Module library
-	add_subdirectory(module)
-endif()
+# Include Module library
+add_subdirectory(module)

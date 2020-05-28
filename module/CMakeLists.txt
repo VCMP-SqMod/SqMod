@@ -73,10 +73,8 @@ add_library(SqModule MODULE
 	Misc/Vehicle.cpp Misc/Vehicle.hpp
 	Misc/Weapon.cpp Misc/Weapon.hpp
 )
-# Link to base libraries
-target_link_libraries(SqModule VCMP Squirrel Sqrat SqSDKAPI)
-# Link to third-party libraries
-target_link_libraries(SqModule SimpleINI HashLib B64Lib AES256Lib WhirlpoolLib TinyDir PUGIXML SQLite MaxmindDB SimpleSocket)
+# Link to libraries
+target_link_libraries(SqModule SqModSDK SimpleINI HashLib B64Lib AES256Lib WhirlpoolLib TinyDir PUGIXML SQLite MaxmindDB SimpleSocket)
 # Link to mysql client library
 if(ENABLE_MYSQL)
 	# Include the implementation 
