@@ -39,6 +39,7 @@ endif()
 if(UNIX)
 	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
+
 # Include SDK library
 add_subdirectory(sdk)
 # Include Module library

@@ -4,19 +4,11 @@
 *.so
 
 # Directories
-.*
 /bin/*
-/lib/
-/obj/
-/sandbox/*.*
 # MySQL on windows
 /include/mysql/
 /config/mingw32/mysql/
 /config/mingw64/mysql/
-
-# Projects
-*.layout
-*.depend
 
 # Leftovers
 *.[Oo]bj
