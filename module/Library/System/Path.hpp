@@ -607,11 +607,11 @@ public:
     */
     static CharT Separator()
     {
-#ifdef GMOD_OS_WINDOWS
+#ifdef SQMOD_OS_WINDOWS
         return '\\';
 #else
         return '/';
-#endif // GMOD_OS_WINDOWS
+#endif // SQMOD_OS_WINDOWS
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -619,11 +619,11 @@ public:
     */
     static CharT PathSeparator()
     {
-#ifdef GMOD_OS_WINDOWS
+#ifdef SQMOD_OS_WINDOWS
         return ';';
 #else
         return ':';
-#endif // GMOD_OS_WINDOWS
+#endif // SQMOD_OS_WINDOWS
     }
 
     /* --------------------------------------------------------------------------------------------
