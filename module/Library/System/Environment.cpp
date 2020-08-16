@@ -200,33 +200,38 @@ String SysEnv::OSDisplayName()
         return "Unknown Windows";
     }
     // Identify the platform from the obtained information
-    switch(vi.dwMajorVersion)
-    {
-    case 6:
-        switch (vi.dwMinorVersion)
-        {
-        case 0:     return "Windows Vista/Server 2008";
-        case 1:     return "Windows 7/Server 2008 R2";
-        case 2:     return "Windows 8/Server 2012";
-        default:    return "Windows 6.x [Unknown]";
-        }
-    case 5:
-        switch (vi.dwMinorVersion)
-        {
-        case 0:     return "Windows 2000";
-        case 1:     return "Windows XP";
-        case 2:     return "Windows Server 2003/Windows Server 2003 R2";
-        default:    return "Windows 5.x [Unknown]";
-        }
-    case 4:
-        switch (vi.dwMinorVersion)
-        {
-        case 0:     return "Windows 95/Windows NT 4.0";
-        case 10:    return "Windows 98";
-        case 90:    return "Windows ME";
-        default:    return "Windows 4.x [Unknown]";
-        }
-    default:        return "Windows [Unknown]";
+    switch(vi.dwMajorVersion) {
+        case 10:
+            switch (vi.dwMinorVersion) {
+                case 0:     return "Windows 10/Windows Server 2016";
+                default:    return "Windows 10.x [Unknown]";
+            }
+        case 6:
+            switch (vi.dwMinorVersion) {
+                case 0:     return "Windows Vista/Server 2008";
+                case 1:     return "Windows 7/Server 2008 R2";
+                case 2:     return "Windows 8/Server 2012";
+                case 3:     return "Windows 8.1/Server 2012 R2";
+                default:    return "Windows 6.x [Unknown]";
+            }
+        // Even this is questionable
+        case 5:
+            switch (vi.dwMinorVersion) {
+                case 0:     return "Windows 2000";
+                case 1:     return "Windows XP";
+                case 2:     return "Windows Server 2003/Windows Server 2003 R2";
+                default:    return "Windows 5.x [Unknown]";
+            }
+        // This is here only for the lolz
+        case 4:
+            switch (vi.dwMinorVersion) {
+                case 0:     return "Windows 95/Windows NT 4.0";
+                case 10:    return "Windows 98";
+                case 90:    return "Windows ME";
+                default:    return "Windows 4.x [Unknown]";
+            }
+        // Something smells
+        default:            return "Windows [Unknown]";
     }
 #else
     // Use the same same output from OSName
