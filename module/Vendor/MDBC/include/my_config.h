@@ -7,7 +7,7 @@
 /* #undef HAVE_ARPA_INET_H */
 /* #undef HAVE_CRYPT_H */
 #define HAVE_DIRENT_H 1
-/* #undef HAVE_DLFCN_H */
+#define HAVE_DLFCN_H 1
 /* #undef HAVE_EXECINFO_H */
 #define HAVE_FCNTL_H 1
 #define HAVE_FENV_H 1
