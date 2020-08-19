@@ -6,7 +6,7 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 # Several plugin options
 option(BUILTIN_RUNTIMES "Include the MinGW runtime into the binary itself." ON)
-option(LTO_ENABLED "Enable link time optimizations (takes a long time to compile!)." ON)
+option(LTO_ENABLED "Enable link time optimizations (takes a long time to compile!)." OFF)
 option(FORCE_32BIT_BIN "Create a 32-bit executable binary if the compiler defaults to 64-bit." OFF)
 option(ENABLE_MYSQL "Enable the MySQL library." OFF)
 option(ENABLE_API21 "Build for 2.1 API." OFF)
