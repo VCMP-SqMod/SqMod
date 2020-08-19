@@ -6,6 +6,7 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 # Several plugin options
 option(BUILTIN_RUNTIMES "Include the MinGW runtime into the binary itself." ON)
+option(LTO_ENABLED "Enable link time optimizations (takes a long time to compile!)." ON)
 option(FORCE_32BIT_BIN "Create a 32-bit executable binary if the compiler defaults to 64-bit." OFF)
 option(ENABLE_MYSQL "Enable the MySQL library." OFF)
 option(ENABLE_API21 "Build for 2.1 API." OFF)
@@ -34,6 +35,20 @@ if(GCC OR MINGW)
 		set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
 	endif()
 endif()
+
+# Enable LTO
+if (NOT LTO_ENABLED)
+	message("Link time optimizations are disabled")
+elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "MINGW")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto")
+elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+	if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto")
+	endif()
+else()
+	set(LTO_ENABLED OFF)
+	message("Link time optimizations not supported")
+endif ()
 
 # Enable position independent code
 if(UNIX)

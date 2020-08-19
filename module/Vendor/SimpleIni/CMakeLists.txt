@@ -7,3 +7,7 @@ add_library(SimpleINI STATIC
 # Configure include folders
 target_include_directories(SimpleINI PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_include_directories(SimpleINI PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
+# Enable LTO
+if (LTO_ENABLED)
+	target_link_libraries(SimpleINI PRIVATE -flto)
+endif()

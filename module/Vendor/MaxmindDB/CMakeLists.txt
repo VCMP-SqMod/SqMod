@@ -44,3 +44,7 @@ target_include_directories(MaxmindDB PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 if(GCC OR MINGW)
 	target_compile_options(MaxmindDB PRIVATE -Wno-unused -Wno-incompatible-pointer-types)
 endif()
+# Enable LTO
+if (LTO_ENABLED)
+	target_link_libraries(MaxmindDB PRIVATE -flto)
+endif()

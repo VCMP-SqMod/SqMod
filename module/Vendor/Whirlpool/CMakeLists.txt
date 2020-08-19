@@ -9,3 +9,7 @@ add_library(WhirlpoolLib STATIC
 # Configure include folders
 target_include_directories(WhirlpoolLib PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_include_directories(WhirlpoolLib PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
+# Enable LTO
+if (LTO_ENABLED)
+	target_link_libraries(WhirlpoolLib PRIVATE -flto)
+endif()

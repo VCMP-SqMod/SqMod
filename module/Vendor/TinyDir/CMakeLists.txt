@@ -3,3 +3,7 @@ add_library(TinyDir STATIC include/tinydir.h tinydir.c)
 # Library includes
 target_include_directories(TinyDir PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_include_directories(TinyDir PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
+# Enable LTO
+if (LTO_ENABLED)
+    target_link_libraries(TinyDir PRIVATE -flto)
+endif()

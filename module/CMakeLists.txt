@@ -81,6 +81,10 @@ if(GCC OR MINGW)
 endif()
 # Link to libraries
 target_link_libraries(SqModule SqModSDK SimpleINI HashLib B64Lib AES256Lib WhirlpoolLib TinyDir PUGIXML SQLite MaxmindDB SimpleSocket)
+# Enable LTO
+if (LTO_ENABLED)
+	target_link_libraries(SqModule -flto)
+endif()
 # Link to mysql client library
 if(ENABLE_MYSQL)
 	# Include the implementation 

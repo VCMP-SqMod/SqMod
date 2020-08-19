@@ -17,3 +17,7 @@ target_include_directories(HashLib PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 if (MINGW)
 	target_include_directories(HashLib PRIVATE ${CMAKE_CURRENT_LIST_DIR}/mingwinc)
 endif(MINGW)
+# Enable LTO
+if (LTO_ENABLED)
+	target_link_libraries(HashLib PRIVATE -flto)
+endif()

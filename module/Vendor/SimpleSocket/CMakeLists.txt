@@ -11,7 +11,11 @@ target_include_directories(SimpleSocket PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_include_directories(SimpleSocket PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 # Configure macro options
 target_compile_definitions(SimpleSocket PRIVATE _WIN32_WINNT=0x0601)
-# OS and compiler checks. 
+# Enable LTO
+if (LTO_ENABLED)
+    target_link_libraries(SimpleSocket PRIVATE -flto)
+endif()
+# OS and compiler checks.
 if(WIN32)
     target_link_libraries(SimpleSocket PUBLIC Ws2_32)
 endif()
