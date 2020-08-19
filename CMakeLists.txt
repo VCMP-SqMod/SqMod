@@ -28,7 +28,7 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
 	add_compile_options(-g)
 endif()
 
-# Include mingw runntime into the binary
+# Include MINGW runtime into the binary
 if(GCC OR MINGW)
 	if(BUILTIN_RUNTIMES)
 		set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")

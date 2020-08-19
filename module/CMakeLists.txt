@@ -73,6 +73,12 @@ add_library(SqModule MODULE
 	Misc/Vehicle.cpp Misc/Vehicle.hpp
 	Misc/Weapon.cpp Misc/Weapon.hpp
 )
+# Include MINGW runtime into the binary
+if(GCC OR MINGW)
+	if(BUILTIN_RUNTIMES)
+		target_link_libraries (SqModule -static gcc stdc++ winpthread -dynamic)
+	endif()
+endif()
 # Link to libraries
 target_link_libraries(SqModule SqModSDK SimpleINI HashLib B64Lib AES256Lib WhirlpoolLib TinyDir PUGIXML SQLite MaxmindDB SimpleSocket)
 # Link to mysql client library
