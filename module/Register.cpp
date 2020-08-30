@@ -24,15 +24,11 @@ extern void Register_Algo(HSQUIRRELVM vm);
 // ------------------------------------------------------------------------------------------------
 extern void Register_CBlip(HSQUIRRELVM vm);
 extern void Register_CCheckpoint(HSQUIRRELVM vm);
-extern void Register_CForcefield(HSQUIRRELVM vm);
 extern void Register_CKeybind(HSQUIRRELVM vm);
 extern void Register_CObject(HSQUIRRELVM vm);
 extern void Register_CPickup(HSQUIRRELVM vm);
 extern void Register_CPlayer(HSQUIRRELVM vm);
-extern void Register_CSprite(HSQUIRRELVM vm);
-extern void Register_CTextdraw(HSQUIRRELVM vm);
 extern void Register_CVehicle(HSQUIRRELVM vm);
-extern void Register_Entity(HSQUIRRELVM vm);
 
 // ------------------------------------------------------------------------------------------------
 extern void Register_Chrono(HSQUIRRELVM vm);
