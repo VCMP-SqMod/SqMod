@@ -974,7 +974,7 @@ SysPath & SysPath::Push(String && dir)
         // Does it refer to a parent directory?
         if (dir.compare("..") == 0)
         {
-            // Is out last directory already a reference to a parent?
+            // Is our last directory already a reference to a parent?
             if (!m_Dirs.empty() && m_Dirs.back().compare("..") != 0)
             {
                 m_Dirs.pop_back();
