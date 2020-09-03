@@ -530,8 +530,6 @@ const Vector2i & Vector2i::Get(StackStrF & str)
 // ------------------------------------------------------------------------------------------------
 const Vector2i & Vector2i::GetEx(SQChar delim, StackStrF & str)
 {
-    // The format specifications that will be used to scan the string
-    static SQChar fs[] = _SC(" %d , %d ");
     static Vector2i vec;
     // Clear previous values, if any
     vec.Clear();
@@ -540,6 +538,8 @@ const Vector2i & Vector2i::GetEx(SQChar delim, StackStrF & str)
     {
         return vec; // Return the value as is!
     }
+    // The format specifications that will be used to scan the string
+    SQChar fs[] = _SC(" %d , %d ");
     // Assign the specified delimiter
     fs[4] = delim;
     // Attempt to extract the component values from the specified string

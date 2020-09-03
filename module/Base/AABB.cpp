@@ -742,8 +742,6 @@ const AABB & AABB::Get(StackStrF & str)
 // ------------------------------------------------------------------------------------------------
 const AABB & AABB::GetEx(SQChar delim, StackStrF & str)
 {
-    // The format specifications that will be used to scan the string
-    static SQChar fs[] = _SC(" %f , %f , %f , %f , %f , %f ");
     static AABB box;
     // Clear previous values, if any
     box.Clear();
@@ -752,6 +750,8 @@ const AABB & AABB::GetEx(SQChar delim, StackStrF & str)
     {
         return box; // Return the value as is!
     }
+    // The format specifications that will be used to scan the string
+    SQChar fs[] = _SC(" %f , %f , %f , %f , %f , %f ");
     // Assign the specified delimiter
     fs[4] = delim;
     fs[9] = delim;

@@ -722,8 +722,6 @@ const Quaternion & Quaternion::Get(StackStrF & str)
 // ------------------------------------------------------------------------------------------------
 const Quaternion & Quaternion::GetEx(SQChar delim, StackStrF & str)
 {
-    // The format specifications that will be used to scan the string
-    static SQChar fs[] = _SC(" %f , %f , %f , %f ");
     static Quaternion quat;
     // Clear previous values, if any
     quat.Clear();
@@ -732,6 +730,8 @@ const Quaternion & Quaternion::GetEx(SQChar delim, StackStrF & str)
     {
         return quat; // Return the value as is!
     }
+    // The format specifications that will be used to scan the string
+    SQChar fs[] = _SC(" %f , %f , %f , %f ");
     // Assign the specified delimiter
     fs[4] = delim;
     fs[9] = delim;

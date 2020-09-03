@@ -675,12 +675,10 @@ const Color4 & Color4::Get(StackStrF & str)
 // ------------------------------------------------------------------------------------------------
 const Color4 & Color4::GetEx(SQChar delim, StackStrF & str)
 {
-    // The format specifications that will be used to scan the string
-    static SQChar fs[] = _SC(" %u , %u , %u , %u ");
     static Color4 col;
     // The minimum and maximum values supported by the Color4 type
-    static const Uint32 min = std::numeric_limits< Color4::Value >::min();
-    static const Uint32 max = std::numeric_limits< Color4::Value >::max();
+    static constexpr Uint32 min = std::numeric_limits< Color4::Value >::min();
+    static constexpr Uint32 max = std::numeric_limits< Color4::Value >::max();
     // Clear previous values, if any
     col.Clear();
     // Is the specified string empty?
@@ -688,6 +686,8 @@ const Color4 & Color4::GetEx(SQChar delim, StackStrF & str)
     {
         return col; // Return the value as is!
     }
+    // The format specifications that will be used to scan the string
+    SQChar fs[] = _SC(" %u , %u , %u , %u ");
     // Assign the specified delimiter
     fs[4] = delim;
     fs[9] = delim;

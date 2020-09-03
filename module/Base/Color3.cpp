@@ -640,12 +640,10 @@ const Color3 & Color3::Get(StackStrF & str)
 // ------------------------------------------------------------------------------------------------
 const Color3 & Color3::GetEx(SQChar delim, StackStrF & str)
 {
-    // The format specifications that will be used to scan the string
-    static SQChar fs[] = _SC(" %u , %u , %u ");
     static Color3 col;
     // The minimum and maximum values supported by the Color3 type
-    static const Uint32 min = std::numeric_limits< Color3::Value >::min();
-    static const Uint32 max = std::numeric_limits< Color3::Value >::max();
+    static constexpr Uint32 min = std::numeric_limits< Color3::Value >::min();
+    static constexpr Uint32 max = std::numeric_limits< Color3::Value >::max();
     // Clear previous values, if any
     col.Clear();
     // Is the specified string empty?
@@ -653,6 +651,8 @@ const Color3 & Color3::GetEx(SQChar delim, StackStrF & str)
     {
         return col; // Return the value as is!
     }
+    // The format specifications that will be used to scan the string
+    SQChar fs[] = _SC(" %u , %u , %u ");
     // Assign the specified delimiter
     fs[4] = delim;
     fs[9] = delim;

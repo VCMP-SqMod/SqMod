@@ -476,8 +476,6 @@ const Sphere & Sphere::Get(StackStrF & str)
 // ------------------------------------------------------------------------------------------------
 const Sphere & Sphere::GetEx(SQChar delim, StackStrF & str)
 {
-    // The format specifications that will be used to scan the string
-    static SQChar fs[] = _SC(" %f , %f , %f , %f ");
     static Sphere sphere;
     // Clear previous values, if any
     sphere.Clear();
@@ -486,6 +484,8 @@ const Sphere & Sphere::GetEx(SQChar delim, StackStrF & str)
     {
         return sphere; // Return the value as is!
     }
+    // The format specifications that will be used to scan the string
+    SQChar fs[] = _SC(" %f , %f , %f , %f ");
     // Assign the specified delimiter
     fs[4] = delim;
     fs[9] = delim;

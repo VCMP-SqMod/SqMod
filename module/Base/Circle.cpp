@@ -503,8 +503,6 @@ const Circle & Circle::Get(StackStrF & str)
 // ------------------------------------------------------------------------------------------------
 const Circle & Circle::GetEx(SQChar delim, StackStrF & str)
 {
-    // The format specifications that will be used to scan the string
-    static SQChar fs[] = _SC(" %f , %f , %f ");
     static Circle circle;
     // Clear previous values, if any
     circle.Clear();
@@ -513,6 +511,8 @@ const Circle & Circle::GetEx(SQChar delim, StackStrF & str)
     {
         return circle; // Return the value as is!
     }
+    // The format specifications that will be used to scan the string
+    SQChar fs[] = _SC(" %f , %f , %f ");
     // Assign the specified delimiter
     fs[4] = delim;
     fs[9] = delim;

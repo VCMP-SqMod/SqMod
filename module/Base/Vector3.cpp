@@ -637,8 +637,6 @@ const Vector3 & Vector3::Get(StackStrF & str)
 // ------------------------------------------------------------------------------------------------
 const Vector3 & Vector3::GetEx(SQChar delim, StackStrF & str)
 {
-    // The format specifications that will be used to scan the string
-    static SQChar fs[] = _SC(" %f , %f , %f ");
     static Vector3 vec;
     // Clear previous values, if any
     vec.Clear();
@@ -647,6 +645,8 @@ const Vector3 & Vector3::GetEx(SQChar delim, StackStrF & str)
     {
         return vec; // Return the value as is!
     }
+    // The format specifications that will be used to scan the string
+    SQChar fs[] = _SC(" %f , %f , %f ");
     // Assign the specified delimiter
     fs[4] = delim;
     fs[9] = delim;
