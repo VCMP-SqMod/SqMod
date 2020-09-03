@@ -668,6 +668,32 @@ void Color4::Inverse()
 }
 
 // ------------------------------------------------------------------------------------------------
+LightObj Color4::ToHex() const
+{
+    SQChar buff[16]; // 9 should be enough
+    // Attempt to perform the format in the local buffer
+    if (std::snprintf(buff, 16, "%02x%02x%02x%02x", r, g, b, a) <= 0)
+    {
+        STHROWF("Format failed (somehow)");
+    }
+    // Return the resulted string
+    return LightObj{buff, -1};
+}
+
+// ------------------------------------------------------------------------------------------------
+LightObj Color4::ToHex3() const
+{
+    SQChar buff[16]; // 7 should be enough
+    // Attempt to perform the format in the local buffer
+    if (std::snprintf(buff, 16, "%02x%02x%02x", r, g, b) <= 0)
+    {
+        STHROWF("Format failed (somehow)");
+    }
+    // Return the resulted string
+    return LightObj{buff, -1};
+}
+
+// ------------------------------------------------------------------------------------------------
 LightObj Color4::Format(const String & spec, StackStrF & fmt) const
 {
     String out;
@@ -772,6 +798,8 @@ void Register_Color4(HSQUIRRELVM vm)
         .Prop(_SC("RGB"), &Color4::GetRGB, &Color4::SetRGB)
         .Prop(_SC("RGBA"), &Color4::GetRGBA, &Color4::SetRGBA)
         .Prop(_SC("ARGB"), &Color4::GetARGB, &Color4::SetARGB)
+        .Prop(_SC("Hex"), &Color4::ToHex)
+        .Prop(_SC("Hex3"), &Color4::ToHex3)
         // Member Methods
         .Func(_SC("SetScalar"), &Color4::SetScalar)
         .Func(_SC("SetColor3"), &Color4::SetColor3)

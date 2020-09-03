@@ -499,6 +499,16 @@ struct Color3
     void Inverse();
 
     /* --------------------------------------------------------------------------------------------
+     * Generate a 3 component hex color from the values in this instance.
+    */
+    LightObj ToHex() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Generate a 4 component hex color from the values in this instance.
+    */
+    LightObj ToHex4() const;
+
+    /* --------------------------------------------------------------------------------------------
      * Generate a formatted string with the values from this instance.
     */
     LightObj Format(const String & spec, StackStrF & fmt) const;
