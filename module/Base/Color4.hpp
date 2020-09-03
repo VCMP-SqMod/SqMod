@@ -29,6 +29,11 @@ struct Color4
     static SQChar Delim;
 
     /* --------------------------------------------------------------------------------------------
+     * Whenever converting colors to hex, useupper case characters.
+    */
+    static bool UpperCaseHex;
+
+    /* --------------------------------------------------------------------------------------------
      * The red, green and blue components of this type.
     */
     Value r, g, b, a;

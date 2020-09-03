@@ -22,6 +22,7 @@ const Color3 Color3::MAX = Color3(std::numeric_limits< Color3::Value >::max());
 
 // ------------------------------------------------------------------------------------------------
 SQChar Color3::Delim = ',';
+bool Color3::UpperCaseHex = false;
 
 // ------------------------------------------------------------------------------------------------
 Color3::Color3() noexcept
@@ -637,7 +638,7 @@ LightObj Color3::ToHex() const
 {
     SQChar buff[16]; // 7 should be enough
     // Attempt to perform the format in the local buffer
-    if (std::snprintf(buff, 16, "%02x%02x%02x", r, g, b) <= 0)
+    if (std::snprintf(buff, 16, UpperCaseHex ? "%02X%02X%02X" : "%02x%02x%02x", r, g, b) <= 0)
     {
         STHROWF("Format failed (somehow)");
     }
@@ -650,7 +651,7 @@ LightObj Color3::ToHex4() const
 {
     SQChar buff[16]; // 9 should be enough
     // Attempt to perform the format in the local buffer
-    if (std::snprintf(buff, 16, "%02x%02x%02x%02x", r, g, b, 0) <= 0)
+    if (std::snprintf(buff, 16, UpperCaseHex ? "%02X%02X%02X%02X" : "%02x%02x%02x%02x", r, g, b, 0) <= 0)
     {
         STHROWF("Format failed (somehow)");
     }
@@ -722,6 +723,22 @@ const Color3 & Color3::GetEx(SQChar delim, StackStrF & str)
     return col;
 }
 
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve the hex case preference of the Color3 type.
+*/
+static bool SqGetColor3UpperCaseHex()
+{
+    return Color3::UpperCaseHex;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Modify the hex case preference of the Color3 type.
+*/
+static void SqSetColor3UpperCaseHex(bool t)
+{
+    Color3::UpperCaseHex = t;
+}
+
 // ================================================================================================
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -780,6 +797,8 @@ void Register_Color3(HSQUIRRELVM vm)
         // Static Functions
         .StaticFunc(_SC("GetDelimiter"), &SqGetDelimiter< Color3 >)
         .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< Color3 >)
+        .StaticFunc(_SC("GetUpperCaseHex"), &SqGetColor3UpperCaseHex)
+        .StaticFunc(_SC("SetUpperCaseHex"), &SqSetColor3UpperCaseHex)
         .StaticFmtFunc(_SC("FromStr"), &Color3::Get)
         .StaticFmtFunc(_SC("FromStrEx"), &Color3::GetEx)
         // Operator Exposure
