@@ -444,6 +444,11 @@ struct Vector2i
     Vector2i Abs() const;
 
     /* --------------------------------------------------------------------------------------------
+     * Generate a formatted string with the values from this instance.
+    */
+    LightObj Format(const String & spec, StackStrF & fmt) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Vector2i type from a string.
     */
     static const Vector2i & Get(StackStrF & str);

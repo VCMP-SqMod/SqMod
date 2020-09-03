@@ -4,6 +4,7 @@
 #include "Base/Vector4.hpp"
 #include "Base/Shared.hpp"
 #include "Base/DynArg.hpp"
+#include "Base/Buffer.hpp"
 #include "Library/Numeric/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -720,6 +721,33 @@ const Quaternion & Quaternion::Get(StackStrF & str)
 }
 
 // ------------------------------------------------------------------------------------------------
+LightObj Quaternion::Format(const String & spec, StackStrF & fmt) const
+{
+    String out;
+    // Attempt to build the format string
+    if (!BuildFormatString(out, fmt, 4, spec))
+    {
+        return LightObj{}; // Default to null
+    }
+    // Empty string is unacceptable
+    else if (out.empty())
+    {
+        STHROWF("Unable to build a valid format string.");
+    }
+    // Grab a temporary buffer
+    Buffer buff(out.size());
+    // Generate the string
+    Buffer::SzType n = buff.WriteF(0, out.c_str(), x, y, z, w);
+    // Did the format failed?
+    if (!n && !out.empty())
+    {
+        STHROWF("Format failed. Please check format specifier and parameter count.");
+    }
+    // Return the resulted string
+    return LightObj{buff.Begin< SQChar >(), static_cast< SQInteger >(n)};
+}
+
+// ------------------------------------------------------------------------------------------------
 const Quaternion & Quaternion::GetEx(SQChar delim, StackStrF & str)
 {
     static Quaternion quat;
@@ -797,6 +825,7 @@ void Register_Quaternion(HSQUIRRELVM vm)
         .Func(_SC("SetVector4"), &Quaternion::SetVector4)
         .FmtFunc(_SC("SetStr"), &Quaternion::SetStr)
         .Func(_SC("Clear"), &Quaternion::Clear)
+        .FmtFunc(_SC("Format"), &Quaternion::Format)
         .Func(_SC("DotProduct"), &Quaternion::DotProduct)
         .Func(_SC("Normalize"), &Quaternion::Normalize)
         .Func(_SC("FromAngleAxis"), &Quaternion::FromAngleAxis)

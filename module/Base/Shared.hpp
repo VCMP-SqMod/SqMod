@@ -170,4 +170,9 @@ template < typename T > inline void SqSetDelimiter(SQInteger c)
     T::Delim = ConvTo< SQChar >::From(c);
 }
 
+/* ------------------------------------------------------------------------------------------------
+ * Used internally to build format strings for math types.
+*/
+bool BuildFormatString(String & out, StackStrF & fmt, Uint32 arg, const String & spec);
+
 } // Namespace:: SqMod

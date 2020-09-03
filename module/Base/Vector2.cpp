@@ -3,6 +3,7 @@
 #include "Base/Vector2i.hpp"
 #include "Base/Shared.hpp"
 #include "Base/DynArg.hpp"
+#include "Base/Buffer.hpp"
 #include "Library/Numeric/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -376,6 +377,33 @@ Vector2 Vector2::Abs() const
 }
 
 // ------------------------------------------------------------------------------------------------
+LightObj Vector2::Format(const String & spec, StackStrF & fmt) const
+{
+    String out;
+    // Attempt to build the format string
+    if (!BuildFormatString(out, fmt, 2, spec))
+    {
+        return LightObj{}; // Default to null
+    }
+    // Empty string is unacceptable
+    else if (out.empty())
+    {
+        STHROWF("Unable to build a valid format string.");
+    }
+    // Grab a temporary buffer
+    Buffer buff(out.size());
+    // Generate the string
+    Buffer::SzType n = buff.WriteF(0, out.c_str(), x, y);
+    // Did the format failed?
+    if (!n && !out.empty())
+    {
+        STHROWF("Format failed. Please check format specifier and parameter count.");
+    }
+    // Return the resulted string
+    return LightObj{buff.Begin< SQChar >(), static_cast< SQInteger >(n)};
+}
+
+// ------------------------------------------------------------------------------------------------
 const Vector2 & Vector2::Get(StackStrF & str)
 {
     return Vector2::GetEx(Vector2::Delim, str);
@@ -441,6 +469,7 @@ void Register_Vector2(HSQUIRRELVM vm)
         .Func(_SC("SetVector2i"), &Vector2::SetVector2i)
         .FmtFunc(_SC("SetStr"), &Vector2::SetStr)
         .Func(_SC("Clear"), &Vector2::Clear)
+        .FmtFunc(_SC("Format"), &Vector2::Format)
         // Member Overloads
         .Overload< void (Vector2::*)(void) >(_SC("Generate"), &Vector2::Generate)
         .Overload< void (Vector2::*)(Val, Val) >(_SC("Generate"), &Vector2::Generate)

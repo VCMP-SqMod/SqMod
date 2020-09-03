@@ -3,6 +3,7 @@
 #include "Base/Color4.hpp"
 #include "Base/Shared.hpp"
 #include "Base/DynArg.hpp"
+#include "Base/Buffer.hpp"
 #include "Library/Numeric/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -632,6 +633,33 @@ void Color3::Inverse()
 }
 
 // ------------------------------------------------------------------------------------------------
+LightObj Color3::Format(const String & spec, StackStrF & fmt) const
+{
+    String out;
+    // Attempt to build the format string
+    if (!BuildFormatString(out, fmt, 3, spec))
+    {
+        return LightObj{}; // Default to null
+    }
+    // Empty string is unacceptable
+    else if (out.empty())
+    {
+        STHROWF("Unable to build a valid format string.");
+    }
+    // Grab a temporary buffer
+    Buffer buff(out.size());
+    // Generate the string
+    Buffer::SzType n = buff.WriteF(0, out.c_str(), r, g, b);
+    // Did the format failed?
+    if (!n && !out.empty())
+    {
+        STHROWF("Format failed. Please check format specifier and parameter count.");
+    }
+    // Return the resulted string
+    return LightObj{buff.Begin< SQChar >(), static_cast< SQInteger >(n)};
+}
+
+// ------------------------------------------------------------------------------------------------
 const Color3 & Color3::Get(StackStrF & str)
 {
     return Color3::GetEx(Color3::Delim, str);
@@ -714,6 +742,7 @@ void Register_Color3(HSQUIRRELVM vm)
         .FmtFunc(_SC("SetStr"), &Color3::SetStr)
         .FmtFunc(_SC("SetName"), &Color3::SetName)
         .Func(_SC("Clear"), &Color3::Clear)
+        .FmtFunc(_SC("Format"), &Color3::Format)
         .Func(_SC("Random"), &Color3::Random)
         .Func(_SC("Inverse"), &Color3::Inverse)
         // Member Overloads

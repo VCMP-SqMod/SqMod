@@ -890,6 +890,58 @@ Color3 GetColorStr(CSStr name)
 }
 
 // ------------------------------------------------------------------------------------------------
+bool BuildFormatString(String & out, StackStrF & fmt, Uint32 arg, const String & spec)
+{
+    // Is the specified string empty?
+    if (fmt.mLen <= 0)
+    {
+        return false; // Nothing to parse
+    }
+    // Backup current string size so we can revert back if anything
+    const size_t size = out.size();
+    // Number of processed arguments
+    Uint32 count = 0;
+    // Attempt to predict the required space
+    out.reserve(size + static_cast< size_t >(fmt.mLen) + arg * 2);
+    // Previously processed characters and the current one
+    SQChar p2, p1=0, c=0;
+    // Look for the value specifier in the specified string
+    for (SQInteger i = 0; i <= fmt.mLen; ++i) {
+        // Advance to the peaked character
+        p2 = p1, p1 = c, c = fmt.mPtr[i];
+        // The escape character is literal?
+        if (p1 == '\\' && p2 == '\\')
+        {
+            out.push_back('\\');
+            // Safeguard against a sequence of escape characters
+            p1 = 0;
+        }
+        // The marker is literal?
+        if (p1 == '\\' && c == '$')
+        {
+            out.push_back('$');
+        }
+        // Is this a marker?
+        else if (c == '$') {
+            // Did we run out of allowed arguments?
+            if (count++ < arg) {
+                out.append(spec); // Append the format specifier to the string
+            } else {
+                // Discard everything so far
+                out.resize(size);
+                // Signal failure
+                SqThrowF("Requested (%u) values but only (%u) available", count, arg);
+            }
+        } else if (c != '\\') {
+            // Append the current character to the string
+            out.push_back(c);
+        }
+    }
+    // Parsed successfully
+    return true;
+}
+
+// ------------------------------------------------------------------------------------------------
 void SqThrowLastF(CSStr msg, ...)
 {
     // Acquire a moderately sized buffer

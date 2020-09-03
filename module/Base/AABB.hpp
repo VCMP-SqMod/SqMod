@@ -467,6 +467,11 @@ struct AABB
     Int32 IsSphereInsideFastEx(Value x, Value y, Value z, Value r) const;
 
     /* --------------------------------------------------------------------------------------------
+     * Generate a formatted string with the values from this instance.
+    */
+    LightObj Format(const String & spec, StackStrF & fmt) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the AABB type from a string.
     */
     static const AABB & Get(StackStrF & str);

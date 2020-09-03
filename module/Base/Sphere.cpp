@@ -2,6 +2,7 @@
 #include "Base/Sphere.hpp"
 #include "Base/Shared.hpp"
 #include "Base/DynArg.hpp"
+#include "Base/Buffer.hpp"
 #include "Library/Numeric/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -468,6 +469,33 @@ Sphere Sphere::Abs() const
 }
 
 // ------------------------------------------------------------------------------------------------
+LightObj Sphere::Format(const String & spec, StackStrF & fmt) const
+{
+    String out;
+    // Attempt to build the format string
+    if (!BuildFormatString(out, fmt, 4, spec))
+    {
+        return LightObj{}; // Default to null
+    }
+    // Empty string is unacceptable
+    else if (out.empty())
+    {
+        STHROWF("Unable to build a valid format string.");
+    }
+    // Grab a temporary buffer
+    Buffer buff(out.size());
+    // Generate the string
+    Buffer::SzType n = buff.WriteF(0, out.c_str(), pos.x, pos.y, pos.z, rad);
+    // Did the format failed?
+    if (!n && !out.empty())
+    {
+        STHROWF("Format failed. Please check format specifier and parameter count.");
+    }
+    // Return the resulted string
+    return LightObj{buff.Begin< SQChar >(), static_cast< SQInteger >(n)};
+}
+
+// ------------------------------------------------------------------------------------------------
 const Sphere & Sphere::Get(StackStrF & str)
 {
     return Sphere::GetEx(Sphere::Delim, str);
@@ -538,6 +566,7 @@ void Register_Sphere(HSQUIRRELVM vm)
         .Func(_SC("SetPositionEx"), &Sphere::SetPositionEx)
         .FmtFunc(_SC("SetStr"), &Sphere::SetStr)
         .Func(_SC("Clear"), &Sphere::Clear)
+        .FmtFunc(_SC("Format"), &Sphere::Format)
         // Member Overloads
         .Overload< void (Sphere::*)(void) >(_SC("Generate"), &Sphere::Generate)
         .Overload< void (Sphere::*)(Val, Val, bool) >(_SC("Generate"), &Sphere::Generate)

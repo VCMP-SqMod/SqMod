@@ -4,6 +4,7 @@
 #include "Base/Quaternion.hpp"
 #include "Base/Shared.hpp"
 #include "Base/DynArg.hpp"
+#include "Base/Buffer.hpp"
 #include "Library/Numeric/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -471,6 +472,33 @@ const Vector4 & Vector4::Get(StackStrF & str)
 }
 
 // ------------------------------------------------------------------------------------------------
+LightObj Vector4::Format(const String & spec, StackStrF & fmt) const
+{
+    String out;
+    // Attempt to build the format string
+    if (!BuildFormatString(out, fmt, 4, spec))
+    {
+        return LightObj{}; // Default to null
+    }
+    // Empty string is unacceptable
+    else if (out.empty())
+    {
+        STHROWF("Unable to build a valid format string.");
+    }
+    // Grab a temporary buffer
+    Buffer buff(out.size());
+    // Generate the string
+    Buffer::SzType n = buff.WriteF(0, out.c_str(), x, y, z, w);
+    // Did the format failed?
+    if (!n && !out.empty())
+    {
+        STHROWF("Format failed. Please check format specifier and parameter count.");
+    }
+    // Return the resulted string
+    return LightObj{buff.Begin< SQChar >(), static_cast< SQInteger >(n)};
+}
+
+// ------------------------------------------------------------------------------------------------
 const Vector4 & Vector4::GetEx(SQChar delim, StackStrF & str)
 {
     static Vector4 vec;
@@ -540,6 +568,7 @@ void Register_Vector4(HSQUIRRELVM vm)
         .Func(_SC("SetQuaternionEx"), &Vector4::SetQuaternionEx)
         .FmtFunc(_SC("SetStr"), &Vector4::SetStr)
         .Func(_SC("Clear"), &Vector4::Clear)
+        .FmtFunc(_SC("Format"), &Vector4::Format)
         // Member Overloads
         .Overload< void (Vector4::*)(void) >(_SC("Generate"), &Vector4::Generate)
         .Overload< void (Vector4::*)(Val, Val) >(_SC("Generate"), &Vector4::Generate)

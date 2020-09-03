@@ -4,6 +4,7 @@
 #include "Base/Quaternion.hpp"
 #include "Base/Shared.hpp"
 #include "Base/DynArg.hpp"
+#include "Base/Buffer.hpp"
 #include "Library/Numeric/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -629,6 +630,33 @@ void Vector3::CenterRotateYZBy(Value degrees, const Vector3 & center)
 }
 
 // ------------------------------------------------------------------------------------------------
+LightObj Vector3::Format(const String & spec, StackStrF & fmt) const
+{
+    String out;
+    // Attempt to build the format string
+    if (!BuildFormatString(out, fmt, 3, spec))
+    {
+        return LightObj{}; // Default to null
+    }
+    // Empty string is unacceptable
+    else if (out.empty())
+    {
+        STHROWF("Unable to build a valid format string.");
+    }
+    // Grab a temporary buffer
+    Buffer buff(out.size());
+    // Generate the string
+    Buffer::SzType n = buff.WriteF(0, out.c_str(), x, y, z);
+    // Did the format failed?
+    if (!n && !out.empty())
+    {
+        STHROWF("Format failed. Please check format specifier and parameter count.");
+    }
+    // Return the resulted string
+    return LightObj{buff.Begin< SQChar >(), static_cast< SQInteger >(n)};
+}
+
+// ------------------------------------------------------------------------------------------------
 const Vector3 & Vector3::Get(StackStrF & str)
 {
     return Vector3::GetEx(Vector3::Delim, str);
@@ -715,6 +743,7 @@ void Register_Vector3(HSQUIRRELVM vm)
         .Func(_SC("SetQuaternionEx"), &Vector3::SetQuaternionEx)
         .FmtFunc(_SC("SetStr"), &Vector3::SetStr)
         .Func(_SC("Clear"), &Vector3::Clear)
+        .FmtFunc(_SC("Format"), &Vector3::Format)
         .Func(_SC("Normalize"), &Vector3::Normalize)
         .Func(_SC("Dot"), &Vector3::DotProduct)
         .Func(_SC("AbsDot"), &Vector3::AbsDotProduct)

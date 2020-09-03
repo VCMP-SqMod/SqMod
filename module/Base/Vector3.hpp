@@ -490,6 +490,11 @@ struct Vector3
     void CenterRotateYZBy(Value degrees, const Vector3 & center);
 
     /* --------------------------------------------------------------------------------------------
+     * Generate a formatted string with the values from this instance.
+    */
+    LightObj Format(const String & spec, StackStrF & fmt) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Vector3 type from a string.
     */
     static const Vector3 & Get(StackStrF & str);

@@ -507,6 +507,11 @@ struct Color4
      * Extract the values for components of the Color4 type from a string.
     */
     static const Color4 & GetEx(SQChar delim, StackStrF & str);
+
+    /* --------------------------------------------------------------------------------------------
+     * Generate a formatted string with the values from this instance.
+    */
+    LightObj Format(const String & spec, StackStrF & fmt) const;
 };
 
 } // Namespace:: SqMod

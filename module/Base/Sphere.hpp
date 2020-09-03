@@ -411,6 +411,11 @@ struct Sphere
     Sphere Abs() const;
 
     /* --------------------------------------------------------------------------------------------
+     * Generate a formatted string with the values from this instance.
+    */
+    LightObj Format(const String & spec, StackStrF & fmt) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Sphere type from a string.
     */
     static const Sphere & Get(StackStrF & str);

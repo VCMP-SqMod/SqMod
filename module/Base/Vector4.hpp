@@ -364,6 +364,11 @@ struct Vector4
     Vector4 Abs() const;
 
     /* --------------------------------------------------------------------------------------------
+     * Generate a formatted string with the values from this instance.
+    */
+    LightObj Format(const String & spec, StackStrF & fmt) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Vector4 type from a string.
     */
     static const Vector4 & Get(StackStrF & str);

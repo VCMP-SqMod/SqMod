@@ -3,6 +3,7 @@
 #include "Base/Sphere.hpp"
 #include "Base/Shared.hpp"
 #include "Base/DynArg.hpp"
+#include "Base/Buffer.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -734,6 +735,33 @@ Int32 AABB::IsSphereInsideFastEx(Value x, Value y, Value z, Value r) const
 }
 
 // ------------------------------------------------------------------------------------------------
+LightObj AABB::Format(const String & spec, StackStrF & fmt) const
+{
+    String out;
+    // Attempt to build the format string
+    if (!BuildFormatString(out, fmt, 6, spec))
+    {
+        return LightObj{}; // Default to null
+    }
+    // Empty string is unacceptable
+    else if (out.empty())
+    {
+        STHROWF("Unable to build a valid format string.");
+    }
+    // Grab a temporary buffer
+    Buffer buff(out.size());
+    // Generate the string
+    Buffer::SzType n = buff.WriteF(0, out.c_str(), min.x, min.y, min.z, max.x, max.y, max.z);
+    // Did the format failed?
+    if (!n && !out.empty())
+    {
+        STHROWF("Format failed. Please check format specifier and parameter count.");
+    }
+    // Return the resulted string
+    return LightObj{buff.Begin< SQChar >(), static_cast< SQInteger >(n)};
+}
+
+// ------------------------------------------------------------------------------------------------
 const AABB & AABB::Get(StackStrF & str)
 {
     return AABB::GetEx(AABB::Delim, str);
@@ -810,6 +838,7 @@ void Register_AABB(HSQUIRRELVM vm)
         // Member Methods
         .FmtFunc(_SC("SetStr"), &AABB::SetStr)
         .Func(_SC("Clear"), &AABB::Clear)
+        .FmtFunc(_SC("Format"), &AABB::Format)
         .Func(_SC("DefineScalar"), &AABB::DefineScalar)
         .Func(_SC("DefineVector3"), &AABB::DefineVector3)
         .Func(_SC("DefineVector3Ex"), &AABB::DefineVector3Ex)

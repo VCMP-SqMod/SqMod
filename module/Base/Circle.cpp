@@ -2,6 +2,7 @@
 #include "Base/Circle.hpp"
 #include "Base/Shared.hpp"
 #include "Base/DynArg.hpp"
+#include "Base/Buffer.hpp"
 #include "Library/Numeric/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -495,6 +496,33 @@ Array Circle::ToPointsArray(SQInteger num_segments) const
 }
 
 // ------------------------------------------------------------------------------------------------
+LightObj Circle::Format(const String & spec, StackStrF & fmt) const
+{
+    String out;
+    // Attempt to build the format string
+    if (!BuildFormatString(out, fmt, 3, spec))
+    {
+        return LightObj{}; // Default to null
+    }
+    // Empty string is unacceptable
+    else if (out.empty())
+    {
+        STHROWF("Unable to build a valid format string.");
+    }
+    // Grab a temporary buffer
+    Buffer buff(out.size());
+    // Generate the string
+    Buffer::SzType n = buff.WriteF(0, out.c_str(), pos.x, pos.y, rad);
+    // Did the format failed?
+    if (!n && !out.empty())
+    {
+        STHROWF("Format failed. Please check format specifier and parameter count.");
+    }
+    // Return the resulted string
+    return LightObj{buff.Begin< SQChar >(), static_cast< SQInteger >(n)};
+}
+
+// ------------------------------------------------------------------------------------------------
 const Circle & Circle::Get(StackStrF & str)
 {
     return Circle::GetEx(Circle::Delim, str);
@@ -566,6 +594,7 @@ void Register_Circle(HSQUIRRELVM vm)
         .Func(_SC("SetPositionEx"), &Circle::SetPositionEx)
         .FmtFunc(_SC("SetStr"), &Circle::SetStr)
         .Func(_SC("Clear"), &Circle::Clear)
+        .FmtFunc(_SC("Format"), &Circle::Format)
         .Func(_SC("ToPointsArray"), &Circle::ToPointsArray)
         // Member Overloads
         .Overload< void (Circle::*)(void) >(_SC("Generate"), &Circle::Generate)

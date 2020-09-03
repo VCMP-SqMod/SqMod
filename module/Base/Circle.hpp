@@ -417,6 +417,11 @@ struct Circle
     Array ToPointsArray(SQInteger num_segments) const;
 
     /* --------------------------------------------------------------------------------------------
+     * Generate a formatted string with the values from this instance.
+    */
+    LightObj Format(const String & spec, StackStrF & fmt) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Circle type from a string.
     */
     static const Circle & Get(StackStrF & str);

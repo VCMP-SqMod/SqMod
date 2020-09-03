@@ -499,6 +499,11 @@ struct Color3
     void Inverse();
 
     /* --------------------------------------------------------------------------------------------
+     * Generate a formatted string with the values from this instance.
+    */
+    LightObj Format(const String & spec, StackStrF & fmt) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Color3 type from a string.
     */
     static const Color3 & Get(StackStrF & str);
