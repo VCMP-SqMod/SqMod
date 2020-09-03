@@ -23,9 +23,9 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-PluginFuncs*        _Func = nullptr;
-PluginCallbacks*    _Clbk = nullptr;
-PluginInfo*         _Info = nullptr;
+PluginFuncs*        _Func = nullptr; //NOLINT(bugprone-reserved-identifier)
+PluginCallbacks*    _Clbk = nullptr; //NOLINT(bugprone-reserved-identifier)
+PluginInfo*         _Info = nullptr; //NOLINT(bugprone-reserved-identifier)
 
 /* ------------------------------------------------------------------------------------------------
  * Common buffers to reduce memory allocations. To be immediately copied upon return!
