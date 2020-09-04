@@ -1,6 +1,7 @@
 add_subdirectory(SimpleIni)
 add_subdirectory(AES256)
 add_subdirectory(B64)
+add_subdirectory(Fmt)
 add_subdirectory(Hash)
 add_subdirectory(MuJS)
 add_subdirectory(MaxmindDB)
