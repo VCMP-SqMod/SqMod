@@ -24,23 +24,20 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+struct PvUnit;
+struct PvClass;
+struct PvEntry;
+
+// ------------------------------------------------------------------------------------------------
 class PvUnit;
 class PvClass;
 class PvEntry;
 class PvManager;
 
 // ------------------------------------------------------------------------------------------------
-// Type of container used to store privilege entries.
-typedef std::vector< std::pair< SQInteger, PvEntry * > >    PvEntryList;
-// Type of container used to store privilege classes.
-typedef std::vector< std::pair< SQInteger, PvClass * > >    PvClassList;
-// Type of container used to store privilege units.
-typedef std::vector< std::pair< SQInteger, PvUnit * > >     PvUnitList;
-
+typedef std::vector< PvManager * >                          PvManagers;
 // ------------------------------------------------------------------------------------------------
 typedef std::vector< std::pair< SQInteger, SQInteger > >    PvStatusList;
-// ------------------------------------------------------------------------------------------------
-typedef std::vector< PvManager * >                          PvManagers;
 
 /* ------------------------------------------------------------------------------------------------
  * An individual unit/entity that inherits the privileges of a class/group and can
@@ -49,83 +46,92 @@ typedef std::vector< PvManager * >                          PvManagers;
  * Units cost more to query if they differ from their class but save memory in large numbers.
  * Each unit must have a unique numerical identifier within their associated manager.
 */
-class PvUnit
+struct PvUnit
 {
-    friend class PvManager;
-    friend class PvClass;
+    /* --------------------------------------------------------------------------------------------
+     * Strong and weak reference types.
+    */
+    typedef SharedPtr< PvUnit > Ref;
+    typedef WeakPtr< PvUnit > Ptr;
 
-private:
+    /* --------------------------------------------------------------------------------------------
+     * Type of container used to store privilege units.
+    */
+    typedef std::vector< std::pair< SQInteger, Ref > >   List;
 
     /* --------------------------------------------------------------------------------------------
      * User identifier associated with this unit instance.
     */
-    SQInteger       m_ID;
+    SQInteger           mID;
 
     /* --------------------------------------------------------------------------------------------
      * Authority level associated with a particular unit.
     */
-    SQInteger       m_Authority;
+    SQInteger           mAuthority;
 
     /* --------------------------------------------------------------------------------------------
      * A container with unique privilege status values associated with this unit.
     */
-    PvStatusList    m_Privileges;
+    PvStatusList        mPrivileges;
 
     /* --------------------------------------------------------------------------------------------
      * Dedicated callback for privilege query event.
     */
-    Function        m_OnQuery;
+    Function            mOnQuery;
+
+    /* --------------------------------------------------------------------------------------------
+     * Dedicated callback for privilege modify event.
+    */
+    Function            mOnModify;
 
     /* --------------------------------------------------------------------------------------------
      * Dedicated callback for privilege gained event.
     */
-    Function        m_OnGained;
+    Function            mOnGained;
 
     /* --------------------------------------------------------------------------------------------
      * Dedicated callback for privilege lost event.
     */
-    Function        m_OnLost;
+    Function            mOnLost;
 
     /* --------------------------------------------------------------------------------------------
      * User tag associated with this instance.
     */
-    StackStrF       m_Tag;
+    StackStrF           mTag;
 
     /* --------------------------------------------------------------------------------------------
      * User data associated with this instance.
     */
-    LightObj        m_Data;
+    LightObj            mData;
 
     /* --------------------------------------------------------------------------------------------
      * Pointer to the associated class.
     */
-    PvClass *       m_Class;
-
-public:
+    WeakPtr< PvClass >  mClass;
 
     /* -------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    PvUnit(SQInteger id, PvClass * cls)
-        : m_ID(id)
-        , m_Authority(0)
-        , m_Privileges()
-        , m_OnQuery(), m_OnGained(), m_OnLost()
-        , m_Tag(), m_Data()
-        , m_Class(cls)
+    PvUnit(SQInteger id, WeakPtr< PvClass > cls)
+        : mID(id)
+        , mAuthority(0)
+        , mPrivileges()
+        , mOnQuery(), mOnGained(), mOnLost()
+        , mTag(), mData()
+        , mClass(std::move(cls))
     {
     }
 
     /* -------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    PvUnit(SQInteger id, StackStrF && tag, PvClass * cls)
-        : m_ID(id)
-        , m_Authority(0)
-        , m_Privileges()
-        , m_OnQuery(), m_OnGained(), m_OnLost()
-        , m_Tag(std::forward< StackStrF >(tag)), m_Data()
-        , m_Class(cls)
+    PvUnit(SQInteger id, StackStrF && tag, WeakPtr< PvClass > cls)
+        : mID(id)
+        , mAuthority(0)
+        , mPrivileges()
+        , mOnQuery(), mOnGained(), mOnLost()
+        , mTag(std::forward< StackStrF >(tag)), mData()
+        , mClass(std::move(cls))
     {
     }
 
@@ -137,9 +143,7 @@ public:
     /* -------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~PvUnit()
-    {
-    }
+    ~PvUnit();
 
     /* -------------------------------------------------------------------------------------------
      * Copy assignment operator (disabled).
@@ -149,177 +153,23 @@ public:
     /* -------------------------------------------------------------------------------------------
      * Comparison operators. Uses the identifier internally as that is guaranteed to be unique.
     */
-    bool operator == (const PvUnit & o) const { return m_ID == o.m_ID; }
-    bool operator != (const PvUnit & o) const { return m_ID != o.m_ID; }
-    bool operator < (const PvUnit & o) const { return m_ID < o.m_ID; }
-    bool operator > (const PvUnit & o) const { return m_ID > o.m_ID; }
-    bool operator <= (const PvUnit & o) const { return m_ID <= o.m_ID; }
-    bool operator >= (const PvUnit & o) const { return m_ID >= o.m_ID; }
+    bool operator == (const PvUnit & o) const { return mID == o.mID; }
+    bool operator != (const PvUnit & o) const { return mID != o.mID; }
+    bool operator < (const PvUnit & o) const { return mID < o.mID; }
+    bool operator > (const PvUnit & o) const { return mID > o.mID; }
+    bool operator <= (const PvUnit & o) const { return mID <= o.mID; }
+    bool operator >= (const PvUnit & o) const { return mID >= o.mID; }
 
     /* --------------------------------------------------------------------------------------------
      * Release all script resources. Recursively forward request.
     */
     void Release()
     {
-        m_OnQuery.Release();
-        m_OnGained.Release();
-        m_OnLost.Release();
-        m_Tag.Release();
-        m_Data.Release();
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the identifier associated with this unit.
-    */
-    SQInteger GetID() const
-    {
-        return m_ID;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to convert an instance of this type to a string.
-    */
-    auto ToString() const
-    {
-        return m_Tag.mObj;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the associated user tag wrapper.
-    */
-    const StackStrF & GetTagW() const
-    {
-        return m_Tag;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the associated user tag.
-    */
-    auto GetTag() const
-    {
-        return m_Tag.mObj;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Modify the associated user tag.
-    */
-    void SetTag(StackStrF & tag)
-    {
-        m_Tag = std::move(tag);
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Modify the associated user tag.
-    */
-    PvUnit & ApplyTag(StackStrF & tag)
-    {
-        SetTag(tag);
-        return *this;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the associated user data.
-    */
-    LightObj & GetData()
-    {
-        return m_Data;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Modify the associated user data.
-    */
-    void SetData(LightObj & data)
-    {
-        m_Data = data;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the authority level associated with this unit.
-    */
-    SQInteger GetAuthority() const
-    {
-        return m_Authority;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Modify the authority level associated with this unit.
-    */
-    void SetAuthority(SQInteger level)
-    {
-        m_Authority = level;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the manager associated with this unit.
-    */
-    PvManager & GetManager() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the class associated with this unit.
-    */
-    PvClass & GetClass() const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Modify the class associated with this unit.
-    */
-    void SetClass(PvClass & cls);
-
-    /* --------------------------------------------------------------------------------------------
-     * Query if a unit has a certain privilege over itself.
-    */
-    bool Can(const PvEntry & entry) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Query if a unit has a certain privilege over another unit.
-    */
-    bool Can(const PvEntry & entry, const PvUnit & unit) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Bind a script function to the status query callback.
-    */
-    void SetOnQuery(Function & func)
-    {
-        m_OnQuery = std::move(func);
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the function bound to the status query callback.
-    */
-    Function & GetOnQuery()
-    {
-        return m_OnQuery;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Bind a script function to the status lost callback.
-    */
-    void SetOnLost(Function & func)
-    {
-        m_OnLost = std::move(func);
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the function bound to the status lost callback.
-    */
-    Function & GetOnLost()
-    {
-        return m_OnLost;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Bind a script function to the status gained callback.
-    */
-    void SetOnGained(Function & func)
-    {
-        m_OnGained = std::move(func);
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the function bound to the status gained callback.
-    */
-    Function & GetOnGained()
-    {
-        return m_OnGained;
+        mOnQuery.Release();
+        mOnGained.Release();
+        mOnLost.Release();
+        mTag.Release();
+        mData.Release();
     }
 };
 
@@ -330,75 +180,85 @@ public:
  * These cost less to query but use more memory because they're fewer and they preallocate it.
  * Each class must have a unique numerical identifier within their associated manager.
 */
-class PvClass
+struct PvClass
 {
-    friend class PvManager;
+    /* --------------------------------------------------------------------------------------------
+     * Strong and weak reference types.
+    */
+    typedef SharedPtr< PvClass > Ref;
+    typedef WeakPtr< PvClass > Ptr;
 
-private:
+    /* --------------------------------------------------------------------------------------------
+     * Type of container used to store privilege classes.
+    */
+    typedef std::vector< std::pair< SQInteger, Ref > >   List;
 
     /* --------------------------------------------------------------------------------------------
      * User identifier associated with this class instance.
     */
-    SQInteger       m_ID;
+    SQInteger           mID;
 
     /* --------------------------------------------------------------------------------------------
      * The parent class from which we are inheriting privileges, if any.
     */
-    PvClass *     	m_Parent;
+    PvClass *           mParent;
 
     /* --------------------------------------------------------------------------------------------
      * A container with unique privilege status values associated with this class.
     */
-    PvStatusList    m_Privileges;
+    PvStatusList        mPrivileges;
 
     /* --------------------------------------------------------------------------------------------
      * Dedicated callback for privilege query event.
     */
-    Function        m_OnQuery;
+    Function            mOnQuery;
+
+    /* --------------------------------------------------------------------------------------------
+     * Dedicated callback for privilege modify event.
+    */
+    Function            mOnModify;
 
     /* --------------------------------------------------------------------------------------------
      * Dedicated callback for privilege gained event.
     */
-    Function        m_OnGained;
+    Function            mOnGained;
 
     /* --------------------------------------------------------------------------------------------
      * Dedicated callback for privilege lost event.
     */
-    Function        m_OnLost;
+    Function            mOnLost;
 
     /* --------------------------------------------------------------------------------------------
      * Container that stores all the associated units.
     */
-    PvUnitList      m_Units;
+    PvUnit::List        mUnits;
 
     /* --------------------------------------------------------------------------------------------
      * User tag associated with this instance.
     */
-    StackStrF       m_Tag;
+    StackStrF           mTag;
 
     /* --------------------------------------------------------------------------------------------
      * User data associated with this instance.
     */
-    LightObj        m_Data;
+    LightObj            mData;
 
     /* --------------------------------------------------------------------------------------------
      * Pointer to the associated manager.
     */
-    PvManager *     m_Manager;
-
-public:
+    PvManager *         mManager;
 
     /* -------------------------------------------------------------------------------------------
      * Default constructor.
     */
     PvClass(SQInteger id, PvManager * mgr)
-        : m_ID(id)
-        , m_Parent(nullptr)
-        , m_Privileges()
-        , m_OnQuery(), m_OnGained(), m_OnLost()
-        , m_Units()
-        , m_Tag(), m_Data()
-        , m_Manager(mgr)
+        : mID(id)
+        , mParent(nullptr)
+        , mPrivileges()
+        , mOnQuery(), mOnGained(), mOnLost()
+        , mUnits()
+        , mTag(), mData()
+        , mManager(mgr)
     {
     }
 
@@ -406,13 +266,13 @@ public:
      * Default constructor.
     */
     PvClass(SQInteger id, StackStrF && tag, PvManager * mgr)
-        : m_ID(id)
-        , m_Parent(nullptr)
-        , m_Privileges()
-        , m_OnQuery(), m_OnGained(), m_OnLost()
-        , m_Units()
-        , m_Tag(std::forward< StackStrF >(tag)), m_Data()
-        , m_Manager(mgr)
+        : mID(id)
+        , mParent(nullptr)
+        , mPrivileges()
+        , mOnQuery(), mOnGained(), mOnLost()
+        , mUnits()
+        , mTag(std::forward< StackStrF >(tag)), mData()
+        , mManager(mgr)
     {
     }
 
@@ -429,9 +289,7 @@ public:
     /* -------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~PvClass()
-    {
-    }
+    ~PvClass();
 
     /* -------------------------------------------------------------------------------------------
      * Copy assignment operator (disabled).
@@ -446,279 +304,102 @@ public:
     /* -------------------------------------------------------------------------------------------
      * Comparison operators. Uses the identifier internally as that is guaranteed to be unique.
     */
-    bool operator == (const PvClass & o) const { return m_ID == o.m_ID; }
-    bool operator != (const PvClass & o) const { return m_ID != o.m_ID; }
-    bool operator < (const PvClass & o) const { return m_ID < o.m_ID; }
-    bool operator > (const PvClass & o) const { return m_ID > o.m_ID; }
-    bool operator <= (const PvClass & o) const { return m_ID <= o.m_ID; }
-    bool operator >= (const PvClass & o) const { return m_ID >= o.m_ID; }
+    bool operator == (const PvClass & o) const { return mID == o.mID; }
+    bool operator != (const PvClass & o) const { return mID != o.mID; }
+    bool operator < (const PvClass & o) const { return mID < o.mID; }
+    bool operator > (const PvClass & o) const { return mID > o.mID; }
+    bool operator <= (const PvClass & o) const { return mID <= o.mID; }
+    bool operator >= (const PvClass & o) const { return mID >= o.mID; }
 
     /* --------------------------------------------------------------------------------------------
      * Release all script resources. Recursively forward request.
     */
     void Release()
     {
-        m_OnQuery.Release();
-        m_OnGained.Release();
-        m_OnLost.Release();
-        m_Tag.Release();
-        m_Data.Release();
+        mOnQuery.Release();
+        mOnGained.Release();
+        mOnLost.Release();
+        mTag.Release();
+        mData.Release();
     }
 
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the identifier associated with this manager.
-    */
-    SQInteger GetID() const
-    {
-        return m_ID;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to convert an instance of this type to a string.
-    */
-    auto ToString() const
-    {
-        return m_Tag.mObj;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the associated user tag wrapper.
-    */
-    const StackStrF & GetTagW() const
-    {
-        return m_Tag;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the associated user tag.
-    */
-    auto GetTag() const
-    {
-        return m_Tag.mObj;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Modify the associated user tag.
-    */
-    void SetTag(StackStrF & tag)
-    {
-        m_Tag = std::move(tag);
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Modify the associated user tag.
-    */
-    PvClass & ApplyTag(StackStrF & tag)
-    {
-        SetTag(tag);
-        return *this;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the associated user data.
-    */
-    LightObj & GetData()
-    {
-        return m_Data;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Modify the associated user data.
-    */
-    void SetData(LightObj & data)
-    {
-        m_Data = data;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the manager associated with this unit.
-    */
-    LightObj GetParent() const
-    {
-        return m_Parent ? LightObj(m_Parent) : LightObj{};
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the manager associated with this unit.
-    */
-    void SetParent(LightObj & obj)
-    {
-    	m_Parent = obj.IsNull() ? nullptr : obj.Cast< PvClass * >();
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the manager associated with this unit.
-    */
-    PvManager & GetManager() const
-    {
-        return *m_Manager; // Classes must always have a manager!
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Find the instance of the unit associated with the given identifier.
-    */
-    PvUnit * GetUnitByID(SQInteger id) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Check for existence of an unit associated with the given identifier.
-    */
-    bool HaveUnitWithID(SQInteger id) const
-    {
-        return GetUnitByID(id) != nullptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Find the instance of the unit associated with the given name tag.
-    */
-    PvUnit * GetUnitByTag(StackStrF & name) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Check for existence of an unit associated with the given name tag.
-    */
-    bool HaveUnitWithTag(StackStrF & name) const
-    {
-        return GetUnitByTag(name) != nullptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Create a new privilege unit instance and manage it.
-    */
-    LightObj CreateUnit(SQInteger id, StackStrF & name);
-
-    /* --------------------------------------------------------------------------------------------
-     * Add a unit to this privilege class.
-    */
-    void AddUnit(PvUnit & unit);
-
-    /* --------------------------------------------------------------------------------------------
-     * Add a unit to this class container (internal, assumes validation beforehand!).
-    */
-    bool EnlistUnit(PvUnit & unit);
-
-    /* --------------------------------------------------------------------------------------------
-     * Remove a unit from this class container (internal, assumes validation beforehand!).
-    */
-    bool UnlistUnit(PvUnit & unit);
-
-    /* --------------------------------------------------------------------------------------------
-     * Bind a script function to the status query callback.
-    */
-    void SetOnQuery(Function & func)
-    {
-        m_OnQuery = std::move(func);
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the function bound to the status query callback.
-    */
-    Function & GetOnQuery()
-    {
-        return m_OnQuery;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Bind a script function to the status lost callback.
-    */
-    void SetOnLost(Function & func)
-    {
-        m_OnLost = std::move(func);
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the function bound to the status lost callback.
-    */
-    Function & GetOnLost()
-    {
-        return m_OnLost;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Bind a script function to the status gained callback.
-    */
-    void SetOnGained(Function & func)
-    {
-        m_OnGained = std::move(func);
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the function bound to the status gained callback.
-    */
-    Function & GetOnGained()
-    {
-        return m_OnGained;
-    }
 };
 
 /* ------------------------------------------------------------------------------------------------
  * An entry represents a privilege that a class or unit can can have.
  * Each entry must have a unique numerical identifier within their associated manager.
 */
-class PvEntry
+struct PvEntry
 {
-    friend class PvManager;
+    /* --------------------------------------------------------------------------------------------
+     * Strong and weak reference types.
+    */
+    typedef SharedPtr< PvEntry > Ref;
+    typedef WeakPtr< PvEntry > Ptr;
 
-private:
+    /* --------------------------------------------------------------------------------------------
+     * Type of container used to store privilege entries.
+    */
+    typedef std::vector< std::pair< SQInteger, Ref > >   List;
 
     /* --------------------------------------------------------------------------------------------
      * User identifier associated with this instance.
     */
-    SQInteger       m_ID;
+    SQInteger           mID;
 
     /* --------------------------------------------------------------------------------------------
      * User tag associated with this instance.
     */
-    StackStrF       m_Tag;
+    StackStrF           mTag;
 
     /* --------------------------------------------------------------------------------------------
      * Dedicated callback for privilege query event.
     */
-    Function        m_OnQuery;
+    Function            mOnQuery;
 
     /* --------------------------------------------------------------------------------------------
      * Dedicated callback for privilege gained event.
     */
-    Function        m_OnGained;
+    Function            mOnGained;
 
     /* --------------------------------------------------------------------------------------------
      * Dedicated callback for privilege lost event.
     */
-    Function        m_OnLost;
+    Function            mOnLost;
 
     /* --------------------------------------------------------------------------------------------
      * User data associated with this instance.
     */
-    LightObj        m_Data;
+    LightObj            mData;
 
     /* --------------------------------------------------------------------------------------------
      * Brief information about the privilege.
     */
-    StackStrF       m_Brief;
+    StackStrF           mBrief;
 
     /* --------------------------------------------------------------------------------------------
      * Detailed information about the privilege.
     */
-    StackStrF       m_Info;
+    StackStrF           mInfo;
 
     /* --------------------------------------------------------------------------------------------
      * Implicit privilege status value.
     */
-    SQInteger       m_Default;
+    SQInteger           mDefault;
 
     /* --------------------------------------------------------------------------------------------
      * Pointer to the associated manager.
     */
-    PvManager *     m_Manager;
-
-public:
+    PvManager *         mManager;
 
     /* -------------------------------------------------------------------------------------------
      * Default constructor.
     */
     PvEntry(SQInteger id, PvManager * mgr)
-        : m_ID(id), m_Tag()
-        , m_OnQuery(), m_OnGained(), m_OnLost()
-        , m_Data(), m_Brief(), m_Info(), m_Default()
-        , m_Manager(mgr)
+        : mID(id), mTag()
+        , mOnQuery(), mOnGained(), mOnLost()
+        , mData(), mBrief(), mInfo(), mDefault()
+        , mManager(mgr)
     {
     }
 
@@ -726,10 +407,10 @@ public:
      * Default constructor.
     */
     PvEntry(SQInteger id, StackStrF && tag, PvManager * mgr)
-        : m_ID(id), m_Tag(std::forward< StackStrF >(tag))
-        , m_OnQuery(), m_OnGained(), m_OnLost()
-        , m_Data(), m_Brief(), m_Info(), m_Default()
-        , m_Manager(mgr)
+        : mID(id), mTag(std::forward< StackStrF >(tag))
+        , mOnQuery(), mOnGained(), mOnLost()
+        , mData(), mBrief(), mInfo(), mDefault()
+        , mManager(mgr)
 
     {
     }
@@ -747,9 +428,7 @@ public:
     /* -------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~PvEntry()
-    {
-    }
+    ~PvEntry();
 
     /* -------------------------------------------------------------------------------------------
      * Copy assignment operator (disabled).
@@ -764,213 +443,27 @@ public:
     /* -------------------------------------------------------------------------------------------
      * Comparison operators. Uses the identifier internally as that is guaranteed to be unique.
     */
-    bool operator == (const PvEntry & o) const { return m_ID == o.m_ID; }
-    bool operator != (const PvEntry & o) const { return m_ID != o.m_ID; }
-    bool operator < (const PvEntry & o) const { return m_ID < o.m_ID; }
-    bool operator > (const PvEntry & o) const { return m_ID > o.m_ID; }
-    bool operator <= (const PvEntry & o) const { return m_ID <= o.m_ID; }
-    bool operator >= (const PvEntry & o) const { return m_ID >= o.m_ID; }
+    bool operator == (const PvEntry & o) const { return mID == o.mID; }
+    bool operator != (const PvEntry & o) const { return mID != o.mID; }
+    bool operator < (const PvEntry & o) const { return mID < o.mID; }
+    bool operator > (const PvEntry & o) const { return mID > o.mID; }
+    bool operator <= (const PvEntry & o) const { return mID <= o.mID; }
+    bool operator >= (const PvEntry & o) const { return mID >= o.mID; }
 
     /* --------------------------------------------------------------------------------------------
      * Release all script resources. Recursively forward request.
     */
     void Release()
     {
-        m_Tag.Release();
-        m_OnQuery.Release();
-        m_OnGained.Release();
-        m_OnLost.Release();
-        m_Data.Release();
-        m_Brief.Release();
-        m_Info.Release();
+        mTag.Release();
+        mOnQuery.Release();
+        mOnGained.Release();
+        mOnLost.Release();
+        mData.Release();
+        mBrief.Release();
+        mInfo.Release();
     }
 
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the manager associated with this unit.
-    */
-    PvManager & GetManager() const
-    {
-        return *m_Manager; // Entries must always have a manager!
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the identifier associated with this manager.
-    */
-    SQInteger GetID() const
-    {
-        return m_ID;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Used by the script engine to convert an instance of this type to a string.
-    */
-    auto ToString() const
-    {
-        return m_Tag.mObj;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the associated user tag wrapper.
-    */
-    const StackStrF & GetTagW() const
-    {
-        return m_Tag;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the associated user tag.
-    */
-    auto GetTag() const
-    {
-        return m_Tag.mObj;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Modify the associated user tag.
-    */
-    void SetTag(StackStrF & tag)
-    {
-        m_Tag = std::move(tag);
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Modify the associated user tag.
-    */
-    PvEntry & ApplyTag(StackStrF & tag)
-    {
-        SetTag(tag);
-        return *this;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the associated user data.
-    */
-    LightObj & GetData()
-    {
-        return m_Data;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Modify the associated user data.
-    */
-    void SetData(LightObj & data)
-    {
-        m_Data = data;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the associated user brief.
-    */
-    auto GetBrief() const
-    {
-        return m_Brief.mObj;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Modify the associated user brief.
-    */
-    void SetBrief(StackStrF & brief)
-    {
-        m_Brief = std::move(brief);
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Modify the associated user brief.
-    */
-    PvEntry & ApplyBrief(StackStrF & brief)
-    {
-        SetBrief(brief);
-        return *this;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the associated user info.
-    */
-    auto GetInfo() const
-    {
-        return m_Info.mObj;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Modify the associated user info.
-    */
-    void SetInfo(StackStrF & info)
-    {
-        m_Info = std::move(info);
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Modify the associated user info.
-    */
-    PvEntry & ApplyInfo(StackStrF & info)
-    {
-        SetInfo(info);
-        return *this;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the implicit status value of this entry.
-    */
-    SQInteger GetDefault() const
-    {
-        return m_Default;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Modify the implicit status value of this entry.
-    */
-    void SetDefault(SQInteger status)
-    {
-        m_Default = status;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Bind a script function to the status query callback.
-    */
-    void SetOnQuery(Function & func)
-    {
-        m_OnQuery = std::move(func);
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the function bound to the status query callback.
-    */
-    Function & GetOnQuery()
-    {
-        return m_OnQuery;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Bind a script function to the status lost callback.
-    */
-    void SetOnLost(Function & func)
-    {
-        m_OnLost = std::move(func);
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the function bound to the status lost callback.
-    */
-    Function & GetOnLost()
-    {
-        return m_OnLost;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Bind a script function to the status gained callback.
-    */
-    void SetOnGained(Function & func)
-    {
-        m_OnGained = std::move(func);
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve the function bound to the status gained callback.
-    */
-    Function & GetOnGained()
-    {
-        return m_OnGained;
-    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -983,42 +476,42 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Container that stores privilege entries.
     */
-    PvEntryList     m_Entries;
+    PvEntry::List   m_Entries;
 
     /* --------------------------------------------------------------------------------------------
      * Container that stores the managed classes.
     */
-    PvClassList     m_Classes;
+    PvClass::List   m_Classes;
 
     /* --------------------------------------------------------------------------------------------
      * Container that stores all the managed units.
     */
-    PvUnitList      m_Units;
+    PvUnit::List    m_Units;
 
     /* --------------------------------------------------------------------------------------------
      * Dedicated callback for privilege query event.
     */
-    Function        m_OnQuery;
+    Function            m_OnQuery;
 
     /* --------------------------------------------------------------------------------------------
      * Dedicated callback for privilege gained event.
     */
-    Function        m_OnGained;
+    Function            m_OnGained;
 
     /* --------------------------------------------------------------------------------------------
      * Dedicated callback for privilege lost event.
     */
-    Function        m_OnLost;
+    Function            m_OnLost;
 
     /* --------------------------------------------------------------------------------------------
      * User tag associated with this instance.
     */
-    StackStrF       m_Tag;
+    StackStrF           m_Tag;
 
     /* --------------------------------------------------------------------------------------------
      * User data associated with this instance.
     */
-    LightObj        m_Data;
+    LightObj            m_Data;
 
     /* --------------------------------------------------------------------------------------------
      * List of active privilege managers.
@@ -1135,104 +628,6 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Find the instance of the entry associated with the given identifier.
-    */
-    PvEntry * GetEntryByID(SQInteger id) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Check for existence of an entry associated with the given identifier.
-    */
-    bool HaveEntryWithID(SQInteger id) const
-    {
-        return GetEntryByID(id) != nullptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Find the instance of the entry associated with the given name tag.
-    */
-    PvEntry * GetEntryByTag(StackStrF & name) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Check for existence of an entry associated with the given name tag.
-    */
-    bool HaveEntryWithTag(StackStrF & name) const
-    {
-        return GetEntryByTag(name) != nullptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Create a new privilege entry instance and manage it.
-    */
-    LightObj CreateEntry(SQInteger id, StackStrF & name);
-
-    /* --------------------------------------------------------------------------------------------
-     * Find the instance of the class associated with the given identifier.
-    */
-    PvClass * GetClassByID(SQInteger id) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Check for existence of an class associated with the given identifier.
-    */
-    bool HaveClassWithID(SQInteger id) const
-    {
-        return GetClassByID(id) != nullptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Find the instance of the class associated with the given name tag.
-    */
-    PvClass * GetClassByTag(StackStrF & name) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Check for existence of an class associated with the given name tag.
-    */
-    bool HaveClassWithTag(StackStrF & name) const
-    {
-        return GetClassByTag(name) != nullptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Create a new privilege class instance and manage it.
-    */
-    LightObj CreateClass(SQInteger id, StackStrF & name);
-
-    /* --------------------------------------------------------------------------------------------
-     * Find the instance of the unit associated with the given identifier.
-    */
-    PvUnit * GetUnitByID(SQInteger id) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Check for existence of an unit associated with the given identifier.
-    */
-    bool HaveUnitWithID(SQInteger id) const
-    {
-        return GetUnitByID(id) != nullptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Find the instance of the unit associated with the given name tag.
-    */
-    PvUnit * GetUnitByTag(StackStrF & name) const;
-
-    /* --------------------------------------------------------------------------------------------
-     * Check for existence of an unit associated with the given name tag.
-    */
-    bool HaveUnitWithTag(StackStrF & name) const
-    {
-        return GetUnitByTag(name) != nullptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Create a new privilege unit instance and manage it.
-    */
-    LightObj CreateUnit(SQInteger id, PvClass & cls, StackStrF & name);
-
-    /* --------------------------------------------------------------------------------------------
-     * Create a new privilege unit instance and manage it.
-    */
-    std::pair< PvUnit *, LightObj > CreateUnitImpl(SQInteger id, PvClass & cls, StackStrF & name);
-
-    /* --------------------------------------------------------------------------------------------
      * Bind a script function to the status query callback.
     */
     void SetOnQuery(Function & func)
@@ -1285,21 +680,6 @@ public:
     */
     void Release()
     {
-        // Release objects from entries
-        for (auto & pve : m_Entries)
-        {
-            pve.second->Release();
-        }
-        // Release objects from classes
-        for (auto & pvc : m_Classes)
-        {
-            pvc.second->Release();
-        }
-        // Release objects from units
-        for (auto & pvu : m_Units)
-        {
-            pvu.second->Release();
-        }
         // Release objects from this instance
         m_OnQuery.Release();
         m_OnGained.Release();
