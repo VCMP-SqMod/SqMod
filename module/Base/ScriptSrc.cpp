@@ -151,21 +151,16 @@ void ScriptSrc::Process()
 }
 
 // ------------------------------------------------------------------------------------------------
-ScriptSrc::ScriptSrc(HSQUIRRELVM vm, const String & path, bool delay, bool info)
-    : mExec(vm)
+ScriptSrc::ScriptSrc(const String & path, bool delay, bool info)
+    : mExec()
     , mPath(path)
     , mData()
     , mLine()
     , mInfo(info)
     , mDelay(delay)
 {
-    // Is the specified virtual machine invalid?
-    if (!vm)
-    {
-        throw std::runtime_error("Invalid virtual machine pointer");
-    }
     // Is the specified path empty?
-    else if (mPath.empty())
+    if (mPath.empty())
     {
         throw std::runtime_error("Invalid or empty script path");
     }

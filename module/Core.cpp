@@ -686,7 +686,7 @@ bool Core::LoadScript(CSStr filepath, bool delay)
     else if (m_Executed)
     {
         // Create a new script container and insert it into the script pool
-        m_Scripts.emplace_back(m_VM, path, delay, m_Debugging);
+        m_Scripts.emplace_back(path, delay, m_Debugging);
 
         // Attempt to load and compile the script file
         try
@@ -728,7 +728,7 @@ bool Core::LoadScript(CSStr filepath, bool delay)
         try
         {
             // Create a new script container and insert it into the pending script pool
-            m_PendingScripts.emplace_back(m_VM, path, delay, m_Debugging);
+            m_PendingScripts.emplace_back(path, delay, m_Debugging);
         }
         catch (const Sqrat::Exception & e)
         {
