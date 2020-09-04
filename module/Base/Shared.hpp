@@ -9,23 +9,23 @@ namespace SqMod {
 /* ------------------------------------------------------------------------------------------------
  * Helper constants used by the bas types.
 */
-constexpr Float32 SQMOD_PI = 3.14159265358979323846264338327950288f;
-constexpr Float64 SQMOD_PI64 = 3.1415926535897932384626433832795028841971693993751d;
+static constexpr Float32 SQMOD_PI = 3.14159265358979323846264338327950288f;
+static constexpr Float64 SQMOD_PI64 = 3.1415926535897932384626433832795028841971693993751d;
 
-constexpr Float32 SQMOD_RECIPROCAL_PI = (1.0f / SQMOD_PI);
-constexpr Float64 SQMOD_RECIPROCAL_PI64 = 1.0 / SQMOD_PI64;
+static constexpr Float32 SQMOD_RECIPROCAL_PI = (1.0f / SQMOD_PI);
+static constexpr Float64 SQMOD_RECIPROCAL_PI64 = 1.0 / SQMOD_PI64;
 
-constexpr Float32 SQMOD_HALF_PI = (SQMOD_PI * 0.5f);
-constexpr Float32 SQMOD_HALF_PI64 = (SQMOD_PI64 * 0.5);
+static constexpr Float32 SQMOD_HALF_PI = (SQMOD_PI * 0.5f);
+static constexpr Float32 SQMOD_HALF_PI64 = (SQMOD_PI64 * 0.5);
 
-constexpr Float32 SQMOD_DEGTORAD = SQMOD_PI / 180.0f;
-constexpr Float64 SQMOD_DEGTORAD64 = SQMOD_PI64 / 180.0;
+static constexpr Float32 SQMOD_DEGTORAD = SQMOD_PI / 180.0f;
+static constexpr Float64 SQMOD_DEGTORAD64 = SQMOD_PI64 / 180.0;
 
-constexpr Float32 SQMOD_DEGTORAD_2 = SQMOD_PI / 360.0f; // M_DEGTORAD / 2.f
-constexpr Float64 SQMOD_DEGTORAD64_2 = SQMOD_PI64 / 360.0; // M_DEGTORAD / 2.f
+static constexpr Float32 SQMOD_DEGTORAD_2 = SQMOD_PI / 360.0f; // M_DEGTORAD / 2.f
+static constexpr Float64 SQMOD_DEGTORAD64_2 = SQMOD_PI64 / 360.0; // M_DEGTORAD / 2.f
 
-constexpr Float32 SQMOD_RADTODEG   = 1.0f / SQMOD_DEGTORAD;
-constexpr Float64 SQMOD_RADTODEG64 = 1.0 / SQMOD_DEGTORAD64;
+static constexpr Float32 SQMOD_RADTODEG   = 1.0f / SQMOD_DEGTORAD;
+static constexpr Float64 SQMOD_RADTODEG64 = 1.0 / SQMOD_DEGTORAD64;
 
 /* ------------------------------------------------------------------------------------------------
  * Intersection test result.
