@@ -55,6 +55,7 @@ add_library(SqModule MODULE
 	Library/System/Path.cpp Library/System/Path.hpp
 	Library/Utils.cpp Library/Utils.hpp
 	Library/Utils/Buffer.cpp Library/Utils/Buffer.hpp
+	Library/Web.cpp Library/Web.hpp
 	Library/XML.cpp Library/XML.hpp
 	Misc/Broadcast.cpp
 	Misc/Constants.cpp
@@ -80,7 +81,7 @@ if(GCC OR MINGW)
 	endif()
 endif()
 # Link to libraries
-target_link_libraries(SqModule SqModSDK SimpleINI HashLib B64Lib AES256Lib WhirlpoolLib TinyDir PUGIXML SQLite MaxmindDB SimpleSocket)
+target_link_libraries(SqModule SqModSDK SimpleINI HashLib B64Lib AES256Lib WhirlpoolLib TinyDir PUGIXML SQLite MaxmindDB SimpleSocket CivetWeb ConcurrentQueue MuJS)
 # Enable LTO
 if (LTO_ENABLED)
 	target_link_libraries(SqModule -flto)
