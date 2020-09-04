@@ -7,6 +7,7 @@ add_subdirectory(PUGIXML)
 add_subdirectory(SQLite)
 add_subdirectory(TinyDir)
 add_subdirectory(Whirlpool)
+add_subdirectory(CivetWeb)
 add_subdirectory(SimpleSocket)
 # Build our own mysql client on windows
 if(WIN32 AND ENABLE_MYSQL)
