@@ -56,6 +56,7 @@ add_library(SqModule MODULE
 	Library/Utils.cpp Library/Utils.hpp
 	Library/Utils/Buffer.cpp Library/Utils/Buffer.hpp
 	Library/Web.cpp Library/Web.hpp
+	Library/Worker.cpp Library/Worker.hpp
 	Library/XML.cpp Library/XML.hpp
 	Misc/Broadcast.cpp
 	Misc/Constants.cpp

@@ -44,6 +44,7 @@ extern void Register_SQLite(HSQUIRRELVM vm);
 extern void Register_String(HSQUIRRELVM vm);
 extern void Register_System(HSQUIRRELVM vm);
 extern void Register_Utils(HSQUIRRELVM vm);
+extern void Register_Worker(HSQUIRRELVM vm);
 extern void Register_Web(HSQUIRRELVM vm);
 extern void Register_XML(HSQUIRRELVM vm);
 
@@ -98,6 +99,7 @@ bool RegisterAPI(HSQUIRRELVM vm)
     Register_String(vm);
     Register_System(vm);
     Register_Utils(vm);
+    Register_Worker(vm);
     Register_Web(vm);
     Register_XML(vm);
 
