@@ -175,4 +175,14 @@ template < typename T > inline void SqSetDelimiter(SQInteger c)
 */
 bool BuildFormatString(String & out, StackStrF & fmt, Uint32 arg, const String & spec);
 
+/* ------------------------------------------------------------------------------------------------
+ * Append a formatted string to a string container.
+*/
+size_t PrintToStrF(String & out, CSStr str, ...);
+
+/* ------------------------------------------------------------------------------------------------
+ * Append a formatted string to a string container.
+*/
+size_t PrintToStrFv(String & out, CSStr str, va_list vl);
+
 } // Namespace:: SqMod

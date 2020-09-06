@@ -942,6 +942,56 @@ bool BuildFormatString(String & out, StackStrF & fmt, Uint32 arg, const String &
 }
 
 // ------------------------------------------------------------------------------------------------
+size_t PrintToStrF(String & out, CSStr str, ...)
+{
+    // Initialize the variable argument list
+    va_list args;
+    va_start(args, str);
+    // Forward to the actual implementation
+    const size_t r = PrintToStrFv(out, str, args);
+    // Finalize the variable argument list
+    va_end(args);
+    // Return result
+    return r;
+}
+// ------------------------------------------------------------------------------------------------
+size_t PrintToStrFv(String & out, CSStr str, va_list vl)
+{
+    va_list args;
+    // Backup original size to revert back if necessary
+    const size_t size = out.size();
+    // The estimated buffer required
+    ssize_t len = 256;
+begin:
+    // Do not modify the original va_list
+    va_copy(args, vl);
+    // Reserve the necessary space
+    out.resize(size + static_cast< size_t >(len), '\0');
+    // Attempt to generate the specified string
+    int res = std::vsnprintf(&out[0] + size, len, str, args);
+    // Do we need more space?
+    if (res >= len)
+    {
+        // Adjust to required size
+        len = res + 1;
+        // Try again
+        goto begin;
+    }
+    // Did the format failed?
+    else if (res < 0)
+    {
+        // Discard changes
+        out.resize(size);
+    }
+    else
+    {
+        // Discard extra characters
+        out.resize(size + static_cast< size_t >(res));
+    }
+    // Return the amount of written characters
+    return static_cast< size_t >(res);
+}
+// ------------------------------------------------------------------------------------------------
 void SqThrowLastF(CSStr msg, ...)
 {
     // Acquire a moderately sized buffer
