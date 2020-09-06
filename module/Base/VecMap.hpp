@@ -160,16 +160,16 @@ template < class Key, class T, class Pred = std::equal_to< Key > > struct VecMap
                             [&](const_reference e) -> bool { return e.first == key; });
     }
     /* --------------------------------------------------------------------------------------------
-     *
+     * Check if an element with a specific key exists in the container.
     */
-    // Check if an element with a specific key exists in the container.
     bool exists(const key_type & key) const noexcept { return find(key) != m_Storage.cend(); }
     /* --------------------------------------------------------------------------------------------
      * Append a new element to the end of the container.
     */
     template< class... Args > mapped_type & emplace_back( Args&&... args )
     {
-        return m_Storage.emplace_back(std::forward< Args >(args)...).second;
+        m_Storage.emplace_back(std::forward< Args >(args)...);
+        return m_Storage.back().second;
     }
     /* --------------------------------------------------------------------------------------------
      * Remove the last element of the container.
