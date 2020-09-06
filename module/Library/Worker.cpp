@@ -80,6 +80,18 @@ void Worker::Process(size_t jobs)
     }
     for (auto & t : workers)
     {
+        const size_t logs = std::min(t->m_Logs.size_approx(), size_t{32});
+        // Flush log messages
+        for (size_t n = 0; n < logs; ++n)
+        {
+            std::unique_ptr< Log > log;
+            // Try to get a log from the queue
+            if (t->m_Logs.try_dequeue(log))
+            {
+                // Send it to the logger
+                Logger::Get().Send(log->first, false, log->second.data(), log->second.size());
+            }
+        }
         for (size_t n = 0; n < jobs; ++n)
         {
             std::unique_ptr< BaseJob > job;
@@ -133,6 +145,8 @@ void Worker::Start()
         }
         // Create the JS state
         m_VM = sq_open(m_StackSize);
+        // Associate with this VM
+        sq_setforeignptr(m_VM, this);
         // Tell the VM to use these functions to output user on error messages
         sq_setprintfunc(m_VM, PrintFunc, ErrorFunc);
         // This is now running
@@ -174,27 +188,35 @@ void Worker::Work()
     }
 }
 // ------------------------------------------------------------------------------------------------
-void Worker::PrintFunc(HSQUIRRELVM /*vm*/, CSStr msg, ...)
+void Worker::PrintFunc(HSQUIRRELVM vm, CSStr msg, ...)
 {
+    auto worker = reinterpret_cast< Worker * >(sq_getforeignptr(vm));
     // Initialize the variable argument list
     va_list args;
     va_start(args, msg);
-    // Forward the message to the logger
-    std::vprintf(msg, args);
-    std::puts("");
+    // Initialize an empty log message
+    std::unique_ptr< Log > ptr(new Log{uint8_t{LOGL_USR}, String{}});
+    // Attempt to generate the message
+    PrintToStrFv(ptr->second, msg, args);
+    // Let the main thread deal with it
+    worker->m_Logs.enqueue(std::move(ptr));
     // Finalize the variable argument list
     va_end(args);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Worker::ErrorFunc(HSQUIRRELVM /*vm*/, CSStr msg, ...)
+void Worker::ErrorFunc(HSQUIRRELVM vm, CSStr msg, ...)
 {
+    auto worker = reinterpret_cast< Worker * >(sq_getforeignptr(vm));
     // Initialize the variable argument list
     va_list args;
     va_start(args, msg);
-    // Tell the logger to display debugging information
-    std::vprintf(msg, args);
-    std::puts("");
+    // Initialize an empty log message
+    std::unique_ptr< Log > ptr(new Log{uint8_t{LOGL_ERR}, String{}});
+    // Attempt to generate the message
+    PrintToStrFv(ptr->second, msg, args);
+    // Let the main thread deal with it
+    worker->m_Logs.enqueue(std::move(ptr));
     // Finalize the variable argument list
     va_end(args);
 }
