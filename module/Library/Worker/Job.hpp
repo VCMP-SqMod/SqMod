@@ -147,7 +147,6 @@ struct ExecuteJob : public BaseJob
     */
     bool Start(HSQUIRRELVM vm, Worker & worker) override
     {
-        std::puts("Executing...");
         return true;
     }
 };
