@@ -144,42 +144,9 @@ struct Worker
     /* --------------------------------------------------------------------------------------------
      *
     */
-    void Evaluate(StackStrF & str, Function & callback)
+    void Enqueue(JobWrapperBase & job)
     {
-        // Is there something to evaluate?
-        if (str.mLen <= 0)
-        {
-            STHROWF("Nothing to evaluate");
-        }
-        // Create the job
-        std::unique_ptr< Job > job(new Job(std::move(callback)));
-        // Define type
-        job->mType = Job::Type::Eval;
-        // Assign data
-        job->mPayload.assign(str.mPtr, static_cast< size_t >(str.mLen));
-        // Submit job
-        m_PendingJobs.enqueue(std::move(job));
-    }
-    /* --------------------------------------------------------------------------------------------
-     *
-    */
-    void EvaluateTarget(StackStrF & str)
-    {
-
-    }
-    /* --------------------------------------------------------------------------------------------
-     *
-    */
-    void Execute(StackStrF & str)
-    {
-
-    }
-    /* --------------------------------------------------------------------------------------------
-     *
-    */
-    void ExecuteTarget(StackStrF & str)
-    {
-
+        m_PendingJobs.enqueue(job.Grab());
     }
 private:
     /* --------------------------------------------------------------------------------------------
@@ -193,13 +160,13 @@ private:
     /* --------------------------------------------------------------------------------------------
      *
     */
-    using Jobs = ConcurrentQueue< std::unique_ptr< Job > >;
+    using Jobs = ConcurrentQueue< std::unique_ptr< BaseJob > >;
     /* --------------------------------------------------------------------------------------------
-     * Job queue.
+     * BaseJob queue.
     */
     Jobs                        m_PendingJobs;
     /* --------------------------------------------------------------------------------------------
-     * Job queue.
+     * BaseJob queue.
     */
     Jobs                        m_FinishedJobs;
     /* --------------------------------------------------------------------------------------------

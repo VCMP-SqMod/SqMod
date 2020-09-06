@@ -82,16 +82,12 @@ void Worker::Process(size_t jobs)
     {
         for (size_t n = 0; n < jobs; ++n)
         {
-            std::unique_ptr< Job > job;
+            std::unique_ptr< BaseJob > job;
             // Try to get a job from the queue
-            if (!t->m_FinishedJobs.try_dequeue(job))
+            if (t->m_FinishedJobs.try_dequeue(job))
             {
-                break; // No jobs
-            }
-            // Does it have a callback?
-            if (!job->mCallback.IsNull())
-            {
-                job->mCallback.Execute();
+                // Allow the job to finish
+                job->Finish(t->m_VM, *t);
             }
         }
     }
@@ -161,39 +157,21 @@ void Worker::Start()
 // ------------------------------------------------------------------------------------------------
 void Worker::Work()
 {
-    std::unique_ptr< Job > job;
+    std::unique_ptr< BaseJob > job;
     // Try to get a job from the queue
     if (!m_PendingJobs.try_dequeue(job))
     {
         using namespace std::chrono_literals;
         // Do not hammer the CPU if there are no jobs
         std::this_thread::sleep_for(50ms);
-        // Try again
-        return;
     }
-    // Identify the job type
-    switch (job->mType)
+    else
     {
-        // This type of job demands no work
-        case Job::Type::Null: break;
-        case Job::Type::Stop:
-
-        break;
-        case Job::Type::Eval: {
-            sq_compilebuffer(m_VM, job->mPayload.data(), job->mPayload.size(), _SC("eval"), SQTrue);
-            SQInteger top = sq_gettop(m_VM);
-            sq_pushroottable(m_VM);
-            sq_call(m_VM, 1, false, true);
-            sq_settop(m_VM, top);
-        } break;
-        case Job::Type::Exec:
-
-        break;
-        // We're not qualified for this job
-        default: break;
+        // Do the job
+        job->Start(m_VM, *this);
+        // This job was finished
+        m_FinishedJobs.enqueue(std::move(job));
     }
-    // This job was finished
-    m_FinishedJobs.enqueue(std::move(job));
 }
 // ------------------------------------------------------------------------------------------------
 void Worker::PrintFunc(HSQUIRRELVM /*vm*/, CSStr msg, ...)
@@ -237,7 +215,7 @@ void Register_Worker(HSQUIRRELVM vm)
         // Properties
         .Prop(_SC("Name"), &Worker::GetName)
         // Core Methods
-        .CbFunc(_SC("Evaluate"), &Worker::Evaluate)
+        .Func(_SC("Enqueue"), &Worker::Enqueue)
         // Static Member Methods
     );
 
