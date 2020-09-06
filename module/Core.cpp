@@ -46,6 +46,7 @@ extern void TerminatePrivileges();
 extern void TerminateRoutines();
 extern void TerminateCommands();
 extern void TerminateSignals();
+extern void TerminateWorkers();
 
 // ------------------------------------------------------------------------------------------------
 extern Buffer GetRealFilePath(CSStr path);
@@ -496,6 +497,8 @@ void Core::Terminate(bool shutdown)
     TerminateAreas();
     // Release privilege managers
     TerminatePrivileges();
+    // Terminate workers
+    TerminateWorkers();
     // In case there's a payload for reload
     m_ReloadPayload.Release();
     // Release null objects in case any reference to valid objects is stored in them
