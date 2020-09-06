@@ -9,6 +9,7 @@
 #include <mutex>
 #include <atomic>
 #include <vector>
+#include <chrono>
 #include <condition_variable>
 
 // ------------------------------------------------------------------------------------------------

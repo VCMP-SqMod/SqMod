@@ -366,7 +366,11 @@ void Worker::Work()
     // Try to get a job from the queue
     if (!m_PendingJobs.try_dequeue(job))
     {
-        return; // No jobs
+        using namespace std::chrono_literals;
+        // Do not hammer the CPU if there are no jobs
+        std::this_thread::sleep_for(50ms);
+        // Try again
+        return;
     }
     // Identify the job type
     switch (job->mType)
