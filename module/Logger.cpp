@@ -406,6 +406,19 @@ void Logger::Proccess(Uint8 level, bool sub)
 }
 
 // ------------------------------------------------------------------------------------------------
+void Logger::Send(Uint8 level, bool sub, CCStr msg, size_t len)
+{
+    // Is this level even allowed?
+    if ((m_ConsoleLevels & level) || (m_LogFileLevels & level))
+    {
+        // Generate the message in the buffer
+        m_Buffer.Write(0, msg, static_cast< Buffer::SzType >(len));
+        // Process the message in the buffer
+        Proccess(level, sub);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 void Logger::Send(Uint8 level, bool sub, CCStr fmt, va_list args)
 {
     // Is this level even allowed?
