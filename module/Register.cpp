@@ -34,6 +34,7 @@ extern void Register_CVehicle(HSQUIRRELVM vm);
 extern void Register_Chrono(HSQUIRRELVM vm);
 extern void Register_Crypt(HSQUIRRELVM vm);
 extern void Register_IO(HSQUIRRELVM vm);
+extern void Register_Job(HSQUIRRELVM vm);
 extern void Register_MMDB(HSQUIRRELVM vm);
 #ifdef SQ_ENABLE_MYSQL
 extern void Register_MySQL(HSQUIRRELVM vm);
@@ -89,6 +90,7 @@ bool RegisterAPI(HSQUIRRELVM vm)
     Register_Chrono(vm);
     Register_Crypt(vm);
     Register_IO(vm);
+    Register_Job(vm);
     Register_MMDB(vm);
 #ifdef SQ_ENABLE_MYSQL
     Register_MySQL(vm);
