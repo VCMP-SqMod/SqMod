@@ -42,7 +42,6 @@ add_library(SqModule MODULE
 	Library/IO.cpp Library/IO.hpp
 	Library/IO/File.cpp Library/IO/File.hpp
 	Library/IO/INI.cpp Library/IO/INI.hpp
-	Library/Job.cpp Library/Job.hpp
 	Library/MMDB.cpp Library/MMDB.hpp
 	Library/Numeric.cpp Library/Numeric.hpp
 	Library/Numeric/LongInt.cpp Library/Numeric/LongInt.hpp
@@ -59,6 +58,8 @@ add_library(SqModule MODULE
 	Library/Utils/Buffer.cpp Library/Utils/Buffer.hpp
 	Library/Web.cpp Library/Web.hpp
 	Library/Worker.cpp Library/Worker.hpp
+	Library/Worker/Job.cpp Library/Worker/Job.hpp
+	Library/Worker/Parameter.cpp Library/Worker/Parameter.hpp
 	Library/XML.cpp Library/XML.hpp
 	Misc/Broadcast.cpp
 	Misc/Constants.cpp
