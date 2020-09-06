@@ -448,6 +448,8 @@ struct Worker
         }
         // Create the job
         std::unique_ptr< Job > job(new Job(std::move(callback)));
+        // Define type
+        job->mType = Job::Type::Eval;
         // Assign data
         job->mPayload.assign(str.mPtr, static_cast< size_t >(str.mLen));
         // Submit job

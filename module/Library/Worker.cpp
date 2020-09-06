@@ -376,9 +376,13 @@ void Worker::Work()
         case Job::Type::Stop:
 
         break;
-        case Job::Type::Eval:
-            sq_compilebuffer(m_VM, job->mPayload.data(), job->mPayload.size(), nullptr, SQFalse);
-        break;
+        case Job::Type::Eval: {
+            sq_compilebuffer(m_VM, job->mPayload.data(), job->mPayload.size(), _SC("eval"), SQTrue);
+            SQInteger top = sq_gettop(m_VM);
+            sq_pushroottable(m_VM);
+            sq_call(m_VM, 1, false, true);
+            sq_settop(m_VM, top);
+        } break;
         case Job::Type::Exec:
 
         break;
@@ -396,6 +400,7 @@ void Worker::PrintFunc(HSQUIRRELVM /*vm*/, CSStr msg, ...)
     va_start(args, msg);
     // Forward the message to the logger
     std::vprintf(msg, args);
+    std::puts("");
     // Finalize the variable argument list
     va_end(args);
 }
@@ -408,6 +413,7 @@ void Worker::ErrorFunc(HSQUIRRELVM /*vm*/, CSStr msg, ...)
     va_start(args, msg);
     // Tell the logger to display debugging information
     std::vprintf(msg, args);
+    std::puts("");
     // Finalize the variable argument list
     va_end(args);
 }
