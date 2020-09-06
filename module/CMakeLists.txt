@@ -18,6 +18,7 @@ add_library(SqModule MODULE
 	Base/Shared.cpp Base/Shared.hpp
 	Base/Sphere.cpp Base/Sphere.hpp
 	Base/Utility.cpp Base/Utility.hpp
+	Base/VecMap.hpp
 	Base/Vector2.cpp Base/Vector2.hpp
 	Base/Vector2i.cpp Base/Vector2i.hpp
 	Base/Vector3.cpp Base/Vector3.hpp
