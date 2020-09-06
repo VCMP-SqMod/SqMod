@@ -54,18 +54,8 @@ template < class Key, class T, class Pred = std::equal_to< Key > > struct VecMap
         {
             if (e.first == key) return e.second;
         }
-        return m_Storage.emplace_back(key, mapped_type{}).second;
-    }
-    /* --------------------------------------------------------------------------------------------
-     * Sub-script operator (const).
-    */
-    const mapped_type & operator [] (const key_type & key) const
-    {
-        for (const auto & e : m_Storage)
-        {
-            if (e.first == key) return e.second;
-        }
-        return m_Storage.emplace_back(key, mapped_type{}).second;
+        m_Storage.emplace_back(key, mapped_type{});
+        return m_Storage.back().second;
     }
     /* --------------------------------------------------------------------------------------------
      * Retrieve an iterator to the beginning. See: std::vector::begin()
