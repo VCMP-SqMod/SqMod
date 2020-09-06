@@ -118,35 +118,35 @@ template < class Key, class T, class Pred = std::equal_to< Key > > struct VecMap
     /* --------------------------------------------------------------------------------------------
      * Check if elements are stored in the container.
     */
-    bool Empty() const noexcept { return m_Storage.empty(); }
+    bool empty() const noexcept { return m_Storage.empty(); }
     /* --------------------------------------------------------------------------------------------
      * Retrieve the number of elements stored in the container.
     */
-    size_type Size() const noexcept { return m_Storage.size(); }
+    size_type size() const noexcept { return m_Storage.size(); }
     /* --------------------------------------------------------------------------------------------
      * Retrieve the number of elements that can be stored in the container.
     */
-    size_type MaxSize() const noexcept { return m_Storage.max_size(); }
+    size_type max_size() const noexcept { return m_Storage.max_size(); }
     /* --------------------------------------------------------------------------------------------
      * Reserve space for a specific amount of elements.
     */
-    void Reserve(size_type n) { m_Storage.reserve(n); }
+    void reserve(size_type n) { m_Storage.reserve(n); }
     /* --------------------------------------------------------------------------------------------
      * Retrieve the number of elements that can be held in currently allocated storage.
     */
-    size_type Capacity() const noexcept { return m_Storage.capacity(); }
+    size_type capacity() const noexcept { return m_Storage.capacity(); }
     /* --------------------------------------------------------------------------------------------
      * Reduce memory usage by freeing unused memory.
     */
-    void Conform() { m_Storage.shrink_to_fit(); }
+    void conform() { m_Storage.shrink_to_fit(); }
     /* --------------------------------------------------------------------------------------------
      * Discard all stored elements.
     */
-    void Clear() noexcept { m_Storage.clear(); }
+    void clear() noexcept { m_Storage.clear(); }
     /* --------------------------------------------------------------------------------------------
      * Locate a an element with a specific key and obtain an iterator to it's location.
     */
-    iterator Find(const key_type & key) noexcept
+    iterator find(const key_type & key) noexcept
     {
         return std::find_if(m_Storage.begin(), m_Storage.end(),
                             [&](reference e) -> bool { return e.first == key; });
@@ -154,7 +154,7 @@ template < class Key, class T, class Pred = std::equal_to< Key > > struct VecMap
     /* --------------------------------------------------------------------------------------------
      * Locate a an element with a specific key and obtain an iterator to it's location.
     */
-    const_iterator Find(const key_type & key) const noexcept
+    const_iterator find(const key_type & key) const noexcept
     {
         return std::find_if(m_Storage.cbegin(), m_Storage.cend(),
                             [&](const_reference e) -> bool { return e.first == key; });
@@ -163,24 +163,24 @@ template < class Key, class T, class Pred = std::equal_to< Key > > struct VecMap
      *
     */
     // Check if an element with a specific key exists in the container.
-    bool Exists(const key_type & key) const noexcept { return Find(key) != m_Storage.cend(); }
+    bool exists(const key_type & key) const noexcept { return find(key) != m_Storage.cend(); }
     /* --------------------------------------------------------------------------------------------
      * Append a new element to the end of the container.
     */
-    template< class... Args > mapped_type & EmplaceBack( Args&&... args )
+    template< class... Args > mapped_type & emplace_back( Args&&... args )
     {
         return m_Storage.emplace_back(std::forward< Args >(args)...).second;
     }
     /* --------------------------------------------------------------------------------------------
      * Remove the last element of the container.
     */
-    void PopBack() { m_Storage.pop_back(); }
+    void pop_back() { m_Storage.pop_back(); }
     /* --------------------------------------------------------------------------------------------
      * Removes specified element from the container. Returns true if found and removed, false otherwise.
     */
-    bool Erase(const key_type & key)
+    bool erase(const key_type & key)
     {
-        auto itr = Find(key);
+        auto itr = find(key);
         if (itr != m_Storage.end())
         {
             m_Storage.erase(itr);
@@ -191,11 +191,11 @@ template < class Key, class T, class Pred = std::equal_to< Key > > struct VecMap
     /* --------------------------------------------------------------------------------------------
      * Removes specified element from the container. Returns iterator to the next element.
     */
-    iterator Erase(iterator pos) { return m_Storage.erase(pos); }
+    iterator erase(iterator pos) { return m_Storage.erase(pos); }
     /* --------------------------------------------------------------------------------------------
      * Removes specified element from the container. Returns iterator to the next element.
     */
-    iterator Erase(const_iterator pos) { return m_Storage.erase(pos); }
+    iterator erase(const_iterator pos) { return m_Storage.erase(pos); }
 private:
     /* --------------------------------------------------------------------------------------------
      * Internal container used to store elements.
