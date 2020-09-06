@@ -684,6 +684,8 @@ void Signal::ClearSlots()
     {
         m_Scope->Finish(); // Update iterators
     }
+    // Inform the signal that these slots are now NULL
+    m_Used = 0;
 }
 
 // ------------------------------------------------------------------------------------------------
