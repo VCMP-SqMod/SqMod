@@ -511,14 +511,6 @@ enum EntityType
     #define SQMOD_EXTERN_C        /* */
 #endif
 
-#if defined(_MSC_VER)
-    #define SQMOD_API_EXPORT      extern "C" __declspec(dllexport)
-#elif defined(__GNUC__)
-    #define SQMOD_API_EXPORT      extern "C"
-#else
-    #define SQMOD_API_EXPORT      extern "C"
-#endif
-
 /* ------------------------------------------------------------------------------------------------
  * CALLING CONVENTIONS
 */

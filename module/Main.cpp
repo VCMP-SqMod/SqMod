@@ -942,7 +942,7 @@ static void OnServerPerformanceReport(size_t /*entry_count*/, CCStr * /*descript
 } // Namespace:: SqMod
 
 /* ------------------------------------------------------------------------------------------------
- * Plugiun initialization procedure.
+ * Plug-in initialization procedure.
 */
 SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallbacks * calls, PluginInfo * info)
 {
