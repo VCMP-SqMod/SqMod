@@ -108,11 +108,26 @@ struct EvaluateJob : public BaseJob
     */
     bool Start(HSQUIRRELVM vm, Worker & worker) override
     {
-        sq_compilebuffer(vm, mCode.data(), mCode.size(), mName.data(), SQTrue);
+        SQRESULT r = sq_compilebuffer(vm, mCode.data(), mCode.size(), mName.data(), SQTrue);
+        // See if the code could be compiled
+        if (SQ_FAILED(r))
+        {
+            return false; // Job failed
+        }
+        // Backup the stack top
         SQInteger top = sq_gettop(vm);
+        // Push the root table as environment
         sq_pushroottable(vm);
-        sq_call(vm, 1, false, true);
+        // Attempt to invoke the compiled code
+        r = sq_call(vm, 1, SQFalse, SQTrue);
+        // Restore the stack top
         sq_settop(vm, top);
+        // See if the code could be evaluated
+        if (SQ_FAILED(r))
+        {
+            return false; // Job failed
+        }
+        // Job completed
         return true;
     }
 };

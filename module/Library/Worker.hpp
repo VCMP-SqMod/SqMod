@@ -150,6 +150,7 @@ struct Worker
         m_PendingJobs.enqueue(job.Grab());
     }
 private:
+
     /* --------------------------------------------------------------------------------------------
      * Worker thread container.
     */
@@ -163,14 +164,6 @@ private:
     */
     using Jobs = ConcurrentQueue< std::unique_ptr< BaseJob > >;
     /* --------------------------------------------------------------------------------------------
-     *
-    */
-    using Log = std::pair< uint8_t, String >;
-    /* --------------------------------------------------------------------------------------------
-     *
-    */
-    using Logs = ConcurrentQueue< std::unique_ptr< Log > >;
-    /* --------------------------------------------------------------------------------------------
      * Pending job queue.
     */
     Jobs                        m_PendingJobs;
@@ -178,10 +171,6 @@ private:
      * Finished job queue.
     */
     Jobs                        m_FinishedJobs;
-    /* --------------------------------------------------------------------------------------------
-     * Log message queue.
-    */
-    Logs                        m_Logs;
     /* --------------------------------------------------------------------------------------------
      * Loop state.
     */
@@ -215,6 +204,14 @@ private:
     */
     static void PrintFunc(HSQUIRRELVM vm, CSStr msg, ...);
     static void ErrorFunc(HSQUIRRELVM vm, CSStr msg, ...);
+
+    /* --------------------------------------------------------------------------------------------
+     * Script error handlers.
+    */
+    static SQInteger RuntimeErrorHandler(HSQUIRRELVM vm);
+    static void CompilerErrorHandler(HSQUIRRELVM vm, CSStr desc, CSStr src,
+                                     SQInteger line, SQInteger column);
+
 };
 
 } // Namespace:: SqMod

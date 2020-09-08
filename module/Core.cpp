@@ -876,19 +876,19 @@ void Core::PrintFunc(HSQUIRRELVM /*vm*/, CSStr msg, ...)
     va_list args;
     va_start(args, msg);
     // Forward the message to the logger
-    Logger::Get().Send(LOGL_USR, false, msg, args);
+    Logger::Get().SendFv(LOGL_USR, false, msg, args);
     // Finalize the variable argument list
     va_end(args);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::ErrorFunc(HSQUIRRELVM /*vm*/, CSStr msg, ...)
+void Core::ErrorFunc(HSQUIRRELVM vm, CSStr msg, ...)
 {
     // Initialize the variable argument list
     va_list args;
     va_start(args, msg);
     // Tell the logger to display debugging information
-    Logger::Get().Debug(msg, args);
+    Logger::Get().DebugFv(vm, msg, args);
     // Finalize the variable argument list
     va_end(args);
 }
@@ -906,11 +906,11 @@ SQInteger Core::RuntimeErrorHandler(HSQUIRRELVM vm)
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.Proc(false)))
     {
-        Logger::Get().Debug(_SC("Unknown runtime error has occurred"));
+        Logger::Get().DebugF(vm, _SC("Unknown runtime error has occurred"));
     }
     else
     {
-        Logger::Get().Debug(_SC("%s"), val.mPtr);
+        Logger::Get().DebugF(vm, _SC("%s"), val.mPtr);
     }
     // We handled the error
     return SQ_OK;

@@ -80,18 +80,6 @@ void Worker::Process(size_t jobs)
     }
     for (auto & t : workers)
     {
-        const size_t logs = std::min(t->m_Logs.size_approx(), size_t{32});
-        // Flush log messages
-        for (size_t n = 0; n < logs; ++n)
-        {
-            std::unique_ptr< Log > log;
-            // Try to get a log from the queue
-            if (t->m_Logs.try_dequeue(log))
-            {
-                // Send it to the logger
-                Logger::Get().Send(log->first, false, log->second.data(), log->second.size());
-            }
-        }
         for (size_t n = 0; n < jobs; ++n)
         {
             std::unique_ptr< BaseJob > job;
@@ -149,6 +137,12 @@ void Worker::Start()
         sq_setforeignptr(m_VM, this);
         // Tell the VM to use these functions to output user on error messages
         sq_setprintfunc(m_VM, PrintFunc, ErrorFunc);
+        // Tell the VM to trigger this function on compile time errors
+        sq_setcompilererrorhandler(m_VM, CompilerErrorHandler);
+        // Push the runtime error handler on the stack and create a closure
+        sq_newclosure(m_VM, RuntimeErrorHandler, 0);
+        // Tell the VM to trigger this function on runtime errors
+        sq_seterrorhandler(m_VM);
         // This is now running
         m_Running.test_and_set();
     }
@@ -188,18 +182,13 @@ void Worker::Work()
     }
 }
 // ------------------------------------------------------------------------------------------------
-void Worker::PrintFunc(HSQUIRRELVM vm, CSStr msg, ...)
+void Worker::PrintFunc(HSQUIRRELVM /*vm*/, CSStr msg, ...)
 {
-    auto worker = reinterpret_cast< Worker * >(sq_getforeignptr(vm));
     // Initialize the variable argument list
     va_list args;
     va_start(args, msg);
-    // Initialize an empty log message
-    std::unique_ptr< Log > ptr(new Log{uint8_t{LOGL_USR}, String{}});
-    // Attempt to generate the message
-    PrintToStrFv(ptr->second, msg, args);
-    // Let the main thread deal with it
-    worker->m_Logs.enqueue(std::move(ptr));
+    // Forward the message to the logger
+    Logger::Get().SendFv(LOGL_USR, false, msg, args);
     // Finalize the variable argument list
     va_end(args);
 }
@@ -207,19 +196,43 @@ void Worker::PrintFunc(HSQUIRRELVM vm, CSStr msg, ...)
 // ------------------------------------------------------------------------------------------------
 void Worker::ErrorFunc(HSQUIRRELVM vm, CSStr msg, ...)
 {
-    auto worker = reinterpret_cast< Worker * >(sq_getforeignptr(vm));
     // Initialize the variable argument list
     va_list args;
     va_start(args, msg);
-    // Initialize an empty log message
-    std::unique_ptr< Log > ptr(new Log{uint8_t{LOGL_ERR}, String{}});
-    // Attempt to generate the message
-    PrintToStrFv(ptr->second, msg, args);
-    // Let the main thread deal with it
-    worker->m_Logs.enqueue(std::move(ptr));
+    // Tell the logger to display debugging information
+    Logger::Get().DebugFv(vm, msg, args);
     // Finalize the variable argument list
     va_end(args);
 }
+// ------------------------------------------------------------------------------------------------
+SQInteger Worker::RuntimeErrorHandler(HSQUIRRELVM vm)
+{
+    // Was there a value thrown?
+    if (sq_gettop(vm) < 1)
+    {
+        return SQ_OK; // No error to display!
+    }
+    // Attempt to generate the string value
+    StackStrF val(vm, 2);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.Proc(false)))
+    {
+        Logger::Get().DebugF(vm, _SC("Unknown runtime error has occurred"));
+    }
+    else
+    {
+        Logger::Get().DebugF(vm, _SC("%s"), val.mPtr);
+    }
+    // We handled the error
+    return SQ_OK;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Worker::CompilerErrorHandler(HSQUIRRELVM /*vm*/, CSStr desc, CSStr src, SQInteger line, SQInteger column)
+{
+    LogFtl("Message: %s\n[\n=>Location: %s\n=>Line: %" PRINT_INT_FMT "\n=>Column: %" PRINT_INT_FMT "\n]", desc, src, line, column);
+}
+
 // ------------------------------------------------------------------------------------------------
 void TerminateWorkers()
 {

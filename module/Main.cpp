@@ -160,6 +160,8 @@ static void OnServerFrame(float elapsed_time)
     // Process routines and tasks, if any
     ProcessRoutines();
     ProcessTasks();
+    // Process log messages from other threads
+    Logger::Get().ProcessQueue();
     // See if a reload was requested
     SQMOD_RELOAD_CHECK(g_Reload)
 }

@@ -9,7 +9,11 @@
 #include <string>
 
 // ------------------------------------------------------------------------------------------------
+#include <thread>
+
+// ------------------------------------------------------------------------------------------------
 #include <sqrat/sqratFunction.h>
+#include <concurrentqueue.h>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -35,6 +39,93 @@ enum LogLvl
 */
 class Logger
 {
+protected:
+    /* --------------------------------------------------------------------------------------------
+     * Message storage and builder.
+    */
+    struct Message
+    {
+        // ----------------------------------------------------------------------------------------
+        static constexpr size_t TMS_LEN = (128-sizeof(String)-6-sizeof(bool));
+        // ----------------------------------------------------------------------------------------
+        String      mStr; // Message string.
+        uint32_t    mLen; // Message length.
+        uint8_t     mLvl; // Message level.
+        uint8_t     mInc; // Message increments.
+        bool        mSub; // Message hierarchy.
+        bool        mTms; // Message hierarchy.
+        char        mBuf[TMS_LEN]; // Message time-stamp.
+        /* ----------------------------------------------------------------------------------------
+         * Default constructor.
+        */
+        Message()
+            : mStr(), mLen(0), mLvl(LOGL_NIL)
+            , mInc(std::numeric_limits< uint8_t >::max()), mSub(false), mTms(false), mBuf{'\0'}
+        {
+        }
+        /* ----------------------------------------------------------------------------------------
+         * Explicit type constructor.
+        */
+        Message(uint8_t lvl, bool sub)
+            : mStr(), mLen(0), mLvl(lvl)
+            , mInc(std::numeric_limits< uint8_t >::max()), mSub(sub), mTms(false), mBuf{'\0'}
+        {
+        }
+        /* ----------------------------------------------------------------------------------------
+         * Explicit constructor.
+        */
+        Message(uint8_t lvl, bool sub, uint32_t len)
+            : Message(lvl, sub, len, std::numeric_limits< uint8_t >::max())
+        {
+        }
+        /* ----------------------------------------------------------------------------------------
+         * Explicit constructor.
+        */
+        Message(uint8_t lvl, bool sub, uint32_t len, uint8_t inc)
+            : mStr(), mLen(0), mLvl(lvl), mInc(inc), mSub(sub), mTms(false), mBuf{'\0'}
+        {
+            mStr.resize(len, '\0');
+        }
+        /* ----------------------------------------------------------------------------------------
+         * Copy constructor (disabled).
+        */
+        Message(const Message & o) = delete;
+        /* ----------------------------------------------------------------------------------------
+         * Stamp the log message.
+        */
+        void Stamp();
+        /* ----------------------------------------------------------------------------------------
+         * Finished the string message.
+        */
+        void Finish()
+        {
+            mStr.resize(mLen); // Discard trailing characters
+        }
+        /* ----------------------------------------------------------------------------------------
+         * Append a C string to the message.
+        */
+        uint32_t Append(CSStr str);
+        /* ----------------------------------------------------------------------------------------
+         * Append a fixed width string to the message.
+        */
+        uint32_t Append(CSStr str, size_t len);
+        /* ----------------------------------------------------------------------------------------
+         * Append a formatted string to the message.
+        */
+        uint32_t AppendF(CSStr str, ...);
+        /* ----------------------------------------------------------------------------------------
+         * Append a formatted string to the message.
+        */
+        uint32_t AppendFv(CSStr str, va_list vl);
+    };
+
+public:
+
+    /* --------------------------------------------------------------------------------------------
+     * Smart message pointer.
+    */
+    using MsgPtr = std::unique_ptr< Message >;
+
 private:
 
     // --------------------------------------------------------------------------------------------
@@ -50,36 +141,55 @@ private:
     */
     ~Logger();
 
+    /* --------------------------------------------------------------------------------------------
+     * Queue of messages written from other threads.
+    */
+    using MsgQueue = moodycamel::ConcurrentQueue< MsgPtr >;
+
 private:
 
     // --------------------------------------------------------------------------------------------
-    Buffer      m_Buffer; // Common buffer where the message is written.
+    std::thread::id m_ThreadID; // ID of the thread in which the logger was initialized.
 
     // --------------------------------------------------------------------------------------------
-    Uint8       m_ConsoleLevels; // The levels allowed to be outputted to console.
-    Uint8       m_LogFileLevels; // The levels allowed to be outputted to log file.
+    MsgPtr          m_Message; // Last and/or currently processed log message.
+    MsgQueue        m_Queue; // Queue of messages outside of main thread.
 
     // --------------------------------------------------------------------------------------------
-    bool        m_ConsoleTime; // Whether console messages should be timestamped.
-    bool        m_LogFileTime; // Whether log file messages should be timestamped.
-    bool        m_CyclicLock; // Prevent the script callback from entering a loop.
+    Uint8           m_ConsoleLevels; // The levels allowed to be outputted to console.
+    Uint8           m_LogFileLevels; // The levels allowed to be outputted to log file.
 
     // --------------------------------------------------------------------------------------------
-    Uint32      m_StringTruncate; // The length at which to truncate strings in debug.
+    bool            m_ConsoleTime; // Whether console messages should be timestamped.
+    bool            m_LogFileTime; // Whether log file messages should be timestamped.
+    bool            m_CyclicLock; // Prevent the script callback from entering a loop.
 
     // --------------------------------------------------------------------------------------------
-    std::FILE*  m_File; // Handle to the file where the logs should be saved.
-    std::string m_Filename; // The name of the file where the logs are saved.
+    Uint32          m_StringTruncate; // The length at which to truncate strings in debug.
 
     // --------------------------------------------------------------------------------------------
-    Function m_LogCb[7]; //Callback to receive debug information instead of console.
+    std::FILE*      m_File; // Handle to the file where the logs should be saved.
+    std::string     m_Filename; // The name of the file where the logs are saved.
+
+    // --------------------------------------------------------------------------------------------
+    Function        m_LogCb[7]; //Callback to receive debug information instead of console.
 
 protected:
 
     /* --------------------------------------------------------------------------------------------
+     * Push the given message either to the screen or queue depending on the calling thread.
+    */
+    void PushMessage(MsgPtr & msg);
+
+    /* --------------------------------------------------------------------------------------------
+     * Push the given messages either to the screen or queue depending on the calling thread.
+    */
+    void PushMessage(MsgPtr * msg, size_t len);
+
+    /* --------------------------------------------------------------------------------------------
      * Process the message in the internal buffer.
     */
-    void Proccess(Uint8 level, bool sub);
+    void ProcessMessage();
 
 public:
 
@@ -130,6 +240,11 @@ public:
      * Release the script associated resources.
     */
     void Release();
+
+    /* --------------------------------------------------------------------------------------------
+     * Processes the messages that have gathered in the queue.
+    */
+    void ProcessQueue();
 
     /* --------------------------------------------------------------------------------------------
      * Enable or disable console message time stamping.
@@ -303,29 +418,29 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Send a log message.
     */
-    void Send(Uint8 level, bool sub, CCStr fmt, va_list args);
+    void SendFv(Uint8 level, bool sub, CCStr fmt, va_list args);
 
     /* --------------------------------------------------------------------------------------------
      * Write a log message.
     */
-    void Write(Uint8 level, bool sub, CCStr fmt, ...);
+    void WriteF(Uint8 level, bool sub, CCStr fmt, ...);
 
     /* --------------------------------------------------------------------------------------------
      * Generate a debug message.
     */
-    void Debug(CCStr fmt, ...);
+    void DebugF(HSQUIRRELVM vm, CCStr fmt, ...);
 
     /* --------------------------------------------------------------------------------------------
      * Generate a debug message.
     */
-    void Debug(CCStr fmt, va_list args);
+    void DebugFv(HSQUIRRELVM vm, CCStr fmt, va_list args);
 
 private:
 
     /* --------------------------------------------------------------------------------------------
      * Forward the log message to a callback.
     */
-    SQBool ProcessCb(Uint8 level, bool sub);
+    SQBool ProcessCb();
 };
 
 /* ------------------------------------------------------------------------------------------------

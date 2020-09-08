@@ -161,56 +161,124 @@ static inline CCStr GetColoredLevelTagDim(Uint8 level)
 /* ------------------------------------------------------------------------------------------------
  * Output a logging message to the console window.
 */
-static inline void OutputConsoleMessage(Uint8 level, bool sub, CCStr tms, CCStr msg)
+static inline void OutputConsoleMessage(const Logger::MsgPtr & msg)
 {
 #ifdef SQMOD_OS_WINDOWS
     HANDLE hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO csb_state;
     GetConsoleScreenBufferInfo(hstdout, &csb_state);
-    SetConsoleTextAttribute(hstdout, GetLevelColor(level));
-    if (tms)
+    SetConsoleTextAttribute(hstdout, GetLevelColor(msg->mLvl));
+    if (msg->mTms)
     {
-        std::printf("%s %s ", GetLevelTag(level), tms);
+        std::printf("%s %s ", GetLevelTag(msg->mLvl), msg->mBuf);
     }
     else
     {
-        std::printf("%s ", GetLevelTag(level));
+        std::printf("%s ", GetLevelTag(msg->mLvl));
     }
-    SetConsoleTextAttribute(hstdout, sub ? LC_NORMAL : LC_WHITE);
-    std::printf("%s\n", msg);
+    SetConsoleTextAttribute(hstdout, msg->mSub ? LC_NORMAL : LC_WHITE);
+    std::printf("%s\n", msg->mStr.c_str());
     SetConsoleTextAttribute(hstdout, csb_state.wAttributes);
 #else
-    if (tms)
+    if (msg->mTms)
     {
         std::printf("%s %s %s\033[0m\n",
-            sub ? GetColoredLevelTagDim(level) : GetColoredLevelTag(level), tms, msg);
+                    msg->mSub ? GetColoredLevelTagDim(msg->mLvl) : GetColoredLevelTag(msg->mLvl), msg->mBuf, msg);
     }
     else
     {
         std::printf("%s %s\033[0m\n",
-            sub ? GetColoredLevelTagDim(level) : GetColoredLevelTag(level), msg);
+                    msg->mSub ? GetColoredLevelTagDim(msg->mLvl) : GetColoredLevelTag(msg->mLvl), msg);
     }
 #endif // SQMOD_OS_WINDOWS
-}
-
-/* ------------------------------------------------------------------------------------------------
- * Identify the associated message color.
-*/
-static inline CCStr GetTimeStampStr()
-{
-    static CharT tmbuff[80];
-    std::time_t t = std::time(nullptr);
-    std::strftime(tmbuff, sizeof(tmbuff), "%Y-%m-%d %H:%M:%S", std::localtime(&t));
-    // Return the resulted buffer
-    return tmbuff;
 }
 
 // ------------------------------------------------------------------------------------------------
 Logger Logger::s_Inst;
 
 // ------------------------------------------------------------------------------------------------
+void Logger::Message::Stamp()
+{
+    std::time_t t = std::time(nullptr);
+    mTms = true; // Mark this message as being time-stamped
+    std::strftime(mBuf, sizeof(mBuf), "%Y-%m-%d %H:%M:%S", std::localtime(&t));
+}
+// ------------------------------------------------------------------------------------------------
+uint32_t Logger::Message::Append(CSStr str)
+{
+    // Validate string
+    if (str)
+    {
+        return Append(str, std::strlen(str));
+    }
+    // No string to append
+    return 0;
+}
+// ------------------------------------------------------------------------------------------------
+uint32_t Logger::Message::Append(CSStr str, size_t len)
+{
+    // Discard trailing characters
+    mStr.resize(mLen);
+    // Append the given string
+    mStr.append(str, len);
+    // Update message length
+    mLen += static_cast< uint32_t >(len);
+    // Return back the written character count
+    return static_cast< uint32_t >(len);
+}
+// ------------------------------------------------------------------------------------------------
+uint32_t Logger::Message::AppendF(CSStr str, ...)
+{
+    // Initialize the variable argument list
+    va_list args;
+    va_start(args, str);
+    // Forward to the actual implementation
+    const size_t r = AppendFv(str, args);
+    // Finalize the variable argument list
+    va_end(args);
+    // Return result
+    return r;
+}
+// ------------------------------------------------------------------------------------------------
+uint32_t Logger::Message::AppendFv(CSStr str, va_list vl)
+{
+    va_list args;
+    // The estimated buffer required
+    int len = static_cast< int >(mInc);
+begin:
+    // Do not modify the original va_list
+    va_copy(args, vl);
+    // Do we need to reserve space?
+    if (static_cast< size_t >(mLen + len) > mStr.size())
+    {
+        mStr.resize(mLen + len, '\0'); // Reserve the necessary space
+    }
+    // Attempt to generate the specified string
+    int res = std::vsnprintf((&mStr.front()) + mLen, static_cast< size_t >(len), str, args);
+    // Do we need more space?
+    if (res >= len)
+    {
+        // Adjust to required size
+        len = res + 1;
+        // Try again
+        goto begin;
+    }
+    else if (res > 0)
+    {
+        mLen += static_cast< uint32_t >(res); // Update message size
+    }
+    else
+    {
+        res = 0; // Format failed
+    }
+    // Return the number of written characters
+    return static_cast< uint32_t >(res);
+}
+// ------------------------------------------------------------------------------------------------
 Logger::Logger() noexcept
-    : m_Buffer()
+    : m_ThreadID(std::this_thread::get_id())
+    , m_Message()
+    , m_Queue(4094)
     , m_ConsoleLevels(LOGL_ANY)
     , m_LogFileLevels(~LOGL_DBG)
     , m_ConsoleTime(false)
@@ -257,14 +325,14 @@ void Logger::SetLogFilename(CCStr filename)
     {
         return; // We're done here!
     }
-    // Make sure the internal buffer has some memory
-    m_Buffer.Adjust(1024);
+    // This should be enough for any kind of path
+    char buffer[1024];
     // Obtain the current time for generating the filename
     const std::time_t t = std::time(nullptr);
     // Generate the filename using the current time-stamp
-    if (std::strftime(m_Buffer.Data(), m_Buffer.Size(), filename, std::localtime(&t)) > 0)
+    if (std::strftime(buffer, sizeof(buffer), filename, std::localtime(&t)) > 0)
     {
-        m_Filename.assign(m_Buffer.Data());
+        m_Filename.assign(buffer);
     }
     else
     {
@@ -298,10 +366,10 @@ void Logger::BindCb(Uint8 level, Function & func)
 // ------------------------------------------------------------------------------------------------
 void Logger::Initialize(CCStr filename)
 {
-    // Close the logging file
+    // Set which thread is allowed to output directly
+    m_ThreadID = std::this_thread::get_id();
+    // Close the logging file, if any
     Close();
-    // Allocate some memory in the buffer
-    m_Buffer.Adjust(1024);
     // Set the log file name and open the file if necessary
     SetLogFilename(filename);
 }
@@ -309,8 +377,10 @@ void Logger::Initialize(CCStr filename)
 // ------------------------------------------------------------------------------------------------
 void Logger::Terminate()
 {
-    // Release all the buffer resources and references
-    m_Buffer.ResetAll();
+    // Process whatever is in the queue
+    ProcessQueue();
+    // Close the stream, if any
+    Close();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -323,10 +393,26 @@ void Logger::Release()
 }
 
 // ------------------------------------------------------------------------------------------------
-SQBool Logger::ProcessCb(Uint8 level, bool sub)
+void Logger::ProcessQueue()
+{
+    // Process only what's currently in the queue
+    const size_t count = m_Queue.size_approx();
+    // Retrieve each message individually and process it
+    for (size_t n = 0; n <= count; ++n)
+    {
+        // Try to get a message from the queue
+        if (m_Queue.try_dequeue(m_Message))
+        {
+            ProcessMessage(); // Process it
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+SQBool Logger::ProcessCb()
 {
     // Get the index of this log level
-    const Uint8 idx = GetLevelIdx(level);
+    const Uint8 idx = GetLevelIdx(m_Message->mLvl);
     // Is the log level valid and is there a callback associated?
     if (idx > 6 || m_LogCb[idx].IsNull())
     {
@@ -342,9 +428,9 @@ SQBool Logger::ProcessCb(Uint8 level, bool sub)
     sq_pushobject(vm, fn.GetFunc());
     sq_pushobject(vm, fn.GetEnv());
     // Push the log message
-    sq_pushstring(vm, m_Buffer.Get< SQChar >(), -1);
+    sq_pushstring(vm, m_Message->mStr.c_str(), static_cast< SQInteger >(m_Message->mStr.size()));
     // Specify whether this is a sub message
-    sq_pushbool(vm, static_cast< SQBool >(sub));
+    sq_pushbool(vm, static_cast< SQBool >(m_Message->mSub));
     // Make the function call and store the result
     SQRESULT res = sq_call(vm, 3, static_cast< SQBool >(true),
                            static_cast< SQBool >(ErrorHandling::IsEnabled()));
@@ -362,15 +448,83 @@ SQBool Logger::ProcessCb(Uint8 level, bool sub)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Logger::Proccess(Uint8 level, bool sub)
+void Logger::PushMessage(MsgPtr & msg)
 {
+    // Are we in the main thread?
+    if (m_ThreadID == std::this_thread::get_id())
+    {
+        // Take ownership of this message and mark it as current/last message
+        m_Message = std::move(msg);
+        // Finish the message
+        m_Message->Finish();
+        // Time-stamp the message, if necessary
+        if (m_ConsoleTime || m_LogFileTime)
+        {
+            m_Message->Stamp();
+        }
+        // Deal with it now
+        ProcessMessage();
+    }
+    else
+    {
+        // Finish the message
+        msg->Finish();
+        // Time-stamp the message
+        msg->Stamp();
+        // Queue it for later
+        m_Queue.enqueue(std::move(msg));
+    }
+}
+// ------------------------------------------------------------------------------------------------
+void Logger::PushMessage(MsgPtr * msg, size_t len)
+{
+    // Are we in the main thread?
+    if (std::this_thread::get_id() == m_ThreadID)
+    {
+        for (size_t i = 0; i < len; ++i)
+        {
+            // Take ownership of this message and mark it as current/last message
+            m_Message = std::move(msg[i]);
+            // Finish the message
+            m_Message->Finish();
+            // Time-stamp the message, if necessary
+            if (m_ConsoleTime || m_LogFileTime)
+            {
+                m_Message->Stamp();
+            }
+            // Deal with it now
+            ProcessMessage();
+        }
+    }
+    else
+    {
+        for (size_t i = 0; i < len; ++i)
+        {
+            // Finish the message
+            msg[i]->Finish();
+            // Time-stamp the messages
+            msg[i]->Stamp();
+        }
+        // Queue it for later
+        m_Queue.enqueue_bulk(std::make_move_iterator(msg), len);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void Logger::ProcessMessage()
+{
+    // Is there a message to process
+    if (!m_Message)
+    {
+        return; // Nothing to process
+    }
     // Is there a cyclic lock on the logger?
     if (!m_CyclicLock)
     {
         // Lock the logger to prevent a cyclic dependency
         m_CyclicLock = true;
         // Attempt to process the script callback first
-        const bool greedy = static_cast< bool >(ProcessCb(level, sub));
+        const bool greedy = static_cast< bool >(ProcessCb());
         // Unlock the logger after the callback was invoked
         m_CyclicLock = false;
         // Is the callback for this level greedy?
@@ -379,27 +533,27 @@ void Logger::Proccess(Uint8 level, bool sub)
             return;
         }
     }
-    // Obtain the time-stamp if necessary
-    CCStr tms = (m_ConsoleTime || m_LogFileTime) ? GetTimeStampStr() : nullptr;
+    // Override time-stamp requirements
+    m_Message->mTms = (m_ConsoleTime || m_LogFileTime);
     // Are we allowed to send this message level to console?
-    if (m_ConsoleLevels & level)
+    if (m_ConsoleLevels & m_Message->mLvl)
     {
-        OutputConsoleMessage(level, sub, (m_ConsoleTime ? tms : nullptr), m_Buffer.Get());
+        OutputConsoleMessage(m_Message);
     }
     // Are we allowed to write it to a file?
-    if (m_File && (m_LogFileLevels & level))
+    if (m_File && (m_LogFileLevels & m_Message->mLvl))
     {
         // Write the level tag
-        std::fputs(GetLevelTag(level), m_File);
+        std::fputs(GetLevelTag(m_Message->mLvl), m_File);
         std::fputc(' ', m_File);
         // Should we include the time-stamp?
-        if (m_LogFileTime && tms)
+        if (m_Message->mTms)
         {
-            std::fputs(tms, m_File);
+            std::fputs(m_Message->mBuf, m_File);
             std::fputc(' ', m_File);
         }
         // Write the message
-        std::fputs(m_Buffer.Get(), m_File);
+        std::fputs(m_Message->mStr.data(), m_File);
         // Append a new line
         std::fputc('\n', m_File);
     }
@@ -411,85 +565,95 @@ void Logger::Send(Uint8 level, bool sub, CCStr msg, size_t len)
     // Is this level even allowed?
     if ((m_ConsoleLevels & level) || (m_LogFileLevels & level))
     {
-        // Generate the message in the buffer
-        m_Buffer.Write(0, msg, static_cast< Buffer::SzType >(len));
+        // Create a new message builder
+        MsgPtr message(new Message(level, sub));
+        // Generate the log message
+        message->Append(msg, len);
         // Process the message in the buffer
-        Proccess(level, sub);
+        PushMessage(message);
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-void Logger::Send(Uint8 level, bool sub, CCStr fmt, va_list args)
+void Logger::SendFv(Uint8 level, bool sub, CCStr fmt, va_list args)
 {
     // Is this level even allowed?
     if ((m_ConsoleLevels & level) || (m_LogFileLevels & level))
     {
-        // Generate the message in the buffer
-        m_Buffer.WriteF(0, fmt, args);
+        // Create a new message builder
+        MsgPtr message(new Message(level, sub));
+        // Generate the log message
+        message->AppendFv(fmt, args);
         // Process the message in the buffer
-        Proccess(level, sub);
+        PushMessage(message);
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-void Logger::Write(Uint8 level, bool sub, CCStr fmt, ...)
+void Logger::WriteF(Uint8 level, bool sub, CCStr fmt, ...)
 {
     if ((m_ConsoleLevels & level) || (m_LogFileLevels & level))
     {
         // Initialize the variable argument list
         va_list args;
         va_start(args, fmt);
-        // Generate the message in the buffer
-        m_Buffer.WriteF(0, fmt, args);
+        // Create a new message builder
+        MsgPtr message(new Message(level, sub));
+        // Generate the log message
+        message->AppendFv(fmt, args);
         // Finalize the variable argument list
         va_end(args);
         // Process the message in the buffer
-        Proccess(level, sub);
+        PushMessage(message);
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-void Logger::Debug(CCStr fmt, ...)
+void Logger::DebugF(HSQUIRRELVM vm, CCStr fmt, ...)
 {
     // Initialize the variable argument list
     va_list args;
     va_start(args, fmt);
     // Forward the call to the actual debug function
-    Debug(fmt, args);
+    DebugFv(vm, fmt, args);
     // Finalize the variable argument list
     va_end(args);
 }
 
-void Logger::Debug(CCStr fmt, va_list args)
+void Logger::DebugFv(HSQUIRRELVM vm, CCStr fmt, va_list args)
 {
     using namespace Sqrat;
-    // Retrieve the default Squirrel VM
-    HSQUIRRELVM vm = SqVM();
-    // Used to acquire
+    // We want to make sure these messages appear in succession
+    // So we will push them in bulk after generating them
+    std::array< MsgPtr, 3 > messages{};
+    // Create a new message builder
+    MsgPtr message(new Message(LOGL_ERR, true));
+    // Used to acquire stack information
     SQStackInfos si;
-    // Write the message to the buffer
-    Int32 ret = m_Buffer.WriteF(0, fmt, args);
+    // Write the given error message
+    message->AppendFv(fmt, args);
     // Obtain information about the current stack level
     if (SQ_SUCCEEDED(sq_stackinfos(vm, 1, &si)))
     {
         // Whether we should fall back to normal message
         bool fall_back = true;
         // Should (can) we include a snippet of code in the traceback?
-        if (Core::Get().IsDebugging() && si.source && (si.line > 0)) {
+        // This feature is currently available only for main thread!
+        if ((m_ThreadID == std::this_thread::get_id()) && Core::Get().IsDebugging() && si.source && (si.line > 0)) {
             // Grab the associated line of code
             String code = Core::Get().FetchCodeLine(si.source, si.line-1, true);
             // Valid line of code?
             if (!code.empty())
             {
-                m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "\n[\n=>Location: %s\n=>Line: %d\n=>Function: %s\n=>Code: %s\n]"
-                        , si.source, si.line, si.funcname ? si.funcname : _SC("unknown"), code.c_str());
+                message->AppendF("\n[\n=>Location: %s\n=>Line: %d\n=>Function: %s\n=>Code: %s\n]"
+                                    , si.source, si.line, si.funcname ? si.funcname : _SC("unknown"), code.c_str());
                 fall_back = false; // No need to fall back to normal message!
             }
         }
         // Should the regular message be shown instead?
         if (fall_back)
         {
-            m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "\n[\n=>Location: %s\n=>Line: %d\n=>Function: %s\n]"
+            message->AppendF("\n[\n=>Location: %s\n=>Line: %d\n=>Function: %s\n]"
                     , si.source ? si.source : _SC("unknown")
                     , si.line
                     , si.funcname ? si.funcname : _SC("unknown"));
@@ -497,37 +661,40 @@ void Logger::Debug(CCStr fmt, va_list args)
     }
     else
     {
-        m_Buffer.WriteF(
-          static_cast< Buffer::SzType >(ret), "\n[\n=>Location: unknown\n=>Line: unknown\n=>Function: unknown\n]");
+        message->AppendF("\n[\n=>Location: unknown\n=>Line: unknown\n=>Function: unknown\n]");
     }
-    // Process the message in the buffer
-    Proccess(LOGL_ERR, true);
+    // Assign the error message
+    messages[0] = std::move(message);
+    // Create a new message builder
+    message.reset(new Message(LOGL_INF, true));
     // Begin the traceback process
-    ret = m_Buffer.WriteF(0, "Traceback:\n[\n");
+    message->Append("Traceback:\n[\n");
     // Traceback the function call
     for (Int32 level = 1; SQ_SUCCEEDED(sq_stackinfos(vm, level, &si)); ++level)
     {
-        ret += m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "=> [%d] %s (%d) [%s]\n", level
+        message->AppendF("=> [%d] %s (%d) [%s]\n", level
                                     , si.source ? si.source : _SC("unknown")
                                     , si.line
                                     , si.funcname ? si.funcname : _SC("unknown"));
     }
     // End the function call traceback
-    m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "]");
-    // Process the message in the buffer
-    Proccess(LOGL_INF, true);
+    message->Append("]");
+    // Assign the error message
+    messages[1] = std::move(message);
+    // Create a new message builder
+    message.reset(new Message(LOGL_INF, true));
     // Temporary variables to retrieve stack information
     CSStr s_ = nullptr, name = nullptr;
-    SQInteger i_, seq = 0;
+    SQInteger i_;
     SQFloat f_;
     SQUserPointer p_;
     StackStrF ssf_;
     // Begin the local variables information
-    ret = m_Buffer.WriteF(0, "Locals:\n[\n");
+    message->Append("Locals:\n[\n");
     // Process each stack level
     for (Int32 level = 0; level < 10; level++)
     {
-        seq = 0;
+        SQInteger seq = 0;
         // Display all locals in the current stack level
         while((name = sq_getlocal(vm, static_cast< SQUnsignedInteger >(level), static_cast< SQUnsignedInteger >(seq))))
         {
@@ -535,41 +702,35 @@ void Logger::Debug(CCStr fmt, va_list args)
             switch(sq_gettype(vm, -1))
             {
                 case OT_NULL:
-                    ret += m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "=> [%d] NULL [%s]\n", level, name);
+                    message->AppendF("=> [%d] NULL [%s]\n", level, name);
                     break;
                 case OT_INTEGER:
                     sq_getinteger(vm, -1, &i_);
-                    ret += m_Buffer.WriteF(
-                        static_cast< Buffer::SzType >(ret), "=> [%d] INTEGER [%s] with value: %" PRINT_INT_FMT "\n", level, name, i_);
+                    message->AppendF("=> [%d] INTEGER [%s] with value: %" PRINT_INT_FMT "\n", level, name, i_);
                     break;
                 case OT_FLOAT:
                     sq_getfloat(vm, -1, &f_);
-                    ret += m_Buffer.WriteF(
-                        static_cast< Buffer::SzType >(ret), "=> [%d] FLOAT [%s] with value: %f\n", level, name, f_);
+                    message->AppendF("=> [%d] FLOAT [%s] with value: %f\n", level, name, f_);
                     break;
                 case OT_USERPOINTER:
                     sq_getuserpointer(vm, -1, &p_);
-                    ret += m_Buffer.WriteF(
-                        static_cast< Buffer::SzType >(ret), "=> [%d] USERPOINTER [%s] pointing at: %p\n", level, name, p_);
+                    message->AppendF("=> [%d] USERPOINTER [%s] pointing at: %p\n", level, name, p_);
                     break;
                 case OT_STRING:
                     sq_getstringandsize(vm, -1, &s_, &i_);
                     if (i_ > 0) {
-                        ret += m_Buffer.WriteF(
-                          static_cast< Buffer::SzType >(ret), "=> [%d] STRING [%s] of %" PRINT_INT_FMT " characters: %.*s\n", level, name, i_, m_StringTruncate, s_);
+                        message->AppendF("=> [%d] STRING [%s] of %" PRINT_INT_FMT " characters: %.*s\n", level, name, i_, m_StringTruncate, s_);
                     } else {
-                        ret += m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "=> [%d] STRING [%s] empty\n", level, name);
+                        message->AppendF("=> [%d] STRING [%s] empty\n", level, name);
                     }
                     break;
                 case OT_TABLE:
                     i_ = sq_getsize(vm, -1);
-                    ret += m_Buffer.WriteF(
-                        static_cast< Buffer::SzType >(ret), "=> [%d] TABLE [%s] with %" PRINT_INT_FMT " elements\n", level, name, i_);
+                    message->AppendF("=> [%d] TABLE [%s] with %" PRINT_INT_FMT " elements\n", level, name, i_);
                     break;
                 case OT_ARRAY:
                     i_ = sq_getsize(vm, -1);
-                    ret += m_Buffer.WriteF(
-                        static_cast< Buffer::SzType >(ret), "=> [%d] ARRAY [%s] with %" PRINT_INT_FMT " elements\n", level, name, i_);
+                    message->AppendF("=> [%d] ARRAY [%s] with %" PRINT_INT_FMT " elements\n", level, name, i_);
                     break;
                 case OT_CLOSURE:
                     s_ = _SC("@anonymous");
@@ -579,7 +740,7 @@ void Logger::Debug(CCStr fmt, va_list args)
                         }
                         sq_poptop(vm);
                     }
-                    ret += m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "=> [%d] CLOSURE [%s] with name: %s\n", level, name, s_);
+                    message->AppendF("=> [%d] CLOSURE [%s] with name: %s\n", level, name, s_);
                     break;
                 case OT_NATIVECLOSURE:
                     s_ = _SC("@unknown");
@@ -589,17 +750,16 @@ void Logger::Debug(CCStr fmt, va_list args)
                         }
                         sq_poptop(vm);
                     }
-                    ret += m_Buffer.WriteF(
-                        static_cast< Buffer::SzType >(ret), "=> [%d] NATIVECLOSURE [%s] with name: %s\n", level, name, s_);
+                    message->AppendF("=> [%d] NATIVECLOSURE [%s] with name: %s\n", level, name, s_);
                     break;
                 case OT_GENERATOR:
-                    ret += m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "=> [%d] GENERATOR [%s]\n", level, name);
+                    message->AppendF("=> [%d] GENERATOR [%s]\n", level, name);
                     break;
                 case OT_USERDATA:
-                    ret += m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "=> [%d] USERDATA [%s]\n", level, name);
+                    message->AppendF("=> [%d] USERDATA [%s]\n", level, name);
                     break;
                 case OT_THREAD:
-                    ret += m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "=> [%d] THREAD [%s]\n", level, name);
+                    message->AppendF("=> [%d] THREAD [%s]\n", level, name);
                     break;
                 case OT_CLASS:
                     // Brute force our way into getting the name of this class without blowing up
@@ -617,7 +777,7 @@ void Logger::Debug(CCStr fmt, va_list args)
                         // Pop the dummy instance
                         sq_poptop(vm);
                     }
-                    ret += m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "=> [%d] CLASS [%s] of type: %s\n", level, name, s_);
+                    message->AppendF("=> [%d] CLASS [%s] of type: %s\n", level, name, s_);
                     break;
                 case OT_INSTANCE:
                     s_ = _SC("@unknown");
@@ -627,8 +787,7 @@ void Logger::Debug(CCStr fmt, va_list args)
                         }
                         sq_poptop(vm);
                     }
-                    ret += m_Buffer.WriteF(
-                        static_cast< Buffer::SzType >(ret), "=> [%d] INSTANCE [%s] of type: %s\n", level, name, s_);
+                    message->AppendF("=> [%d] INSTANCE [%s] of type: %s\n", level, name, s_);
                     break;
                 case OT_WEAKREF:
                     s_ = _SC("@unknown");
@@ -645,23 +804,26 @@ void Logger::Debug(CCStr fmt, va_list args)
                         // Pop the referenced value
                         sq_poptop(vm);
                     }
-                    ret += m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "=> [%d] WEAKREF [%s] of type: %s\n", level, name, s_);
+                    message->AppendF("=> [%d] WEAKREF [%s] of type: %s\n", level, name, s_);
                     break;
                 case OT_BOOL:
                     sq_getinteger(vm, -1, &i_);
-                    ret += m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "=> [%d] BOOL [%s] with value: %s\n", level, name, i_ ? _SC("true") : _SC("false"));
+                    message->AppendF("=> [%d] BOOL [%s] with value: %s\n", level, name, i_ ? _SC("true") : _SC("false"));
                     break;
                 default:
-                    ret += m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "=> [%d] UNKNOWN [%s]\n", level, name);
+                    message->AppendF("=> [%d] UNKNOWN [%s]\n", level, name);
                 break;
             }
             sq_pop(vm, 1);
         }
     }
     // End the variables information
-    m_Buffer.WriteF(static_cast< Buffer::SzType >(ret), "]");
-    // Process the message in the buffer
-    Proccess(LOGL_INF, true);
+    message->Append("]");
+    // Assign the error message
+    messages[2] = std::move(message);
+    puts("sending debug message");
+    // Submit the error messages in bulk
+    PushMessage(messages.data(), messages.size());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -670,7 +832,7 @@ void Logger::Debug(CCStr fmt, va_list args)
 */ { /*
 */  va_list args; /*
 */  va_start(args, fmt); /*
-*/  Logger::Get().Send(L_, S_, fmt, args); /*
+*/  Logger::Get().SendFv(L_, S_, fmt, args); /*
 */  va_end(args); /*
 */ } /*
 */
@@ -697,7 +859,7 @@ SQMOD_LOG(LogSFtl, LOGL_FTL, true)
 #define SQMOD_VLOG(N_, L_, S_) /*
 */ void N_(CCStr fmt, va_list vlist) /*
 */ { /*
-*/  Logger::Get().Send(L_, S_, fmt, vlist); /*
+*/  Logger::Get().SendFv(L_, S_, fmt, vlist); /*
 */ } /*
 */
 
@@ -729,7 +891,7 @@ SQMOD_VLOG(LogSFtlV, LOGL_FTL, true)
 */  } /*
 */  va_list args; /*
 */  va_start(args, fmt); /*
-*/  Logger::Get().Send(L_, S_, fmt, args); /*
+*/  Logger::Get().SendFv(L_, S_, fmt, args); /*
 */  va_end(args); /*
 */  return c; /*
 */ } /*
@@ -770,7 +932,7 @@ template < Uint8 L, bool S > static SQInteger LogBasicMessage(HSQUIRRELVM vm)
         return val.mRes; // Propagate the error!
     }
     // Forward the resulted string value to the logger
-    Logger::Get().Write(L, S, "%s", val.mPtr);
+    Logger::Get().WriteF(L, S, "%s", val.mPtr);
     // This function does not return a value
     return 0;
 }

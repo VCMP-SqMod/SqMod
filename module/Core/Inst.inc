@@ -6,7 +6,7 @@ namespace SqMod {
 */ catch (const Sqrat::Exception & e) /*
 */ { /*
 */  LogErr("Squirrel exception caught " action); /*
-*/  Logger::Get().Debug("%s", e.what()); /*
+*/  Logger::Get().DebugF(SqVM(), "%s", e.what()); /*
 */ } /*
 */
 
