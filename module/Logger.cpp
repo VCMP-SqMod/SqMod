@@ -183,12 +183,12 @@ static inline void OutputConsoleMessage(const Logger::MsgPtr & msg)
     if (msg->mTms)
     {
         std::printf("%s %s %s\033[0m\n",
-                    msg->mSub ? GetColoredLevelTagDim(msg->mLvl) : GetColoredLevelTag(msg->mLvl), msg->mBuf, msg);
+                    msg->mSub ? GetColoredLevelTagDim(msg->mLvl) : GetColoredLevelTag(msg->mLvl), msg->mBuf, msg->mStr.c_str());
     }
     else
     {
         std::printf("%s %s\033[0m\n",
-                    msg->mSub ? GetColoredLevelTagDim(msg->mLvl) : GetColoredLevelTag(msg->mLvl), msg);
+                    msg->mSub ? GetColoredLevelTagDim(msg->mLvl) : GetColoredLevelTag(msg->mLvl), msg->mStr.c_str());
     }
 #endif // SQMOD_OS_WINDOWS
 }
