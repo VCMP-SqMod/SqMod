@@ -19,3 +19,4 @@
 
 # Hidden files and folders
 .*
+module/Vendor/MaxmindDB/include/maxminddb_config.h
