@@ -13,6 +13,7 @@
 #include "Library/Chrono/Timestamp.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <cstdbool>
 #include <unordered_map>
 
 // ------------------------------------------------------------------------------------------------
@@ -300,7 +301,11 @@ public:
     // --------------------------------------------------------------------------------------------
     typedef MYSQL_BIND      BindType; // Database bind type.
     typedef MYSQL_TIME      TimeType; // Database time type.
+#if defined(MYSQL_VERSION_ID) && (MYSQL_VERSION_ID < 80000)
     typedef my_bool         BoolType; // Database boolean type.
+#else
+    typedef _Bool           BoolType; // Database boolean type.
+#endif
 
 public:
 
@@ -395,7 +400,11 @@ public:
     // --------------------------------------------------------------------------------------------
     typedef MYSQL_BIND      BindType; // Database bind type.
     typedef MYSQL_TIME      TimeType; // Database time type.
+#if defined(MYSQL_VERSION_ID) && (MYSQL_VERSION_ID < 80000)
     typedef my_bool         BoolType; // Database boolean type.
+#else
+    typedef _Bool           BoolType; // Database boolean type.
+#endif
 
 public:
 
@@ -485,7 +494,11 @@ public:
     typedef MYSQL_BIND      BindType; // Database bind type.
     typedef MYSQL_TIME      TimeType; // Database time type.
     typedef MYSQL_ROW       RowType; // Database row type.
+#if defined(MYSQL_VERSION_ID) && (MYSQL_VERSION_ID < 80000)
     typedef my_bool         BoolType; // Database boolean type.
+#else
+    typedef _Bool           BoolType; // Database boolean type.
+#endif
 
     // --------------------------------------------------------------------------------------------
     typedef std::unordered_map< String, Uint32 > IndexMap;
@@ -585,7 +598,11 @@ public:
     typedef MYSQL_BIND      BindType; // Database bind type.
     typedef MYSQL_TIME      TimeType; // Database time type.
     typedef MYSQL_ROW       RowType; // Database row type.
+#if defined(MYSQL_VERSION_ID) && (MYSQL_VERSION_ID < 80000)
     typedef my_bool         BoolType; // Database boolean type.
+#else
+    typedef _Bool           BoolType; // Database boolean type.
+#endif
 
     // --------------------------------------------------------------------------------------------
     typedef std::unordered_map< String, Uint32 > IndexMap; // Name to index association of fields.
