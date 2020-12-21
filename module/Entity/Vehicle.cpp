@@ -1467,7 +1467,7 @@ void CVehicle::SetPositionZ(Float32 z) const
     // Retrieve the current values for unchanged components
     _Func->GetVehiclePosition(m_ID, &x, &y, &dummy);
     // Perform the requested operation
-    _Func->SetVehiclePosition(m_ID, z, y, z, static_cast< uint8_t >(false));
+    _Func->SetVehiclePosition(m_ID, x, y, z, static_cast< uint8_t >(false));
 }
 
 // ------------------------------------------------------------------------------------------------

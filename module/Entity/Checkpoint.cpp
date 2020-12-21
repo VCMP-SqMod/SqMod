@@ -362,7 +362,7 @@ void CCheckpoint::SetPositionZ(Float32 z) const
     // Retrieve the current values for unchanged components
     _Func->GetCheckPointPosition(m_ID, &x, &y, &dummy);
     // Perform the requested operation
-    _Func->SetCheckPointPosition(m_ID, z, y, z);
+    _Func->SetCheckPointPosition(m_ID, x, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------

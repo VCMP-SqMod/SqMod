@@ -520,7 +520,7 @@ void CObject::SetPositionZ(Float32 z) const
     // Retrieve the current values for unchanged components
     _Func->GetObjectPosition(m_ID, &x, &y, &dummy);
     // Perform the requested operation
-    _Func->SetObjectPosition(m_ID, z, y, z);
+    _Func->SetObjectPosition(m_ID, x, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------

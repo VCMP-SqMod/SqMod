@@ -2048,7 +2048,7 @@ void CPlayer::SetPositionZ(Float32 z) const
     // Retrieve the current values for unchanged components
     _Func->GetPlayerPosition(m_ID, &x, &y, &dummy);
     // Perform the requested operation
-    _Func->SetPlayerPosition(m_ID, z, y, z);
+    _Func->SetPlayerPosition(m_ID, x, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
