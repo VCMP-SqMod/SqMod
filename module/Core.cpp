@@ -430,6 +430,9 @@ bool Core::Execute()
     // Force enable null entities if not already enabled by script
     EnableNullEntities();
 
+    // At this point, the scripts were executed
+    m_Executed = true;
+
     m_LockPreLoadSignal = true;
     // Trigger callbacks that must initialize stuff before the loaded event is triggered
     (*mOnPreLoad.first)();
@@ -453,8 +456,9 @@ bool Core::Execute()
     ImportObjects();
     ImportPickups();
     ImportVehicles();
+
     // Successfully executed
-    return (m_Executed = true);
+    return m_Executed;
 }
 
 // ------------------------------------------------------------------------------------------------
