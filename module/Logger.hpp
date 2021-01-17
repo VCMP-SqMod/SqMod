@@ -2,7 +2,6 @@
 
 // ------------------------------------------------------------------------------------------------
 #include "SqBase.hpp"
-#include "Base/Buffer.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cstdio>
@@ -46,7 +45,7 @@ protected:
     struct Message
     {
         // ----------------------------------------------------------------------------------------
-        static constexpr size_t TMS_LEN = (128-sizeof(String)-6-sizeof(bool));
+        static constexpr size_t TMS_LEN = (128-sizeof(String)-6-sizeof(bool)-sizeof(bool));
         // ----------------------------------------------------------------------------------------
         String      mStr; // Message string.
         uint32_t    mLen; // Message length.
