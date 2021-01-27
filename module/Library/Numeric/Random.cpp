@@ -363,7 +363,7 @@ static String RandomString(Int32 len)
     // Request the random fill
     GetRandomString(str, len);
     // Return ownership of the string
-    return std::move(str);
+    return str;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -377,7 +377,7 @@ static String RandomString(Int32 len, SQChar n)
     // Request the random fill
     GetRandomString(str, len, n);
     // Return ownership of the string
-    return std::move(str);
+    return str;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -391,7 +391,7 @@ static String RandomString(Int32 len, SQChar m, SQChar n)
     // Request the random fill
     GetRandomString(str, len, m, n);
     // Return ownership of the string
-    return std::move(str);
+    return str;
 }
 
 // ------------------------------------------------------------------------------------------------

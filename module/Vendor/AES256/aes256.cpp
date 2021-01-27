@@ -197,7 +197,7 @@ static uint8_t rj_xtime(uint8_t x)
 /* -------------------------------------------------------------------------- */
 static void aes_subBytes(uint8_t *buf)
 {
-    register uint8_t i = 16;
+    /*register*/ uint8_t i = 16;
 
     while (i--) buf[i] = rj_sbox(buf[i]);
 } /* aes_subBytes */
@@ -205,7 +205,7 @@ static void aes_subBytes(uint8_t *buf)
 /* -------------------------------------------------------------------------- */
 static void aes_subBytes_inv(uint8_t *buf)
 {
-    register uint8_t i = 16;
+    /*register*/ uint8_t i = 16;
 
     while (i--) buf[i] = rj_sbox_inv(buf[i]);
 } /* aes_subBytes_inv */
@@ -213,7 +213,7 @@ static void aes_subBytes_inv(uint8_t *buf)
 /* -------------------------------------------------------------------------- */
 static void aes_addRoundKey(uint8_t *buf, uint8_t *key)
 {
-    register uint8_t i = 16;
+    /*register*/ uint8_t i = 16;
 
     while (i--) buf[i] ^= key[i];
 } /* aes_addRoundKey */
@@ -221,7 +221,7 @@ static void aes_addRoundKey(uint8_t *buf, uint8_t *key)
 /* -------------------------------------------------------------------------- */
 static void aes_addRoundKey_cpy(uint8_t *buf, uint8_t *key, uint8_t *cpk)
 {
-    register uint8_t i = 16;
+    /*register*/ uint8_t i = 16;
 
     while (i--)  buf[i] ^= (cpk[i] = key[i]), cpk[16 + i] = key[16 + i];
 } /* aes_addRoundKey_cpy */
@@ -230,7 +230,7 @@ static void aes_addRoundKey_cpy(uint8_t *buf, uint8_t *key, uint8_t *cpk)
 /* -------------------------------------------------------------------------- */
 static void aes_shiftRows(uint8_t *buf)
 {
-    register uint8_t i, j; /* to make it potentially parallelable :) */
+    /*register*/ uint8_t i, j; /* to make it potentially parallelable :) */
 
     i = buf[1], buf[1] = buf[5], buf[5] = buf[9], buf[9] = buf[13], buf[13] = i;
     i = buf[10], buf[10] = buf[2], buf[2] = i;
@@ -242,7 +242,7 @@ static void aes_shiftRows(uint8_t *buf)
 /* -------------------------------------------------------------------------- */
 static void aes_shiftRows_inv(uint8_t *buf)
 {
-    register uint8_t i, j; /* same as above :) */
+    /*register*/ uint8_t i, j; /* same as above :) */
 
     i = buf[1], buf[1] = buf[13], buf[13] = buf[9], buf[9] = buf[5], buf[5] = i;
     i = buf[2], buf[2] = buf[10], buf[10] = i;
@@ -254,7 +254,7 @@ static void aes_shiftRows_inv(uint8_t *buf)
 /* -------------------------------------------------------------------------- */
 static void aes_mixColumns(uint8_t *buf)
 {
-    register uint8_t i, a, b, c, d, e;
+    /*register*/ uint8_t i, a, b, c, d, e;
 
     for (i = 0; i < 16; i += 4)
     {
@@ -273,7 +273,7 @@ static void aes_mixColumns(uint8_t *buf)
 /* -------------------------------------------------------------------------- */
 void aes_mixColumns_inv(uint8_t *buf)
 {
-    register uint8_t i, a, b, c, d, e, x, y, z;
+    /*register*/ uint8_t i, a, b, c, d, e, x, y, z;
 
     for (i = 0; i < 16; i += 4)
     {
@@ -295,7 +295,7 @@ void aes_mixColumns_inv(uint8_t *buf)
 /* -------------------------------------------------------------------------- */
 static void aes_expandEncKey(uint8_t *k, uint8_t *rc)
 {
-    register uint8_t i;
+    /*register*/ uint8_t i;
 
     k[0] ^= rj_sbox(k[29]) ^ (*rc);
     k[1] ^= rj_sbox(k[30]);
@@ -343,7 +343,7 @@ void aes_expandDecKey(uint8_t *k, uint8_t *rc)
 void aes256_init(aes256_context *ctx, uint8_t *k)
 {
     uint8_t rcon = 1;
-    register uint8_t i;
+    /*register*/ uint8_t i;
 
     for (i = 0; i < sizeof(ctx->key); i++) ctx->enckey[i] = ctx->deckey[i] = k[i];
     for (i = 8; --i;) aes_expandEncKey(ctx->deckey, &rcon);
@@ -352,7 +352,7 @@ void aes256_init(aes256_context *ctx, uint8_t *k)
 /* -------------------------------------------------------------------------- */
 void aes256_done(aes256_context *ctx)
 {
-    register uint8_t i;
+    /*register*/ uint8_t i;
 
     for (i = 0; i < sizeof(ctx->key); i++)
         ctx->key[i] = ctx->enckey[i] = ctx->deckey[i] = 0;

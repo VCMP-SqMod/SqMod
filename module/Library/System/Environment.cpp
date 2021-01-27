@@ -113,7 +113,7 @@ Buffer SysEnv::Get(CCStr name, CCStr fallback)
     // Forward the call to the shared function
     Get(b, name, fallback);
     // Return ownership of the buffer
-    return std::move(b);
+    return b;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -544,7 +544,7 @@ Buffer SysEnv::ExpandVars(CCStr str)
     // Forward the call to the internal function
     ExpandVars(b, str, str + len);
     // Return ownership of the buffer
-    return std::move(b);
+    return b;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -560,7 +560,7 @@ Buffer SysEnv::ExpandVars(const String & str)
     // Forward the call to the internal function
     ExpandVars(b, str.c_str(), str.c_str() + str.size());
     // Return ownership of the buffer
-    return std::move(b);
+    return b;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -616,7 +616,7 @@ Buffer SysEnv::ExpandPath(CCStr path)
     // Forward the call to the internal function
     ExpandPath(b, path, path + len);
     // Return ownership of the buffer
-    return std::move(b);
+    return b;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -632,7 +632,7 @@ Buffer SysEnv::ExpandPath(const String & path)
     // Forward the call to the internal function
     ExpandPath(b, path.c_str(), path.c_str() + path.size());
     // Return ownership of the buffer
-    return std::move(b);
+    return b;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -683,7 +683,7 @@ Buffer SysEnv::WorkingDir()
     // Forward the call to the regular function
     WorkingDir(b);
     // Return ownership of the buffer
-    return std::move(b);
+    return b;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -696,7 +696,7 @@ void SysEnv::HomeDir(Buffer & b)
         b.Grow(SQMOD_MAX_PATH - b.Remaining() + 2);
     }
     // Try the primary method of retrieving the home directory
-    if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_PROFILE, nullptr, 0, &b.Cursor())))
+    if (SUCCEEDED(SHGetFolderPathA(nullptr, CSIDL_PROFILE, nullptr, 0, &b.Cursor())))
     {
         // Move the edit cursor to the end of the appended data
         b.Advance(strlen(&b.Cursor()));
@@ -753,7 +753,7 @@ Buffer SysEnv::HomeDir()
     // Forward the call to the regular function
     HomeDir(b);
     // Return ownership of the buffer
-    return std::move(b);
+    return b;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -795,7 +795,7 @@ Buffer SysEnv::ConfigHomeDir()
     // Forward the call to the regular function
     ConfigHomeDir(b);
     // Return ownership of the buffer
-    return std::move(b);
+    return b;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -834,7 +834,7 @@ Buffer SysEnv::DataHomeDir()
     // Forward the call to the regular function
     DataHomeDir(b);
     // Return ownership of the buffer
-    return std::move(b);
+    return b;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -861,7 +861,7 @@ Buffer SysEnv::TempHomeDir()
     // Forward the call to the regular function
     TempHomeDir(b);
     // Return ownership of the buffer
-    return std::move(b);
+    return b;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -888,7 +888,7 @@ Buffer SysEnv::CacheHomeDir()
     // Forward the call to the regular function
     CacheHomeDir(b);
     // Return ownership of the buffer
-    return std::move(b);
+    return b;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -962,7 +962,7 @@ Buffer SysEnv::TempDir()
     // Forward the call to the regular function
     TempDir(b);
     // Return ownership of the buffer
-    return std::move(b);
+    return b;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1004,7 +1004,7 @@ Buffer SysEnv::ConfigDir()
     // Forward the call to the regular function
     ConfigDir(b);
     // Return ownership of the buffer
-    return std::move(b);
+    return b;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1051,7 +1051,7 @@ Buffer SysEnv::SystemDir()
     // Forward the call to the regular function
     SystemDir(b);
     // Return ownership of the buffer
-    return std::move(b);
+    return b;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1080,7 +1080,7 @@ Buffer SysEnv::NullDir()
     // Make sure that whatever string is in the buffer, if any, is null terminated
     b.Cursor() = '\0';
     // Return ownership of the buffer
-    return std::move(b);
+    return b;
 }
 
 // ------------------------------------------------------------------------------------------------

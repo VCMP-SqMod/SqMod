@@ -522,10 +522,7 @@ const Vector4 & Vector4::GetEx(SQChar delim, StackStrF & str)
 }
 
 // ================================================================================================
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_Vector4(HSQUIRRELVM vm)
-#pragma clang diagnostic pop
 {
     typedef Vector4::Value Val;
 

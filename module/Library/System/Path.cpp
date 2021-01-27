@@ -76,7 +76,7 @@ Buffer GetRealFilePath(CSStr path)
 #endif // SQMOD_OS_WINDOWS
 
     // Return ownership of the buffer
-    return std::move(b);
+    return b;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1207,7 +1207,7 @@ SysPath SysPath::Parent() const
     // Force the copy to be parent
     p.MakeParent();
     // Return ownership of copy
-    return std::move(p);
+    return p;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1530,7 +1530,7 @@ Buffer SysPath::BuildUnix() const
     // Make sure the string is null terminated
     b.Cursor() = '\0';
     // Return ownership of buffer
-    return std::move(b);
+    return b;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1570,7 +1570,7 @@ Buffer SysPath::BuildWindows() const
     // Make sure the string is null terminated
     b.Cursor() = '\0';
     // Return ownership of buffer
-    return std::move(b);
+    return b;
 }
 
 // ------------------------------------------------------------------------------------------------

@@ -398,10 +398,7 @@ template < typename F, typename U, typename... Ts > SQInteger SqDynArgFwd(HSQUIR
         return sq_throwerror(vm, "Unknown error occurred during comparison");
     }
     // We shouldn't really reach this point but something must be returned
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "OCDFAInspection"
     return sq_throwerror(vm, "Operation encountered unknown behavior");
-#pragma clang diagnostic pop
 }
 
 /* ------------------------------------------------------------------------------------------------

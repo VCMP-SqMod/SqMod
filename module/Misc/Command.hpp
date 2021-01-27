@@ -115,8 +115,6 @@ inline CSStr ValidateName(CSStr name)
     // Create iterator to name start
     CSStr str = name;
     // Inspect name characters
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "OCDFAInspection"
     while ('\0' != *str)
     {
         // Does it contain spaces?
@@ -127,7 +125,6 @@ inline CSStr ValidateName(CSStr name)
         // Move to the next character
         ++str;
     }
-#pragma clang diagnostic pop
     // Return the name
     return name;
 }

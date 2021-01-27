@@ -685,10 +685,7 @@ const Vector3 & Vector3::GetEx(SQChar delim, StackStrF & str)
 }
 
 // ================================================================================================
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_Vector3(HSQUIRRELVM vm)
-#pragma clang diagnostic pop
 {
     typedef Vector3::Value Val;
 

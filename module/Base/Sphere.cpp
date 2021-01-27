@@ -525,10 +525,7 @@ const Sphere & Sphere::GetEx(SQChar delim, StackStrF & str)
 }
 
 // ================================================================================================
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_Sphere(HSQUIRRELVM vm)
-#pragma clang diagnostic pop
 {
     typedef Sphere::Value Val;
 

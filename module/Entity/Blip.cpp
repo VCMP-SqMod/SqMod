@@ -281,10 +281,7 @@ static LightObj & Blip_Create(Int32 index, Int32 world, const Vector3 & pos, Int
 }
 
 // ================================================================================================
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_CBlip(HSQUIRRELVM vm)
-#pragma clang diagnostic pop
 {
     RootTable(vm).Bind(Typename::Str,
         Class< CBlip, NoConstructor< CBlip > >(vm, Typename::Str)

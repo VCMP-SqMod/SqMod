@@ -777,10 +777,7 @@ static void SqSetColor4UpperCaseHex(bool t)
 }
 
 // ================================================================================================
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_Color4(HSQUIRRELVM vm)
-#pragma clang diagnostic pop
 {
     typedef Color4::Value Val;
 

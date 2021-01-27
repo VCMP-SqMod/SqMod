@@ -861,10 +861,7 @@ static LightObj & Object_Create(Int32 model, Int32 world, const Vector3 & pos, I
 }
 
 // ================================================================================================
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_CObject(HSQUIRRELVM vm)
-#pragma clang diagnostic pop
 {
     RootTable(vm).Bind(Typename::Str,
         Class< CObject, NoConstructor< CObject > >(vm, Typename::Str)

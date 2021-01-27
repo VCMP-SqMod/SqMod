@@ -19,8 +19,6 @@
 
 // ------------------------------------------------------------------------------------------------
 namespace {
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "hicpp-signed-bitwise"
 /* ------------------------------------------------------------------------------------------------
  * Common windows colors.
 */
@@ -42,7 +40,6 @@ enum
     LC_LIGHT_MAGENTA    = FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_BLUE,
     LC_DARK_MAGENTA     = FOREGROUND_RED | FOREGROUND_BLUE
 };
-#pragma clang diagnostic pop
 /* ------------------------------------------------------------------------------------------------
  * Logging colors.
 */

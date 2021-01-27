@@ -479,10 +479,7 @@ static LightObj & Pickup_Create(Int32 model, Int32 world, Int32 quantity, const 
 }
 
 // ================================================================================================
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_CPickup(HSQUIRRELVM vm)
-#pragma clang diagnostic pop
 {
     RootTable(vm).Bind(Typename::Str,
         Class< CPickup, NoConstructor< CPickup > >(vm, Typename::Str)

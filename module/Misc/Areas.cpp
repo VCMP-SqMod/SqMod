@@ -13,8 +13,6 @@ SQMODE_DECL_TYPENAME(AreaTypename, _SC("SqArea"))
 // ------------------------------------------------------------------------------------------------
 AreaManager AreaManager::s_Inst;
 
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "UnusedValue"
 // ------------------------------------------------------------------------------------------------
 void Area::AddArray(const Sqrat::Array & a)
 {
@@ -47,7 +45,6 @@ void Area::AddArray(const Sqrat::Array & a)
         return SQ_OK;
     });
 }
-#pragma clang diagnostic pop
 // ------------------------------------------------------------------------------------------------
 void Area::AddCircleEx(SQFloat cx, SQFloat cy, SQFloat cr, SQInteger num_segments)
 {

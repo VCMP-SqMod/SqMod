@@ -664,9 +664,6 @@ protected:
     // --------------------------------------------------------------------------------------------
     static SignalPool   s_Signals; // List of all created signals.
     static FreeSignals  s_FreeSignals; // List of signals without a name.
-
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "MemberFunctionCanBeStatic"
     /* --------------------------------------------------------------------------------------------
      * Specialization for when there are no arguments given.
     */
@@ -674,7 +671,6 @@ protected:
     {
         //...
     }
-#pragma clang diagnostic pop
 
     /* --------------------------------------------------------------------------------------------
      * Specialization for when there's only one argument given/remaining.

@@ -193,7 +193,7 @@ static SQInteger SqNanL(HSQUIRRELVM vm)
     {
         return sq_throwerror(vm, e.what());
     }
-    catch (const std::exception e)
+    catch (const std::exception & e)
     {
         return sq_throwerror(vm, e.what());
     }
@@ -698,7 +698,7 @@ static SQInteger SqRoundL(HSQUIRRELVM vm)
     {
         return sq_throwerror(vm, e.what());
     }
-    catch (const std::exception e)
+    catch (const std::exception & e)
     {
         return sq_throwerror(vm, e.what());
     }

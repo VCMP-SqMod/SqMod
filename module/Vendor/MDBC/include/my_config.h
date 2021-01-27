@@ -54,7 +54,7 @@
  */
 #define HAVE_ACCESS 1
 /* #undef HAVE_AIOWAIT */
-#define HAVE_ALARM 1
+/* #undef HAVE_ALARM */
 /* #undef HAVE_ALLOCA */
 /* #undef HAVE_BCMP */
 /* #undef HAVE_BFILL */
@@ -190,7 +190,7 @@
 # define HAVE_LONG_LONG 1
 #endif
 
-#define SIZEOF_OFF_T 4
+#define SIZEOF_OFF_T 8
 #if SIZEOF_OFF_T
 # define HAVE_OFF_T 1
 #endif

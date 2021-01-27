@@ -86,8 +86,32 @@ if(GCC OR MINGW)
 endif()
 # Link to libraries
 target_link_libraries(SqModule SqModSDK FmtLib SimpleINI HashLib B64Lib AES256Lib WhirlpoolLib TinyDir PUGIXML SQLite MaxmindDB SimpleSocket ConcurrentQueue)
+# Link to Discord libraries
+if(ENABLE_DISCORD)
+	# Discord needs CURL to be on
+	set(ENABLE_CURL ON CACHE INTERNAL "" FORCE)
+	# Link to necessary libraries
+	target_link_libraries(SqModule sleepy-discord)
+	# Include the implementation 
+	target_sources(SqModule PRIVATE Library/Discord.cpp Library/Discord.hpp)
+	# Specify that Discord is enabled
+	target_compile_definitions(SqModule PRIVATE SQ_ENABLE_DISCORD=1)
+endif()
+# Link to CURL libraries
+if(ENABLE_CURL)
+	# Link to necessary libraries
+	target_link_libraries(SqModule libcurl cpr::cpr)
+	# Windows needs a few extra libraries
+	if(WIN32)
+		target_link_libraries(SqModule wldap32 ws2_32)
+	endif(WIN32)
+	# Include the implementation
+	target_sources(SqModule PRIVATE Library/CURL.cpp Library/CURL.hpp)
+	# Specify that CURL is enabled
+	target_compile_definitions(SqModule PRIVATE SQ_ENABLE_CURL=1)
+endif()
 # Enable LTO
-if (LTO_ENABLED)
+if(LTO_ENABLED)
 	target_link_libraries(SqModule -flto)
 endif()
 # Link to mysql client library

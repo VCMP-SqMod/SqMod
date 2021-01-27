@@ -1,3 +1,12 @@
+# ZLib is a shared common dependency
+if (ENABLE_CURL OR ENABLE_DISCORD OR (WIN32 AND ENABLE_MYSQL))
+	add_subdirectory(ZLib)
+	set(ZLIB_ROOT "${CMAKE_BINARY_DIR}/module/Vendor/ZLib" CACHE INTERNAL "" FORCE)
+	set(ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}/ZLib" "${CMAKE_BINARY_DIR}/module/Vendor/ZLib" CACHE INTERNAL "" FORCE)
+	#set(ZLIB_LIBRARY zlibstatic CACHE INTERNAL "" FORCE)
+	find_package(ZLIB REQUIRED)
+endif()
+# Remaining libraries
 add_subdirectory(SimpleIni)
 add_subdirectory(AES256)
 add_subdirectory(B64)
@@ -11,8 +20,26 @@ add_subdirectory(Whirlpool)
 #add_subdirectory(CivetWeb)
 add_subdirectory(SimpleSocket)
 add_subdirectory(ConcurrentQueue)
-# Build our own mysql client on windows
+# CURL libraries are required
+if (ENABLE_CURL)
+	add_subdirectory(CURL)
+	add_subdirectory(CPR)
+endif()
+# Build our own MySQL client on windows
 if(WIN32 AND ENABLE_MYSQL)
     add_subdirectory(MDBC)
 endif()
-# Disregard warnings from this library
+# Discord libraries are required
+if (ENABLE_DISCORD)
+	add_subdirectory(WebSocketPP)
+	set(ONLY_SLEEPY_DISCORD OFF CACHE INTERNAL "" FORCE)
+	set(AUTO_DOWNLOAD_LIBRARY OFF CACHE INTERNAL "" FORCE)
+	set(USE_CPR ON CACHE INTERNAL "" FORCE)
+	set(USE_WEBSOCKETPP ON CACHE INTERNAL "" FORCE)
+	set(USE_ASIO ON CACHE INTERNAL "" FORCE)
+	set(cpr_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/CPR" CACHE INTERNAL "" FORCE)
+	set(asio_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/ASIO" CACHE INTERNAL "" FORCE)
+	set(websocketpp_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/WebSocketPP" CACHE INTERNAL "" FORCE)
+	add_subdirectory(SleepyDiscord)
+endif()
+# Disregard warnings from this library...

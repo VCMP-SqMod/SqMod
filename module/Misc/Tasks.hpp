@@ -402,10 +402,7 @@ public:
                 STHROWF("Invalid entity instance");
             }
             // Validate the actual entity instance
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "OCDFAInspection"
             inst->Validate();
-#pragma clang diagnostic pop
         }
         catch (const Sqrat::Exception & e)
         {
@@ -433,10 +430,7 @@ public:
                 STHROWF("Invalid entity instance");
             }
             // Validate the actual entity instance
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "OCDFAInspection"
             inst->Validate();
-#pragma clang diagnostic pop
         }
         catch (const Sqrat::Exception & e)
         {
@@ -464,10 +458,7 @@ public:
                 STHROWF("Invalid entity instance");
             }
             // Validate the actual entity instance
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "OCDFAInspection"
             inst->Validate();
-#pragma clang diagnostic pop
         }
         catch (const Sqrat::Exception & e)
         {
@@ -500,10 +491,7 @@ public:
                 STHROWF("Invalid entity instance");
             }
             // Validate the actual entity instance
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "OCDFAInspection"
             inst->Validate();
-#pragma clang diagnostic pop
         }
         catch (const Sqrat::Exception & e)
         {

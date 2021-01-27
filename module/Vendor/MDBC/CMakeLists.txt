@@ -48,8 +48,13 @@ ELSE()
   OPTION(WITH_RTC "enables run time checks for debug builds" OFF)
 ENDIF()
 
+# Force OpenSSL even on windows
+IF(WIN32 AND ENABLE_MYSQL_OPENSSL)
+  SET(WITH_OPENSSL ON CACHE INTERNAL "" FORCE)
+ENDIF()
+
 OPTION(WITH_UNIT_TESTS "builds unittests" OFF)
-OPTION(WITH_EXTERNAL_ZLIB "Enables use of external zlib" OFF)
+OPTION(WITH_EXTERNAL_ZLIB "Enables use of external zlib" ON)
 ###############
 
 IF(WITH_SIGNCODE)
@@ -131,12 +136,14 @@ SET(PLUGINDIR "${CMAKE_INSTALL_PREFIX}/lib/plugin")
 INCLUDE(${CC_SOURCE_DIR}/cmake/SearchLibrary.cmake)
 
 IF(WITH_EXTERNAL_ZLIB)
-  FIND_PACKAGE(ZLIB QUIET)
+  #FIND_PACKAGE(ZLIB QUIET)
+  FIND_PACKAGE(ZLIB REQUIRED)
   IF(${ZLIB_FOUND})
     SET(LIBZ "-z")
   ENDIF()
 ELSE()
-  add_subdirectory(zlib)
+  # built-in zlib is disabled currently and must be available on the system
+  #add_subdirectory(zlib)
 ENDIF()
 
 INCLUDE(TestBigEndian)

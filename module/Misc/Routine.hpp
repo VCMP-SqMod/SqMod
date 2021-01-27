@@ -330,10 +330,14 @@ public:
         // Unable to find such routine
         STHROWF("Unable to find a routine with tag (%s)", tag.mPtr);
         // Should not reach this point but if it did, we have to return something
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warray-bounds"
+#ifdef __clang__
+	#pragma clang diagnostic push
+	#pragma clang diagnostic ignored "-Warray-bounds"
+#endif
         return s_Instances[SQMOD_MAX_ROUTINES].mInst; // Intentional Buffer overflow!
-#pragma clang diagnostic pop
+#ifdef __clang__
+	#pragma clang diagnostic pop
+#endif
     }
     /* --------------------------------------------------------------------------------------------
      * Check if a routine with a certain tag exists.

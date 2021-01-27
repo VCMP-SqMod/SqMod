@@ -793,10 +793,7 @@ const AABB & AABB::GetEx(SQChar delim, StackStrF & str)
 }
 
 // ================================================================================================
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_AABB(HSQUIRRELVM vm)
-#pragma clang diagnostic pop
 {
     typedef AABB::Value Val;
 

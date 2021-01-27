@@ -98,7 +98,7 @@ String AES256::Encrypt(CSStr data)
         aes256_encrypt_ecb(&m_Context, reinterpret_cast< Uint8 * >(&str[n]));
     }
     // Return ownership of the encrypted string
-    return std::move(str);
+    return str;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -127,7 +127,7 @@ String AES256::Decrypt(CSStr data)
         str.pop_back();
     }
     // Return ownership of the encrypted string
-    return std::move(str);
+    return str;
 }
 
 // ================================================================================================

@@ -502,10 +502,7 @@ static LightObj & Checkpoint_Create(Int32 world, bool sphere, const Vector3 & po
 }
 
 // ================================================================================================
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_CCheckpoint(HSQUIRRELVM vm)
-#pragma clang diagnostic pop
 {
     RootTable(vm).Bind(Typename::Str,
         Class< CCheckpoint, NoConstructor< CCheckpoint > >(vm, Typename::Str)

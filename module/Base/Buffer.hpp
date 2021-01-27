@@ -60,6 +60,15 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Default constructor (null).
+    */
+    explicit MemRef(std::nullptr_t) noexcept
+            : m_Ptr(nullptr)
+            , m_Ref(nullptr)
+    {
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
     MemRef(const MemRef & o) noexcept
@@ -877,7 +886,7 @@ public:
             // Request the memory
             Request(n * sizeof(T));
             // Return the backup
-            return std::move(bkp);
+            return bkp;
         }
         // Return an empty buffer
         return Buffer();

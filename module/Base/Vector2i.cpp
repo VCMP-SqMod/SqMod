@@ -577,10 +577,7 @@ const Vector2i & Vector2i::GetEx(SQChar delim, StackStrF & str)
 }
 
 // ================================================================================================
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_Vector2i(HSQUIRRELVM vm)
-#pragma clang diagnostic pop
 {
     typedef Vector2i::Value Val;
 

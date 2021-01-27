@@ -771,10 +771,7 @@ const Quaternion & Quaternion::GetEx(SQChar delim, StackStrF & str)
 }
 
 // ================================================================================================
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_Quaternion(HSQUIRRELVM vm)
-#pragma clang diagnostic pop
 {
     typedef Quaternion::Value Val;
 

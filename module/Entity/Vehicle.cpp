@@ -1996,10 +1996,7 @@ static LightObj & Vehicle_Create(Int32 model, Int32 world, const Vector3 & pos, 
 }
 
 // ================================================================================================
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_CVehicle(HSQUIRRELVM vm)
-#pragma clang diagnostic pop
 {
     RootTable(vm).Bind(Typename::Str,
         Class< CVehicle, NoConstructor< CVehicle > >(vm, Typename::Str)

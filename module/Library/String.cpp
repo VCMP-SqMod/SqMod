@@ -233,7 +233,7 @@ static Buffer StrJustAlphaNumImpl(CSStr str, Uint32 len)
     // Move the cursor to the end
     b.Move(n);
     // Return ownership of the buffer
-    return std::move(b);
+    return b;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -295,7 +295,7 @@ static Buffer StrToLowercaseImpl(CSStr str, Uint32 len)
     // Move the cursor to the end
     b.Move(n);
     // Return ownership of the buffer
-    return std::move(b);
+    return b;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -357,7 +357,7 @@ static Buffer StrToUppercaseImpl(CSStr str, Uint32 len)
     // Move the cursor to the end
     b.Move(n);
     // Return ownership of the buffer
-    return std::move(b);
+    return b;
 }
 
 // ------------------------------------------------------------------------------------------------

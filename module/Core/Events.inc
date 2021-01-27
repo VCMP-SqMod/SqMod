@@ -232,8 +232,6 @@ void Core::EmitServerFrame(Float32 elapsed_time)
     //SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::ServerFrame")
 }
 
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "MemberFunctionCanBeStatic"
 // ------------------------------------------------------------------------------------------------
 void Core::EmitPluginCommand(Uint32 command_identifier, CCStr message)
 {
@@ -247,7 +245,6 @@ void Core::EmitPluginCommand(Uint32 command_identifier, CCStr message)
     (void)message;
 #endif
 }
-#pragma clang diagnostic pop
 
 // ------------------------------------------------------------------------------------------------
 void Core::EmitIncomingConnection(CStr player_name, size_t name_buffer_size, CCStr user_password, CCStr ip_address)

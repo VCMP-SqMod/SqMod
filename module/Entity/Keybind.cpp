@@ -180,10 +180,7 @@ static SQInteger Keybind_UnusedSlot()
 }
 
 // ================================================================================================
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
 void Register_CKeybind(HSQUIRRELVM vm)
-#pragma clang diagnostic pop
 {
     RootTable(vm).Bind(Typename::Str,
         Class< CKeybind, NoConstructor< CKeybind > >(vm, Typename::Str)
