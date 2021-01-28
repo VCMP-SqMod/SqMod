@@ -342,7 +342,7 @@ class SslFastStart {
 
 } // namespace ssl
 
-struct alignas(128) SslOptions {
+struct SslOptions {
     std::string cert_file{};
     std::string cert_type{};
     std::string key_file{};
