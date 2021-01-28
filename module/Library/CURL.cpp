@@ -6,7 +6,7 @@ namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
 SQMODE_DECL_TYPENAME(SqCpSslOptions, _SC("SqCprSslOptions"))
-SQMODE_DECL_TYPENAME(SqCpError, _SC("SqCprError"))
+SQMODE_DECL_TYPENAME(SqCpError, _SC("SqCpError"))
 SQMODE_DECL_TYPENAME(SqCpCookies, _SC("SqCprCookies"))
 SQMODE_DECL_TYPENAME(SqCpHeader, _SC("SqCprHeader"))
 SQMODE_DECL_TYPENAME(SqCpResponse, _SC("SqCprResponse"))

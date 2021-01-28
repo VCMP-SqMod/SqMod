@@ -457,15 +457,9 @@ enum EntityType
 #define SQMOD_FORMAT_ATTR(mode, index, first) __attribute__ ((format(mode, index, first)))
 
 #ifdef _SQ64
-    #ifdef SQMOD_OS_WINDOWS
-        #define PRINT_SZ_FMT "%I64u"
-        #define PRINT_INT_FMT "%I64d"
-        #define PRINT_UINT_FMT "%I64u"
-    #else
-        #define PRINT_SZ_FMT "llu"
-        #define PRINT_INT_FMT "lld"
-        #define PRINT_UINT_FMT "llu"
-    #endif
+    #define PRINT_SZ_FMT "llu"
+    #define PRINT_INT_FMT "lld"
+    #define PRINT_UINT_FMT "llu"
 #else
     #define PRINT_SZ_FMT "u"
     #define PRINT_INT_FMT "d"

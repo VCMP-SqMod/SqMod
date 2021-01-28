@@ -36,9 +36,6 @@ extern void Register_Crypt(HSQUIRRELVM vm);
 #ifdef SQ_ENABLE_CURL
 extern void Register_CURL(HSQUIRRELVM vm);
 #endif
-#ifdef SQ_ENABLE_DISCORD
-extern void Register_Discord(HSQUIRRELVM vm);
-#endif
 extern void Register_IO(HSQUIRRELVM vm);
 extern void Register_Job(HSQUIRRELVM vm);
 extern void Register_MMDB(HSQUIRRELVM vm);
@@ -97,9 +94,6 @@ bool RegisterAPI(HSQUIRRELVM vm)
     Register_Crypt(vm);
 #ifdef SQ_ENABLE_CURL
     Register_CURL(vm);
-#endif
-#ifdef SQ_ENABLE_DISCORD
-    Register_Discord(vm);
 #endif
     Register_IO(vm);
     Register_Job(vm);

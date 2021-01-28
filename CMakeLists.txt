@@ -13,10 +13,6 @@ option(ENABLE_MYSQL "Enable the MySQL library." ON)
 option(ENABLE_MYSQL_OPENSSL "Enable MySQL library to use OpenSSL (windows only)." ON)
 option(ENABLE_API21 "Build for 2.1 API." OFF)
 
-include(CMakeDependentOption)
-# Discord depends on CURL
-cmake_dependent_option(ENABLE_DISCORD "Enable the Discord library." ON "ENABLE_CURL" OFF)
-
 include(CheckCXXCompilerFlag)
 # C++ standard availability check
 check_cxx_compiler_flag(-std=c++20 HAVE_FLAG_STD_CXX20)

@@ -85,26 +85,16 @@ if(GCC OR MINGW)
 	endif()
 endif()
 # Link to libraries
-target_link_libraries(SqModule SqModSDK FmtLib SimpleINI HashLib B64Lib AES256Lib WhirlpoolLib TinyDir PUGIXML SQLite MaxmindDB SimpleSocket ConcurrentQueue)
-# Link to Discord libraries
-if(ENABLE_DISCORD)
-	# Discord needs CURL to be on
-	set(ENABLE_CURL ON CACHE INTERNAL "" FORCE)
-	# Link to necessary libraries
-	target_link_libraries(SqModule sleepy-discord)
-	# Include the implementation 
-	target_sources(SqModule PRIVATE Library/Discord.cpp Library/Discord.hpp)
-	# Specify that Discord is enabled
-	target_compile_definitions(SqModule PRIVATE SQ_ENABLE_DISCORD=1)
+target_link_libraries(SqModule SqModSDK FmtLib SimpleINI HashLib B64Lib AES256Lib WhirlpoolLib TinyDir PUGIXML SQLite MaxmindDB CivetWeb SimpleSocket ConcurrentQueue)
+# Link to windows libraries if on windows
+if(WIN32 OR MINGW)
+	target_compile_definitions(SqModule PRIVATE _WIN32_WINNT=0x0601)
+	target_link_libraries(SqModule wsock32 ws2_32 shlwapi)
 endif()
 # Link to CURL libraries
 if(ENABLE_CURL)
 	# Link to necessary libraries
 	target_link_libraries(SqModule libcurl cpr::cpr)
-	# Windows needs a few extra libraries
-	if(WIN32)
-		target_link_libraries(SqModule wldap32 ws2_32)
-	endif(WIN32)
 	# Include the implementation
 	target_sources(SqModule PRIVATE Library/CURL.cpp Library/CURL.hpp)
 	# Specify that CURL is enabled
@@ -156,9 +146,5 @@ else(WIN32)
 endif(WIN32)
 # Include current directory in the search path
 target_include_directories(SqModule PRIVATE ${CMAKE_CURRENT_LIST_DIR})
-# Link to windows libraryes if on windos
-if(WIN32 OR MINGW)
-  target_link_libraries(SqModule wsock32 ws2_32)
-endif()
 # Copy module into the plugins folder
 add_custom_command(TARGET SqModule POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:SqModule> "${PROJECT_SOURCE_DIR}/bin/plugins")
