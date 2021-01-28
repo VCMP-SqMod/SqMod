@@ -14,7 +14,7 @@ class Proxies {
     bool has(const std::string& protocol) const;
     const std::string& operator[](const std::string& protocol);
 
-  private:
+  protected:
     std::map<std::string, std::string> hosts_;
 };
 } // namespace cpr

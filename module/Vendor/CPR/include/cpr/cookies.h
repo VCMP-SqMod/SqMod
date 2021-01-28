@@ -46,7 +46,7 @@ class Cookies {
     const_iterator cbegin() const;
     const_iterator cend() const;
 
-  private:
+  protected:
     std::map<std::string, std::string> map_;
 };
 

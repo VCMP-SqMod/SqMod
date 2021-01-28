@@ -18,7 +18,7 @@
 namespace cpr {
 
 class Response {
-  private:
+  protected:
     std::shared_ptr<CurlHolder> curl_{nullptr};
 
   public:

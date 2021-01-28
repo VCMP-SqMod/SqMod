@@ -8,6 +8,8 @@
 namespace cpr {
 
 class Parameters : public CurlContainer<Parameter> {
+  protected:
+    using CurlContainer<Parameter>::containerList_;
   public:
     Parameters() = default;
     Parameters(const std::initializer_list<Parameter>& parameters);

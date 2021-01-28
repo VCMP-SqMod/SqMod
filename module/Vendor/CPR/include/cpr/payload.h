@@ -8,6 +8,8 @@
 
 namespace cpr {
 class Payload : public CurlContainer<Pair> {
+  protected:
+    using CurlContainer<Pair>::containerList_;
   public:
     template <class It>
     Payload(const It begin, const It end) {
