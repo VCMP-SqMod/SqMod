@@ -275,7 +275,7 @@ begin:
 Logger::Logger() noexcept
     : m_ThreadID(std::this_thread::get_id())
     , m_Message()
-    , m_Queue(4094)
+    , m_Queue(4096)
     , m_ConsoleLevels(LOGL_ANY)
     , m_LogFileLevels(~LOGL_DBG)
     , m_ConsoleTime(false)
