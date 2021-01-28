@@ -5,7 +5,6 @@
 // ------------------------------------------------------------------------------------------------
 #include <cstdlib>
 #include <cstring>
-#include <exception>
 #include <stdexcept>
 
 // ------------------------------------------------------------------------------------------------
@@ -47,343 +46,11 @@ void ThrowMemExcept(const char * msg, ...)
     throw Sqrat::Exception(buffer); // NOLINT(hicpp-exception-baseclass,cert-err60-cpp)
 }
 
-/* ------------------------------------------------------------------------------------------------
- * Allocate a memory buffer and return it.
-*/
-static Buffer::Pointer AllocMem(Buffer::SzType size)
-{
-    // Attempt to allocate memory directly
-    auto ptr = reinterpret_cast< Buffer::Pointer >(std::malloc(size));
-    // Validate the allocated memory
-    if (!ptr)
-    {
-        ThrowMemExcept("Unable to allocate (%u) bytes of memory", size);
-    }
-    // Return the allocated memory
-    return ptr;
-}
-
-/* ------------------------------------------------------------------------------------------------
- * ...
-*/
-class MemCat
-{
-    // --------------------------------------------------------------------------------------------
-    friend class Memory;
-    friend class Buffer;
-
-public:
-
-    // --------------------------------------------------------------------------------------------
-    typedef Buffer::Value       Value; // The type of value used to represent a byte.
-
-    // --------------------------------------------------------------------------------------------
-    typedef Buffer::Reference   Reference; // A reference to the stored value type.
-    typedef Buffer::ConstRef    ConstRef; // A const reference to the stored value type.
-
-    // --------------------------------------------------------------------------------------------
-    typedef Buffer::Pointer     Pointer; // A pointer to the stored value type.
-    typedef Buffer::ConstPtr    ConstPtr; // A const pointer to the stored value type.
-
-    // --------------------------------------------------------------------------------------------
-    typedef Buffer::SzType      SzType; // The type used to represent size in general.
-
-private:
-
-    /* --------------------------------------------------------------------------------------------
-     * Structure used to store a memory chunk in the linked list.
-    */
-    struct Node
-    {
-        // ----------------------------------------------------------------------------------------
-        SzType      mCap; // The size of the memory chunk.
-        Pointer     mPtr; // Pointer to the memory chunk.
-        Node*       mNext; // The next node in the list.
-
-        /* ----------------------------------------------------------------------------------------
-         * Base constructor.
-        */
-        explicit Node(Node * next)
-            : mCap(0)
-            , mPtr(nullptr)
-            , mNext(next)
-        {
-            /* ... */
-        }
-    };
-
-    // --------------------------------------------------------------------------------------------
-    static Node *   s_Nodes; /* List of unused node instances. */
-
-    // --------------------------------------------------------------------------------------------
-    Node*   m_Head; /* The head memory node. */
-
-    /* --------------------------------------------------------------------------------------------
-     * Default constructor.
-    */
-    MemCat()
-        : m_Head(nullptr)
-    {
-        /* ... */
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~MemCat()
-    {
-        for (Node * node = m_Head, * next = nullptr; node; node = next)
-        {
-            // Free the memory (if any)
-            if (node->mPtr)
-            {
-                std::free(node->mPtr);
-            }
-            // Save the next node
-            next = node->mNext;
-            // Release the node instance
-            delete node;
-        }
-        // Explicitly set the head node to null
-        m_Head = nullptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Clear all memory buffers from the pool.
-    */
-    void Clear()
-    {
-        for (Node * node = m_Head, * next = nullptr; node; node = next)
-        {
-            // Free the memory (if any)
-            if (node->mPtr)
-            {
-                free(node->mPtr);
-            }
-            // Save the next node
-            next = node->mNext;
-            // Release the node instance
-            Push(node);
-        }
-        // Explicitly set the head node to null
-        m_Head = nullptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Grab a memory buffer from the pool.
-    */
-    void Grab(Pointer & ptr, SzType & size)
-    {
-        // NOTE: Function assumes (size > 0)
-        // Find a buffer large enough to satisfy the requested size
-        for (Node * node = m_Head, * prev = nullptr; node; prev = node, node = node->mNext)
-        {
-            // Is this buffer large enough?
-            if (node->mCap >= size)
-            {
-                // Was there a previous node?
-                if (prev)
-                {
-                    prev->mNext = node->mNext;
-                }
-                // Probably this was the head
-                else
-                {
-                    m_Head = node->mNext;
-                }
-                // Assign the memory
-                ptr = node->mPtr;
-                // Assign the size
-                size = node->mCap;
-                // Release the node instance
-                Push(node);
-                // Exit the function
-                return;
-            }
-        }
-        // Round up the size to a power of two number
-        size = (size & (size - 1)) ? NextPow2(size) : size;
-        // Allocate the memory directly
-        ptr = AllocMem(size);
-        // See if the memory could be allocated
-        // (shouldn't reach this point if allocation failed)
-        if (!ptr)
-        {
-            // Revert the size
-            size = 0;
-            // Throw the exception
-            ThrowMemExcept("Unable to allocate (%u) bytes of memory", size);
-        }
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Return a memory buffer to the pool.
-    */
-    void Drop(Pointer & ptr, SzType & size)
-    {
-        if (!ptr)
-        {
-            ThrowMemExcept("Cannot store invalid memory buffer");
-        }
-        // Request a node instance
-        Node * node = Pull();
-        // Assign the specified memory
-        node->mPtr = ptr;
-        // Assign the specified size
-        node->mCap = size;
-        // Demote the current head node
-        node->mNext = m_Head;
-        // Promote as the head node
-        m_Head = node;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Allocate a group of nodes and pool them for later use.
-    */
-    static void Make()
-    {
-        for (SzType n = 16; n; --n)
-        {
-            // Create a new node instance
-            s_Nodes = new Node(s_Nodes);
-            // Validate the head node
-            if (!s_Nodes)
-            {
-                ThrowMemExcept("Unable to allocate memory nodes");
-            }
-        }
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Retrieve an unused node from the free list.
-    */
-    static Node * Pull()
-    {
-        // Are there any nodes available?
-        if (!s_Nodes)
-        {
-            Make(); // Make some!
-        }
-        // Grab the head node
-        Node * node = s_Nodes;
-        // Promote the next node as the head
-        s_Nodes = node->mNext;
-        // Return the node
-        return node;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Return a node to the free list.
-    */
-    static void Push(Node * node)
-    {
-        // See if the node is even valid
-        if (!node)
-        {
-            ThrowMemExcept("Attempting to push invalid node");
-        }
-        else
-        {
-            // Demote the current head node
-            node->mNext = s_Nodes;
-            // Promote as the head node
-            s_Nodes = node;
-        }
-    }
-};
-
-// ------------------------------------------------------------------------------------------------
-MemCat::Node *  MemCat::s_Nodes = nullptr;
-
-/* ------------------------------------------------------------------------------------------------
- * Lightweight memory allocator to reduce the overhead of small allocations.
-*/
-class Memory
-{
-    // --------------------------------------------------------------------------------------------
-    friend class Buffer; // Allow the buffer type to access the memory categories.
-    friend class MemRef; // Allow the memory manager reference to create new instances.
-
-private:
-
-    /* --------------------------------------------------------------------------------------------
-     * Default constructor.
-    */
-    Memory()
-        : m_Small()
-        , m_Medium()
-        , m_Large()
-    {
-        // Allocate several nodes for when memory starts pooling
-        MemCat::Make();
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~Memory()
-    {
-        for (MemCat::Node * node = MemCat::s_Nodes, * next = nullptr; node; node = next)
-        {
-            // Save the next node
-            next = node->mNext;
-            // Release the node instance
-            delete node;
-        }
-        // Explicitly set the head node to null
-        MemCat::s_Nodes = nullptr;
-    }
-
-private:
-
-    // --------------------------------------------------------------------------------------------
-    MemCat m_Small; // Small memory allocations of <= 1024 bytes.
-    MemCat m_Medium; // Medium memory allocations of <= 4096 bytes.
-    MemCat m_Large; // Large memory allocations of <= 4096 bytes.
-};
-
-// ------------------------------------------------------------------------------------------------
-MemRef MemRef::s_Mem{nullptr};
-
-// ------------------------------------------------------------------------------------------------
-void MemRef::Grab()
-{
-    if (m_Ptr)
-    {
-        ++(*m_Ref);
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-void MemRef::Drop()
-{
-    if (m_Ptr && --(*m_Ref) == 0)
-    {
-        delete m_Ptr;
-        delete m_Ref;
-        m_Ptr = nullptr;
-        m_Ref = nullptr;
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-const MemRef & MemRef::Get()
-{
-    if (!s_Mem.m_Ptr)
-    {
-        s_Mem.m_Ptr = new Memory();
-        s_Mem.m_Ref = new Counter(1);
-    }
-
-    return s_Mem;
-}
-
 // ------------------------------------------------------------------------------------------------
 Buffer::Buffer(const Buffer & o)
     : m_Ptr(nullptr)
     , m_Cap(o.m_Cap)
     , m_Cur(o.m_Cur)
-    , m_Mem(o.m_Mem)
 {
     if (m_Cap)
     {
@@ -445,7 +112,7 @@ Buffer & Buffer::operator = (const Buffer & o) // NOLINT(cert-oop54-cpp)
 void Buffer::Grow(SzType n)
 {
     // Backup the current memory
-    Buffer bkp(m_Ptr, m_Cap, m_Cur, m_Mem);
+    Buffer bkp(m_Ptr, m_Cap, m_Cur);
     // Acquire a bigger buffer
     Request(bkp.m_Cap + n);
     // Copy the data from the old buffer
@@ -458,27 +125,13 @@ void Buffer::Grow(SzType n)
 void Buffer::Request(SzType n)
 {
     // NOTE: Function assumes (n > 0)
-    // Is there a memory manager available?
-    if (!m_Mem)
-    {
-        // Round up the size to a power of two number
-        n = (n & (n - 1)) ? NextPow2(n) : n;
-        // Allocate the memory directly
-        m_Ptr = AllocMem(n);
-    }
-    // Find out in which category does this buffer reside
-    else if (n <= 1024)
-    {
-        m_Mem->m_Small.Grab(m_Ptr, n);
-    }
-    else if (n <= 4096)
-    {
-        m_Mem->m_Medium.Grab(m_Ptr, n);
-    }
-    else
-    {
-        m_Mem->m_Large.Grab(m_Ptr, n);
-    }
+    assert(n > 0);
+    // Round up the size to a power of two number
+    n = (n & (n - 1)) ? NextPow2(n) : n;
+    // Release previous memory if any
+    delete[] m_Ptr; // Implicitly handles null!
+    // Attempt to allocate memory
+    m_Ptr = new Value[n];
     // If no errors occurred then we can set the size
     m_Cap = n;
 }
@@ -486,25 +139,8 @@ void Buffer::Request(SzType n)
 // ------------------------------------------------------------------------------------------------
 void Buffer::Release()
 {
-    // TODO: Implement a limit on how much memory can actually be pooled.
-    // Is there a memory manager available?
-    if (!m_Mem)
-    {
-        std::free(m_Ptr); // Deallocate the memory directly
-    }
-    // Find out to which category does this buffer belong
-    else if (m_Cap <= 1024)
-    {
-        m_Mem->m_Small.Drop(m_Ptr, m_Cap);
-    }
-    else if (m_Cap <= 4096)
-    {
-        m_Mem->m_Medium.Drop(m_Ptr, m_Cap);
-    }
-    else
-    {
-        m_Mem->m_Large.Drop(m_Ptr, m_Cap);
-    }
+    // Deallocate the memory
+    delete[] m_Ptr; // Implicitly handles null!
     // Explicitly reset the buffer
     m_Ptr = nullptr;
     m_Cap = 0;

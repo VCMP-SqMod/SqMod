@@ -12,178 +12,6 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-class Memory;
-class Buffer;
-
-/* ------------------------------------------------------------------------------------------------
- * A counted reference to a memory manager instance.
-*/
-class MemRef
-{
-private:
-
-    // --------------------------------------------------------------------------------------------
-    static MemRef s_Mem;
-
-    // --------------------------------------------------------------------------------------------
-    typedef unsigned int Counter;
-
-    // --------------------------------------------------------------------------------------------
-    Memory*     m_Ptr; // The memory manager instance.
-    Counter*    m_Ref; // Reference count to the managed instance.
-
-    /* --------------------------------------------------------------------------------------------
-     * Grab a strong reference to a memory manager.
-    */
-    void Grab();
-
-    /* --------------------------------------------------------------------------------------------
-     * Drop a strong reference to a memory manager.
-    */
-    void Drop();
-
-public:
-
-    /* --------------------------------------------------------------------------------------------
-     * Get a reference to the global memory manager instance.
-    */
-    static const MemRef & Get();
-
-    /* --------------------------------------------------------------------------------------------
-     * Default constructor (null).
-    */
-    MemRef() noexcept
-        : m_Ptr(s_Mem.m_Ptr)
-        , m_Ref(s_Mem.m_Ref)
-    {
-        Grab();
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Default constructor (null).
-    */
-    explicit MemRef(std::nullptr_t) noexcept
-            : m_Ptr(nullptr)
-            , m_Ref(nullptr)
-    {
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy constructor.
-    */
-    MemRef(const MemRef & o) noexcept
-        : m_Ptr(o.m_Ptr)
-        , m_Ref(o.m_Ref)
-
-    {
-        Grab();
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Move constructor.
-    */
-    MemRef(MemRef && o) noexcept
-        : m_Ptr(o.m_Ptr), m_Ref(o.m_Ref)
-
-    {
-        o.m_Ptr = nullptr;
-        o.m_Ref = nullptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Destructor.
-    */
-    ~MemRef()
-    {
-        Drop();
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator.
-    */
-    MemRef & operator = (const MemRef & o) noexcept // NOLINT(bugprone-unhandled-self-assignment,cert-oop54-cpp)
-    {
-        if (m_Ptr != o.m_Ptr)
-        {
-            Drop();
-            m_Ptr = o.m_Ptr;
-            m_Ref = o.m_Ref;
-            Grab();
-        }
-        return *this;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Move assignment operator.
-    */
-    MemRef & operator = (MemRef && o) noexcept
-    {
-        if (m_Ptr != o.m_Ptr)
-        {
-            Drop();
-            m_Ptr = o.m_Ptr;
-            m_Ref = o.m_Ref;
-            o.m_Ptr = nullptr;
-            o.m_Ref = nullptr;
-        }
-        return *this;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Perform an equality comparison between two memory managers.
-    */
-    bool operator == (const MemRef & o) const
-    {
-        return (m_Ptr == o.m_Ptr);
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Perform an inequality comparison between two memory managers.
-    */
-    bool operator != (const MemRef & o) const
-    {
-        return (m_Ptr != o.m_Ptr);
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Implicit conversion to boolean for use in boolean operations.
-    */
-    operator bool () const // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
-    {
-        return static_cast<bool>(m_Ptr);
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Member operator for dereferencing the managed pointer.
-    */
-    Memory * operator -> () const
-    {
-        assert(m_Ptr);
-        return m_Ptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Indirection operator for obtaining a reference of the managed pointer.
-    */
-    Memory & operator * () const
-    {
-        assert(m_Ptr);
-        return *m_Ptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Release the reference to the managed instance.
-    */
-    void Reset()
-    {
-        if (m_Ptr)
-        {
-            Drop();
-        }
-    }
-};
-
-// ------------------------------------------------------------------------------------------------
 void ThrowMemExcept(const char * msg, ...);
 
 /* ------------------------------------------------------------------------------------------------
@@ -207,16 +35,18 @@ public:
     // --------------------------------------------------------------------------------------------
     typedef unsigned int    SzType; // The type used to represent size in general.
 
+    // --------------------------------------------------------------------------------------------
+    static_assert(sizeof(Value) == 1, "Value type must be 1 byte");
+
 private:
 
     /* --------------------------------------------------------------------------------------------
      * Construct and take ownership of the specified buffer.
     */
-    Buffer(Pointer & ptr, SzType & cap, SzType & cur, MemRef mem)
+    Buffer(Pointer & ptr, SzType & cap, SzType & cur)
         : m_Ptr(ptr)
         , m_Cap(cap)
         , m_Cur(cur)
-        , m_Mem(std::move(mem))
     {
         ptr = nullptr;
         cap = 0;
@@ -240,7 +70,6 @@ public:
         : m_Ptr(nullptr)
         , m_Cap(0)
         , m_Cur(0)
-        , m_Mem(MemRef::Get())
     {
         /* ... */
     }
@@ -252,7 +81,6 @@ public:
         : m_Ptr(nullptr)
         , m_Cap(0)
         , m_Cur(0)
-        , m_Mem(MemRef::Get())
     {
         Request(size < 8 ? 8 : size);
     }
@@ -264,7 +92,6 @@ public:
         : m_Ptr(nullptr)
         , m_Cap(0)
         , m_Cur(0)
-        , m_Mem(MemRef::Get())
     {
         Request(size < 8 ? 8 : size);
         Move(pos);
@@ -277,7 +104,6 @@ public:
         : m_Ptr(nullptr)
         , m_Cap(0)
         , m_Cur(0)
-        , m_Mem(MemRef::Get())
     {
         Request(size < 8 ? 8 : size);
         m_Cur += Write(m_Cur, data, size);
@@ -290,7 +116,6 @@ public:
         : m_Ptr(nullptr)
         , m_Cap(0)
         , m_Cur(0)
-        , m_Mem(MemRef::Get())
     {
         Request(size < 8 ? 8 : size);
         Write(m_Cur, data, size);
@@ -309,7 +134,6 @@ public:
         : m_Ptr(o.m_Ptr)
         , m_Cap(o.m_Cap)
         , m_Cur(o.m_Cur)
-        , m_Mem(std::forward< MemRef >(o.m_Mem))
     {
         o.m_Ptr = nullptr;
     }
@@ -338,7 +162,6 @@ public:
             m_Ptr = o.m_Ptr;
             m_Cap = o.m_Cap;
             m_Cur = o.m_Cur;
-            m_Mem = o.m_Mem;
             o.m_Ptr = nullptr;
         }
         return *this;
@@ -882,7 +705,7 @@ public:
         else if (n > m_Cap)
         {
             // Backup the current memory
-            Buffer bkp(m_Ptr, m_Cap, m_Cur, m_Mem);
+            Buffer bkp(m_Ptr, m_Cap, m_Cur);
             // Request the memory
             Request(n * sizeof(T));
             // Return the backup
@@ -904,7 +727,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Release the managed memory and manager.
+     * Release the managed memory.
     */
     void ResetAll()
     {
@@ -912,7 +735,6 @@ public:
         {
             Release();
         }
-        m_Mem.Reset();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1024,9 +846,6 @@ private:
     Pointer     m_Ptr; /* Pointer to the memory buffer. */
     SzType      m_Cap; /* The total size of the buffer. */
     SzType      m_Cur; /* The buffer edit cursor. */
-
-    // --------------------------------------------------------------------------------------------
-    MemRef      m_Mem; /* Reference to the associated memory manager. */
 };
 
 } // Namespace:: SqMod
