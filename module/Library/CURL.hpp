@@ -21,9 +21,29 @@ struct CpSslOptions : public cpr::SslOptions
     CpSslOptions() = default;
 
     /* --------------------------------------------------------------------------------------------
+     * Copy constructor.
+    */
+    CpSslOptions(const CpSslOptions &) = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    CpSslOptions(CpSslOptions &&) noexcept = default;
+
+    /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    virtual ~CpSslOptions() = default;
+    ~CpSslOptions() = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator.
+    */
+    CpSslOptions & operator = (const CpSslOptions &) = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator.
+    */
+    CpSslOptions & operator = (CpSslOptions &&) noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::SslOptions::cert_file value.
