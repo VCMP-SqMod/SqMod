@@ -98,6 +98,9 @@ namespace SleepyDiscord {
 		{	//the { is used so that onResponse is called after session is removed to make debugging performance issues easier
 			//request starts here
 			Session session;
+            // Workaround to CURL issues with SSL (see Session::setupCallback)
+            setupGatewaySession(session);
+            // End workaround...
 			session.setUrl("https://discord.com/api/v6/" + path.url());
 			std::vector<HeaderPair> header = {
 				{ "Authorization", bot ? "Bot " + getToken() : getToken() },
@@ -264,6 +267,9 @@ namespace SleepyDiscord {
 		theGateway = SLEEPY_HARD_CODED_GATEWAY;	//This is needed for when session is disabled
 #else
 		Session session;
+        // Workaround to CURL issues with SSL (see Session::setupCallback)
+		setupSession(session);
+        // End workaround...
 		session.setUrl("https://discord.com/api/gateway");
 		Response a = session.request(Get);	//todo change this back to a post
 		if (!a.text.length()) {	//error check

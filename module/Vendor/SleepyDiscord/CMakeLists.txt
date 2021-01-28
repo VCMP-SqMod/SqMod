@@ -127,6 +127,7 @@ if(AUTO_DOWNLOAD_LIBRARY)
 			TEST_COMMAND        ""
 		)
 	endif()
+
 else()
 	if(USE_CPR)
 		#set(cpr_SOURCE_DIR ${PROJECT_SOURCE_DIR}/deps/cpr)
@@ -163,7 +164,8 @@ if(USE_CPR)
 	#this fixes
 	if(NOT DEFINED CMAKE_USE_OPENSSL)
 		if(WIN32)
-			set(CMAKE_USE_WINSSL ON CACHE BOOL "")
+			#set(CMAKE_USE_WINSSL ON CACHE BOOL "")
+			set(CMAKE_USE_SCHANNEL ON CACHE BOOL "")
 			set(CMAKE_USE_OPENSSL OFF CACHE BOOL "")
 		elseif(APPLE)
 			set(CMAKE_USE_DARWINSSL ON CACHE BOOL "")

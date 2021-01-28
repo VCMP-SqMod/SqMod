@@ -367,6 +367,10 @@ namespace SleepyDiscord {
 		void setIntents(IntentsRaw newIntents) { intentsIsSet = true; intents = static_cast<Intent>(newIntents); }
 		void quit() { quit(false); }	//public function for diconnecting
 		virtual void run();
+        // Workaround to CURL issues with SSL (see Session::setupCallback)
+        virtual void setupSession(Session & session) { /*do nothing by default*/ }
+        virtual void setupGatewaySession(Session & session) { /*do nothing by default*/ }
+        // End workaround...
 
 		//array of intents
 		template<class Container, typename T = typename Container::value_type>

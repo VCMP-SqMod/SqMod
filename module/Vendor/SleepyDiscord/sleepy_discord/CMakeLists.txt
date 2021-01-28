@@ -24,6 +24,16 @@ add_library(sleepy-discord
 	websocketpp_websocket.cpp
 )
 
+#target_compile_definitions(sleepy-discord PRIVATE SLEEPY_USE_HARD_CODED_GATEWAY=1)
+
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+	target_compile_options(sleepy-discord PRIVATE "-Wa,-mbig-obj")
+endif()
+
+if(CMAKE_BUILD_TYPE MATCHES Release)
+	target_compile_options(sleepy-discord PRIVATE "-O3")
+endif()
+
 target_include_directories(sleepy-discord
 	PUBLIC
 		${PROJECT_SOURCE_DIR}/include
@@ -89,11 +99,12 @@ if (NOT ONLY_SLEEPY_DISCORD)
 	endif()
 
 	if(USE_UWEBSOCKETS)
-		find_library(LIB_UWS uWS
-			PATHS ${uwebsockets_SOURCE_DIR}/lib
-		)
-		target_include_directories(sleepy-discord PUBLIC ${uwebsockets_SOURCE_DIR}/include)
-		list(APPEND LIBRARIES_TO_LINK "${LIB_UWS}")
+		#find_library(LIB_UWS uWS
+		#	PATHS ${uwebsockets_SOURCE_DIR}/lib
+		#)
+		target_include_directories(sleepy-discord PUBLIC ${uwebsockets_SOURCE_DIR}/src)
+		list(APPEND LIBRARIES_TO_LINK "uSockets")
+		list(APPEND LIBRARIES_TO_LINK "uWebSockets")
 		target_compile_definitions(sleepy-discord PUBLIC EXISTENT_UWEBSOCKETS)
 	else()
 		target_compile_definitions(sleepy-discord PUBLIC NONEXISTENT_UWEBSOCKETS)

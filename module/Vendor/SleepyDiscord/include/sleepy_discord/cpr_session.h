@@ -28,6 +28,9 @@ namespace SleepyDiscord {
 			responseCallback = callback;
 		}
 		Response request(RequestMethod method);
+		// Workaround to CURL issues with SSL (I use this to setup my certificates and other information on the internal session)
+		template < class F, class... A > auto setupCallback(F cb, A &&... a) { return cb(session, std::forward<A>(a)...); }
+        // End workaround...
 	private:
 		Response perform(RequestMethod method);
 		cpr::Session session;
