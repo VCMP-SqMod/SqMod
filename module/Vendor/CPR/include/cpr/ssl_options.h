@@ -342,12 +342,12 @@ class SslFastStart {
 
 } // namespace ssl
 
-struct SslOptions {
-    std::string cert_file;
-    std::string cert_type;
-    std::string key_file;
-    std::string key_type;
-    std::string key_pass;
+struct alignas(128) SslOptions {
+    std::string cert_file{};
+    std::string cert_type{};
+    std::string key_file{};
+    std::string key_type{};
+    std::string key_pass{};
 #if SUPPORT_ALPN
     bool enable_alpn = true;
 #endif // SUPPORT_ALPN
@@ -361,16 +361,23 @@ struct SslOptions {
 #if SUPPORT_MAX_TLS_VERSION
     int max_version = CURL_SSLVERSION_MAX_DEFAULT;
 #endif
-    std::string ca_info;
-    std::string ca_path;
-    std::string crl_file;
-    std::string ciphers;
+    std::string ca_info{};
+    std::string ca_path{};
+    std::string crl_file{};
+    std::string ciphers{};
 #if SUPPORT_TLSv13_CIPHERS
-    std::string tls13_ciphers;
+    std::string tls13_ciphers{};
 #endif
 #if SUPPORT_SESSIONID_CACHE
     bool session_id_cache = true;
 #endif
+
+    SslOptions() = default;
+    SslOptions(const SslOptions &) = default;
+    SslOptions(SslOptions &&) noexcept = default;
+    ~SslOptions() = default;
+    SslOptions & operator = (const SslOptions &) = default;
+    SslOptions & operator = (SslOptions &&) noexcept = default;
 
     void SetOption(const ssl::CertFile& opt) {
         cert_file = opt.filename;
@@ -480,7 +487,7 @@ struct SslOptions {
         session_id_cache = opt.enabled;
     }
 #endif
-};
+} __attribute__((packed));
 
 namespace priv {
 
