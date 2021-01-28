@@ -818,7 +818,6 @@ void Logger::DebugFv(HSQUIRRELVM vm, CCStr fmt, va_list args)
     message->Append("]");
     // Assign the error message
     messages[2] = std::move(message);
-    puts("sending debug message");
     // Submit the error messages in bulk
     PushMessage(messages.data(), messages.size());
 }
