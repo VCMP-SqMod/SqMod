@@ -487,7 +487,7 @@ struct alignas(128) SslOptions {
         session_id_cache = opt.enabled;
     }
 #endif
-} __attribute__((packed));
+};
 
 namespace priv {
 
