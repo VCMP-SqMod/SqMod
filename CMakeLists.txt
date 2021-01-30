@@ -3,6 +3,7 @@ project(SqMod)
 
 # Tell CMake where to find our scripts
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/vendor/POCO/cmake)
 
 # Several plugin options
 option(FORCE_32BIT_BIN "Create a 32-bit executable binary if the compiler defaults to 64-bit." OFF)
