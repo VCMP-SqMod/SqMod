@@ -2,18 +2,21 @@
 #include "Library/CURL.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <sqratConst.h>
+
+// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQMODE_DECL_TYPENAME(SqCpSslOptions, _SC("SqCprSslOptions"))
-SQMODE_DECL_TYPENAME(SqCpError, _SC("SqCpError"))
-SQMODE_DECL_TYPENAME(SqCpCookies, _SC("SqCprCookies"))
-SQMODE_DECL_TYPENAME(SqCpHeader, _SC("SqCprHeader"))
-SQMODE_DECL_TYPENAME(SqCpResponse, _SC("SqCprResponse"))
-SQMODE_DECL_TYPENAME(SqCpParameters, _SC("SqCprParameters"))
-SQMODE_DECL_TYPENAME(SqCpPayload, _SC("SqCprPayload"))
-SQMODE_DECL_TYPENAME(SqCpProxies, _SC("SqCprProxies"))
-SQMODE_DECL_TYPENAME(SqCpSession, _SC("SqCprSession"))
+SQMOD_DECL_TYPENAME(SqCpSslOptions, _SC("SqCprSslOptions"))
+SQMOD_DECL_TYPENAME(SqCpError, _SC("SqCpError"))
+SQMOD_DECL_TYPENAME(SqCpCookies, _SC("SqCprCookies"))
+SQMOD_DECL_TYPENAME(SqCpHeader, _SC("SqCprHeader"))
+SQMOD_DECL_TYPENAME(SqCpResponse, _SC("SqCprResponse"))
+SQMOD_DECL_TYPENAME(SqCpParameters, _SC("SqCprParameters"))
+SQMOD_DECL_TYPENAME(SqCpPayload, _SC("SqCprPayload"))
+SQMOD_DECL_TYPENAME(SqCpProxies, _SC("SqCprProxies"))
+SQMOD_DECL_TYPENAME(SqCpSession, _SC("SqCprSession"))
 
 // ------------------------------------------------------------------------------------------------
 static const EnumElement g_ErrorCodes[] = {

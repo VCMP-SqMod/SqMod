@@ -1,21 +1,23 @@
 // ------------------------------------------------------------------------------------------------
 #include "Logger.hpp"
 #include "Core.hpp"
+#include "Core/Utility.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <ctime>
 #include <cerrno>
 #include <cstring>
 #include <cstdarg>
+#include <memory>
 
 // ------------------------------------------------------------------------------------------------
-#include <sqrat.h>
+#include <sqratUtil.h>
 
 // ------------------------------------------------------------------------------------------------
 #ifdef SQMOD_OS_WINDOWS
 
 // ------------------------------------------------------------------------------------------------
-#include <Windows.h>
+#include <windows.h>
 
 // ------------------------------------------------------------------------------------------------
 namespace {
@@ -82,7 +84,7 @@ namespace SqMod {
 /* ------------------------------------------------------------------------------------------------
  * Identify the message prefix.
 */
-static inline CCStr GetLevelTag(Uint8 level)
+static inline const char * GetLevelTag(uint8_t level)
 {
     switch (level)
     {
@@ -100,7 +102,7 @@ static inline CCStr GetLevelTag(Uint8 level)
 /* ------------------------------------------------------------------------------------------------
  * Logging level to callback index.
 */
-static inline Uint8 GetLevelIdx(Uint8 level)
+static inline uint8_t GetLevelIdx(uint8_t level)
 {
     switch (level)
     {
@@ -120,7 +122,7 @@ static inline Uint8 GetLevelIdx(Uint8 level)
 /* ------------------------------------------------------------------------------------------------
  * Identify the message prefix and color.
 */
-static inline CCStr GetColoredLevelTag(Uint8 level)
+static inline const char * GetColoredLevelTag(uint8_t level)
 {
     switch (level)
     {
@@ -138,7 +140,7 @@ static inline CCStr GetColoredLevelTag(Uint8 level)
 /* ------------------------------------------------------------------------------------------------
  * Identify the message prefix and color.
 */
-static inline CCStr GetColoredLevelTagDim(Uint8 level)
+static inline const char * GetColoredLevelTagDim(uint8_t level)
 {
     switch (level)
     {
@@ -201,7 +203,7 @@ void Logger::Message::Stamp()
     std::strftime(mBuf, sizeof(mBuf), "%Y-%m-%d %H:%M:%S", std::localtime(&t));
 }
 // ------------------------------------------------------------------------------------------------
-uint32_t Logger::Message::Append(CSStr str)
+uint32_t Logger::Message::Append(const SQChar * str)
 {
     // Validate string
     if (str)
@@ -212,7 +214,7 @@ uint32_t Logger::Message::Append(CSStr str)
     return 0;
 }
 // ------------------------------------------------------------------------------------------------
-uint32_t Logger::Message::Append(CSStr str, size_t len)
+uint32_t Logger::Message::Append(const SQChar * str, size_t len)
 {
     // Discard trailing characters
     mStr.resize(mLen);
@@ -224,7 +226,7 @@ uint32_t Logger::Message::Append(CSStr str, size_t len)
     return static_cast< uint32_t >(len);
 }
 // ------------------------------------------------------------------------------------------------
-uint32_t Logger::Message::AppendF(CSStr str, ...)
+uint32_t Logger::Message::AppendF(const SQChar * str, ...)
 {
     // Initialize the variable argument list
     va_list args;
@@ -237,7 +239,7 @@ uint32_t Logger::Message::AppendF(CSStr str, ...)
     return r;
 }
 // ------------------------------------------------------------------------------------------------
-uint32_t Logger::Message::AppendFv(CSStr str, va_list vl)
+uint32_t Logger::Message::AppendFv(const SQChar * str, va_list vl)
 {
     va_list args;
     // The estimated buffer required
@@ -246,7 +248,7 @@ begin:
     // Do not modify the original va_list
     va_copy(args, vl);
     // Do we need to reserve space?
-    if (static_cast< size_t >(mLen + len) > mStr.size())
+    if (static_cast< size_t >(mLen) + len > mStr.size())
     {
         mStr.resize(mLen + len, '\0'); // Reserve the necessary space
     }
@@ -311,7 +313,7 @@ void Logger::Close()
 }
 
 // ------------------------------------------------------------------------------------------------
-void Logger::SetLogFilename(CCStr filename)
+void Logger::SetLogFilename(const char * filename)
 {
     // Close the current logging file, if any
     Close();
@@ -345,10 +347,10 @@ void Logger::SetLogFilename(CCStr filename)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Logger::BindCb(Uint8 level, Function & func)
+void Logger::BindCb(uint8_t level, Function & func)
 {
     // Get the index of this log level
-    const Uint8 idx = GetLevelIdx(level);
+    const uint8_t idx = GetLevelIdx(level);
     // Is the log level valid?
     if (idx > 6)
     {
@@ -361,7 +363,7 @@ void Logger::BindCb(Uint8 level, Function & func)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Logger::Initialize(CCStr filename)
+void Logger::Initialize(const char * filename)
 {
     // Set which thread is allowed to output directly
     m_ThreadID = std::this_thread::get_id();
@@ -409,7 +411,7 @@ void Logger::ProcessQueue()
 SQBool Logger::ProcessCb()
 {
     // Get the index of this log level
-    const Uint8 idx = GetLevelIdx(m_Message->mLvl);
+    const uint8_t idx = GetLevelIdx(m_Message->mLvl);
     // Is the log level valid and is there a callback associated?
     if (idx > 6 || m_LogCb[idx].IsNull())
     {
@@ -557,7 +559,7 @@ void Logger::ProcessMessage()
 }
 
 // ------------------------------------------------------------------------------------------------
-void Logger::Send(Uint8 level, bool sub, CCStr msg, size_t len)
+void Logger::Send(uint8_t level, bool sub, const char * msg, size_t len)
 {
     // Is this level even allowed?
     if ((m_ConsoleLevels & level) || (m_LogFileLevels & level))
@@ -572,7 +574,7 @@ void Logger::Send(Uint8 level, bool sub, CCStr msg, size_t len)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Logger::SendFv(Uint8 level, bool sub, CCStr fmt, va_list args)
+void Logger::SendFv(uint8_t level, bool sub, const char * fmt, va_list args)
 {
     // Is this level even allowed?
     if ((m_ConsoleLevels & level) || (m_LogFileLevels & level))
@@ -587,7 +589,7 @@ void Logger::SendFv(Uint8 level, bool sub, CCStr fmt, va_list args)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Logger::WriteF(Uint8 level, bool sub, CCStr fmt, ...)
+void Logger::WriteF(uint8_t level, bool sub, const char * fmt, ...)
 {
     if ((m_ConsoleLevels & level) || (m_LogFileLevels & level))
     {
@@ -606,7 +608,7 @@ void Logger::WriteF(Uint8 level, bool sub, CCStr fmt, ...)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Logger::DebugF(HSQUIRRELVM vm, CCStr fmt, ...)
+void Logger::DebugF(HSQUIRRELVM vm, const char * fmt, ...)
 {
     // Initialize the variable argument list
     va_list args;
@@ -617,7 +619,7 @@ void Logger::DebugF(HSQUIRRELVM vm, CCStr fmt, ...)
     va_end(args);
 }
 
-void Logger::DebugFv(HSQUIRRELVM vm, CCStr fmt, va_list args)
+void Logger::DebugFv(HSQUIRRELVM vm, const char * fmt, va_list args)
 {
     using namespace Sqrat;
     // We want to make sure these messages appear in succession
@@ -663,11 +665,11 @@ void Logger::DebugFv(HSQUIRRELVM vm, CCStr fmt, va_list args)
     // Assign the error message
     messages[0] = std::move(message);
     // Create a new message builder
-    message.reset(new Message(LOGL_INF, true));
+    message = std::make_unique<Message>(LOGL_INF, true);
     // Begin the traceback process
     message->Append("Traceback:\n[\n");
     // Traceback the function call
-    for (Int32 level = 1; SQ_SUCCEEDED(sq_stackinfos(vm, level, &si)); ++level)
+    for (int32_t level = 1; SQ_SUCCEEDED(sq_stackinfos(vm, level, &si)); ++level)
     {
         message->AppendF("=> [%d] %s (%d) [%s]\n", level
                                     , si.source ? si.source : _SC("unknown")
@@ -679,9 +681,9 @@ void Logger::DebugFv(HSQUIRRELVM vm, CCStr fmt, va_list args)
     // Assign the error message
     messages[1] = std::move(message);
     // Create a new message builder
-    message.reset(new Message(LOGL_INF, true));
+    message = std::make_unique<Message>(LOGL_INF, true);
     // Temporary variables to retrieve stack information
-    CSStr s_ = nullptr, name = nullptr;
+    const SQChar * s_ = nullptr, * name;
     SQInteger i_;
     SQFloat f_;
     SQUserPointer p_;
@@ -689,7 +691,7 @@ void Logger::DebugFv(HSQUIRRELVM vm, CCStr fmt, va_list args)
     // Begin the local variables information
     message->Append("Locals:\n[\n");
     // Process each stack level
-    for (Int32 level = 0; level < 10; level++)
+    for (int32_t level = 0; level < 10; level++)
     {
         SQInteger seq = 0;
         // Display all locals in the current stack level
@@ -824,7 +826,7 @@ void Logger::DebugFv(HSQUIRRELVM vm, CCStr fmt, va_list args)
 
 // ------------------------------------------------------------------------------------------------
 #define SQMOD_LOG(N_, L_, S_) /*
-*/ void N_(CCStr fmt, ...) /*
+*/ void N_(const char * fmt, ...) /*
 */ { /*
 */  va_list args; /*
 */  va_start(args, fmt); /*
@@ -853,7 +855,7 @@ SQMOD_LOG(LogSFtl, LOGL_FTL, true)
 
 // ------------------------------------------------------------------------------------------------
 #define SQMOD_VLOG(N_, L_, S_) /*
-*/ void N_(CCStr fmt, va_list vlist) /*
+*/ void N_(const char * fmt, va_list vlist) /*
 */ { /*
 */  Logger::Get().SendFv(L_, S_, fmt, vlist); /*
 */ } /*
@@ -879,7 +881,7 @@ SQMOD_VLOG(LogSFtlV, LOGL_FTL, true)
 
 // ------------------------------------------------------------------------------------------------
 #define SQMOD_CLOG(N_, L_, S_) /*
-*/bool N_(bool c, CCStr fmt, ...) /*
+*/bool N_(bool c, const char * fmt, ...) /*
 */ { /*
 */  if (!c) /*
 */  { /*
@@ -912,7 +914,7 @@ SQMOD_CLOG(cLogSErr, LOGL_ERR, true)
 SQMOD_CLOG(cLogSFtl, LOGL_FTL, true)
 
 // ------------------------------------------------------------------------------------------------
-template < Uint8 L, bool S > static SQInteger LogBasicMessage(HSQUIRRELVM vm)
+template < uint8_t L, bool S > static SQInteger LogBasicMessage(HSQUIRRELVM vm)
 {
     const auto top = sq_gettop(vm);
     // Was the message value specified?
@@ -934,7 +936,7 @@ template < Uint8 L, bool S > static SQInteger LogBasicMessage(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-template < Uint8 L > static void BindLogCallback(Function & func)
+template < uint8_t L > static void BindLogCallback(Function & func)
 {
     Logger::Get().BindCb(L, func);
 }
@@ -946,7 +948,7 @@ static void SqLogClose()
 }
 
 // ------------------------------------------------------------------------------------------------
-static void SqLogInitialize(CSStr filename)
+static void SqLogInitialize(const SQChar * filename)
 {
     Logger::Get().Initialize(filename);
 }
@@ -978,7 +980,7 @@ static bool SqLogLogFileHasTime()
 // ------------------------------------------------------------------------------------------------
 static void SqLogSetConsoleLevels(SQInteger level)
 {
-    Logger::Get().SetConsoleLevels(ConvTo< Uint8 >::From(level));
+    Logger::Get().SetConsoleLevels(ConvTo< uint8_t >::From(level));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -990,7 +992,7 @@ static bool SqLogGetConsoleLevels()
 // ------------------------------------------------------------------------------------------------
 static void SqLogSetLogFileLevels(SQInteger level)
 {
-    Logger::Get().SetLogFileLevels(ConvTo< Uint8 >::From(level));
+    Logger::Get().SetLogFileLevels(ConvTo< uint8_t >::From(level));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1002,37 +1004,37 @@ static bool SqLogGetLogFileLevels()
 // ------------------------------------------------------------------------------------------------
 static void SqLogEnableConsoleLevel(SQInteger level)
 {
-    Logger::Get().EnableConsoleLevel(ConvTo< Uint8 >::From(level));
+    Logger::Get().EnableConsoleLevel(ConvTo< uint8_t >::From(level));
 }
 
 // ------------------------------------------------------------------------------------------------
 static void SqLogDisableConsoleLevel(SQInteger level)
 {
-    Logger::Get().DisableConsoleLevel(ConvTo< Uint8 >::From(level));
+    Logger::Get().DisableConsoleLevel(ConvTo< uint8_t >::From(level));
 }
 
 // ------------------------------------------------------------------------------------------------
 static void SqLogToggleConsoleLevel(SQInteger level, bool toggle)
 {
-    Logger::Get().ToggleConsoleLevel(ConvTo< Uint8 >::From(level), toggle);
+    Logger::Get().ToggleConsoleLevel(ConvTo< uint8_t >::From(level), toggle);
 }
 
 // ------------------------------------------------------------------------------------------------
 static void SqLogEnableLogFileLevel(SQInteger level)
 {
-    Logger::Get().EnableLogFileLevel(ConvTo< Uint8 >::From(level));
+    Logger::Get().EnableLogFileLevel(ConvTo< uint8_t >::From(level));
 }
 
 // ------------------------------------------------------------------------------------------------
 static void SqLogDisableLogFileLevel(SQInteger level)
 {
-    Logger::Get().DisableLogFileLevel(ConvTo< Uint8 >::From(level));
+    Logger::Get().DisableLogFileLevel(ConvTo< uint8_t >::From(level));
 }
 
 // ------------------------------------------------------------------------------------------------
 static void SqLogToggleLogFileLevel(SQInteger level, bool toggle)
 {
-    Logger::Get().ToggleLogFileLevel(ConvTo< Uint8 >::From(level), toggle);
+    Logger::Get().ToggleLogFileLevel(ConvTo< uint8_t >::From(level), toggle);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1042,7 +1044,7 @@ static const String & SqLogGetLogFilename()
 }
 
 // ------------------------------------------------------------------------------------------------
-static void SqLogSetLogFilename(CSStr filename)
+static void SqLogSetLogFilename(const SQChar * filename)
 {
     Logger::Get().SetLogFilename(filename);
 }
@@ -1056,7 +1058,7 @@ static SQInteger SqLogGetStringTruncate()
 // ------------------------------------------------------------------------------------------------
 static void SqLogSetStringTruncate(SQInteger nc)
 {
-    Logger::Get().SetStringTruncate(ConvTo< Uint32 >::From(nc));
+    Logger::Get().SetStringTruncate(ConvTo< uint32_t >::From(nc));
 }
 
 // ================================================================================================

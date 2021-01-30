@@ -1,19 +1,16 @@
 // ------------------------------------------------------------------------------------------------
 #include "Base/Color4.hpp"
 #include "Base/Color3.hpp"
-#include "Base/Shared.hpp"
 #include "Base/DynArg.hpp"
-#include "Base/Buffer.hpp"
+#include "Core/Buffer.hpp"
+#include "Core/Utility.hpp"
 #include "Library/Numeric/Random.hpp"
-
-// ------------------------------------------------------------------------------------------------
-#include <limits>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQMODE_DECL_TYPENAME(Typename, _SC("Color4"))
+SQMOD_DECL_TYPENAME(Typename, _SC("Color4"))
 
 // ------------------------------------------------------------------------------------------------
 const Color4 Color4::NIL = Color4();
@@ -23,13 +20,6 @@ const Color4 Color4::MAX = Color4(std::numeric_limits< Color4::Value >::max());
 // ------------------------------------------------------------------------------------------------
 SQChar Color4::Delim = ',';
 bool Color4::UpperCaseHex = false;
-
-// ------------------------------------------------------------------------------------------------
-Color4::Color4() noexcept
-    : r(0), g(0), b(0), a(0)
-{
-    /* ... */
-}
 
 // ------------------------------------------------------------------------------------------------
 Color4::Color4(Value sv) noexcept
@@ -494,7 +484,7 @@ Color4::operator Color3 () const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 Color4::Cmp(const Color4 & o) const
+int32_t Color4::Cmp(const Color4 & o) const
 {
     if (*this == o)
     {
@@ -511,9 +501,9 @@ Int32 Color4::Cmp(const Color4 & o) const
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr Color4::ToString() const
+String Color4::ToString() const
 {
-    return ToStrF("%u,%u,%u,%u", r, g, b, a);
+    return fmt::format("{},{},{},{}", r, g, b, a);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -573,13 +563,13 @@ void Color4::SetName(StackStrF & name)
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint32 Color4::GetRGB() const
+uint32_t Color4::GetRGB() const
 {
-    return Uint32(r << 16u | g << 8u | b); // NOLINT(hicpp-signed-bitwise)
+    return uint32_t(r << 16u | g << 8u | b); // NOLINT(hicpp-signed-bitwise)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color4::SetRGB(Uint32 p)
+void Color4::SetRGB(uint32_t p)
 {
     r = static_cast< Value >((p >> 16u) & 0xFFu);
     g = static_cast< Value >((p >> 8u) & 0xFFu);
@@ -587,13 +577,13 @@ void Color4::SetRGB(Uint32 p)
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint32 Color4::GetRGBA() const
+uint32_t Color4::GetRGBA() const
 {
-    return Uint32(r << 24u | g << 16u | b << 8u | a); // NOLINT(hicpp-signed-bitwise)
+    return uint32_t(r << 24u | g << 16u | b << 8u | a); // NOLINT(hicpp-signed-bitwise)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color4::SetRGBA(Uint32 p)
+void Color4::SetRGBA(uint32_t p)
 {
     r = static_cast< Value >((p >> 24u) & 0xFFu);
     g = static_cast< Value >((p >> 16u) & 0xFFu);
@@ -602,13 +592,13 @@ void Color4::SetRGBA(Uint32 p)
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint32 Color4::GetARGB() const
+uint32_t Color4::GetARGB() const
 {
-    return Uint32(a << 24u | r << 16u | g << 8u | b); // NOLINT(hicpp-signed-bitwise)
+    return uint32_t(a << 24u | r << 16u | g << 8u | b); // NOLINT(hicpp-signed-bitwise)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color4::SetARGB(Uint32 p)
+void Color4::SetARGB(uint32_t p)
 {
     a = static_cast< Value >((p >> 24u) & 0xFFu);
     r = static_cast< Value >((p >> 16u) & 0xFFu);
@@ -695,30 +685,14 @@ LightObj Color4::ToHex3() const
 }
 
 // ------------------------------------------------------------------------------------------------
-LightObj Color4::Format(const String & spec, StackStrF & fmt) const
+String Color4::Format(StackStrF & str) const
 {
-    String out;
-    // Attempt to build the format string
-    if (!BuildFormatString(out, fmt, 4, spec))
-    {
-        return LightObj{}; // Default to null
-    }
-    // Empty string is unacceptable
-    else if (out.empty())
-    {
-        STHROWF("Unable to build a valid format string.");
-    }
-    // Grab a temporary buffer
-    Buffer buff(out.size());
-    // Generate the string
-    Buffer::SzType n = buff.WriteF(0, out.c_str(), r, g, b, a);
-    // Did the format failed?
-    if (!n && !out.empty())
-    {
-        STHROWF("Format failed. Please check format specifier and parameter count.");
-    }
-    // Return the resulted string
-    return LightObj{buff.Begin< SQChar >(), static_cast< SQInteger >(n)};
+    return fmt::format(str.ToStr()
+        , fmt::arg("r", r)
+        , fmt::arg("g", g)
+        , fmt::arg("b", b)
+        , fmt::arg("a", a)
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -732,8 +706,8 @@ const Color4 & Color4::GetEx(SQChar delim, StackStrF & str)
 {
     static Color4 col;
     // The minimum and maximum values supported by the Color4 type
-    static constexpr Uint32 min = std::numeric_limits< Color4::Value >::min();
-    static constexpr Uint32 max = std::numeric_limits< Color4::Value >::max();
+    static constexpr uint32_t min = std::numeric_limits< Color4::Value >::min();
+    static constexpr uint32_t max = std::numeric_limits< Color4::Value >::max();
     // Clear previous values, if any
     col.Clear();
     // Is the specified string empty?
@@ -748,7 +722,7 @@ const Color4 & Color4::GetEx(SQChar delim, StackStrF & str)
     fs[9] = delim;
     fs[14] = delim;
     // The sscanf function requires at least 32 bit integers
-    Uint32 r = 0, g = 0, b = 0, a = 0;
+    uint32_t r = 0, g = 0, b = 0, a = 0;
     // Attempt to extract the component values from the specified string
     std::sscanf(str.mPtr, fs, &r, &g, &b, &a);
     // Cast the extracted integers to the value used by the Color4 type
@@ -837,60 +811,6 @@ void Register_Color4(HSQUIRRELVM vm)
         .StaticFunc(_SC("SetUpperCaseHex"), &SqSetColor4UpperCaseHex)
         .StaticFmtFunc(_SC("FromStr"), &Color4::Get)
         .StaticFmtFunc(_SC("FromStrEx"), &Color4::GetEx)
-        // Operator Exposure
-        .Func< Color4 & (Color4::*)(const Color4 &) >(_SC("opAddAssign"), &Color4::operator +=)
-        .Func< Color4 & (Color4::*)(const Color4 &) >(_SC("opSubAssign"), &Color4::operator -=)
-        .Func< Color4 & (Color4::*)(const Color4 &) >(_SC("opMulAssign"), &Color4::operator *=)
-        .Func< Color4 & (Color4::*)(const Color4 &) >(_SC("opDivAssign"), &Color4::operator /=)
-        .Func< Color4 & (Color4::*)(const Color4 &) >(_SC("opModAssign"), &Color4::operator %=)
-        .Func< Color4 & (Color4::*)(const Color4 &) >(_SC("opAndAssign"), &Color4::operator &=)
-        .Func< Color4 & (Color4::*)(const Color4 &) >(_SC("opOrAssign"), &Color4::operator |=)
-        .Func< Color4 & (Color4::*)(const Color4 &) >(_SC("opXorAssign"), &Color4::operator ^=)
-        .Func< Color4 & (Color4::*)(const Color4 &) >(_SC("opShlAssign"), &Color4::operator <<=)
-        .Func< Color4 & (Color4::*)(const Color4 &) >(_SC("opShrAssign"), &Color4::operator >>=)
-        .Func< Color4 & (Color4::*)(Color4::Value) >(_SC("opAddAssignS"), &Color4::operator +=)
-        .Func< Color4 & (Color4::*)(Color4::Value) >(_SC("opSubAssignS"), &Color4::operator -=)
-        .Func< Color4 & (Color4::*)(Color4::Value) >(_SC("opMulAssignS"), &Color4::operator *=)
-        .Func< Color4 & (Color4::*)(Color4::Value) >(_SC("opDivAssignS"), &Color4::operator /=)
-        .Func< Color4 & (Color4::*)(Color4::Value) >(_SC("opModAssignS"), &Color4::operator %=)
-        .Func< Color4 & (Color4::*)(Color4::Value) >(_SC("opAndAssignS"), &Color4::operator &=)
-        .Func< Color4 & (Color4::*)(Color4::Value) >(_SC("opOrAssignS"), &Color4::operator |=)
-        .Func< Color4 & (Color4::*)(Color4::Value) >(_SC("opXorAssignS"), &Color4::operator ^=)
-        .Func< Color4 & (Color4::*)(Color4::Value) >(_SC("opShlAssignS"), &Color4::operator <<=)
-        .Func< Color4 & (Color4::*)(Color4::Value) >(_SC("opShrAssignS"), &Color4::operator >>=)
-        .Func< Color4 & (Color4::*)(void) >(_SC("opPreInc"), &Color4::operator ++)
-        .Func< Color4 & (Color4::*)(void) >(_SC("opPreDec"), &Color4::operator --)
-        .Func< Color4 (Color4::*)(int) >(_SC("opPostInc"), &Color4::operator ++)
-        .Func< Color4 (Color4::*)(int) >(_SC("opPostDec"), &Color4::operator --)
-        .Func< Color4 (Color4::*)(const Color4 &) const >(_SC("opAdd"), &Color4::operator +)
-        .Func< Color4 (Color4::*)(const Color4 &) const >(_SC("opSub"), &Color4::operator -)
-        .Func< Color4 (Color4::*)(const Color4 &) const >(_SC("opMul"), &Color4::operator *)
-        .Func< Color4 (Color4::*)(const Color4 &) const >(_SC("opDiv"), &Color4::operator /)
-        .Func< Color4 (Color4::*)(const Color4 &) const >(_SC("opMod"), &Color4::operator %)
-        .Func< Color4 (Color4::*)(const Color4 &) const >(_SC("opAnd"), &Color4::operator &)
-        .Func< Color4 (Color4::*)(const Color4 &) const >(_SC("opOr"), &Color4::operator |)
-        .Func< Color4 (Color4::*)(const Color4 &) const >(_SC("opShl"), &Color4::operator ^)
-        .Func< Color4 (Color4::*)(const Color4 &) const >(_SC("opShl"), &Color4::operator <<)
-        .Func< Color4 (Color4::*)(const Color4 &) const >(_SC("opShr"), &Color4::operator >>)
-        .Func< Color4 (Color4::*)(Color4::Value) const >(_SC("opAddS"), &Color4::operator +)
-        .Func< Color4 (Color4::*)(Color4::Value) const >(_SC("opSubS"), &Color4::operator -)
-        .Func< Color4 (Color4::*)(Color4::Value) const >(_SC("opMulS"), &Color4::operator *)
-        .Func< Color4 (Color4::*)(Color4::Value) const >(_SC("opDivS"), &Color4::operator /)
-        .Func< Color4 (Color4::*)(Color4::Value) const >(_SC("opModS"), &Color4::operator %)
-        .Func< Color4 (Color4::*)(Color4::Value) const >(_SC("opAndS"), &Color4::operator &)
-        .Func< Color4 (Color4::*)(Color4::Value) const >(_SC("opOrS"), &Color4::operator |)
-        .Func< Color4 (Color4::*)(Color4::Value) const >(_SC("opShlS"), &Color4::operator ^)
-        .Func< Color4 (Color4::*)(Color4::Value) const >(_SC("opShlS"), &Color4::operator <<)
-        .Func< Color4 (Color4::*)(Color4::Value) const >(_SC("opShrS"), &Color4::operator >>)
-        .Func< Color4 (Color4::*)(void) const >(_SC("opUnPlus"), &Color4::operator +)
-        .Func< Color4 (Color4::*)(void) const >(_SC("opUnMinus"), &Color4::operator -)
-        .Func< Color4 (Color4::*)(void) const >(_SC("opCom"), &Color4::operator ~)
-        .Func< bool (Color4::*)(const Color4 &) const >(_SC("opEqual"), &Color4::operator ==)
-        .Func< bool (Color4::*)(const Color4 &) const >(_SC("opNotEqual"), &Color4::operator !=)
-        .Func< bool (Color4::*)(const Color4 &) const >(_SC("opLessThan"), &Color4::operator <)
-        .Func< bool (Color4::*)(const Color4 &) const >(_SC("opGreaterThan"), &Color4::operator >)
-        .Func< bool (Color4::*)(const Color4 &) const >(_SC("opLessEqual"), &Color4::operator <=)
-        .Func< bool (Color4::*)(const Color4 &) const >(_SC("opGreaterEqual"), &Color4::operator >=)
     );
 }
 

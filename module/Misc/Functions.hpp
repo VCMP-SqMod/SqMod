@@ -9,42 +9,42 @@ namespace SqMod {
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the name of a certain key-code.
 */
-CSStr GetKeyCodeName(Uint8 keycode);
+const SQChar * GetKeyCodeName(uint8_t keycode);
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the name of a certain key-code.
 */
-void SetKeyCodeName(Uint8 keycode, StackStrF & name);
+void SetKeyCodeName(uint8_t keycode, StackStrF & name);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the server version.
 */
-Uint32 GetServerVersion();
+SQMOD_NODISCARD uint32_t GetServerVersion();
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the server settings.
 */
-Table GetServerSettings();
+SQMOD_NODISCARD Table GetServerSettings();
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the number of loaded plug-ins.
 */
-Uint32 GetNumberOfPlugins();
+SQMOD_NODISCARD uint32_t GetNumberOfPlugins();
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve information about a certain plug-in.
 */
-Table GetPluginInfo(Int32 plugin_id);
+SQMOD_NODISCARD Table GetPluginInfo(int32_t plugin_id);
 
 /* ------------------------------------------------------------------------------------------------
  * Attempt to find a plug-in identifier by it's name.
 */
-Int32 FindPlugin(StackStrF & name);
+SQMOD_NODISCARD int32_t FindPlugin(StackStrF & name);
 
 /* ------------------------------------------------------------------------------------------------
  * Send a custom command to the loaded plug-ins.
 */
-void SendPluginCommand(Uint32 identifier, StackStrF & payload);
+void SendPluginCommand(uint32_t identifier, StackStrF & payload);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the server time.
@@ -59,57 +59,57 @@ void SendLogMessage(StackStrF & msg);
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the last error that occurred on the server.
 */
-Int32 GetLastError();
+SQMOD_NODISCARD int32_t GetLastError();
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the version of the host Squirrel plug-in as an integer.
 */
-Uint32 GetPluginVersion();
+SQMOD_NODISCARD uint32_t GetPluginVersion();
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the version of the host Squirrel plug-in as a string.
 */
-CSStr GetPluginVersionStr();
+SQMOD_NODISCARD const SQChar * GetPluginVersionStr();
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the name of the host Squirrel plug-in.
 */
-CSStr GetPluginName();
+SQMOD_NODISCARD const SQChar * GetPluginName();
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the author of the host Squirrel plug-in.
 */
-CSStr GetPluginAuthor();
+SQMOD_NODISCARD const SQChar * GetPluginAuthor();
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the id of the host Squirrel plug-in.
 */
-Int32 GetPluginID();
+SQMOD_NODISCARD int32_t GetPluginID();
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the port onto which the server was binded.
 */
-Uint32 GetServerPort();
+SQMOD_NODISCARD uint32_t GetServerPort();
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the server flags.
 */
-Uint32 GetServerFlags();
+SQMOD_NODISCARD uint32_t GetServerFlags();
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the maximum number of clients allowed on the server.
 */
-Int32 GetMaxPlayers();
+SQMOD_NODISCARD int32_t GetMaxPlayers();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the maximum number of clients allowed on the server.
 */
-void SetMaxPlayers(Int32 max);
+void SetMaxPlayers(int32_t max);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the server name.
 */
-CSStr GetServerName();
+SQMOD_NODISCARD const SQChar * GetServerName();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the server name.
@@ -119,7 +119,7 @@ void SetServerName(StackStrF & name);
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the server password.
 */
-CSStr GetServerPassword();
+SQMOD_NODISCARD const SQChar * GetServerPassword();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the server password.
@@ -129,7 +129,7 @@ void SetServerPassword(StackStrF & passwd);
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the game-mode text.
 */
-CSStr GetGameModeText();
+SQMOD_NODISCARD const SQChar * GetGameModeText();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the game-mode text.
@@ -139,17 +139,17 @@ void SetGameModeText(StackStrF & text);
 /* ------------------------------------------------------------------------------------------------
  * Create a radio stream.
 */
-SQInteger CreateRadioStream(bool listed, StackStrF & name, StackStrF & url);
+SQMOD_NODISCARD SQInteger CreateRadioStream(bool listed, StackStrF & name, StackStrF & url);
 
 /* ------------------------------------------------------------------------------------------------
  * Create a radio stream.
 */
-SQInteger CreateRadioStreamEx(Int32 id, bool listed, StackStrF & name, StackStrF & url);
+SQMOD_NODISCARD SQInteger CreateRadioStreamEx(int32_t id, bool listed, StackStrF & name, StackStrF & url);
 
 /* ------------------------------------------------------------------------------------------------
  * Remove a radio stream.
 */
-void RemoveRadioStream(Int32 id);
+void RemoveRadioStream(int32_t id);
 
 /* ------------------------------------------------------------------------------------------------
  * Shutdown the server.
@@ -159,22 +159,22 @@ void ShutdownServer();
 /* ------------------------------------------------------------------------------------------------
  * Retrieve a server option.
 */
-bool GetServerOption(Int32 option_id);
+bool GetServerOption(int32_t option_id);
 
 /* ------------------------------------------------------------------------------------------------
  * Modify a server option.
 */
-void SetServerOption(Int32 option_id, bool toggle);
+void SetServerOption(int32_t option_id, bool toggle);
 
 /* ------------------------------------------------------------------------------------------------
  * Modify a server option.
 */
-void SetServerOptionEx(Int32 option_id, bool toggle, Int32 header, LightObj & payload);
+void SetServerOptionEx(int32_t option_id, bool toggle, int32_t header, LightObj & payload);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the world bounds.
 */
-Table GetWorldBounds();
+SQMOD_NODISCARD Table GetWorldBounds();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the world bounds.
@@ -184,173 +184,173 @@ void SetWorldBounds(const Vector2 & max, const Vector2 & min);
 /* ------------------------------------------------------------------------------------------------
  * Modify the world bounds.
 */
-void SetWorldBoundsEx(Float32 max_x, Float32 max_y, Float32 min_x, Float32 min_y);
+void SetWorldBoundsEx(float max_x, float max_y, float min_x, float min_y);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the wasted settings.
 */
-Table GetWastedSettings();
+SQMOD_NODISCARD Table GetWastedSettings();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the wasted settings.
 */
-void SetWastedSettings(Uint32 dt, Uint32 ft, Float32 fis, Float32 fos,
-                        const Color3 & fc, Uint32 cfs, Uint32 cft);
+void SetWastedSettings(uint32_t dt, uint32_t ft, float fis, float fos,
+                        const Color3 & fc, uint32_t cfs, uint32_t cft);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the current time-rate.
 */
-Int32 GetTimeRate();
+SQMOD_NODISCARD int32_t GetTimeRate();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the current time-rate.
 */
-void SetTimeRate(Uint32 rate);
+void SetTimeRate(uint32_t rate);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the game hour.
 */
-Int32 GetHour();
+SQMOD_NODISCARD int32_t GetHour();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the game hour.
 */
-void SetHour(Int32 hour);
+void SetHour(int32_t hour);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the game minute.
 */
-Int32 GetMinute();
+SQMOD_NODISCARD int32_t GetMinute();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the game minute.
 */
-void SetMinute(Int32 minute);
+void SetMinute(int32_t minute);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the weather effects.
 */
-Int32 GetWeather();
+SQMOD_NODISCARD int32_t GetWeather();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the weather effects.
 */
-void SetWeather(Int32 weather);
+void SetWeather(int32_t weather);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the game gravity.
 */
-Float32 GetGravity();
+SQMOD_NODISCARD float GetGravity();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the game gravity.
 */
-void SetGravity(Float32 gravity);
+void SetGravity(float gravity);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the game speed.
 */
-Float32 GetGameSpeed();
+SQMOD_NODISCARD float GetGameSpeed();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the game speed.
 */
-void SetGameSpeed(Float32 speed);
+void SetGameSpeed(float speed);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the water level.
 */
-Float32 GetWaterLevel();
+SQMOD_NODISCARD float GetWaterLevel();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the water level.
 */
-void SetWaterLevel(Float32 level);
+void SetWaterLevel(float level);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the maximum flight altitude.
 */
-Float32 GetMaximumFlightAltitude();
+SQMOD_NODISCARD float GetMaximumFlightAltitude();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the maximum flight altitude.
 */
-void SetMaximumFlightAltitude(Float32 height);
+void SetMaximumFlightAltitude(float height);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the kill command delay.
 */
-Int32 GetKillCommandDelay();
+SQMOD_NODISCARD int32_t GetKillCommandDelay();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the kill command delay.
 */
-void SetKillCommandDelay(Int32 delay);
+void SetKillCommandDelay(int32_t delay);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the vehicles forced respawn height.
 */
-Float32 GetVehiclesForcedRespawnHeight();
+SQMOD_NODISCARD float GetVehiclesForcedRespawnHeight();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the vehicles forced respawn height.
 */
-void SetVehiclesForcedRespawnHeight(Float32 height);
+void SetVehiclesForcedRespawnHeight(float height);
 
 /* ------------------------------------------------------------------------------------------------
  * Create a game explosion.
 */
-void CreateExplosion(Int32 world, Int32 type, const Vector3 & pos, CPlayer & source, bool grounded);
+void CreateExplosion(int32_t world, int32_t type, const Vector3 & pos, CPlayer & source, bool grounded);
 
 /* ------------------------------------------------------------------------------------------------
  * Create a game explosion.
 */
-void CreateExplosionEx(Int32 world, Int32 type, Float32 x, Float32 y, Float32 z, CPlayer & source, bool grounded);
+void CreateExplosionEx(int32_t world, int32_t type, float x, float y, float z, CPlayer & source, bool grounded);
 
 /* ------------------------------------------------------------------------------------------------
  * Play a game sound.
 */
-void PlaySound(Int32 world, Int32 sound, const Vector3 & pos);
+void PlaySound(int32_t world, int32_t sound, const Vector3 & pos);
 
 /* ------------------------------------------------------------------------------------------------
  * Play a game sound.
 */
-void PlaySoundEx(Int32 world, Int32 sound, Float32 x, Float32 y, Float32 z);
+void PlaySoundEx(int32_t world, int32_t sound, float x, float y, float z);
 
 /* ------------------------------------------------------------------------------------------------
  * Play a game sound to a specific world.
 */
-void PlaySoundForWorld(Int32 world, Int32 sound);
+void PlaySoundForWorld(int32_t world, int32_t sound);
 
 /* ------------------------------------------------------------------------------------------------
  * Make a map object invisible.
 */
-void HideMapObject(Int32 model, const Vector3 & pos);
+void HideMapObject(int32_t model, const Vector3 & pos);
 
 /* ------------------------------------------------------------------------------------------------
  * Make a map object invisible.
 */
-void HideMapObjectEx(Int32 model, Float32 x, Float32 y, Float32 z);
+void HideMapObjectEx(int32_t model, float x, float y, float z);
 
 /* ------------------------------------------------------------------------------------------------
  * Make a map object invisible.
 */
-void HideMapObjectRaw(Int32 model, Int16 x, Int16 y, Int16 z);
+void HideMapObjectRaw(int32_t model, int16_t x, int16_t y, int16_t z);
 
 /* ------------------------------------------------------------------------------------------------
  * Make a map object visible again.
 */
-void ShowMapObject(Int32 model, const Vector3 & pos);
+void ShowMapObject(int32_t model, const Vector3 & pos);
 
 /* ------------------------------------------------------------------------------------------------
  * Make a map object visible again.
 */
-void ShowMapObjectEx(Int32 model, Float32 x, Float32 y, Float32 z);
+void ShowMapObjectEx(int32_t model, float x, float y, float z);
 
 /* ------------------------------------------------------------------------------------------------
  * Make a map object visible again.
 */
-void ShowMapObjectRaw(Int32 model, Int16 x, Int16 y, Int16 z);
+void ShowMapObjectRaw(int32_t model, int16_t x, int16_t y, int16_t z);
 
 /* ------------------------------------------------------------------------------------------------
  * Make all map objects visible again.
@@ -360,27 +360,27 @@ void ShowAllMapObjects();
 /* ------------------------------------------------------------------------------------------------
  * Retrieve field data of a certain weapon.
 */
-SQFloat GetWeaponDataValue(Int32 weapon, Int32 field);
+SQMOD_NODISCARD SQFloat GetWeaponDataValue(int32_t weapon, int32_t field);
 
 /* ------------------------------------------------------------------------------------------------
  * Modify field data of a certain weapon.
 */
-bool SetWeaponDataValue(Int32 weapon, Int32 field, SQFloat value);
+bool SetWeaponDataValue(int32_t weapon, int32_t field, SQFloat value);
 
 /* ------------------------------------------------------------------------------------------------
  * Reset field data of a certain weapon.
 */
-bool ResetWeaponDataValue(Int32 weapon, Int32 field);
+bool ResetWeaponDataValue(int32_t weapon, int32_t field);
 
 /* ------------------------------------------------------------------------------------------------
  * See whether field data of a certain weapon was modified.
 */
-bool IsWeaponDataValueModified(Int32 weapon, Int32 field);
+bool IsWeaponDataValueModified(int32_t weapon, int32_t field);
 
 /* ------------------------------------------------------------------------------------------------
  * Reset all fields data of a certain weapon.
 */
-bool ResetWeaponData(Int32 weapon);
+bool ResetWeaponData(int32_t weapon);
 
 /* ------------------------------------------------------------------------------------------------
  * Reset all fields data of a all weapons.
@@ -390,8 +390,8 @@ void ResetAllWeaponData();
 /* ------------------------------------------------------------------------------------------------
  * Create a new player class.
 */
-Int32 AddPlayerClass(Int32 team, const Color3 & color, Int32 skin, const Vector3 & pos, Float32 angle,
-                        Int32 wep1, Int32 ammo1, Int32 wep2, Int32 ammo2, Int32 wep3, Int32 ammo3);
+SQMOD_NODISCARD int32_t AddPlayerClass(int32_t team, const Color3 & color, int32_t skin, const Vector3 & pos, float angle,
+                        int32_t wep1, int32_t ammo1, int32_t wep2, int32_t ammo2, int32_t wep3, int32_t ammo3);
 
 /* ------------------------------------------------------------------------------------------------
  * Set the player position when spawning.
@@ -411,17 +411,17 @@ void SetSpawnCameraLookAt(const Vector3 & pos);
 /* ------------------------------------------------------------------------------------------------
  * Set the player position when spawning.
 */
-void SetSpawnPlayerPositionEx(Float32 x, Float32 y, Float32 z);
+void SetSpawnPlayerPositionEx(float x, float y, float z);
 
 /* ------------------------------------------------------------------------------------------------
  * Set the camera position when spawning.
 */
-void SetSpawnCameraPositionEx(Float32 x, Float32 y, Float32 z);
+void SetSpawnCameraPositionEx(float x, float y, float z);
 
 /* ------------------------------------------------------------------------------------------------
  * Set the camera focus when spawning.
 */
-void SetSpawnCameraLookAtEx(Float32 x, Float32 y, Float32 z);
+void SetSpawnCameraLookAtEx(float x, float y, float z);
 
 /* ------------------------------------------------------------------------------------------------
  * Ban an IP address from the server.
@@ -441,12 +441,12 @@ bool IsIPBanned(StackStrF & addr);
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the identifier of the player with the specified name.
 */
-Int32 GetPlayerIdFromName(StackStrF & name);
+SQMOD_NODISCARD int32_t GetPlayerIdFromName(StackStrF & name);
 
 /* ------------------------------------------------------------------------------------------------
  * See if a player with the specified identifier is connected.
 */
-bool IsPlayerConnected(Int32 player_id);
+bool IsPlayerConnected(int32_t player_id);
 
 /* ------------------------------------------------------------------------------------------------
  * Force all players on the server to select a class.
@@ -456,37 +456,37 @@ void ForceAllSelect();
 /* ------------------------------------------------------------------------------------------------
  * See if an entity exists on the server.
 */
-bool CheckEntityExists(Int32 type, Int32 index);
+bool CheckEntityExists(int32_t type, int32_t index);
 
 /* ------------------------------------------------------------------------------------------------
  * See if a certain point is within a known district on the bas game map.
 */
-CSStr GetDistrictName(const Vector2 & point);
+SQMOD_NODISCARD const SQChar * GetDistrictName(const Vector2 & point);
 
 /* ------------------------------------------------------------------------------------------------
  * See if a certain point is within a known district on the bas game map.
 */
-CSStr GetDistrictNameEx(SQFloat x, SQFloat y);
+SQMOD_NODISCARD const SQChar * GetDistrictNameEx(SQFloat x, SQFloat y);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the fall timer rate.
 */
-Uint16 GetFallTimer();
+SQMOD_NODISCARD uint16_t GetFallTimer();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the fall timer rate.
 */
-void SetFallTimer(Uint16 rate);
+void SetFallTimer(uint16_t rate);
 #if SQMOD_SDK_LEAST(2, 1)
 /* ------------------------------------------------------------------------------------------------
  * Retrieve network statistics related to the server.
 */
-SQFloat GetNetworkStatisticsF(Int32 option_id);
+SQMOD_NODISCARD SQFloat GetNetworkStatisticsF(int32_t option_id);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve network statistics related to the server.
 */
-SQInteger GetNetworkStatisticsI(Int32 option_id);
+SQMOD_NODISCARD SQInteger GetNetworkStatisticsI(int32_t option_id);
 #endif
 
 } // Namespace:: SqMod

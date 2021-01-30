@@ -4,16 +4,16 @@
 #include "Base/Quaternion.hpp"
 #include "Base/Vector3.hpp"
 #include "Core.hpp"
-#include "Misc/Tasks.hpp"
+#include "Core/Tasks.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQMODE_DECL_TYPENAME(Typename, _SC("SqObject"))
+SQMOD_DECL_TYPENAME(Typename, _SC("SqObject"))
 
 // ------------------------------------------------------------------------------------------------
-const Int32 CObject::Max = SQMOD_OBJECT_POOL;
+const int32_t CObject::Max = SQMOD_OBJECT_POOL;
 
 // ------------------------------------------------------------------------------------------------
 SQInteger CObject::SqGetNull(HSQUIRRELVM vm)
@@ -29,9 +29,9 @@ LightObj & CObject::GetNull()
 }
 
 // ------------------------------------------------------------------------------------------------
-CObject::CObject(Int32 id)
+CObject::CObject(int32_t id)
     : m_ID(VALID_ENTITYGETEX(id, SQMOD_OBJECT_POOL))
-    , m_Tag(ToStrF("%d", id)), m_Data(), m_CircularLocks(0)
+    , m_Tag(fmt::format("{}", id)), m_Data(), m_CircularLocks(0)
     , mMoveToDuration(0)
     , mMoveByDuration(0)
     , mRotateToDuration(0)
@@ -93,7 +93,7 @@ void CObject::SetData(LightObj & data)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CObject::Destroy(Int32 header, LightObj & payload)
+bool CObject::Destroy(int32_t header, LightObj & payload) const
 {
     // Validate the managed identifier
     Validate();
@@ -111,11 +111,11 @@ LightObj & CObject::GetEvents() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::CustomEvent(Int32 header, LightObj & payload) const
+void CObject::CustomEvent(int32_t header, LightObj & payload) const
 {
     // Validate the managed identifier
     Validate();
-    // Perfrom the requested action
+    // Perform the requested action
     Core::Get().EmitObjectCustom(m_ID, header, payload);
 }
 
@@ -134,7 +134,7 @@ bool CObject::IsStreamedFor(CPlayer & player) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CObject::GetModel() const
+int32_t CObject::GetModel() const
 {
     // Validate the managed identifier
     Validate();
@@ -143,7 +143,7 @@ Int32 CObject::GetModel() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CObject::GetWorld() const
+int32_t CObject::GetWorld() const
 {
     // Validate the managed identifier
     Validate();
@@ -152,12 +152,12 @@ Int32 CObject::GetWorld() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::SetWorld(Int32 world)
+void CObject::SetWorld(int32_t world)
 {
     // Validate the managed identifier
     Validate();
     // Grab the current value for this property
-    const Int32 current = _Func->GetObjectWorld(m_ID);
+    const int32_t current = _Func->GetObjectWorld(m_ID);
     // Don't even bother if it's the same value
     if (current == world)
     {
@@ -176,7 +176,7 @@ void CObject::SetWorld(Int32 world)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CObject::GetAlpha() const
+int32_t CObject::GetAlpha() const
 {
     // Validate the managed identifier
     Validate();
@@ -185,18 +185,18 @@ Int32 CObject::GetAlpha() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::SetAlpha(Int32 alpha)
+void CObject::SetAlpha(int32_t alpha)
 {
     SetAlphaEx(alpha, 0);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::SetAlphaEx(Int32 alpha, Uint32 time)
+void CObject::SetAlphaEx(int32_t alpha, uint32_t time)
 {
     // Validate the managed identifier
     Validate();
     // Grab the current value for this property
-    const Int32 current = _Func->GetObjectAlpha(m_ID);
+    const int32_t current = _Func->GetObjectAlpha(m_ID);
     // Don't even bother if it's the same value
     if (current == alpha)
     {
@@ -215,7 +215,7 @@ void CObject::SetAlphaEx(Int32 alpha, Uint32 time)
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::MoveTo(const Vector3 & pos, Uint32 time) const
+void CObject::MoveTo(const Vector3 & pos, uint32_t time) const
 {
     // Validate the managed identifier
     Validate();
@@ -224,7 +224,7 @@ void CObject::MoveTo(const Vector3 & pos, Uint32 time) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::MoveToEx(Float32 x, Float32 y, Float32 z, Uint32 time) const
+void CObject::MoveToEx(float x, float y, float z, uint32_t time) const
 {
     // Validate the managed identifier
     Validate();
@@ -233,7 +233,7 @@ void CObject::MoveToEx(Float32 x, Float32 y, Float32 z, Uint32 time) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::MoveBy(const Vector3 & pos, Uint32 time) const
+void CObject::MoveBy(const Vector3 & pos, uint32_t time) const
 {
     // Validate the managed identifier
     Validate();
@@ -242,7 +242,7 @@ void CObject::MoveBy(const Vector3 & pos, Uint32 time) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::MoveByEx(Float32 x, Float32 y, Float32 z, Uint32 time) const
+void CObject::MoveByEx(float x, float y, float z, uint32_t time) const
 {
     // Validate the managed identifier
     Validate();
@@ -251,7 +251,7 @@ void CObject::MoveByEx(Float32 x, Float32 y, Float32 z, Uint32 time) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector3 CObject::GetPosition()
+Vector3 CObject::GetPosition() const
 {
     // Validate the managed identifier
     Validate();
@@ -273,7 +273,7 @@ void CObject::SetPosition(const Vector3 & pos) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::SetPositionEx(Float32 x, Float32 y, Float32 z) const
+void CObject::SetPositionEx(float x, float y, float z) const
 {
     // Validate the managed identifier
     Validate();
@@ -282,7 +282,7 @@ void CObject::SetPositionEx(Float32 x, Float32 y, Float32 z) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateTo(const Quaternion & rot, Uint32 time) const
+void CObject::RotateTo(const Quaternion & rot, uint32_t time) const
 {
     // Validate the managed identifier
     Validate();
@@ -291,7 +291,7 @@ void CObject::RotateTo(const Quaternion & rot, Uint32 time) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateToEx(Float32 x, Float32 y, Float32 z, Float32 w, Uint32 time) const
+void CObject::RotateToEx(float x, float y, float z, float w, uint32_t time) const
 {
     // Validate the managed identifier
     Validate();
@@ -300,7 +300,7 @@ void CObject::RotateToEx(Float32 x, Float32 y, Float32 z, Float32 w, Uint32 time
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateToEuler(const Vector3 & rot, Uint32 time) const
+void CObject::RotateToEuler(const Vector3 & rot, uint32_t time) const
 {
     // Validate the managed identifier
     Validate();
@@ -309,7 +309,7 @@ void CObject::RotateToEuler(const Vector3 & rot, Uint32 time) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateToEulerEx(Float32 x, Float32 y, Float32 z, Uint32 time) const
+void CObject::RotateToEulerEx(float x, float y, float z, uint32_t time) const
 {
     // Validate the managed identifier
     Validate();
@@ -318,7 +318,7 @@ void CObject::RotateToEulerEx(Float32 x, Float32 y, Float32 z, Uint32 time) cons
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateBy(const Quaternion & rot, Uint32 time) const
+void CObject::RotateBy(const Quaternion & rot, uint32_t time) const
 {
     // Validate the managed identifier
     Validate();
@@ -327,7 +327,7 @@ void CObject::RotateBy(const Quaternion & rot, Uint32 time) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateByEx(Float32 x, Float32 y, Float32 z, Float32 w, Uint32 time) const
+void CObject::RotateByEx(float x, float y, float z, float w, uint32_t time) const
 {
     // Validate the managed identifier
     Validate();
@@ -336,7 +336,7 @@ void CObject::RotateByEx(Float32 x, Float32 y, Float32 z, Float32 w, Uint32 time
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateByEuler(const Vector3 & rot, Uint32 time) const
+void CObject::RotateByEuler(const Vector3 & rot, uint32_t time) const
 {
     // Validate the managed identifier
     Validate();
@@ -345,7 +345,7 @@ void CObject::RotateByEuler(const Vector3 & rot, Uint32 time) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateByEulerEx(Float32 x, Float32 y, Float32 z, Uint32 time) const
+void CObject::RotateByEulerEx(float x, float y, float z, uint32_t time) const
 {
     // Validate the managed identifier
     Validate();
@@ -354,20 +354,20 @@ void CObject::RotateByEulerEx(Float32 x, Float32 y, Float32 z, Uint32 time) cons
 }
 
 // ------------------------------------------------------------------------------------------------
-Quaternion CObject::GetRotation()
+Quaternion CObject::GetRotation() const
 {
     // Validate the managed identifier
     Validate();
     // Create a default quaternion instance
-    Quaternion quat;
+    Quaternion q;
     // Query the server for the values
-    _Func->GetObjectRotation(m_ID, &quat.x, &quat.y, &quat.z, &quat.w);
+    _Func->GetObjectRotation(m_ID, &q.x, &q.y, &q.z, &q.w);
     // Return the requested information
-    return quat;
+    return q;
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector3 CObject::GetRotationEuler()
+Vector3 CObject::GetRotationEuler() const
 {
     // Validate the managed identifier
     Validate();
@@ -446,12 +446,12 @@ void CObject::SetTouchedReport(bool toggle)
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CObject::GetPositionX() const
+float CObject::GetPositionX() const
 {
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    Float32 x = 0.0f, dummy;
+    float x = 0.0f, dummy;
     // Query the server for the requested component value
     _Func->GetObjectPosition(m_ID, &x, &dummy, &dummy);
     // Return the requested information
@@ -459,12 +459,12 @@ Float32 CObject::GetPositionX() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CObject::GetPositionY() const
+float CObject::GetPositionY() const
 {
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    Float32 y = 0.0f, dummy;
+    float y = 0.0f, dummy;
     // Query the server for the requested component value
     _Func->GetObjectPosition(m_ID, &dummy, &y, &dummy);
     // Return the requested information
@@ -472,12 +472,12 @@ Float32 CObject::GetPositionY() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CObject::GetPositionZ() const
+float CObject::GetPositionZ() const
 {
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    Float32 z = 0.0f, dummy;
+    float z = 0.0f, dummy;
     // Query the server for the requested component value
     _Func->GetObjectPosition(m_ID, &dummy, &dummy, &z);
     // Return the requested information
@@ -485,12 +485,12 @@ Float32 CObject::GetPositionZ() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::SetPositionX(Float32 x) const
+void CObject::SetPositionX(float x) const
 {
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 y, z, dummy;
+    float y, z, dummy;
     // Retrieve the current values for unchanged components
     _Func->GetObjectPosition(m_ID, &dummy, &y, &z);
     // Perform the requested operation
@@ -498,12 +498,12 @@ void CObject::SetPositionX(Float32 x) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::SetPositionY(Float32 y) const
+void CObject::SetPositionY(float y) const
 {
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 x, z, dummy;
+    float x, z, dummy;
     // Retrieve the current values for unchanged components
     _Func->GetObjectPosition(m_ID, &x, &dummy, &z);
     // Perform the requested operation
@@ -511,12 +511,12 @@ void CObject::SetPositionY(Float32 y) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::SetPositionZ(Float32 z) const
+void CObject::SetPositionZ(float z) const
 {
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 x, y, dummy;
+    float x, y, dummy;
     // Retrieve the current values for unchanged components
     _Func->GetObjectPosition(m_ID, &x, &y, &dummy);
     // Perform the requested operation
@@ -524,12 +524,12 @@ void CObject::SetPositionZ(Float32 z) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CObject::GetRotationX() const
+float CObject::GetRotationX() const
 {
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    Float32 x = 0.0f, dummy;
+    float x = 0.0f, dummy;
     // Query the server for the requested component value
     _Func->GetObjectRotation(m_ID, &x, &dummy, &dummy, &dummy);
     // Return the requested information
@@ -537,12 +537,12 @@ Float32 CObject::GetRotationX() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CObject::GetRotationY() const
+float CObject::GetRotationY() const
 {
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    Float32 y = 0.0f, dummy;
+    float y = 0.0f, dummy;
     // Query the server for the requested component value
     _Func->GetObjectRotation(m_ID, &dummy, &y, &dummy, &dummy);
     // Return the requested information
@@ -550,12 +550,12 @@ Float32 CObject::GetRotationY() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CObject::GetRotationZ() const
+float CObject::GetRotationZ() const
 {
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    Float32 z = 0.0f, dummy;
+    float z = 0.0f, dummy;
     // Query the server for the requested component value
     _Func->GetObjectRotation(m_ID, &dummy, &dummy, &z, &dummy);
     // Return the requested information
@@ -563,12 +563,12 @@ Float32 CObject::GetRotationZ() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CObject::GetRotationW() const
+float CObject::GetRotationW() const
 {
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    Float32 w = 0.0f, dummy;
+    float w = 0.0f, dummy;
     // Query the server for the requested component value
     _Func->GetObjectRotation(m_ID, &dummy, &dummy, &dummy, &w);
     // Return the requested information
@@ -576,12 +576,12 @@ Float32 CObject::GetRotationW() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CObject::GetEulerRotationX() const
+float CObject::GetEulerRotationX() const
 {
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    Float32 x = 0.0f, dummy;
+    float x = 0.0f, dummy;
     // Query the server for the requested component value
     _Func->GetObjectRotationEuler(m_ID, &x, &dummy, &dummy);
     // Return the requested information
@@ -589,12 +589,12 @@ Float32 CObject::GetEulerRotationX() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CObject::GetEulerRotationY() const
+float CObject::GetEulerRotationY() const
 {
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    Float32 y = 0.0f, dummy;
+    float y = 0.0f, dummy;
     // Query the server for the requested component value
     _Func->GetObjectRotationEuler(m_ID, &dummy, &y, &dummy);
     // Return the requested information
@@ -602,12 +602,12 @@ Float32 CObject::GetEulerRotationY() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CObject::GetEulerRotationZ() const
+float CObject::GetEulerRotationZ() const
 {
     // Validate the managed identifier
     Validate();
     // Clear previous information, if any
-    Float32 z = 0.0f, dummy;
+    float z = 0.0f, dummy;
     // Query the server for the requested component value
     _Func->GetObjectRotationEuler(m_ID, &dummy, &dummy, &z);
     // Return the requested information
@@ -615,12 +615,12 @@ Float32 CObject::GetEulerRotationZ() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::MoveToX(Float32 x) const
+void CObject::MoveToX(float x) const
 {
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 y, z, dummy;
+    float y, z, dummy;
     // Retrieve the current values for unchanged components
     _Func->GetObjectPosition(m_ID, &dummy, &y, &z);
     // Perform the requested operation
@@ -628,12 +628,12 @@ void CObject::MoveToX(Float32 x) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::MoveToY(Float32 y) const
+void CObject::MoveToY(float y) const
 {
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 x, z, dummy;
+    float x, z, dummy;
     // Retrieve the current values for unchanged components
     _Func->GetObjectPosition(m_ID, &x, &dummy, &z);
     // Perform the requested operation
@@ -641,12 +641,12 @@ void CObject::MoveToY(Float32 y) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::MoveToZ(Float32 z) const
+void CObject::MoveToZ(float z) const
 {
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 x, y, dummy;
+    float x, y, dummy;
     // Retrieve the current values for unchanged components
     _Func->GetObjectPosition(m_ID, &x, &y, &dummy);
     // Perform the requested operation
@@ -654,7 +654,7 @@ void CObject::MoveToZ(Float32 z) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::MoveByX(Float32 x) const
+void CObject::MoveByX(float x) const
 {
     // Validate the managed identifier
     Validate();
@@ -663,7 +663,7 @@ void CObject::MoveByX(Float32 x) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::MoveByY(Float32 y) const
+void CObject::MoveByY(float y) const
 {
     // Validate the managed identifier
     Validate();
@@ -672,7 +672,7 @@ void CObject::MoveByY(Float32 y) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::MoveByZ(Float32 z) const
+void CObject::MoveByZ(float z) const
 {
     // Validate the managed identifier
     Validate();
@@ -681,12 +681,12 @@ void CObject::MoveByZ(Float32 z) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateToX(Float32 x) const
+void CObject::RotateToX(float x) const
 {
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 y, z, w, dummy;
+    float y, z, w, dummy;
     // Retrieve the current values for unchanged components
     _Func->GetObjectRotation(m_ID, &dummy, &y, &z, &w);
     // Perform the requested operation
@@ -694,12 +694,12 @@ void CObject::RotateToX(Float32 x) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateToY(Float32 y) const
+void CObject::RotateToY(float y) const
 {
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 x, z, w, dummy;
+    float x, z, w, dummy;
     // Retrieve the current values for unchanged components
     _Func->GetObjectRotation(m_ID, &x, &dummy, &z, &w);
     // Perform the requested operation
@@ -707,12 +707,12 @@ void CObject::RotateToY(Float32 y) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateToZ(Float32 z) const
+void CObject::RotateToZ(float z) const
 {
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 x, y, w, dummy;
+    float x, y, w, dummy;
     // Retrieve the current values for unchanged components
     _Func->GetObjectRotation(m_ID, &x, &y, &dummy, &w);
     // Perform the requested operation
@@ -720,12 +720,12 @@ void CObject::RotateToZ(Float32 z) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateToW(Float32 w) const
+void CObject::RotateToW(float w) const
 {
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 x, y, z, dummy;
+    float x, y, z, dummy;
     // Retrieve the current values for unchanged components
     _Func->GetObjectRotation(m_ID, &x, &y, &z, &dummy);
     // Perform the requested operation
@@ -733,7 +733,7 @@ void CObject::RotateToW(Float32 w) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateByX(Float32 x) const
+void CObject::RotateByX(float x) const
 {
     // Validate the managed identifier
     Validate();
@@ -742,7 +742,7 @@ void CObject::RotateByX(Float32 x) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateByY(Float32 y) const
+void CObject::RotateByY(float y) const
 {
     // Validate the managed identifier
     Validate();
@@ -751,7 +751,7 @@ void CObject::RotateByY(Float32 y) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateByZ(Float32 z) const
+void CObject::RotateByZ(float z) const
 {
     // Validate the managed identifier
     Validate();
@@ -760,7 +760,7 @@ void CObject::RotateByZ(Float32 z) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateByW(Float32 w) const
+void CObject::RotateByW(float w) const
 {
     // Validate the managed identifier
     Validate();
@@ -769,12 +769,12 @@ void CObject::RotateByW(Float32 w) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateToEulerX(Float32 x) const
+void CObject::RotateToEulerX(float x) const
 {
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 y, z, dummy;
+    float y, z, dummy;
     // Retrieve the current values for unchanged components
     _Func->GetObjectRotationEuler(m_ID, &dummy, &y, &z);
     // Perform the requested operation
@@ -782,12 +782,12 @@ void CObject::RotateToEulerX(Float32 x) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateToEulerY(Float32 y) const
+void CObject::RotateToEulerY(float y) const
 {
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 x, z, dummy;
+    float x, z, dummy;
     // Retrieve the current values for unchanged components
     _Func->GetObjectRotationEuler(m_ID, &x, &dummy, &z);
     // Perform the requested operation
@@ -795,12 +795,12 @@ void CObject::RotateToEulerY(Float32 y) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateToEulerZ(Float32 z) const
+void CObject::RotateToEulerZ(float z) const
 {
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 x, y, dummy;
+    float x, y, dummy;
     // Retrieve the current values for unchanged components
     _Func->GetObjectRotationEuler(m_ID, &x, &y, &dummy);
     // Perform the requested operation
@@ -808,7 +808,7 @@ void CObject::RotateToEulerZ(Float32 z) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateByEulerX(Float32 x) const
+void CObject::RotateByEulerX(float x) const
 {
     // Validate the managed identifier
     Validate();
@@ -817,7 +817,7 @@ void CObject::RotateByEulerX(Float32 x) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateByEulerY(Float32 y) const
+void CObject::RotateByEulerY(float y) const
 {
     // Validate the managed identifier
     Validate();
@@ -826,7 +826,7 @@ void CObject::RotateByEulerY(Float32 y) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CObject::RotateByEulerZ(Float32 z) const
+void CObject::RotateByEulerZ(float z) const
 {
     // Validate the managed identifier
     Validate();
@@ -835,27 +835,27 @@ void CObject::RotateByEulerZ(Float32 z) const
 }
 
 // ------------------------------------------------------------------------------------------------
-static LightObj & Object_CreateEx(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z,
-                                Int32 alpha)
+static LightObj & Object_CreateEx1a(int32_t model, int32_t world, float x, float y, float z,
+                                int32_t alpha)
 {
     return Core::Get().NewObject(model, world, x, y, z, alpha, SQMOD_CREATE_DEFAULT, NullLightObj());
 }
 
-static LightObj & Object_CreateEx(Int32 model, Int32 world, Float32 x, Float32 y, Float32 z,
-                        Int32 alpha, Int32 header, LightObj & payload)
+static LightObj & Object_CreateEx1b(int32_t model, int32_t world, float x, float y, float z,
+                        int32_t alpha, int32_t header, LightObj & payload)
 {
     return Core::Get().NewObject(model, world, x, y, z, alpha, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-static LightObj & Object_Create(Int32 model, Int32 world, const Vector3 & pos, Int32 alpha)
+static LightObj & Object_Create1a(int32_t model, int32_t world, const Vector3 & pos, int32_t alpha)
 {
     return Core::Get().NewObject(model, world, pos.x, pos.y, pos.z, alpha,
                             SQMOD_CREATE_DEFAULT, NullLightObj());
 }
 
-static LightObj & Object_Create(Int32 model, Int32 world, const Vector3 & pos, Int32 alpha,
-                            Int32 header, LightObj & payload)
+static LightObj & Object_Create1b(int32_t model, int32_t world, const Vector3 & pos, int32_t alpha,
+                            int32_t header, LightObj & payload)
 {
     return Core::Get().NewObject(model, world, pos.x, pos.y, pos.z, alpha, header, payload);
 }
@@ -887,9 +887,9 @@ void Register_CObject(HSQUIRRELVM vm)
         .FmtFunc(_SC("SetTag"), &CObject::ApplyTag)
         .Func(_SC("CustomEvent"), &CObject::CustomEvent)
         // Core Overloads
-        .Overload< bool (CObject::*)(void) >(_SC("Destroy"), &CObject::Destroy)
-        .Overload< bool (CObject::*)(Int32) >(_SC("Destroy"), &CObject::Destroy)
-        .Overload< bool (CObject::*)(Int32, LightObj &) >(_SC("Destroy"), &CObject::Destroy)
+        .Overload(_SC("Destroy"), &CObject::Destroy0)
+        .Overload(_SC("Destroy"), &CObject::Destroy1)
+        .Overload(_SC("Destroy"), &CObject::Destroy)
         // Properties
         .Prop(_SC("Model"), &CObject::GetModel)
         .Prop(_SC("World"), &CObject::GetWorld, &CObject::SetWorld)
@@ -938,39 +938,23 @@ void Register_CObject(HSQUIRRELVM vm)
         .Func(_SC("SetAlpha"), &CObject::SetAlphaEx)
         .Func(_SC("SetPosition"), &CObject::SetPositionEx)
         // Member Overloads
-        .Overload< void (CObject::*)(const Vector3 &, Uint32) const >
-            (_SC("MoveTo"), &CObject::MoveTo)
-        .Overload< void (CObject::*)(Float32, Float32, Float32, Uint32) const >
-            (_SC("MoveTo"), &CObject::MoveToEx)
-        .Overload< void (CObject::*)(const Vector3 &, Uint32) const >
-            (_SC("MoveBy"), &CObject::MoveBy)
-        .Overload< void (CObject::*)(Float32, Float32, Float32, Uint32) const >
-            (_SC("MoveBy"), &CObject::MoveByEx)
-        .Overload< void (CObject::*)(const Quaternion &, Uint32) const >
-            (_SC("RotateTo"), &CObject::RotateTo)
-        .Overload< void (CObject::*)(Float32, Float32, Float32, Float32, Uint32) const >
-            (_SC("RotateTo"), &CObject::RotateToEx)
-        .Overload< void (CObject::*)(const Vector3 &, Uint32) const >
-            (_SC("RotateToEuler"), &CObject::RotateToEuler)
-        .Overload< void (CObject::*)(Float32, Float32, Float32, Uint32) const >
-            (_SC("RotateToEuler"), &CObject::RotateToEulerEx)
-        .Overload< void (CObject::*)(const Quaternion &, Uint32) const >
-            (_SC("RotateBy"), &CObject::RotateBy)
-        .Overload< void (CObject::*)(Float32, Float32, Float32, Float32, Uint32) const >
-            (_SC("RotateBy"), &CObject::RotateByEx)
-        .Overload< void (CObject::*)(const Vector3 &, Uint32) const >
-            (_SC("RotateByEuler"), &CObject::RotateByEuler)
-        .Overload< void (CObject::*)(Float32, Float32, Float32, Uint32) const >
-            (_SC("RotateByEuler"), &CObject::RotateByEulerEx)
+        .Overload(_SC("MoveTo"), &CObject::MoveTo)
+        .Overload(_SC("MoveTo"), &CObject::MoveToEx)
+        .Overload(_SC("MoveBy"), &CObject::MoveBy)
+        .Overload(_SC("MoveBy"), &CObject::MoveByEx)
+        .Overload(_SC("RotateTo"), &CObject::RotateTo)
+        .Overload(_SC("RotateTo"), &CObject::RotateToEx)
+        .Overload(_SC("RotateToEuler"), &CObject::RotateToEuler)
+        .Overload(_SC("RotateToEuler"), &CObject::RotateToEulerEx)
+        .Overload(_SC("RotateBy"), &CObject::RotateBy)
+        .Overload(_SC("RotateBy"), &CObject::RotateByEx)
+        .Overload(_SC("RotateByEuler"), &CObject::RotateByEuler)
+        .Overload(_SC("RotateByEuler"), &CObject::RotateByEulerEx)
         // Static Overloads
-        .StaticOverload< LightObj & (*)(Int32, Int32, Float32, Float32, Float32, Int32) >
-            (_SC("CreateEx"), &Object_CreateEx)
-        .StaticOverload< LightObj & (*)(Int32, Int32, Float32, Float32, Float32, Int32, Int32, LightObj &) >
-            (_SC("CreateEx"), &Object_CreateEx)
-        .StaticOverload< LightObj & (*)(Int32, Int32, const Vector3 &, Int32) >
-            (_SC("Create"), &Object_Create)
-        .StaticOverload< LightObj & (*)(Int32, Int32, const Vector3 &, Int32, Int32, LightObj &) >
-            (_SC("Create"), &Object_Create)
+        .StaticOverload(_SC("CreateEx"), &Object_CreateEx1a)
+        .StaticOverload(_SC("CreateEx"), &Object_CreateEx1b)
+        .StaticOverload(_SC("Create"), &Object_Create1a)
+        .StaticOverload(_SC("Create"), &Object_Create1b)
         // Raw Squirrel Methods
         .SquirrelFunc(_SC("NullInst"), &CObject::SqGetNull)
         .SquirrelFunc(_SC("MakeTask"), &Tasks::MakeTask< CObject, ENT_OBJECT >)

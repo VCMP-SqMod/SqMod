@@ -1,7 +1,7 @@
 #pragma once
 
 // ------------------------------------------------------------------------------------------------
-#include "SqBase.hpp"
+#include "Core/Common.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -9,19 +9,19 @@ namespace SqMod {
 /* ------------------------------------------------------------------------------------------------
  * Get a new string with only the alpha numeric characters from the specified string.
 */
-CSStr StrJustAlphaNum(CSStr str);
-Buffer StrJustAlphaNumB(CSStr str);
+SQMOD_NODISCARD const SQChar * StrJustAlphaNum(const SQChar * str);
+SQMOD_NODISCARD Buffer StrJustAlphaNumB(const SQChar * str);
 
 /* ------------------------------------------------------------------------------------------------
  * Convert the specified string to lowercase.
 */
-CSStr StrToLowercase(CSStr str);
-Buffer StrToLowercaseB(CSStr str);
+SQMOD_NODISCARD const SQChar * StrToLowercase(const SQChar * str);
+SQMOD_NODISCARD Buffer StrToLowercaseB(const SQChar * str);
 
 /* ------------------------------------------------------------------------------------------------
  * Convert the specified string to uppercase.
 */
-CSStr StrToUppercase(CSStr str);
-Buffer StrToUppercaseB(CSStr str);
+SQMOD_NODISCARD const SQChar * StrToUppercase(const SQChar * str);
+SQMOD_NODISCARD Buffer StrToUppercaseB(const SQChar * str);
 
 } // Namespace:: SqMod

@@ -3,7 +3,7 @@
 #include "Base/Color3.hpp"
 #include "Base/Vector2.hpp"
 #include "Entity/Player.hpp"
-#include "Library/Numeric/LongInt.hpp"
+#include "Library/Numeric/Long.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include "Misc/Functions.hpp"

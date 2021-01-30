@@ -1,19 +1,9 @@
 // ------------------------------------------------------------------------------------------------
 #include "Base/Shared.hpp"
-#include "Base/Buffer.hpp"
 #include "Base/Color3.hpp"
-#include "Library/Numeric/Random.hpp"
+#include "Core/Utility.hpp"
 #include "Library/String.hpp"
-
-// ------------------------------------------------------------------------------------------------
-#include <cerrno>
-#include <cstring>
-#include <cstdarg>
-
-// ------------------------------------------------------------------------------------------------
-#ifdef SQMOD_OS_WINDOWS
-    #include <windows.h>
-#endif // SQMOD_OS_WINDOWS
+#include "Library/Numeric/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -164,114 +154,6 @@ static const Color3 SQ_Color_List[] =
 };
 
 // ------------------------------------------------------------------------------------------------
-bool NameFilterCheck(CSStr filter, CSStr name)
-{
-    // If only one of them is null then they don't match
-    if ((!filter && name) || (filter && !name))
-    {
-        return false;
-    }
-    // If they're both null or the filter is empty then there's nothing to check for
-    else if ((!filter && !name) || (*filter == '\0'))
-    {
-        return true;
-    }
-
-    SQChar ch = 0;
-    // Start comparing the strings
-    while (true)
-    {
-        // Grab the current character from filter
-        ch = *(filter++);
-        // See if the filter or name was completed
-        if (ch == '\0' || *name == '\0')
-        {
-            break; // They matched so far
-        }
-        // Are we supposed to perform a wild-card search?
-        else if (ch == '*')
-        {
-            // Grab the next character from filter
-            ch = *(filter++);
-            // Start comparing characters until the first match
-            while (*name != '\0')
-            {
-                if (*(name++) == ch)
-                {
-                    break;
-                }
-            }
-        }
-        // See if the character matches doesn't have to match
-        else if (ch != '?' && *name != ch)
-        {
-            return false; // The character had to match and failed
-        }
-        else
-        {
-            ++name;
-        }
-    }
-
-    // At this point the name satisfied the filter
-    return true;
-}
-
-// ------------------------------------------------------------------------------------------------
-bool NameFilterCheckInsensitive(CSStr filter, CSStr name)
-{
-    // If only one of them is null then they don't match
-    if ((!filter && name) || (filter && !name))
-    {
-        return false;
-    }
-    // If they're both null or the filter is empty then there's nothing to check for
-    else if ((!filter && !name) || (*filter == '\0'))
-    {
-        return true;
-    }
-
-    SQChar ch = 0;
-    // Start comparing the strings
-    while (true)
-    {
-        // Grab the current character from filter
-        ch = static_cast< SQChar >(std::tolower(*(filter++)));
-        // See if the filter or name was completed
-        if (ch == '\0' || *name == '\0')
-        {
-            break; // They matched so far
-        }
-        // Are we supposed to perform a wild-card search?
-        else if (ch == '*')
-        {
-            // Grab the next character from filter
-            ch = static_cast< SQChar >(std::tolower(*(filter++)));
-            // Start comparing characters until the first match
-            while (*name != '\0')
-            {
-                if (static_cast< SQChar >(std::tolower(*(name++))) == ch)
-                {
-                    break;
-                }
-            }
-        }
-        // See if the character matches doesn't have to match
-        else if (ch != '?' && static_cast< SQChar >(std::tolower(*name)) != ch)
-        {
-            return false; // The character had to match and failed
-        }
-        else
-        {
-            ++name;
-        }
-    }
-
-    // At this point the name satisfied the filter
-    return true;
-}
-
-// ------------------------------------------------------------------------------------------------
 const Color3 & GetRandomColor()
 {
     return SQ_Color_List[GetRandomUint8(0, (sizeof(SQ_Color_List) / sizeof(Color3)) - 1)];
@@ -284,7 +166,7 @@ Color3 GetColor(StackStrF & name)
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3 GetColorStr(CSStr name)
+Color3 GetColorStr(const SQChar * name)
 {
     // See if we actually have something to search for
     if(!name || *name == '\0')
@@ -292,7 +174,7 @@ Color3 GetColorStr(CSStr name)
         return Color3::NIL; // Use default color
     }
     // Clone the string into an editable version
-    CSStr str = StrJustAlphaNum(name);
+    const SQChar * str = StrJustAlphaNum(name);
     str = StrToLowercase(str);
     // See if we still have a valid name after the cleanup
     if(!str || *str == '\0')
@@ -300,7 +182,7 @@ Color3 GetColorStr(CSStr name)
         return Color3::NIL; // Use default color
     }
     // Calculate the name length
-    const Uint32 len = std::strlen(str);
+    const size_t len = std::strlen(str);
     // Get the most significant characters used to identify a weapon
     SQChar a = str[0], b = 0, c = 0, d = str[len-1];
     // Look for deeper specifiers
@@ -890,185 +772,41 @@ Color3 GetColorStr(CSStr name)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool BuildFormatString(String & out, StackStrF & fmt, Uint32 arg, const String & spec)
-{
-    // Is the specified string empty?
-    if (fmt.mLen <= 0)
-    {
-        return false; // Nothing to parse
-    }
-    // Backup current string size so we can revert back if anything
-    const size_t size = out.size();
-    // Number of processed arguments
-    Uint32 count = 0;
-    // Attempt to predict the required space
-    out.reserve(size + static_cast< size_t >(fmt.mLen) + arg * 2);
-    // Previously processed characters and the current one
-    SQChar p2, p1=0, c=0;
-    // Look for the value specifier in the specified string
-    for (SQInteger i = 0; i <= fmt.mLen; ++i) {
-        // Advance to the peaked character
-        p2 = p1, p1 = c, c = fmt.mPtr[i];
-        // The escape character is literal?
-        if (p1 == '\\' && p2 == '\\')
-        {
-            out.push_back('\\');
-            // Safeguard against a sequence of escape characters
-            p1 = 0;
-        }
-        // The marker is literal?
-        if (p1 == '\\' && c == '$')
-        {
-            out.push_back('$');
-        }
-        // Is this a marker?
-        else if (c == '$') {
-            // Did we run out of allowed arguments?
-            if (count++ < arg) {
-                out.append(spec); // Append the format specifier to the string
-            } else {
-                // Discard everything so far
-                out.resize(size);
-                // Signal failure
-                SqThrowF("Requested (%u) values but only (%u) available", count, arg);
-            }
-        } else if (c != '\\') {
-            // Append the current character to the string
-            out.push_back(c);
-        }
-    }
-    // Parsed successfully
-    return true;
-}
-
-// ------------------------------------------------------------------------------------------------
-size_t PrintToStrF(String & out, CSStr str, ...)
-{
-    // Initialize the variable argument list
-    va_list args;
-    va_start(args, str);
-    // Forward to the actual implementation
-    const size_t r = PrintToStrFv(out, str, args);
-    // Finalize the variable argument list
-    va_end(args);
-    // Return result
-    return r;
-}
-// ------------------------------------------------------------------------------------------------
-size_t PrintToStrFv(String & out, CSStr str, va_list vl)
-{
-    va_list args;
-    // Backup original size to revert back if necessary
-    const size_t size = out.size();
-    // The estimated buffer required
-    ssize_t len = 256;
-begin:
-    // Do not modify the original va_list
-    va_copy(args, vl);
-    // Reserve the necessary space
-    out.resize(size + static_cast< size_t >(len), '\0');
-    // Attempt to generate the specified string
-    int res = std::vsnprintf(&out[0] + size, len, str, args);
-    // Do we need more space?
-    if (res >= len)
-    {
-        // Adjust to required size
-        len = res + 1;
-        // Try again
-        goto begin;
-    }
-    // Did the format failed?
-    else if (res < 0)
-    {
-        // Discard changes
-        out.resize(size);
-    }
-    else
-    {
-        // Discard extra characters
-        out.resize(size + static_cast< size_t >(res));
-    }
-    // Return the amount of written characters
-    return static_cast< size_t >(res);
-}
-// ------------------------------------------------------------------------------------------------
-void SqThrowLastF(CSStr msg, ...)
-{
-    // Acquire a moderately sized buffer
-    Buffer b(128);
-    // Prepare the arguments list
-    va_list args;
-    va_start (args, msg);
-    // Attempt to run the specified format
-    if (b.WriteF(0, msg, args) == 0)
-    {
-        b.At(0) = '\0'; // Make sure the string is null terminated
-    }
-    // Finalize the argument list
-    va_end(args);
-#ifdef SQMOD_OS_WINDOWS
-    // Get the error message, if any.
-    const DWORD error_num = ::GetLastError();
-    // Was there an error recorded?
-    if(error_num == 0)
-    {
-        // Invoker is responsible for making sure this doesn't happen!
-        SqThrowF("%s [Unknown error]", b.Data());
-    }
-    // The resulted message buffer
-    LPSTR msg_buff = nullptr;
-    // Attempt to obtain the error message
-    const std::size_t size = FormatMessageA(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, // NOLINT(hicpp-signed-bitwise)
-        nullptr, error_num, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // NOLINT(hicpp-signed-bitwise)
-        reinterpret_cast< LPSTR >(&msg_buff), 0, nullptr);
-    // Copy the message buffer before freeing it
-    std::string message(msg_buff, size);
-    //Free the message buffer
-    LocalFree(msg_buff);
-    // Now it's safe to throw the error
-    SqThrowF("%s [%s]", b.Data(), message.c_str());
-#else
-    SqThrowF("%s [%s]", b.Data(), std::strerror(errno));
-#endif // SQMOD_OS_WINDOWS
-}
-
-// ------------------------------------------------------------------------------------------------
 static SQInteger SqPackRGB(SQInteger r, SQInteger g, SQInteger b)
 {
-    return static_cast< Int32 >(SQMOD_PACK_RGB(
-            ConvTo< Uint8 >::From(r), // NOLINT(hicpp-signed-bitwise)
-            ConvTo< Uint8 >::From(g),
-            ConvTo< Uint8 >::From(b)
+    return static_cast< int32_t >(SQMOD_PACK_RGB(
+            ConvTo< uint8_t >::From(r), // NOLINT(hicpp-signed-bitwise)
+            ConvTo< uint8_t >::From(g),
+            ConvTo< uint8_t >::From(b)
         ));
 }
 
 // ------------------------------------------------------------------------------------------------
 static SQInteger SqPackRGBA(SQInteger r, SQInteger g, SQInteger b, SQInteger a)
 {
-    return static_cast< Int32 >(SQMOD_PACK_RGBA(
-            ConvTo< Uint8 >::From(r), // NOLINT(hicpp-signed-bitwise)
-            ConvTo< Uint8 >::From(g),
-            ConvTo< Uint8 >::From(b),
-            ConvTo< Uint8 >::From(a)
+    return static_cast< int32_t >(SQMOD_PACK_RGBA(
+            ConvTo< uint8_t >::From(r), // NOLINT(hicpp-signed-bitwise)
+            ConvTo< uint8_t >::From(g),
+            ConvTo< uint8_t >::From(b),
+            ConvTo< uint8_t >::From(a)
         ));
 }
 
 // ------------------------------------------------------------------------------------------------
 static SQInteger SqPackARGB(SQInteger r, SQInteger g, SQInteger b, SQInteger a)
 {
-    return static_cast< Int32 >(SQMOD_PACK_ARGB(
-            ConvTo< Uint8 >::From(a), // NOLINT(hicpp-signed-bitwise)
-            ConvTo< Uint8 >::From(r),
-            ConvTo< Uint8 >::From(g),
-            ConvTo< Uint8 >::From(b)
+    return static_cast< int32_t >(SQMOD_PACK_ARGB(
+            ConvTo< uint8_t >::From(a), // NOLINT(hicpp-signed-bitwise)
+            ConvTo< uint8_t >::From(r),
+            ConvTo< uint8_t >::From(g),
+            ConvTo< uint8_t >::From(b)
         ));
 }
 
 // ------------------------------------------------------------------------------------------------
 static SQInteger SqNameFilterCheck(HSQUIRRELVM vm)
 {
-    const Int32 top = sq_gettop(vm);
+    const int32_t top = sq_gettop(vm);
     // Was the filter string specified?
     if (top <= 1)
     {
@@ -1102,7 +840,7 @@ static SQInteger SqNameFilterCheck(HSQUIRRELVM vm)
 // ------------------------------------------------------------------------------------------------
 static SQInteger SqNameFilterCheckInsensitive(HSQUIRRELVM vm)
 {
-    const Int32 top = sq_gettop(vm);
+    const int32_t top = sq_gettop(vm);
     // Was the filter string specified?
     if (top <= 1)
     {

@@ -1,7 +1,7 @@
 #pragma once
 
 // ------------------------------------------------------------------------------------------------
-#include "Base/Shared.hpp"
+#include "Core/Common.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -25,13 +25,14 @@ class CPickup
 {
     // --------------------------------------------------------------------------------------------
     friend class Core;
+    friend class PickupInst;
 
 private:
 
     /* --------------------------------------------------------------------------------------------
      * Identifier of the managed entity.
     */
-    Int32       m_ID;
+    int32_t       m_ID;
 
     /* --------------------------------------------------------------------------------------------
      * User tag associated with this instance.
@@ -46,19 +47,19 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Prevent events from triggering themselves.
     */
-    Uint32      m_CircularLocks;
+    uint32_t      m_CircularLocks;
 
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    explicit CPickup(Int32 id);
+    explicit CPickup(int32_t id);
 
 public:
 
     /* --------------------------------------------------------------------------------------------
      * Maximum possible number that could represent an identifier for this entity type.
     */
-    static const Int32 Max;
+    static const int32_t Max;
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
@@ -94,7 +95,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    const String & ToString() const;
+    SQMOD_NODISCARD const String & ToString() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated null entity instance.
@@ -104,12 +105,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated null entity instance.
     */
-    static LightObj & GetNull();
+    SQMOD_NODISCARD static LightObj & GetNull();
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the identifier of the entity managed by this instance.
     */
-    Int32 GetID() const
+    SQMOD_NODISCARD int32_t GetID() const
     {
         return m_ID;
     }
@@ -117,7 +118,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Check whether this instance manages a valid entity.
     */
-    bool IsActive() const
+    SQMOD_NODISCARD bool IsActive() const
     {
         return VALID_ENTITY(m_ID);
     }
@@ -125,7 +126,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated user tag.
     */
-    const String & GetTag() const;
+    SQMOD_NODISCARD const String & GetTag() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user tag.
@@ -140,7 +141,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated user data.
     */
-    LightObj & GetData();
+    SQMOD_NODISCARD LightObj & GetData();
 
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user data.
@@ -150,7 +151,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Destroy the managed pickup entity.
     */
-    bool Destroy()
+    bool Destroy0() const // NOLINT(modernize-use-nodiscard)
     {
         return Destroy(0, NullLightObj());
     }
@@ -158,7 +159,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Destroy the managed pickup entity.
     */
-    bool Destroy(Int32 header)
+    bool Destroy1(int32_t header) const // NOLINT(modernize-use-nodiscard)
     {
         return Destroy(header, NullLightObj());
     }
@@ -166,62 +167,62 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Destroy the managed pickup entity.
     */
-    bool Destroy(Int32 header, LightObj & payload);
+    bool Destroy(int32_t header, LightObj & payload) const; // NOLINT(modernize-use-nodiscard)
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the events table of this entity.
     */
-    LightObj & GetEvents() const;
+    SQMOD_NODISCARD LightObj & GetEvents() const;
 
     /* --------------------------------------------------------------------------------------------
      * Emit a custom event for the managed entity
     */
-    void CustomEvent(Int32 header, LightObj & payload) const;
+    void CustomEvent(int32_t header, LightObj & payload) const;
 
     /* --------------------------------------------------------------------------------------------
      * See if the managed pickup entity is streamed for the specified player.
     */
-    bool IsStreamedFor(CPlayer & player) const;
+    SQMOD_NODISCARD bool IsStreamedFor(CPlayer & player) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the current option value of the managed pickup entity.
     */
-    bool GetOption(Int32 option_id) const;
+    SQMOD_NODISCARD bool GetOption(int32_t option_id) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the current option value of the managed pickup entity.
     */
-    void SetOption(Int32 option_id, bool toggle);
+    void SetOption(int32_t option_id, bool toggle);
 
     /* --------------------------------------------------------------------------------------------
      * Modify the current option value of the managed pickup entity.
     */
-    void SetOptionEx(Int32 option_id, bool toggle, Int32 header, LightObj & payload);
+    void SetOptionEx(int32_t option_id, bool toggle, int32_t header, LightObj & payload);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the world in which the managed pickup entity exists.
     */
-    Int32 GetWorld() const;
+    SQMOD_NODISCARD int32_t GetWorld() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Mpdify the world in which the managed pickup entity exists.
+     * Modify the world in which the managed pickup entity exists.
     */
-    void SetWorld(Int32 world);
+    void SetWorld(int32_t world);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the alpha of the managed pickup entity.
     */
-    Int32 GetAlpha() const;
+    SQMOD_NODISCARD int32_t GetAlpha() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Mpdify the alpha of the managed pickup entity.
+     * Modify the alpha of the managed pickup entity.
     */
-    void SetAlpha(Int32 alpha);
+    void SetAlpha(int32_t alpha);
 
     /* --------------------------------------------------------------------------------------------
      * See whether the managed pickup entity is automatic.
     */
-    bool GetAutomatic() const;
+    SQMOD_NODISCARD bool GetAutomatic() const;
 
     /* --------------------------------------------------------------------------------------------
      * Set whether the managed pickup entity is automatic.
@@ -231,12 +232,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the automatic timer of the managed pickup entity.
     */
-    Int32 GetAutoTimer() const;
+    SQMOD_NODISCARD int32_t GetAutoTimer() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Mpdify the automatic timer of the managed pickup entity.
+     * Modify the automatic timer of the managed pickup entity.
     */
-    void SetAutoTimer(Int32 timer);
+    void SetAutoTimer(int32_t timer);
 
     /* --------------------------------------------------------------------------------------------
      * Refresh the managed pickup entity.
@@ -246,57 +247,57 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position of the managed pickup entity.
     */
-    Vector3 GetPosition();
+    SQMOD_NODISCARD Vector3 GetPosition() const;
 
     /* --------------------------------------------------------------------------------------------
-     * Mpdify the position of the managed pickup entity.
+     * Modify the position of the managed pickup entity.
     */
     void SetPosition(const Vector3 & pos) const;
 
     /* --------------------------------------------------------------------------------------------
-     * Mpdify the position of the managed pickup entity.
+     * Modify the position of the managed pickup entity.
     */
-    void SetPositionEx(Float32 x, Float32 y, Float32 z) const;
+    void SetPositionEx(float x, float y, float z) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the model of the managed pickup entity.
     */
-    Int32 GetModel() const;
+    SQMOD_NODISCARD int32_t GetModel() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the quantity of the managed pickup entity.
     */
-    Int32 GetQuantity() const;
+    SQMOD_NODISCARD int32_t GetQuantity() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the x axis of the managed pickup entity.
     */
-    Float32 GetPositionX() const;
+    SQMOD_NODISCARD float GetPositionX() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the y axis of the managed pickup entity.
     */
-    Float32 GetPositionY() const;
+    SQMOD_NODISCARD float GetPositionY() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the z axis of the managed pickup entity.
     */
-    Float32 GetPositionZ() const;
+    SQMOD_NODISCARD float GetPositionZ() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position on the x axis of the managed pickup entity.
     */
-    void SetPositionX(Float32 x) const;
+    void SetPositionX(float x) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position on the y axis of the managed pickup entity.
     */
-    void SetPositionY(Float32 y) const;
+    void SetPositionY(float y) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position on the z axis of the managed pickup entity.
     */
-    void SetPositionZ(Float32 z) const;
+    void SetPositionZ(float z) const;
 };
 
 } // Namespace:: SqMod

@@ -1,6 +1,9 @@
 #pragma once
 
 // ------------------------------------------------------------------------------------------------
+#include "Core/Common.hpp"
+
+// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
@@ -312,12 +315,12 @@ template < typename... Ts > struct SqDynArgImpl;
 */
 template < > struct SqDynArgImpl< >
 {
-    template < typename T > static Int32 Try(const T & /*val*/, HSQUIRRELVM vm)
+    template < typename T > static SQInteger Try(const T & /*val*/, HSQUIRRELVM vm)
     {
         const String tn1(SqTypeName(vm, 1));
         const String tn2(SqTypeName(vm, 2));
-        return sq_throwerror(vm, ToStrF("Such operation is not possible between (%s) and (%s)",
-                                        tn1.c_str(), tn2.c_str()));
+        return sq_throwerrorf(vm, "Such operation is not possible between (%s) and (%s)",
+                                        tn1.c_str(), tn2.c_str());
     }
 };
 
@@ -326,7 +329,7 @@ template < > struct SqDynArgImpl< >
 */
 template < typename U, typename... Ts > struct SqDynArgImpl< U, Ts... >
 {
-    template < typename F > static Int32 Try(F & fn, HSQUIRRELVM vm)
+    template < typename F > static SQInteger Try(F & fn, HSQUIRRELVM vm)
     {
         typedef typename std::decay< U >::type ArgType;
         // Can the stack value be used with the current type?
@@ -389,7 +392,7 @@ template < typename F, typename U, typename... Ts > SQInteger SqDynArgFwd(HSQUIR
     {
         return SqDynArgImpl< U, Ts... >::Try(fn, vm);
     }
-    catch (const Sqrat::Exception & e)
+    catch (const std::exception & e)
     {
         return sq_throwerror(vm, e.what());
     }
@@ -397,6 +400,7 @@ template < typename F, typename U, typename... Ts > SQInteger SqDynArgFwd(HSQUIR
     {
         return sq_throwerror(vm, "Unknown error occurred during comparison");
     }
+    SQ_UNREACHABLE
     // We shouldn't really reach this point but something must be returned
     return sq_throwerror(vm, "Operation encountered unknown behavior");
 }

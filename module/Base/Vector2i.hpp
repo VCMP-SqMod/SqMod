@@ -1,7 +1,7 @@
 #pragma once
 
 // ------------------------------------------------------------------------------------------------
-#include "SqBase.hpp"
+#include "Base/Shared.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -31,12 +31,12 @@ struct Vector2i
     /* --------------------------------------------------------------------------------------------
      * The x and y components of this type.
     */
-    Value x, y;
+    Value x{0}, y{0};
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Vector2i() noexcept;
+    Vector2i() noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Construct a vector with the same scalar value for all components.
@@ -351,12 +351,12 @@ struct Vector2i
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    Int32 Cmp(const Vector2i & v) const;
+    SQMOD_NODISCARD int32_t Cmp(const Vector2i & v) const;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(SQInteger s) const
+    SQMOD_NODISCARD int32_t Cmp(SQInteger s) const
     {
         return Cmp(Vector2i(static_cast< Value >(s)));
     }
@@ -364,7 +364,7 @@ struct Vector2i
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(SQFloat s) const
+    SQMOD_NODISCARD int32_t Cmp(SQFloat s) const
     {
         return Cmp(Vector2i(static_cast< Value >(s)));
     }
@@ -372,7 +372,7 @@ struct Vector2i
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(bool s) const
+    SQMOD_NODISCARD int32_t Cmp(bool s) const
     {
         return Cmp(Vector2i(static_cast< Value >(s)));
     }
@@ -380,7 +380,7 @@ struct Vector2i
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(std::nullptr_t) const
+    SQMOD_NODISCARD int32_t Cmp(std::nullptr_t) const
     {
         return Cmp(Vector2i(static_cast< Value >(0)));
     }
@@ -388,7 +388,7 @@ struct Vector2i
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    CSStr ToString() const;
+    SQMOD_NODISCARD String ToString() const;
 
     /* --------------------------------------------------------------------------------------------
      * Set all components to the specified scalar value.
@@ -441,12 +441,12 @@ struct Vector2i
     /* --------------------------------------------------------------------------------------------
      * Retrieve a new instance of this type with absolute component values.
     */
-    Vector2i Abs() const;
+    SQMOD_NODISCARD Vector2i Abs() const;
 
     /* --------------------------------------------------------------------------------------------
      * Generate a formatted string with the values from this instance.
     */
-    LightObj Format(const String & spec, StackStrF & fmt) const;
+    SQMOD_NODISCARD String Format(StackStrF & str) const;
 
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Vector2i type from a string.

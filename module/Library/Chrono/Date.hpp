@@ -19,9 +19,9 @@ public:
 private:
 
     // ------------------------------------------------------------------------------------------------
-    Uint16  m_Year; // Year
-    Uint8   m_Month; // Month
-    Uint8   m_Day; // Day
+    uint16_t  m_Year{}; // Year
+    uint8_t   m_Month{}; // Month
+    uint8_t   m_Day{}; // Day
 
     // ------------------------------------------------------------------------------------------------
     SQChar  m_Delimiter; // Component delimiter when generating strings.
@@ -31,7 +31,7 @@ protected:
     /* ------------------------------------------------------------------------------------------------
      * Compare the values of two instances.
     */
-    Int32 Compare(const Date & o) const;
+    SQMOD_NODISCARD int32_t Compare(const Date & o) const;
 
 public:
 
@@ -48,27 +48,27 @@ public:
     }
 
     /* ------------------------------------------------------------------------------------------------
-     * Speciffic year constructor.
+     * Specific year constructor.
     */
-    Date(Uint16 year)
+    explicit Date(uint16_t year)
         : m_Delimiter(Delimiter)
     {
         Set(year, 1, 1);
     }
 
     /* ------------------------------------------------------------------------------------------------
-     * Speciffic year and month constructor.
+     * Specific year and month constructor.
     */
-    Date(Uint16 year, Uint8 month)
+    Date(uint16_t year, uint8_t month)
         : m_Delimiter(Delimiter)
     {
         Set(year, month, 1);
     }
 
     /* ------------------------------------------------------------------------------------------------
-     * Speciffic date constructor.
+     * Specific date constructor.
     */
-    Date(Uint16 year, Uint8 month, Uint8 day)
+    Date(uint16_t year, uint8_t month, uint8_t day)
         : m_Delimiter(Delimiter)
     {
         Set(year, month, day);
@@ -77,7 +77,7 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * String constructor.
     */
-    Date(CSStr str)
+    explicit Date(const SQChar * str)
         : m_Delimiter(Delimiter)
     {
         SetStr(str);
@@ -179,7 +179,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    Int32 Cmp(const Date & o) const
+    SQMOD_NODISCARD int32_t Cmp(const Date & o) const
     {
         return Compare(o);
     }
@@ -187,12 +187,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    CSStr ToString() const;
+    SQMOD_NODISCARD String ToString() const;
 
     /* ------------------------------------------------------------------------------------------------
      * Assign the specified values.
     */
-    void Set(Uint16 year)
+    void Set(uint16_t year)
     {
         Set(year, m_Month, m_Day);
     }
@@ -200,7 +200,7 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Assign the specified values.
     */
-    void Set(Uint16 year, Uint8 month)
+    void Set(uint16_t year, uint8_t month)
     {
         Set(year, month, m_Day);
     }
@@ -208,12 +208,12 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Assign the specified values.
     */
-    void Set(Uint16 year, Uint8 month, Uint8 day);
+    void Set(uint16_t year, uint8_t month, uint8_t day);
 
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the local delimiter character.
     */
-    SQChar GetDelimiter() const
+    SQMOD_NODISCARD SQChar GetDelimiter() const
     {
         return m_Delimiter;
     }
@@ -229,7 +229,7 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the values as a string.
     */
-    CSStr GetStr() const
+    SQMOD_NODISCARD String GetStr() const
     {
         return ToString();
     }
@@ -237,12 +237,12 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Extract the values from a string.
     */
-    void SetStr(CSStr str);
+    void SetStr(const SQChar * str);
 
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the day component.
     */
-    Uint16 GetDayOfYear() const
+    SQMOD_NODISCARD uint16_t GetDayOfYear() const
     {
         return Chrono::DayOfYear(m_Year, m_Month, m_Day);
     }
@@ -250,12 +250,12 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Modify the day component.
     */
-    void SetDayOfYear(Uint16 doy);
+    void SetDayOfYear(uint16_t doy);
 
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the year component.
     */
-    Uint16 GetYear() const
+    SQMOD_NODISCARD uint16_t GetYear() const
     {
         return m_Year;
     }
@@ -263,12 +263,12 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Modify the year component.
     */
-    void SetYear(Uint16 year);
+    void SetYear(uint16_t year);
 
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the month component.
     */
-    Uint8 GetMonth() const
+    SQMOD_NODISCARD uint8_t GetMonth() const
     {
         return m_Month;
     }
@@ -276,12 +276,12 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Modify the month component.
     */
-    void SetMonth(Uint8 month);
+    void SetMonth(uint8_t month);
 
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the day component.
     */
-    Uint8 GetDay() const
+    SQMOD_NODISCARD uint8_t GetDay() const
     {
         return m_Day;
     }
@@ -289,42 +289,42 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Modify the day component.
     */
-    void SetDay(Uint8 day);
+    void SetDay(uint8_t day);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of years to the current date.
     */
-    Date & AddYears(Int32 years);
+    Date & AddYears(int32_t years);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of months to the current date.
     */
-    Date & AddMonths(Int32 months);
+    Date & AddMonths(int32_t months);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of days to the current date.
     */
-    Date & AddDays(Int32 days);
+    Date & AddDays(int32_t days);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of years to obtain a new date.
     */
-    Date AndYears(Int32 years);
+    SQMOD_NODISCARD Date AndYears(int32_t years);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of months to obtain a new date.
     */
-    Date AndMonths(Int32 months);
+    SQMOD_NODISCARD Date AndMonths(int32_t months);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of days to obtain a new date.
     */
-    Date AndDays(Int32 days);
+    SQMOD_NODISCARD Date AndDays(int32_t days);
 
     /* ------------------------------------------------------------------------------------------------
      * See whether the associated year is a leap year.
     */
-    bool IsThisLeapYear() const
+    SQMOD_NODISCARD bool IsThisLeapYear() const
     {
         return Chrono::IsLeapYear(m_Year);
     }
@@ -332,7 +332,7 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the number of days in the associated year.
     */
-    Uint16 GetYearDays() const
+    SQMOD_NODISCARD uint16_t GetYearDays() const
     {
         return Chrono::DaysInYear(m_Year);
     }
@@ -340,7 +340,7 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the number of days in the associated month.
     */
-    Uint8 GetMonthDays() const
+    SQMOD_NODISCARD uint8_t GetMonthDays() const
     {
         return Chrono::DaysInMonth(m_Year, m_Month);
     }
@@ -348,7 +348,7 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Convert this date instance to a time-stamp.
     */
-    Timestamp GetTimestamp() const;
+    SQMOD_NODISCARD Timestamp GetTimestamp() const;
 };
 
 } // Namespace:: SqMod

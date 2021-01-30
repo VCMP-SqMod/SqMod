@@ -5,20 +5,20 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-CSStr GetModelName(Int32 /*id*/)
+const SQChar * GetModelName(int32_t /*id*/)
 {
     // @TODO Implement...
     return _SC("");
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetModelName(Int32 /*id*/, StackStrF & /*name*/)
+void SetModelName(int32_t /*id*/, StackStrF & /*name*/)
 {
     // @TODO Implement...
 }
 
 // ------------------------------------------------------------------------------------------------
-bool IsModelWeapon(Int32 id)
+bool IsModelWeapon(int32_t id)
 {
     switch (id)
     {
@@ -64,7 +64,7 @@ bool IsModelWeapon(Int32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool IsModelActuallyWeapon(Int32 id)
+bool IsModelActuallyWeapon(int32_t id)
 {
     switch (id)
     {

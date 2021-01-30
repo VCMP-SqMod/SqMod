@@ -1,15 +1,15 @@
 // ------------------------------------------------------------------------------------------------
 #include "Core.hpp"
 #include "Logger.hpp"
-#include "Misc/Signal.hpp"
-#include "Misc/Areas.hpp"
-#include "Base/Buffer.hpp"
-#include "Library/Utils/Buffer.hpp"
+#include "Core/Areas.hpp"
+#include "Core/Signal.hpp"
+#include "Core/Buffer.hpp"
+#include "Library/IO/Buffer.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include "Entity/Blip.hpp"
 #include "Entity/Checkpoint.hpp"
-#include "Entity/Keybind.hpp"
+#include "Entity/KeyBind.hpp"
 #include "Entity/Object.hpp"
 #include "Entity/Pickup.hpp"
 #include "Entity/Player.hpp"
@@ -21,7 +21,6 @@
 #include <sqstdmath.h>
 #include <sqstdsystem.h>
 #include <sqstdstring.h>
-#include <sqmodapi.h>
 #include <SimpleIni.h>
 
 // ------------------------------------------------------------------------------------------------
@@ -42,14 +41,14 @@ extern void InitializeTasks();
 extern void InitializeRoutines();
 extern void TerminateAreas();
 extern void TerminateTasks();
-extern void TerminatePrivileges();
+//extern void TerminatePrivileges();
 extern void TerminateRoutines();
 extern void TerminateCommands();
 extern void TerminateSignals();
-extern void TerminateWorkers();
+//extern void TerminateWorkers();
 
 // ------------------------------------------------------------------------------------------------
-extern Buffer GetRealFilePath(CSStr path);
+extern Buffer GetRealFilePath(const SQChar * path);
 
 /* ------------------------------------------------------------------------------------------------
  * Loader used to process a section from the configuration file and look for scripts to load.
@@ -73,7 +72,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Function call operator.
     */
-    bool operator () (CCStr key, CCStr val) const
+    bool operator () (const char * key, const char * val) const
     {
         // Validate the specified key
         if (!key || *key == '\0')
@@ -141,7 +140,7 @@ Core::Core() noexcept
     , m_Options()
     , m_Blips()
     , m_Checkpoints()
-    , m_Keybinds()
+    , m_KeyBinds()
     , m_Objects()
     , m_Pickups()
     , m_Players()
@@ -163,7 +162,7 @@ Core::Core() noexcept
     , m_Verbosity(1)
     , m_NullBlip()
     , m_NullCheckpoint()
-    , m_NullKeybind()
+    , m_NullKeyBind()
     , m_NullObject()
     , m_NullPickup()
     , m_NullPlayer()
@@ -248,14 +247,14 @@ bool Core::Initialize()
     // Make sure the entity containers have the proper size
     m_Blips.resize(SQMOD_BLIP_POOL);
     m_Checkpoints.resize(SQMOD_CHECKPOINT_POOL);
-    m_Keybinds.resize(SQMOD_KEYBIND_POOL);
+    m_KeyBinds.resize(SQMOD_KEYBIND_POOL);
     m_Objects.resize(SQMOD_OBJECT_POOL);
     m_Pickups.resize(SQMOD_PICKUP_POOL);
     m_Players.resize(SQMOD_PLAYER_POOL);
     m_Vehicles.resize(SQMOD_VEHICLE_POOL);
 
     // Attempt to read the virtual machine stack size
-    const LongI stack_size = conf.GetLongValue("Squirrel", "StackSize", SQMOD_STACK_SIZE);
+    const long stack_size = conf.GetLongValue("Squirrel", "StackSize", SQMOD_STACK_SIZE);
     // Make sure that the retrieved number is within range
     if (!stack_size)
     {
@@ -407,7 +406,7 @@ bool Core::Execute()
 
     cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins to register their API");
     // Tell modules to do their monkey business
-    _Func->SendPluginCommand(SQMOD_LOAD_CMD, "");
+    _Func->SendPluginCommand(0xDEADBABE, "");
 
     // Load pending scripts while we're in the bounds of the allowed recursiveness
     for (unsigned levels = 0; !m_PendingScripts.empty() && (levels < 8); ++levels)
@@ -452,7 +451,7 @@ bool Core::Execute()
     ImportPlayers();
     ImportBlips();
     ImportCheckpoints();
-    ImportKeybinds();
+    ImportKeyBinds();
     ImportObjects();
     ImportPickups();
     ImportVehicles();
@@ -476,7 +475,7 @@ void Core::Terminate(bool shutdown)
 
         cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins to release their resources");
         // Tell modules to do their monkey business
-        _Func->SendPluginCommand(SQMOD_TERMINATE_CMD, "");
+        _Func->SendPluginCommand(0xDEADC0DE, "");
     }
     cLogDbg(m_Verbosity >= 1, "Clearing the entity containers");
     // Release all entity resources by clearing the containers
@@ -486,7 +485,7 @@ void Core::Terminate(bool shutdown)
     const ContainerCleaner cc_pickups(m_Pickups, ENT_PICKUP, !shutdown);
     const ContainerCleaner cc_checkpoints(m_Checkpoints, ENT_CHECKPOINT, !shutdown);
     const ContainerCleaner cc_blips(m_Blips, ENT_BLIP, !shutdown);
-    const ContainerCleaner cc_keybinds(m_Keybinds, ENT_KEYBIND, !shutdown);
+    const ContainerCleaner cc_keybinds(m_KeyBinds, ENT_KEYBIND, !shutdown);
     cLogDbg(m_Verbosity >= 1, "Terminating routines an commands");
     // Release third-party
 
@@ -500,9 +499,9 @@ void Core::Terminate(bool shutdown)
     // Release all managed areas
     TerminateAreas();
     // Release privilege managers
-    TerminatePrivileges();
+    //TerminatePrivileges();
     // Terminate workers
-    TerminateWorkers();
+    //TerminateWorkers();
     // In case there's a payload for reload
     m_ReloadPayload.Release();
     // Release null objects in case any reference to valid objects is stored in them
@@ -514,7 +513,7 @@ void Core::Terminate(bool shutdown)
     // Release null entity instances
     m_NullBlip.Release();
     m_NullCheckpoint.Release();
-    m_NullKeybind.Release();
+    m_NullKeyBind.Release();
     m_NullObject.Release();
     m_NullPickup.Release();
     m_NullPlayer.Release();
@@ -536,7 +535,7 @@ void Core::Terminate(bool shutdown)
 
         cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins the virtual machine is closing");
         // Tell modules to do their monkey business
-        _Func->SendPluginCommand(SQMOD_CLOSING_CMD, "");
+        _Func->SendPluginCommand(0xBAAAAAAD, "");
         // Release any callbacks from the logger
         Logger::Get().Release();
         // Attempt to close the VM
@@ -544,7 +543,7 @@ void Core::Terminate(bool shutdown)
 
         cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins to release the virtual machine");
         // Tell modules to do their monkey business
-        _Func->SendPluginCommand(SQMOD_RELEASED_CMD, "");
+        _Func->SendPluginCommand(0xDEADBEAF, "");
     }
 
     OutputMessage("Squirrel plug-in was successfully terminated");
@@ -559,7 +558,7 @@ bool Core::Reload()
         return false; // Already reloading!
     }
     // Prevent circular reloads when we send plug-in commands
-    const BitGuardU32 bg(m_CircularLocks, static_cast< Uint32 >(CCL_RELOAD_SCRIPTS));
+    const BitGuardU32 bg(m_CircularLocks, static_cast< uint32_t >(CCL_RELOAD_SCRIPTS));
     // Allow reloading by default
     Core::Get().SetState(1);
     // Emit the reload event
@@ -583,7 +582,7 @@ void Core::EnableNullEntities()
     // Create the null entity instances
     if (m_NullBlip.IsNull()) m_NullBlip = LightObj(DeleteGuard< CBlip >(new CBlip(-1)));
     if (m_NullCheckpoint.IsNull()) m_NullCheckpoint = LightObj(DeleteGuard< CCheckpoint >(new CCheckpoint(-1)));
-    if (m_NullKeybind.IsNull()) m_NullKeybind = LightObj(DeleteGuard< CKeybind >(new CKeybind(-1)));
+    if (m_NullKeyBind.IsNull()) m_NullKeyBind = LightObj(DeleteGuard< CKeyBind >(new CKeyBind(-1)));
     if (m_NullObject.IsNull()) m_NullObject = LightObj(DeleteGuard< CObject >(new CObject(-1)));
     if (m_NullPickup.IsNull()) m_NullPickup = LightObj(DeleteGuard< CPickup >(new CPickup(-1)));
     if (m_NullPlayer.IsNull()) m_NullPlayer = LightObj(DeleteGuard< CPlayer >(new CPlayer(-1)));
@@ -611,7 +610,7 @@ void Core::SetOption(const String & name, const String & value)
 }
 
 // ------------------------------------------------------------------------------------------------
-Core::Scripts::iterator Core::FindScript(const CSStr src)
+Core::Scripts::iterator Core::FindScript(const SQChar * src)
 {
     // Iterate over loaded scripts
     for (auto itr = m_Scripts.begin(); itr != m_Scripts.end(); ++itr)
@@ -627,7 +626,7 @@ Core::Scripts::iterator Core::FindScript(const CSStr src)
 }
 
 // ------------------------------------------------------------------------------------------------
-Core::Scripts::iterator Core::FindPendingScript(const CSStr src)
+Core::Scripts::iterator Core::FindPendingScript(const SQChar * src)
 {
     // Iterate over loaded scripts
     for (auto itr = m_PendingScripts.begin(); itr != m_PendingScripts.end(); ++itr)
@@ -643,7 +642,7 @@ Core::Scripts::iterator Core::FindPendingScript(const CSStr src)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Core::LoadScript(CSStr filepath, bool delay)
+bool Core::LoadScript(const SQChar * filepath, bool delay)
 {
     // Is the specified path empty?
     if (!filepath || *filepath == '\0')
@@ -658,12 +657,6 @@ bool Core::LoadScript(CSStr filepath, bool delay)
     try
     {
         bpath = GetRealFilePath(filepath);
-    }
-    catch (const Sqrat::Exception & e)
-    {
-        LogErr("Unable to load script: %s", e.what());
-        // Failed to load
-        return false;
     }
     catch (const std::exception & e)
     {
@@ -700,7 +693,7 @@ bool Core::LoadScript(CSStr filepath, bool delay)
         {
             m_Scripts.back().mExec.CompileFile(path);
         }
-        catch (const Sqrat::Exception & e)
+        catch (const std::exception & e)
         {
             LogFtl("Unable to compile: %s", path.c_str());
             // Remove the script container since it's invalid
@@ -716,7 +709,7 @@ bool Core::LoadScript(CSStr filepath, bool delay)
         {
             m_Scripts.back().mExec.Run();
         }
-        catch (const Sqrat::Exception & e)
+        catch (const std::exception & e)
         {
             LogFtl("Unable to execute: %s", path.c_str());
             // Remove the script container since it's invalid
@@ -737,7 +730,7 @@ bool Core::LoadScript(CSStr filepath, bool delay)
             // Create a new script container and insert it into the pending script pool
             m_PendingScripts.emplace_back(path, delay, m_Debugging);
         }
-        catch (const Sqrat::Exception & e)
+        catch (const std::exception & e)
         {
             LogFtl("Unable to queue: %s", e.what());
             // Failed to queue script
@@ -750,7 +743,7 @@ bool Core::LoadScript(CSStr filepath, bool delay)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::SetIncomingName(CSStr name)
+void Core::SetIncomingName(const SQChar * name)
 {
     // Is there an incoming connection buffer that we can write to?
     if (!m_IncomingNameBuffer)
@@ -781,7 +774,7 @@ void Core::SetIncomingName(CSStr name)
 }
 
 // ------------------------------------------------------------------------------------------------
-String Core::FetchCodeLine(CSStr src, SQInteger line, bool trim)
+String Core::FetchCodeLine(const SQChar * src, SQInteger line, bool trim)
 {
     // Find the script we're looking for
     auto script = FindScript(src);
@@ -814,7 +807,7 @@ bool Core::DoScripts(Scripts::iterator itr, Scripts::iterator end)
         {
             (*itr).mExec.CompileFile((*itr).mPath);
         }
-        catch (const Sqrat::Exception & e)
+        catch (const std::exception & e)
         {
             LogFtl("Unable to compile: %s", (*itr).mPath.c_str());
             // Failed to execute properly
@@ -834,7 +827,7 @@ bool Core::DoScripts(Scripts::iterator itr, Scripts::iterator end)
         {
             (*itr).mExec.Run();
         }
-        catch (const Sqrat::Exception & e)
+        catch (const std::exception & e)
         {
             LogFtl("Unable to execute: %s", (*itr).mPath.c_str());
             // Failed to execute properly
@@ -859,7 +852,7 @@ bool Core::DoScripts(Scripts::iterator itr, Scripts::iterator end)
         {
             (*itr).mExec.Run();
         }
-        catch (const Sqrat::Exception & e)
+        catch (const std::exception & e)
         {
             LogFtl("Unable to execute: %s", (*itr).mPath.c_str());
             // Failed to execute properly
@@ -874,7 +867,7 @@ bool Core::DoScripts(Scripts::iterator itr, Scripts::iterator end)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::PrintFunc(HSQUIRRELVM /*vm*/, CSStr msg, ...)
+void Core::PrintFunc(HSQUIRRELVM /*vm*/, const SQChar * msg, ...)
 {
     // Initialize the variable argument list
     va_list args;
@@ -886,7 +879,7 @@ void Core::PrintFunc(HSQUIRRELVM /*vm*/, CSStr msg, ...)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::ErrorFunc(HSQUIRRELVM vm, CSStr msg, ...)
+void Core::ErrorFunc(HSQUIRRELVM vm, const SQChar * msg, ...)
 {
     // Initialize the variable argument list
     va_list args;
@@ -921,7 +914,7 @@ SQInteger Core::RuntimeErrorHandler(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::CompilerErrorHandler(HSQUIRRELVM /*vm*/, CSStr desc, CSStr src, SQInteger line, SQInteger column)
+void Core::CompilerErrorHandler(HSQUIRRELVM /*vm*/, const SQChar * desc, const SQChar * src, SQInteger line, SQInteger column)
 {
     // Should we include code in output? (we count lines from 0, squirrel counts from 1)
     if ((line <= 0) || !Core::Get().IsDebugging() || !Core::Get().CompilerErrorHandlerEx(desc, src, --line, column)) {
@@ -930,7 +923,7 @@ void Core::CompilerErrorHandler(HSQUIRRELVM /*vm*/, CSStr desc, CSStr src, SQInt
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Core::CompilerErrorHandlerEx(CSStr desc, CSStr src, SQInteger line, SQInteger column)
+bool Core::CompilerErrorHandlerEx(const SQChar * desc, const SQChar * src, SQInteger line, SQInteger column)
 {
     // Grab the associated line of code
     String code = FetchCodeLine(src, line, true);
@@ -961,13 +954,1545 @@ bool Core::CompilerErrorHandlerEx(CSStr desc, CSStr src, SQInteger line, SQInteg
     return true;
 }
 
+// --------------------------------------------------------------------------------------------
+void Core::ImportBlips()
+{
+    // Information about the blip entity
+    int32_t world = -1, scale = -1, sprid = -1;
+    uint32_t color = 0;
+    float x = 0.0, y = 0.0, z = 0.0;
+
+    for (int32_t i = 0; i < SQMOD_BLIP_POOL; ++i)
+    {
+        // See if this entity exists on the server and whether was not allocated already
+        if (_Func->CheckEntityExists(vcmpEntityPoolBlip, i) && INVALID_ENTITY(m_Blips[i].mID))
+        {
+            _Func->GetCoordBlipInfo(i, &world, &x, &y, &z, &scale, &color, &sprid);
+            // Make the properties available before triggering the event
+            m_Blips[i].mWorld = world;
+            m_Blips[i].mScale = scale;
+            m_Blips[i].mSprID = sprid;
+            m_Blips[i].mPosition.SetVector3Ex(x, y, z);
+            m_Blips[i].mColor.SetRGBA(color);
+            // Attempt to allocate the instance
+            AllocBlip(i, false, SQMOD_CREATE_IMPORT, NullLightObj());
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void Core::ImportCheckpoints()
+{
+    for (int32_t i = 0; i < SQMOD_CHECKPOINT_POOL; ++i)
+    {
+        // See if this entity exists on the server and whether was not allocated already
+        if (_Func->CheckEntityExists(vcmpEntityPoolCheckPoint, i) && INVALID_ENTITY(m_Checkpoints[i].mID))
+        {
+            AllocCheckpoint(i, false, SQMOD_CREATE_IMPORT, NullLightObj());
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void Core::ImportKeyBinds()
+{
+    /* @NOTE This function is disabled because VC:MP server seems bugged
+     * and does not return vcmpErrorNoSuchEntity when the key-bind does not exist.
+     * Therefore causing incorrect behavior in the plugin.
+    */
+    /*
+    // Information about the key-bind entity
+    uint8_t release = 0;
+    int32_t first = -1, second = -1, third = -1;
+
+    for (int32_t i = 0; i < SQMOD_KEYBIND_POOL; ++i)
+    {
+        // See if this entity exists on the server and whether was not allocated already
+        if ((_Func->GetKeyBindData(i, &release, &first, &second, &third) != vcmpErrorNoSuchEntity)
+            && (INVALID_ENTITY(m_KeyBinds[i].mID)))
+        {
+            // Make the properties available before triggering the event
+            m_KeyBinds[i].mFirst = first;
+            m_KeyBinds[i].mSecond = second;
+            m_KeyBinds[i].mThird = third;
+            m_KeyBinds[i].mRelease = release;
+            // Attempt to allocate the instance
+            AllocKeyBind(i, false, SQMOD_CREATE_IMPORT, NullLightObj());
+        }
+    }
+    */
+}
+
+// ------------------------------------------------------------------------------------------------
+void Core::ImportObjects()
+{
+    for (int32_t i = 0; i < SQMOD_OBJECT_POOL; ++i)
+    {
+        // See if this entity exists on the server and whether was not allocated already
+        if (_Func->CheckEntityExists(vcmpEntityPoolObject, i) && INVALID_ENTITY(m_Objects[i].mID))
+        {
+            AllocObject(i, false, SQMOD_CREATE_IMPORT, NullLightObj());
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void Core::ImportPickups()
+{
+    for (int32_t i = 0; i < SQMOD_PICKUP_POOL; ++i)
+    {
+        // See if this entity exists on the server and whether was not allocated already
+        if (_Func->CheckEntityExists(vcmpEntityPoolPickup, i) && (INVALID_ENTITY(m_Pickups[i].mID)))
+        {
+            AllocPickup(i, false, SQMOD_CREATE_IMPORT, NullLightObj());
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void Core::ImportPlayers()
+{
+    for (int32_t i = 0; i < SQMOD_PLAYER_POOL; ++i)
+    {
+        // See if this entity exists on the server and whether was not allocated already
+        if (_Func->IsPlayerConnected(i) && (INVALID_ENTITY(m_Players[i].mID)))
+        {
+            ConnectPlayer(i, SQMOD_CREATE_IMPORT, NullLightObj());
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void Core::ImportVehicles()
+{
+    for (int32_t i = 0; i < SQMOD_VEHICLE_POOL; ++i)
+    {
+        // See if this entity exists on the server and whether was not allocated already
+        if (_Func->CheckEntityExists(vcmpEntityPoolVehicle, i) && INVALID_ENTITY(m_Vehicles[i].mID))
+        {
+            AllocVehicle(i, false, SQMOD_CREATE_IMPORT, NullLightObj());
+        }
+    }
+}
+
+// --------------------------------------------------------------------------------------------
+BlipInst & Core::AllocBlip(int32_t id, bool owned, int32_t header, LightObj & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_BLIP_POOL))
+    {
+        STHROWF("Cannot allocate blip with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    BlipInst & inst = m_Blips[id];
+    // Make sure that the instance isn't already allocated
+    if (VALID_ENTITY(inst.mID))
+    {
+        return inst; // Return the existing instance
+    }
+    // Instantiate the entity manager
+    DeleteGuard< CBlip > dg(new CBlip(id));
+    // Create the script object
+    inst.mObj = LightObj(dg.Get(), m_VM);
+    // Store the manager instance itself
+    inst.mInst = dg.Get();
+    // The instance is now managed by the script
+    dg.Release();
+    // Make sure that both the instance and script object could be created
+    if (!inst.mInst || inst.mObj.IsNull())
+    {
+        inst.ResetInstance();
+        // Now we can throw the error
+        STHROWF("Unable to create a blip instance for: %d", id);
+    }
+    // Assign the specified entity identifier
+    inst.mID = id;
+    // Specify whether the entity is owned by this plug-in
+    if (owned)
+    {
+        inst.mFlags |= ENF_OWNED;
+    }
+    else if (inst.mFlags & ENF_OWNED)
+    {
+        inst.mFlags ^= ENF_OWNED;
+    }
+    // Initialize the instance events
+    inst.InitEvents();
+    // Let the script callbacks know about this entity
+    EmitBlipCreated(id, header, payload);
+    // Return the allocated instance
+    return inst;
+}
+
+// --------------------------------------------------------------------------------------------
+CheckpointInst & Core::AllocCheckpoint(int32_t id, bool owned, int32_t header, LightObj & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_CHECKPOINT_POOL))
+    {
+        STHROWF("Cannot allocate checkpoint with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    CheckpointInst & inst = m_Checkpoints[id];
+    // Make sure that the instance isn't already allocated
+    if (VALID_ENTITY(inst.mID))
+    {
+        return inst; // Return the existing instance
+    }
+    // Instantiate the entity manager
+    DeleteGuard< CCheckpoint > dg(new CCheckpoint(id));
+    // Create the script object
+    inst.mObj = LightObj(dg.Get(), m_VM);
+    // Store the manager instance itself
+    inst.mInst = dg.Get();
+    // The instance is now managed by the script
+    dg.Release();
+    // Make sure that both the instance and script object could be created
+    if (!inst.mInst || inst.mObj.IsNull())
+    {
+        inst.ResetInstance();
+        // Now we can throw the error
+        STHROWF("Unable to create a checkpoint instance for: %d", id);
+    }
+    // Assign the specified entity identifier
+    inst.mID = id;
+    // Specify whether the entity is owned by this plug-in
+    if (owned)
+    {
+        inst.mFlags |= ENF_OWNED;
+    }
+    else if (inst.mFlags & ENF_OWNED)
+    {
+        inst.mFlags ^= ENF_OWNED;
+    }
+    // Initialize the instance events
+    inst.InitEvents();
+    // Let the script callbacks know about this entity
+    EmitCheckpointCreated(id, header, payload);
+    // Return the allocated instance
+    return inst;
+}
+
+// --------------------------------------------------------------------------------------------
+KeyBindInst & Core::AllocKeyBind(int32_t id, bool owned, int32_t header, LightObj & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_KEYBIND_POOL))
+    {
+        STHROWF("Cannot allocate keybind with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    KeyBindInst & inst = m_KeyBinds[id];
+    // Make sure that the instance isn't already allocated
+    if (VALID_ENTITY(inst.mID))
+    {
+        return inst; // Return the existing instance
+    }
+    // Instantiate the entity manager
+    DeleteGuard< CKeyBind > dg(new CKeyBind(id));
+    // Create the script object
+    inst.mObj = LightObj(dg.Get(), m_VM);
+    // Store the manager instance itself
+    inst.mInst = dg.Get();
+    // The instance is now managed by the script
+    dg.Release();
+    // Make sure that both the instance and script object could be created
+    if (!inst.mInst || inst.mObj.IsNull())
+    {
+        inst.ResetInstance();
+        // Now we can throw the error
+        STHROWF("Unable to create a keybind instance for: %d", id);
+    }
+    // Assign the specified entity identifier
+    inst.mID = id;
+    // Specify whether the entity is owned by this plug-in
+    if (owned)
+    {
+        inst.mFlags |= ENF_OWNED;
+    }
+    else if (inst.mFlags & ENF_OWNED)
+    {
+        inst.mFlags ^= ENF_OWNED;
+    }
+    // Initialize the instance events
+    inst.InitEvents();
+    // Let the script callbacks know about this entity
+    EmitKeyBindCreated(id, header, payload);
+    // Return the allocated instance
+    return inst;
+}
+
+// --------------------------------------------------------------------------------------------
+ObjectInst & Core::AllocObject(int32_t id, bool owned, int32_t header, LightObj & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_OBJECT_POOL))
+    {
+        STHROWF("Cannot allocate object with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    ObjectInst & inst = m_Objects[id];
+    // Make sure that the instance isn't already allocated
+    if (VALID_ENTITY(inst.mID))
+    {
+        return inst; // Return the existing instance
+    }
+    // Instantiate the entity manager
+    DeleteGuard< CObject > dg(new CObject(id));
+    // Create the script object
+    inst.mObj = LightObj(dg.Get(), m_VM);
+    // Store the manager instance itself
+    inst.mInst = dg.Get();
+    // The instance is now managed by the script
+    dg.Release();
+    // Make sure that both the instance and script object could be created
+    if (!inst.mInst || inst.mObj.IsNull())
+    {
+        inst.ResetInstance();
+        // Now we can throw the error
+        STHROWF("Unable to create a object instance for: %d", id);
+    }
+    // Assign the specified entity identifier
+    inst.mID = id;
+    // Specify whether the entity is owned by this plug-in
+    if (owned)
+    {
+        inst.mFlags |= ENF_OWNED;
+    }
+    else if (inst.mFlags & ENF_OWNED)
+    {
+        inst.mFlags ^= ENF_OWNED;
+    }
+    // Initialize the instance events
+    inst.InitEvents();
+    // Let the script callbacks know about this entity
+    EmitObjectCreated(id, header, payload);
+    // Return the allocated instance
+    return inst;
+}
+
+// --------------------------------------------------------------------------------------------
+PickupInst & Core::AllocPickup(int32_t id, bool owned, int32_t header, LightObj & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_PICKUP_POOL))
+    {
+        STHROWF("Cannot allocate pickup with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    PickupInst & inst = m_Pickups[id];
+    // Make sure that the instance isn't already allocated
+    if (VALID_ENTITY(inst.mID))
+    {
+        return inst; // Return the existing instance
+    }
+    // Instantiate the entity manager
+    DeleteGuard< CPickup > dg(new CPickup(id));
+    // Create the script object
+    inst.mObj = LightObj(dg.Get(), m_VM);
+    // Store the manager instance itself
+    inst.mInst = dg.Get();
+    // The instance is now managed by the script
+    dg.Release();
+    // Make sure that both the instance and script object could be created
+    if (!inst.mInst || inst.mObj.IsNull())
+    {
+        inst.ResetInstance();
+        // Now we can throw the error
+        STHROWF("Unable to create a pickup instance for: %d", id);
+    }
+    // Assign the specified entity identifier
+    inst.mID = id;
+    // Specify whether the entity is owned by this plug-in
+    if (owned)
+    {
+        inst.mFlags |= ENF_OWNED;
+    }
+    else if (inst.mFlags & ENF_OWNED)
+    {
+        inst.mFlags ^= ENF_OWNED;
+    }
+    // Initialize the instance events
+    inst.InitEvents();
+    // Let the script callbacks know about this entity
+    EmitPickupCreated(id, header, payload);
+    // Return the allocated instance
+    return inst;
+}
+
+// --------------------------------------------------------------------------------------------
+VehicleInst & Core::AllocVehicle(int32_t id, bool owned, int32_t header, LightObj & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
+    {
+        STHROWF("Cannot allocate vehicle with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    VehicleInst & inst = m_Vehicles[id];
+    // Make sure that the instance isn't already allocated
+    if (VALID_ENTITY(inst.mID))
+    {
+        return inst; // Return the existing instance
+    }
+    // Instantiate the entity manager
+    DeleteGuard< CVehicle > dg(new CVehicle(id));
+    // Create the script object
+    inst.mObj = LightObj(dg.Get(), m_VM);
+    // Store the manager instance itself
+    inst.mInst = dg.Get();
+    // The instance is now managed by the script
+    dg.Release();
+    // Make sure that both the instance and script object could be created
+    if (!inst.mInst || inst.mObj.IsNull())
+    {
+        inst.ResetInstance();
+        // Now we can throw the error
+        STHROWF("Unable to create a vehicle instance for: %d", id);
+    }
+    // Assign the specified entity identifier
+    inst.mID = id;
+    // Specify whether the entity is owned by this plug-in
+    if (owned)
+    {
+        inst.mFlags |= ENF_OWNED;
+    }
+    else if (inst.mFlags & ENF_OWNED)
+    {
+        inst.mFlags ^= ENF_OWNED;
+    }
+    // Should we enable area tracking?
+    if (m_AreasEnabled)
+    {
+        inst.mFlags |= ENF_AREA_TRACK;
+    }
+    // Initialize the instance events
+    inst.InitEvents();
+    // Let the script callbacks know about this entity
+    EmitVehicleCreated(id, header, payload);
+    // Return the allocated instance
+    return inst;
+}
+
+// --------------------------------------------------------------------------------------------
+void Core::DeallocBlip(int32_t id, bool destroy, int32_t header, LightObj & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_BLIP_POOL))
+    {
+        STHROWF("Cannot deallocate blip with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    BlipInst & inst = m_Blips[id];
+    // Make sure that the instance is even allocated and we are allowed to destroy it
+    if (VALID_ENTITY(inst.mID) && !(inst.mFlags & ENF_LOCKED))
+    {
+        inst.Destroy(destroy, header, payload); // Now attempt to destroy the entity from the server
+    }
+}
+
+// --------------------------------------------------------------------------------------------
+void Core::DeallocCheckpoint(int32_t id, bool destroy, int32_t header, LightObj & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_CHECKPOINT_POOL))
+    {
+        STHROWF("Cannot deallocate checkpoint with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    CheckpointInst & inst = m_Checkpoints[id];
+    // Make sure that the instance is even allocated and we are allowed to destroy it
+    if (VALID_ENTITY(inst.mID) && !(inst.mFlags & ENF_LOCKED))
+    {
+        inst.Destroy(destroy, header, payload); // Now attempt to destroy the entity from the server
+    }
+}
+
+// --------------------------------------------------------------------------------------------
+void Core::DeallocKeyBind(int32_t id, bool destroy, int32_t header, LightObj & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_KEYBIND_POOL))
+    {
+        STHROWF("Cannot deallocate keybind with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    KeyBindInst & inst = m_KeyBinds[id];
+    // Make sure that the instance is even allocated and we are allowed to destroy it
+    if (VALID_ENTITY(inst.mID) && !(inst.mFlags & ENF_LOCKED))
+    {
+        inst.Destroy(destroy, header, payload); // Now attempt to destroy the entity from the server
+    }
+}
+
+// --------------------------------------------------------------------------------------------
+void Core::DeallocObject(int32_t id, bool destroy, int32_t header, LightObj & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_OBJECT_POOL))
+    {
+        STHROWF("Cannot deallocate object with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    ObjectInst & inst = m_Objects[id];
+    // Make sure that the instance is even allocated and we are allowed to destroy it
+    if (VALID_ENTITY(inst.mID) && !(inst.mFlags & ENF_LOCKED))
+    {
+        inst.Destroy(destroy, header, payload); // Now attempt to destroy the entity from the server
+    }
+}
+
+// --------------------------------------------------------------------------------------------
+void Core::DeallocPickup(int32_t id, bool destroy, int32_t header, LightObj & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_PICKUP_POOL))
+    {
+        STHROWF("Cannot deallocate pickup with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    PickupInst & inst = m_Pickups[id];
+    // Make sure that the instance is even allocated and we are allowed to destroy it
+    if (VALID_ENTITY(inst.mID) && !(inst.mFlags & ENF_LOCKED))
+    {
+        inst.Destroy(destroy, header, payload); // Now attempt to destroy the entity from the server
+    }
+}
+
+// --------------------------------------------------------------------------------------------
+void Core::DeallocVehicle(int32_t id, bool destroy, int32_t header, LightObj & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
+    {
+        STHROWF("Cannot deallocate vehicle with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    VehicleInst & inst = m_Vehicles[id];
+    // Make sure that the instance is even allocated and we are allowed to destroy it
+    if (VALID_ENTITY(inst.mID) && !(inst.mFlags & ENF_LOCKED))
+    {
+        inst.Destroy(destroy, header, payload); // Now attempt to destroy the entity from the server
+    }
+}
+
+// --------------------------------------------------------------------------------------------
+LightObj & Core::NewBlip(int32_t index, int32_t world, float x, float y, float z,
+                            int32_t scale, uint32_t color, int32_t sprid,
+                            int32_t header, LightObj & payload)
+{
+    // Request the server to create this entity
+    const int32_t id = _Func->CreateCoordBlip(index, world, x, y, z, scale, color, sprid);
+    // See if the entity creation failed on the server
+    if (_Func->GetLastError() == vcmpErrorPoolExhausted)
+    {
+        STHROWF("Blip pool was exhausted: %d", id);
+    }
+    // Validate the identifier returned by the server
+    else if (INVALID_ENTITYEX(id, SQMOD_BLIP_POOL))
+    {
+        STHROWF("Server returned invalid blip: %d", id);
+    }
+    // Attempt to allocate this entity and grab the reference to the instance
+    BlipInst & inst = AllocBlip(id, true, header, payload);
+    // Just in case it was created during the notification for changes in entity pool
+    if (VALID_ENTITY(inst.mID))
+    {
+        inst.mFlags |= ENF_OWNED;
+    }
+    // Now we can return the script object
+    return inst.mObj;
+}
+
+// --------------------------------------------------------------------------------------------
+LightObj & Core::NewCheckpoint(int32_t player, int32_t world, bool sphere, float x, float y, float z,
+                                uint8_t r, uint8_t g, uint8_t b, uint8_t a, float radius,
+                                int32_t header, LightObj & payload)
+{
+    // Request the server to create this entity
+    const int32_t id = _Func->CreateCheckPoint(player, world, sphere, x, y, z, r, g, b, a, radius);
+    // See if the entity creation failed on the server
+    if (_Func->GetLastError() == vcmpErrorNoSuchEntity)
+    {
+        STHROWF("Invalid player reference: %d", player);
+    }
+    else if (_Func->GetLastError() == vcmpErrorPoolExhausted)
+    {
+        STHROWF("Checkpoint pool was exhausted: %d", id);
+    }
+    // Validate the identifier returned by the server
+    else if (INVALID_ENTITYEX(id, SQMOD_CHECKPOINT_POOL))
+    {
+        STHROWF("Server returned invalid checkpoint: %d", id);
+    }
+    // Attempt to allocate this entity and grab the reference to the instance
+    CheckpointInst & inst = AllocCheckpoint(id, true, header, payload);
+    // Just in case it was created during the notification for changes in entity pool
+    if (VALID_ENTITY(inst.mID))
+    {
+        inst.mFlags |= ENF_OWNED;
+    }
+    // Now we can return the script object
+    return inst.mObj;
+}
+
+// --------------------------------------------------------------------------------------------
+LightObj & Core::NewKeyBind(int32_t slot, bool release, int32_t primary, int32_t secondary, int32_t alternative,
+                            int32_t header, LightObj & payload)
+{
+    // Should we obtain a new keybind slot automatically?
+    if (slot < 0)
+    {
+        slot = _Func->GetKeyBindUnusedSlot();
+    }
+    // Validate the keybind slot returned by the server
+    if (INVALID_ENTITYEX(slot, SQMOD_KEYBIND_POOL))
+    {
+        STHROWF("Server returned invalid keybind slot: %d", slot);
+    }
+    // Request the server to create this entity
+    const vcmpError result = _Func->RegisterKeyBind(slot, release, primary, secondary, alternative);
+    // See if the entity creation failed on the server
+    if (result == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Out of bounds keybind argument: %d", slot);
+    }
+    // Attempt to allocate this entity and grab the reference to the instance
+    KeyBindInst & inst = AllocKeyBind(slot, true, header, payload);
+    // Just in case it was created during the notification for changes in entity pool
+    if (VALID_ENTITY(inst.mID))
+    {
+        inst.mFlags |= ENF_OWNED;
+    }
+    // Now we can return the script object
+    return inst.mObj;
+}
+
+// --------------------------------------------------------------------------------------------
+LightObj & Core::NewObject(int32_t model, int32_t world, float x, float y, float z,  int32_t alpha,
+                            int32_t header, LightObj & payload)
+{
+    // Request the server to create this entity
+    const int32_t id = _Func->CreateObject(model, world, x, y, z, alpha);
+    // See if the entity creation failed on the server
+    if (_Func->GetLastError() == vcmpErrorPoolExhausted)
+    {
+        STHROWF("Object pool was exhausted: %d", id);
+    }
+    // Validate the identifier returned by the server
+    else if (INVALID_ENTITYEX(id, SQMOD_OBJECT_POOL))
+    {
+        STHROWF("Server returned invalid object: %d", id);
+    }
+    // Attempt to allocate this entity and grab the reference to the instance
+    ObjectInst & inst = AllocObject(id, true, header, payload);
+    // Just in case it was created during the notification for changes in entity pool
+    if (VALID_ENTITY(inst.mID))
+    {
+        inst.mFlags |= ENF_OWNED;
+    }
+    // Now we can return the script object
+    return inst.mObj;
+}
+
+// --------------------------------------------------------------------------------------------
+LightObj & Core::NewPickup(int32_t model, int32_t world, int32_t quantity,
+                            float x, float y, float z, int32_t alpha, bool automatic,
+                            int32_t header, LightObj & payload)
+{
+    // Request the server to create this entity
+    const int32_t id = _Func->CreatePickup(model, world, quantity, x, y, z, alpha, automatic);
+    // See if the entity creation failed on the server
+    if (_Func->GetLastError() == vcmpErrorPoolExhausted)
+    {
+        STHROWF("Pickup pool was exhausted: %d", id);
+    }
+    // Validate the identifier returned by the server
+    else if (INVALID_ENTITYEX(id, SQMOD_PICKUP_POOL))
+    {
+        STHROWF("Server returned invalid pickup: %d", id);
+    }
+    // Attempt to allocate this entity and grab the reference to the instance
+    PickupInst & inst = AllocPickup(id, true, header, payload);
+    // Just in case it was created during the notification for changes in entity pool
+    if (VALID_ENTITY(inst.mID))
+    {
+        inst.mFlags |= ENF_OWNED;
+    }
+    // Now we can return the script object
+    return inst.mObj;
+}
+
+// --------------------------------------------------------------------------------------------
+LightObj & Core::NewVehicle(int32_t model, int32_t world, float x, float y, float z,
+                            float angle, int32_t primary, int32_t secondary,
+                            int32_t header, LightObj & payload)
+{
+
+    // Request the server to create this entity
+    const int32_t id = _Func->CreateVehicle(model, world, x, y, z, angle, primary, secondary);
+    // See if the entity creation failed on the server
+    if (_Func->GetLastError() == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Out of bounds vehicle argument: %d", id);
+    }
+    else if (_Func->GetLastError() == vcmpErrorPoolExhausted)
+    {
+        STHROWF("Vehicle pool was exhausted: %d", id);
+    }
+    // Validate the identifier returned by the server
+    else if (INVALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
+    {
+        STHROWF("Server returned invalid vehicle: %d", id);
+    }
+    // Attempt to allocate this entity and grab the reference to the instance
+    VehicleInst & inst = AllocVehicle(id, true, header, payload);
+    // Just in case it was created during the notification for changes in entity pool
+    if (VALID_ENTITY(inst.mID))
+    {
+        inst.mFlags |= ENF_OWNED;
+    }
+    // Now we can return the script object
+    return inst.mObj;
+}
+
+// --------------------------------------------------------------------------------------------
+bool Core::DelBlip(int32_t id, int32_t header, LightObj & payload)
+{
+    // Attempt to destroy and deallocate the specified entity instance
+    DeallocBlip(id, true, header, payload);
+    // The entity could be destroyed
+    return true;
+}
+
+// ------------------------------------------------------------------------------------------------
+bool Core::DelCheckpoint(int32_t id, int32_t header, LightObj & payload)
+{
+    // Attempt to destroy and deallocate the specified entity instance
+    DeallocCheckpoint(id, true, header, payload);
+    // The entity could be destroyed
+    return true;
+}
+
+// ------------------------------------------------------------------------------------------------
+bool Core::DelKeyBind(int32_t id, int32_t header, LightObj & payload)
+{
+    // Attempt to destroy and deallocate the specified entity instance
+    DeallocKeyBind(id, true, header, payload);
+    // The entity could be destroyed
+    return true;
+}
+
+// ------------------------------------------------------------------------------------------------
+bool Core::DelObject(int32_t id, int32_t header, LightObj & payload)
+{
+    // Attempt to destroy and deallocate the specified entity instance
+    DeallocObject(id, true, header, payload);
+    // The entity could be destroyed
+    return true;
+}
+
+// ------------------------------------------------------------------------------------------------
+bool Core::DelPickup(int32_t id, int32_t header, LightObj & payload)
+{
+    // Attempt to destroy and deallocate the specified entity instance
+    DeallocPickup(id, true, header, payload);
+    // The entity could be destroyed
+    return true;
+}
+
+// ------------------------------------------------------------------------------------------------
+bool Core::DelVehicle(int32_t id, int32_t header, LightObj & payload)
+{
+    // Attempt to destroy and deallocate the specified entity instance
+    DeallocVehicle(id, true, header, payload);
+    // The entity could be destroyed
+    return true;
+}
+
+// ------------------------------------------------------------------------------------------------
+void Core::ConnectPlayer(int32_t id, int32_t header, LightObj & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
+    {
+        STHROWF("Cannot allocate player with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    PlayerInst & inst = m_Players[id];
+    // Make sure that the instance isn't already allocated
+    if (VALID_ENTITY(inst.mID))
+    {
+        return; // Nothing to allocate!
+    }
+    // Instantiate the entity manager
+    DeleteGuard< CPlayer > dg(new CPlayer(id));
+    // Create the script object
+    inst.mObj = LightObj(dg.Get(), m_VM);
+    // Store the manager instance itself
+    inst.mInst = dg.Get();
+    // The instance is now managed by the script
+    dg.Release();
+    // Make sure that both the instance and script object could be created
+    if (!inst.mInst || inst.mObj.IsNull())
+    {
+        inst.ResetInstance();
+        STHROWF("Unable to create a player instance for: %d", id);
+    }
+    // Assign the specified entity identifier
+    inst.mID = id;
+    // Should we enable area tracking?
+    if (m_AreasEnabled)
+    {
+        inst.mFlags |= ENF_AREA_TRACK;
+    }
+    // Initialize the position
+    _Func->GetPlayerPosition(id, &inst.mLastPosition.x, &inst.mLastPosition.y, &inst.mLastPosition.z);
+    // Initialize the remaining attributes
+    inst.mLastWeapon = _Func->GetPlayerWeapon(id);
+    inst.mLastHealth = _Func->GetPlayerHealth(id);
+    inst.mLastArmour = _Func->GetPlayerArmour(id);
+    inst.mLastHeading = _Func->GetPlayerHeading(id);
+    // Initialize the instance events
+    inst.InitEvents();
+    // Let the script callbacks know about this entity
+    EmitPlayerCreated(id, header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+void Core::DisconnectPlayer(int32_t id, int32_t header, LightObj & payload)
+{
+    // Make sure that the specified entity identifier is valid
+    if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
+    {
+        STHROWF("Cannot deallocate player with invalid identifier: %d", id);
+    }
+    // Retrieve the specified entity instance
+    PlayerInst & inst = m_Players[id];
+    // Make sure that the instance is even allocated and we are allowed to destroy it
+    if (VALID_ENTITY(inst.mID) && !(inst.mFlags & ENF_LOCKED))
+    {
+        inst.Destroy(false, header, payload); // Now attempt to destroy the entity from the server
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void Core::ClearContainer(EntityType type)
+{
+    switch (type)
+    {
+        case ENT_BLIP:
+        {
+            m_Blips.clear();
+        } break;
+        case ENT_CHECKPOINT:
+        {
+            m_Checkpoints.clear();
+        } break;
+        case ENT_KEYBIND:
+        {
+            m_KeyBinds.clear();
+        } break;
+        case ENT_OBJECT:
+        {
+            m_Objects.clear();
+        } break;
+        case ENT_PICKUP:
+        {
+            m_Pickups.clear();
+        } break;
+        case ENT_PLAYER:
+        {
+            m_Players.clear();
+        } break;
+        case ENT_VEHICLE:
+        {
+            m_Vehicles.clear();
+        } break;
+        default: STHROWF("Cannot clear unknown entity type container");
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void Core::InitEvents()
+{
+    // Ignore the call if already initialized
+    if (!m_Events.IsNull())
+    {
+        return;
+    }
+    // Create a new table on the stack
+    sq_newtableex(SqVM(), 128);
+    // Grab the table object from the stack
+    m_Events = LightObj(-1, SqVM());
+    // Pop the table object from the stack
+    sq_pop(SqVM(), 1);
+    // Proceed to initializing the events
+    InitSignalPair(mOnCustomEvent, m_Events, "CustomEvent");
+    InitSignalPair(mOnBlipCreated, m_Events, "BlipCreated");
+    InitSignalPair(mOnCheckpointCreated, m_Events, "CheckpointCreated");
+    InitSignalPair(mOnKeyBindCreated, m_Events, "KeyBindCreated");
+    InitSignalPair(mOnObjectCreated, m_Events, "ObjectCreated");
+    InitSignalPair(mOnPickupCreated, m_Events, "PickupCreated");
+    InitSignalPair(mOnPlayerCreated, m_Events, "PlayerCreated");
+    InitSignalPair(mOnVehicleCreated, m_Events, "VehicleCreated");
+    InitSignalPair(mOnBlipDestroyed, m_Events, "BlipDestroyed");
+    InitSignalPair(mOnCheckpointDestroyed, m_Events, "CheckpointDestroyed");
+    InitSignalPair(mOnKeyBindDestroyed, m_Events, "KeyBindDestroyed");
+    InitSignalPair(mOnObjectDestroyed, m_Events, "ObjectDestroyed");
+    InitSignalPair(mOnPickupDestroyed, m_Events, "PickupDestroyed");
+    InitSignalPair(mOnPlayerDestroyed, m_Events, "PlayerDestroyed");
+    InitSignalPair(mOnVehicleDestroyed, m_Events, "VehicleDestroyed");
+    InitSignalPair(mOnBlipCustom, m_Events, "BlipCustom");
+    InitSignalPair(mOnCheckpointCustom, m_Events, "CheckpointCustom");
+    InitSignalPair(mOnKeyBindCustom, m_Events, "KeyBindCustom");
+    InitSignalPair(mOnObjectCustom, m_Events, "ObjectCustom");
+    InitSignalPair(mOnPickupCustom, m_Events, "PickupCustom");
+    InitSignalPair(mOnPlayerCustom, m_Events, "PlayerCustom");
+    InitSignalPair(mOnVehicleCustom, m_Events, "VehicleCustom");
+#if SQMOD_SDK_LEAST(2, 1)
+    InitSignalPair(mOnCheckpointStream, m_Events, "CheckpointStream");
+    InitSignalPair(mOnObjectStream, m_Events, "ObjectStream");
+    InitSignalPair(mOnPickupStream, m_Events, "PickupStream");
+    InitSignalPair(mOnPlayerStream, m_Events, "PlayerStream");
+    InitSignalPair(mOnVehicleStream, m_Events, "VehicleStream");
+#endif
+    InitSignalPair(mOnServerStartup, m_Events, "ServerStartup");
+    InitSignalPair(mOnServerShutdown, m_Events, "ServerShutdown");
+    InitSignalPair(mOnServerFrame, m_Events, "ServerFrame");
+    InitSignalPair(mOnIncomingConnection, m_Events, "IncomingConnection");
+    InitSignalPair(mOnPlayerRequestClass, m_Events, "PlayerRequestClass");
+    InitSignalPair(mOnPlayerRequestSpawn, m_Events, "PlayerRequestSpawn");
+    InitSignalPair(mOnPlayerSpawn, m_Events, "PlayerSpawn");
+    InitSignalPair(mOnPlayerWasted, m_Events, "PlayerWasted");
+    InitSignalPair(mOnPlayerKilled, m_Events, "PlayerKilled");
+    InitSignalPair(mOnPlayerEmbarking, m_Events, "PlayerEmbarking");
+    InitSignalPair(mOnPlayerEmbarked, m_Events, "PlayerEmbarked");
+    InitSignalPair(mOnPlayerDisembark, m_Events, "PlayerDisembark");
+    InitSignalPair(mOnPlayerRename, m_Events, "PlayerRename");
+    InitSignalPair(mOnPlayerState, m_Events, "PlayerState");
+    InitSignalPair(mOnStateNone, m_Events, "StateNone");
+    InitSignalPair(mOnStateNormal, m_Events, "StateNormal");
+    InitSignalPair(mOnStateAim, m_Events, "StateAim");
+    InitSignalPair(mOnStateDriver, m_Events, "StateDriver");
+    InitSignalPair(mOnStatePassenger, m_Events, "StatePassenger");
+    InitSignalPair(mOnStateEnterDriver, m_Events, "StateEnterDriver");
+    InitSignalPair(mOnStateEnterPassenger, m_Events, "StateEnterPassenger");
+    InitSignalPair(mOnStateExit, m_Events, "StateExit");
+    InitSignalPair(mOnStateUnspawned, m_Events, "StateUnspawned");
+    InitSignalPair(mOnPlayerAction, m_Events, "PlayerAction");
+    InitSignalPair(mOnActionNone, m_Events, "ActionNone");
+    InitSignalPair(mOnActionNormal, m_Events, "ActionNormal");
+    InitSignalPair(mOnActionAiming, m_Events, "ActionAiming");
+    InitSignalPair(mOnActionShooting, m_Events, "ActionShooting");
+    InitSignalPair(mOnActionJumping, m_Events, "ActionJumping");
+    InitSignalPair(mOnActionLieDown, m_Events, "ActionLieDown");
+    InitSignalPair(mOnActionGettingUp, m_Events, "ActionGettingUp");
+    InitSignalPair(mOnActionJumpVehicle, m_Events, "ActionJumpVehicle");
+    InitSignalPair(mOnActionDriving, m_Events, "ActionDriving");
+    InitSignalPair(mOnActionDying, m_Events, "ActionDying");
+    InitSignalPair(mOnActionWasted, m_Events, "ActionWasted");
+    InitSignalPair(mOnActionEmbarking, m_Events, "ActionEmbarking");
+    InitSignalPair(mOnActionDisembarking, m_Events, "ActionDisembarking");
+    InitSignalPair(mOnPlayerBurning, m_Events, "PlayerBurning");
+    InitSignalPair(mOnPlayerCrouching, m_Events, "PlayerCrouching");
+    InitSignalPair(mOnPlayerGameKeys, m_Events, "PlayerGameKeys");
+    InitSignalPair(mOnPlayerStartTyping, m_Events, "PlayerStartTyping");
+    InitSignalPair(mOnPlayerStopTyping, m_Events, "PlayerStopTyping");
+    InitSignalPair(mOnPlayerAway, m_Events, "PlayerAway");
+    InitSignalPair(mOnPlayerMessage, m_Events, "PlayerMessage");
+    InitSignalPair(mOnPlayerCommand, m_Events, "PlayerCommand");
+    InitSignalPair(mOnPlayerPrivateMessage, m_Events, "PlayerPrivateMessage");
+    InitSignalPair(mOnPlayerKeyPress, m_Events, "PlayerKeyPress");
+    InitSignalPair(mOnPlayerKeyRelease, m_Events, "PlayerKeyRelease");
+    InitSignalPair(mOnPlayerSpectate, m_Events, "PlayerSpectate");
+    InitSignalPair(mOnPlayerUnspectate, m_Events, "PlayerUnspectate");
+    InitSignalPair(mOnPlayerCrashReport, m_Events, "PlayerCrashReport");
+    InitSignalPair(mOnPlayerModuleList, m_Events, "PlayerModuleList");
+    InitSignalPair(mOnVehicleExplode, m_Events, "VehicleExplode");
+    InitSignalPair(mOnVehicleRespawn, m_Events, "VehicleRespawn");
+    InitSignalPair(mOnObjectShot, m_Events, "ObjectShot");
+    InitSignalPair(mOnObjectTouched, m_Events, "ObjectTouched");
+    InitSignalPair(mOnObjectWorld, m_Events, "ObjectWorld");
+    InitSignalPair(mOnObjectAlpha, m_Events, "ObjectAlpha");
+    InitSignalPair(mOnObjectReport, m_Events, "ObjectReport");
+    InitSignalPair(mOnPickupClaimed, m_Events, "PickupClaimed");
+    InitSignalPair(mOnPickupCollected, m_Events, "PickupCollected");
+    InitSignalPair(mOnPickupRespawn, m_Events, "PickupRespawn");
+    InitSignalPair(mOnPickupWorld, m_Events, "PickupWorld");
+    InitSignalPair(mOnPickupAlpha, m_Events, "PickupAlpha");
+    InitSignalPair(mOnPickupAutomatic, m_Events, "PickupAutomatic");
+    InitSignalPair(mOnPickupAutoTimer, m_Events, "PickupAutoTimer");
+    InitSignalPair(mOnPickupOption, m_Events, "PickupOption");
+    InitSignalPair(mOnCheckpointEntered, m_Events, "CheckpointEntered");
+    InitSignalPair(mOnCheckpointExited, m_Events, "CheckpointExited");
+    InitSignalPair(mOnCheckpointWorld, m_Events, "CheckpointWorld");
+    InitSignalPair(mOnCheckpointRadius, m_Events, "CheckpointRadius");
+    InitSignalPair(mOnEntityPool, m_Events, "EntityPool");
+    InitSignalPair(mOnClientScriptData, m_Events, "ClientScriptData");
+    InitSignalPair(mOnPlayerUpdate, m_Events, "PlayerUpdate");
+    InitSignalPair(mOnVehicleUpdate, m_Events, "VehicleUpdate");
+    InitSignalPair(mOnPlayerHealth, m_Events, "PlayerHealth");
+    InitSignalPair(mOnPlayerArmour, m_Events, "PlayerArmour");
+    InitSignalPair(mOnPlayerWeapon, m_Events, "PlayerWeapon");
+    InitSignalPair(mOnPlayerHeading, m_Events, "PlayerHeading");
+    InitSignalPair(mOnPlayerPosition, m_Events, "PlayerPosition");
+    InitSignalPair(mOnPlayerOption, m_Events, "PlayerOption");
+    InitSignalPair(mOnPlayerAdmin, m_Events, "PlayerAdmin");
+    InitSignalPair(mOnPlayerWorld, m_Events, "PlayerWorld");
+    InitSignalPair(mOnPlayerTeam, m_Events, "PlayerTeam");
+    InitSignalPair(mOnPlayerSkin, m_Events, "PlayerSkin");
+    InitSignalPair(mOnPlayerMoney, m_Events, "PlayerMoney");
+    InitSignalPair(mOnPlayerScore, m_Events, "PlayerScore");
+    InitSignalPair(mOnPlayerWantedLevel, m_Events, "PlayerWantedLevel");
+    InitSignalPair(mOnPlayerImmunity, m_Events, "PlayerImmunity");
+    InitSignalPair(mOnPlayerAlpha, m_Events, "PlayerAlpha");
+    InitSignalPair(mOnPlayerEnterArea, m_Events, "PlayerEnterArea");
+    InitSignalPair(mOnPlayerLeaveArea, m_Events, "PlayerLeaveArea");
+    InitSignalPair(mOnVehicleColor, m_Events, "VehicleColor");
+    InitSignalPair(mOnVehicleHealth, m_Events, "VehicleHealth");
+    InitSignalPair(mOnVehiclePosition, m_Events, "VehiclePosition");
+    InitSignalPair(mOnVehicleRotation, m_Events, "VehicleRotation");
+    InitSignalPair(mOnVehicleOption, m_Events, "VehicleOption");
+    InitSignalPair(mOnVehicleWorld, m_Events, "VehicleWorld");
+    InitSignalPair(mOnVehicleImmunity, m_Events, "VehicleImmunity");
+    InitSignalPair(mOnVehiclePartStatus, m_Events, "VehiclePartStatus");
+    InitSignalPair(mOnVehicleTyreStatus, m_Events, "VehicleTyreStatus");
+    InitSignalPair(mOnVehicleDamageData, m_Events, "VehicleDamageData");
+    InitSignalPair(mOnVehicleRadio, m_Events, "VehicleRadio");
+    InitSignalPair(mOnVehicleHandlingRule, m_Events, "VehicleHandlingRule");
+    InitSignalPair(mOnVehicleEnterArea, m_Events, "VehicleEnterArea");
+    InitSignalPair(mOnVehicleLeaveArea, m_Events, "VehicleLeaveArea");
+#if SQMOD_SDK_LEAST(2, 1)
+    InitSignalPair(mOnEntityStream, m_Events, "EntityStream");
+#endif
+    InitSignalPair(mOnServerOption, m_Events, "ServerOption");
+    InitSignalPair(mOnScriptReload, m_Events, "ScriptReload");
+    InitSignalPair(mOnScriptLoaded, m_Events, "ScriptLoaded");
+}
+// ------------------------------------------------------------------------------------------------
+void Core::DropEvents()
+{
+    ResetSignalPair(mOnCustomEvent);
+    ResetSignalPair(mOnBlipCreated);
+    ResetSignalPair(mOnCheckpointCreated);
+    ResetSignalPair(mOnKeyBindCreated);
+    ResetSignalPair(mOnObjectCreated);
+    ResetSignalPair(mOnPickupCreated);
+    ResetSignalPair(mOnPlayerCreated);
+    ResetSignalPair(mOnVehicleCreated);
+    ResetSignalPair(mOnBlipDestroyed);
+    ResetSignalPair(mOnCheckpointDestroyed);
+    ResetSignalPair(mOnKeyBindDestroyed);
+    ResetSignalPair(mOnObjectDestroyed);
+    ResetSignalPair(mOnPickupDestroyed);
+    ResetSignalPair(mOnPlayerDestroyed);
+    ResetSignalPair(mOnVehicleDestroyed);
+    ResetSignalPair(mOnBlipCustom);
+    ResetSignalPair(mOnCheckpointCustom);
+    ResetSignalPair(mOnKeyBindCustom);
+    ResetSignalPair(mOnObjectCustom);
+    ResetSignalPair(mOnPickupCustom);
+    ResetSignalPair(mOnPlayerCustom);
+    ResetSignalPair(mOnVehicleCustom);
+#if SQMOD_SDK_LEAST(2, 1)
+    ResetSignalPair(mOnCheckpointStream);
+    ResetSignalPair(mOnObjectStream);
+    ResetSignalPair(mOnPickupStream);
+    ResetSignalPair(mOnPlayerStream);
+    ResetSignalPair(mOnVehicleStream);
+#endif
+    ResetSignalPair(mOnServerStartup);
+    ResetSignalPair(mOnServerShutdown);
+    ResetSignalPair(mOnServerFrame);
+    ResetSignalPair(mOnIncomingConnection);
+    ResetSignalPair(mOnPlayerRequestClass);
+    ResetSignalPair(mOnPlayerRequestSpawn);
+    ResetSignalPair(mOnPlayerSpawn);
+    ResetSignalPair(mOnPlayerWasted);
+    ResetSignalPair(mOnPlayerKilled);
+    ResetSignalPair(mOnPlayerEmbarking);
+    ResetSignalPair(mOnPlayerEmbarked);
+    ResetSignalPair(mOnPlayerDisembark);
+    ResetSignalPair(mOnPlayerRename);
+    ResetSignalPair(mOnPlayerState);
+    ResetSignalPair(mOnStateNone);
+    ResetSignalPair(mOnStateNormal);
+    ResetSignalPair(mOnStateAim);
+    ResetSignalPair(mOnStateDriver);
+    ResetSignalPair(mOnStatePassenger);
+    ResetSignalPair(mOnStateEnterDriver);
+    ResetSignalPair(mOnStateEnterPassenger);
+    ResetSignalPair(mOnStateExit);
+    ResetSignalPair(mOnStateUnspawned);
+    ResetSignalPair(mOnPlayerAction);
+    ResetSignalPair(mOnActionNone);
+    ResetSignalPair(mOnActionNormal);
+    ResetSignalPair(mOnActionAiming);
+    ResetSignalPair(mOnActionShooting);
+    ResetSignalPair(mOnActionJumping);
+    ResetSignalPair(mOnActionLieDown);
+    ResetSignalPair(mOnActionGettingUp);
+    ResetSignalPair(mOnActionJumpVehicle);
+    ResetSignalPair(mOnActionDriving);
+    ResetSignalPair(mOnActionDying);
+    ResetSignalPair(mOnActionWasted);
+    ResetSignalPair(mOnActionEmbarking);
+    ResetSignalPair(mOnActionDisembarking);
+    ResetSignalPair(mOnPlayerBurning);
+    ResetSignalPair(mOnPlayerCrouching);
+    ResetSignalPair(mOnPlayerGameKeys);
+    ResetSignalPair(mOnPlayerStartTyping);
+    ResetSignalPair(mOnPlayerStopTyping);
+    ResetSignalPair(mOnPlayerAway);
+    ResetSignalPair(mOnPlayerMessage);
+    ResetSignalPair(mOnPlayerCommand);
+    ResetSignalPair(mOnPlayerPrivateMessage);
+    ResetSignalPair(mOnPlayerKeyPress);
+    ResetSignalPair(mOnPlayerKeyRelease);
+    ResetSignalPair(mOnPlayerSpectate);
+    ResetSignalPair(mOnPlayerUnspectate);
+    ResetSignalPair(mOnPlayerCrashReport);
+    ResetSignalPair(mOnPlayerModuleList);
+    ResetSignalPair(mOnVehicleExplode);
+    ResetSignalPair(mOnVehicleRespawn);
+    ResetSignalPair(mOnObjectShot);
+    ResetSignalPair(mOnObjectTouched);
+    ResetSignalPair(mOnObjectWorld);
+    ResetSignalPair(mOnObjectAlpha);
+    ResetSignalPair(mOnObjectReport);
+    ResetSignalPair(mOnPickupClaimed);
+    ResetSignalPair(mOnPickupCollected);
+    ResetSignalPair(mOnPickupRespawn);
+    ResetSignalPair(mOnPickupWorld);
+    ResetSignalPair(mOnPickupAlpha);
+    ResetSignalPair(mOnPickupAutomatic);
+    ResetSignalPair(mOnPickupAutoTimer);
+    ResetSignalPair(mOnPickupOption);
+    ResetSignalPair(mOnCheckpointEntered);
+    ResetSignalPair(mOnCheckpointExited);
+    ResetSignalPair(mOnCheckpointWorld);
+    ResetSignalPair(mOnCheckpointRadius);
+    ResetSignalPair(mOnEntityPool);
+    ResetSignalPair(mOnClientScriptData);
+    ResetSignalPair(mOnPlayerUpdate);
+    ResetSignalPair(mOnVehicleUpdate);
+    ResetSignalPair(mOnPlayerHealth);
+    ResetSignalPair(mOnPlayerArmour);
+    ResetSignalPair(mOnPlayerWeapon);
+    ResetSignalPair(mOnPlayerHeading);
+    ResetSignalPair(mOnPlayerPosition);
+    ResetSignalPair(mOnPlayerOption);
+    ResetSignalPair(mOnPlayerAdmin);
+    ResetSignalPair(mOnPlayerWorld);
+    ResetSignalPair(mOnPlayerTeam);
+    ResetSignalPair(mOnPlayerSkin);
+    ResetSignalPair(mOnPlayerMoney);
+    ResetSignalPair(mOnPlayerScore);
+    ResetSignalPair(mOnPlayerWantedLevel);
+    ResetSignalPair(mOnPlayerImmunity);
+    ResetSignalPair(mOnPlayerAlpha);
+    ResetSignalPair(mOnPlayerEnterArea);
+    ResetSignalPair(mOnPlayerLeaveArea);
+    ResetSignalPair(mOnVehicleColor);
+    ResetSignalPair(mOnVehicleHealth);
+    ResetSignalPair(mOnVehiclePosition);
+    ResetSignalPair(mOnVehicleRotation);
+    ResetSignalPair(mOnVehicleOption);
+    ResetSignalPair(mOnVehicleWorld);
+    ResetSignalPair(mOnVehicleImmunity);
+    ResetSignalPair(mOnVehiclePartStatus);
+    ResetSignalPair(mOnVehicleTyreStatus);
+    ResetSignalPair(mOnVehicleDamageData);
+    ResetSignalPair(mOnVehicleRadio);
+    ResetSignalPair(mOnVehicleHandlingRule);
+    ResetSignalPair(mOnVehicleEnterArea);
+    ResetSignalPair(mOnVehicleLeaveArea);
+#if SQMOD_SDK_LEAST(2, 1)
+    ResetSignalPair(mOnEntityStream);
+#endif
+    ResetSignalPair(mOnServerOption);
+    ResetSignalPair(mOnScriptReload);
+    ResetSignalPair(mOnScriptLoaded);
+    m_Events.Release();
+}
+
+// ------------------------------------------------------------------------------------------------
+extern bool GetReloadStatus();
+extern void SetReloadStatus(bool toggle);
+
+// ------------------------------------------------------------------------------------------------
+SQMOD_DECL_TYPENAME(CoreStateTypename, _SC("SqCoreState"))
+
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqLoadScript(HSQUIRRELVM vm)
+{
+    const int32_t top = sq_gettop(vm);
+    // Was the delay option specified?
+    if (top <= 1)
+    {
+        return sq_throwerror(vm, "Missing delay parameter");
+    }
+    // Was the script path specified?
+    else if (top <= 2)
+    {
+        return sq_throwerror(vm, "Missing script path");
+    }
+    // Whether the script execution is delayed
+    SQBool delay = SQFalse;
+    // Attempt to generate the string value
+    StackStrF val(vm, 3);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.Proc(true)))
+    {
+        return val.mRes; // Propagate the error!
+    }
+    else if (SQ_FAILED(sq_getbool(vm, 2, &delay)))
+    {
+        return sq_throwerror(vm, "Failed to retrieve the delay parameter");
+    }
+    // Forward the call to the actual implementation
+    sq_pushbool(vm, Core::Get().LoadScript(val.mPtr, static_cast< bool >(delay)));
+    // We have an argument on the stack
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqGetEvents(HSQUIRRELVM vm)
+{
+    // Push the events table object on the stack
+    sq_pushobject(vm, Core::Get().GetEvents().mObj);
+    // Specify that we're returning a value
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqEmitCustomEvent(int32_t group, int32_t header, LightObj & payload)
+{
+    Core::Get().EmitCustomEvent(group, header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqForceEnableNullEntities(HSQUIRRELVM SQ_UNUSED_ARG(vm))
+{
+    Core::Get().EnableNullEntities();
+    return 0;
+}
+
+// ------------------------------------------------------------------------------------------------
+static LightObj & SqGetPreLoadEvent()
+{
+    return Core::Get().GetPreLoadEvent();
+}
+
+// ------------------------------------------------------------------------------------------------
+static LightObj & SqGetPostLoadEvent()
+{
+    return Core::Get().GetPostLoadEvent();
+}
+
+// ------------------------------------------------------------------------------------------------
+static LightObj & SqGetUnloadEvent()
+{
+    return Core::Get().GetUnloadEvent();
+}
+
+// ------------------------------------------------------------------------------------------------
+static bool SqGetReloadStatus()
+{
+    return GetReloadStatus();
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqSetReloadStatus(bool toggle)
+{
+    SetReloadStatus(toggle);
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqReloadBecause(int32_t header, LightObj & payload)
+{
+    // Assign the reload info
+    Core::Get().SetReloadInfo(header, payload);
+    // Enable reloading
+    SetReloadStatus(true);
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqSetReloadInfo(int32_t header, LightObj & payload)
+{
+    Core::Get().SetReloadInfo(header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+static int32_t SqGetReloadHeader()
+{
+    return Core::Get().GetReloadHeader();
+}
+
+// ------------------------------------------------------------------------------------------------
+static LightObj & SqGetReloadPayload()
+{
+    return Core::Get().GetReloadPayload();
+}
+
+// ------------------------------------------------------------------------------------------------
+static int32_t SqGetState()
+{
+    return Core::Get().GetState();
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqSetState(int32_t value)
+{
+    return Core::Get().SetState(value);
+}
+
+// ------------------------------------------------------------------------------------------------
+static bool SqGetAreasEnabled()
+{
+    return Core::Get().AreasEnabled();
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqSetAreasEnabled(bool toggle)
+{
+    Core::Get().AreasEnabled(toggle);
+}
+
+// ------------------------------------------------------------------------------------------------
+static const String & SqGetOption(StackStrF & name)
+{
+    return Core::Get().GetOption(String(name.mPtr, name.mLen));
+}
+
+// ------------------------------------------------------------------------------------------------
+static const String & SqGetOptionOr(StackStrF & name, StackStrF & value)
+{
+    static String s;
+    s.assign(value.mPtr, value.GetSize());
+    return Core::Get().GetOption(String(name.mPtr, name.mLen), s);
+}
+
+// ------------------------------------------------------------------------------------------------
+static void SqSetOption(StackStrF & name, StackStrF & value)
+{
+    Core::Get().SetOption(String(name.mPtr, name.mLen), String(value.mPtr, value.mLen));
+}
+
+// ------------------------------------------------------------------------------------------------
+static LightObj & SqGetBlip(int32_t id)
+{
+    // Validate the identifier first
+    if (INVALID_ENTITYEX(id, SQMOD_BLIP_POOL))
+    {
+        STHROWF("Out of range blip identifier: %d", id);
+    }
+    // Return the requested information
+    return Core::Get().GetBlip(id).mObj;
+}
+
+// ------------------------------------------------------------------------------------------------
+static LightObj & SqGetCheckpoint(int32_t id)
+{
+    // Validate the identifier first
+    if (INVALID_ENTITYEX(id, SQMOD_CHECKPOINT_POOL))
+    {
+        STHROWF("Out of range checkpoint identifier: %d", id);
+    }
+    // Return the requested information
+    return Core::Get().GetCheckpoint(id).mObj;
+}
+
+// ------------------------------------------------------------------------------------------------
+static LightObj & SqGetKeyBind(int32_t id)
+{
+    // Validate the identifier first
+    if (INVALID_ENTITYEX(id, SQMOD_KEYBIND_POOL))
+    {
+        STHROWF("Out of range keybind identifier: %d", id);
+    }
+    // Return the requested information
+    return Core::Get().GetKeyBind(id).mObj;
+}
+
+// ------------------------------------------------------------------------------------------------
+static LightObj & SqGetObj(int32_t id)
+{
+    // Validate the identifier first
+    if (INVALID_ENTITYEX(id, SQMOD_OBJECT_POOL))
+    {
+        STHROWF("Out of range object identifier: %d", id);
+    }
+    // Return the requested information
+    return Core::Get().GetObj(id).mObj;
+}
+
+// ------------------------------------------------------------------------------------------------
+static LightObj & SqGetPickup(int32_t id)
+{
+    // Validate the identifier first
+    if (INVALID_ENTITYEX(id, SQMOD_PICKUP_POOL))
+    {
+        STHROWF("Out of range blip identifier: %d", id);
+    }
+    // Return the requested information
+    return Core::Get().GetPickup(id).mObj;
+}
+
+// ------------------------------------------------------------------------------------------------
+static LightObj & SqGetPlayer(int32_t id)
+{
+    // Validate the identifier first
+    if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
+    {
+        STHROWF("Out of range player identifier: %d", id);
+    }
+    // Return the requested information
+    return Core::Get().GetPlayer(id).mObj;
+}
+
+// ------------------------------------------------------------------------------------------------
+static LightObj & SqGetVehicle(int32_t id)
+{
+    // Validate the identifier first
+    if (INVALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
+    {
+        STHROWF("Out of range vehicle identifier: %d", id);
+    }
+    // Return the requested information
+    return Core::Get().GetVehicle(id).mObj;
+}
+
+// ------------------------------------------------------------------------------------------------
+static bool SqDelBlip(int32_t id, int32_t header, LightObj & payload)
+{
+    // Validate the identifier first
+    if (INVALID_ENTITYEX(id, SQMOD_BLIP_POOL))
+    {
+        STHROWF("Out of range blip identifier: %d", id);
+    }
+    // Perform the requested operation
+    return Core::Get().DelBlip(id, header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+static bool SqDelCheckpoint(int32_t id, int32_t header, LightObj & payload)
+{
+    // Validate the identifier first
+    if (INVALID_ENTITYEX(id, SQMOD_CHECKPOINT_POOL))
+    {
+        STHROWF("Out of range checkpoint identifier: %d", id);
+    }
+    // Perform the requested operation
+    return Core::Get().DelCheckpoint(id, header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+static bool SqDelKeyBind(int32_t id, int32_t header, LightObj & payload)
+{
+    // Validate the identifier first
+    if (INVALID_ENTITYEX(id, SQMOD_KEYBIND_POOL))
+    {
+        STHROWF("Out of range keybind identifier: %d", id);
+    }
+    // Perform the requested operation
+    return Core::Get().DelKeyBind(id, header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+static bool SqDelObject(int32_t id, int32_t header, LightObj & payload)
+{
+    // Validate the identifier first
+    if (INVALID_ENTITYEX(id, SQMOD_OBJECT_POOL))
+    {
+        STHROWF("Out of range object identifier: %d", id);
+    }
+    // Perform the requested operation
+    return Core::Get().DelObject(id, header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+static bool SqDelPickup(int32_t id, int32_t header, LightObj & payload)
+{
+    // Validate the identifier first
+    if (INVALID_ENTITYEX(id, SQMOD_PICKUP_POOL))
+    {
+        STHROWF("Out of range blip identifier: %d", id);
+    }
+    // Perform the requested operation
+    return Core::Get().DelPickup(id, header, payload);
+}
+
+// ------------------------------------------------------------------------------------------------
+static bool SqDelVehicle(int32_t id, int32_t header, LightObj & payload)
+{
+    // Validate the identifier first
+    if (INVALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
+    {
+        STHROWF("Out of range vehicle identifier: %d", id);
+    }
+    // Perform the requested operation
+    return Core::Get().DelVehicle(id, header, payload);
+}
+
+// ================================================================================================
+void Register_Core(HSQUIRRELVM vm)
+{
+    Table corens(vm);
+
+    corens.Bind(_SC("State"),
+        Class< CoreState, NoCopy< CoreState > >(vm, CoreStateTypename::Str)
+        // Constructors
+        .Ctor()
+        .Ctor< int >()
+        // Meta-methods
+        .SquirrelFunc(_SC("_typename"), &CoreStateTypename::Fn)
+        // Member Properties
+        .Prop(_SC("Value"), &CoreState::GetValue)
+    );
+
+    corens
+        .Func(_SC("Reload"), &SqSetReloadStatus)
+        .Func(_SC("Reloading"), &SqGetReloadStatus)
+        .Func(_SC("ReloadBecause"), &SqReloadBecause)
+        .Func(_SC("SetReloadInfo"), &SqSetReloadInfo)
+        .Func(_SC("GetReloadHeader"), &SqGetReloadHeader)
+        .Func(_SC("GetReloadPayload"), &SqGetReloadPayload)
+        .Func(_SC("CustomEvent"), &SqEmitCustomEvent)
+        .Func(_SC("GetState"), &SqGetState)
+        .Func(_SC("SetState"), &SqSetState)
+        .Func(_SC("AreasEnabled"), &SqGetAreasEnabled)
+        .Func(_SC("SetAreasEnabled"), &SqSetAreasEnabled)
+        .Func(_SC("GetOption"), &SqGetOption)
+        .Func(_SC("GetOptionOr"), &SqGetOptionOr)
+        .Func(_SC("SetOption"), &SqSetOption)
+        .Func(_SC("GetBlip"), &SqGetBlip)
+        .Func(_SC("GetCheckpoint"), &SqGetCheckpoint)
+        .Func(_SC("GetKeyBind"), &SqGetKeyBind)
+        .Func(_SC("GetObj"), &SqGetObj)
+        .Func(_SC("GetPickup"), &SqGetPickup)
+        .Func(_SC("GetPlayer"), &SqGetPlayer)
+        .Func(_SC("GetVehicle"), &SqGetVehicle)
+        .Func(_SC("DestroyBlip"), &SqDelBlip)
+        .Func(_SC("DestroyCheckpoint"), &SqDelCheckpoint)
+        .Func(_SC("DestroyKeyBind"), &SqDelKeyBind)
+        .Func(_SC("DestroyObject"), &SqDelObject)
+        .Func(_SC("DestroyPickup"), &SqDelPickup)
+        .Func(_SC("DestroyVehicle"), &SqDelVehicle)
+        .Func(_SC("OnPreLoad"), &SqGetPreLoadEvent)
+        .Func(_SC("OnPostLoad"), &SqGetPostLoadEvent)
+        .Func(_SC("OnUnload"), &SqGetUnloadEvent)
+        .SquirrelFunc(_SC("ForceEnableNullEntities"), &SqForceEnableNullEntities)
+        .SquirrelFunc(_SC("LoadScript"), &SqLoadScript, -3, ".b.")
+        .SquirrelFunc(_SC("On"), &SqGetEvents);
+
+    RootTable(vm).Bind(_SC("SqCore"), corens);
+}
+
 } // Namespace:: SqMod
 
 /* ------------------------------------------------------------------------------------------------
- * Include remaining functionality.
+ * Include event functionality.
 */
-#include "Core/Inst.inc"
-#include "Core/Entity.inc"
 #include "Core/Events.inc"
-#include "Core/Utils.inc"
-#include "Core/Funcs.inc"

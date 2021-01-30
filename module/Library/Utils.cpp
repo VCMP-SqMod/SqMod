@@ -3,13 +3,9 @@
 
 // ------------------------------------------------------------------------------------------------
 #include <cstdio>
-#include <cstdlib>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
-
-// ------------------------------------------------------------------------------------------------
-extern void Register_Buffer(HSQUIRRELVM vm);
 
 /* ------------------------------------------------------------------------------------------------
  * Probably not the best implementation but should cover all sorts of weird cases.
@@ -31,9 +27,9 @@ static SQInteger SqExtractIPv4(HSQUIRRELVM vm)
     // Cleansed IP address buffer
     SQChar address[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
     // Counting variables used by loops
-    Uint32 i = 0, j = 0, k = 0;
+    uint32_t i = 0, j = 0, k = 0;
     // Replicate the necessary characters from the resulted string
-    for (; (i < static_cast< Uint32 >(val.mLen)) && (j < 16) && (k < 4); ++i)
+    for (; (i < static_cast< uint32_t >(val.mLen)) && (j < 16) && (k < 4); ++i)
     {
         // Is this a digit?
         if (std::isdigit(val.mPtr[i]) != 0)
@@ -61,9 +57,9 @@ static SQInteger SqExtractIPv4(HSQUIRRELVM vm)
         address[j++] = '.';
     }
     // Components of the IP address
-    Uint32 blocks[4] = {0, 0, 0, 0};
+    uint32_t blocks[4] = {0, 0, 0, 0};
     // Attempt to extract the components of the IP address
-    std::sscanf(address, "%u.%u.%u.%u", &blocks[0], &blocks[1], &blocks[2], &blocks[3]);
+    std::sscanf(address, "%u.%u.%u.%u", &blocks[0], &blocks[1], &blocks[2], &blocks[3]); // NOLINT(cert-err34-c)
     // Create a new array on the stack to hold the extracted components
     sq_newarray(vm, 4);
     // Push the elements into the array
@@ -72,7 +68,7 @@ static SQInteger SqExtractIPv4(HSQUIRRELVM vm)
         // Push the element index
         sq_pushinteger(vm, i);
         // Push the element value
-        sq_pushinteger(vm, Clamp(blocks[i], 0U, 255U));
+        sq_pushinteger(vm, std::clamp(blocks[i], 0U, 255U));
         // Assign the element
         const SQRESULT res = sq_set(vm, -3);
         // See if the assignment failed
@@ -91,8 +87,6 @@ void Register_Utils(HSQUIRRELVM vm)
     RootTable(vm).Bind(_SC("SqUtils"), Table(vm)
         .SquirrelFunc(_SC("ExtractIPv4"), &SqExtractIPv4)
     );
-
-    Register_Buffer(vm);
 }
 
 } // Namespace:: SqMod

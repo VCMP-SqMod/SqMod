@@ -1,8 +1,8 @@
 // ------------------------------------------------------------------------------------------------
-#include "Base/Shared.hpp"
+#include "Core/Common.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include <limits>
+#include <sqratConst.h>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -18,14 +18,14 @@ static const EnumElement g_SqMod[] = {
     {_SC("Platform"),       SQMOD_PLATFORM},
     {_SC("MinChar"),        std::numeric_limits< SQChar >::min()},
     {_SC("MaxChar"),        std::numeric_limits< SQChar >::max()},
-    {_SC("MinAchar"),       std::numeric_limits< Int8 >::min()},
-    {_SC("MaxAchar"),       std::numeric_limits< Int8 >::max()},
-    {_SC("MinByte"),        std::numeric_limits< Uint8 >::min()},
-    {_SC("MaxByte"),        std::numeric_limits< Uint8 >::max()},
-    {_SC("MinShort"),       std::numeric_limits< Int16 >::min()},
-    {_SC("MaxShort"),       std::numeric_limits< Int16 >::max()},
-    {_SC("MinWord"),        std::numeric_limits< Uint16 >::min()},
-    {_SC("MaxWord"),        std::numeric_limits< Uint16 >::max()},
+    {_SC("MinAchar"),       std::numeric_limits< int8_t >::min()},
+    {_SC("MaxAchar"),       std::numeric_limits< int8_t >::max()},
+    {_SC("MinByte"),        std::numeric_limits< uint8_t >::min()},
+    {_SC("MaxByte"),        std::numeric_limits< uint8_t >::max()},
+    {_SC("MinShort"),       std::numeric_limits< int16_t >::min()},
+    {_SC("MaxShort"),       std::numeric_limits< int16_t >::max()},
+    {_SC("MinWord"),        std::numeric_limits< uint16_t >::min()},
+    {_SC("MaxWord"),        std::numeric_limits< uint16_t >::max()},
     {_SC("MinInt"),         std::numeric_limits< SQInteger >::min()},
     {_SC("MaxInt"),         std::numeric_limits< SQInteger >::max()},
     {_SC("MinInteger"),     std::numeric_limits< SQInteger >::min()},
@@ -34,8 +34,8 @@ static const EnumElement g_SqMod[] = {
     {_SC("MaxInt32"),       std::numeric_limits< SQInt32 >::max()},
     {_SC("MinFloat"),       std::numeric_limits< SQFloat >::min()},
     {_SC("MaxFloat"),       std::numeric_limits< SQFloat >::max()},
-    {_SC("MinFloat32"),     std::numeric_limits< Float32 >::min()},
-    {_SC("MaxFloat32"),     std::numeric_limits< Float32 >::max()},
+    {_SC("MinFloat32"),     std::numeric_limits< float >::min()},
+    {_SC("MaxFloat32"),     std::numeric_limits< float >::max()},
     {_SC("FpNormal"),       FP_NORMAL},
     {_SC("FpSubnormal"),    FP_SUBNORMAL}, // NOLINT(hicpp-signed-bitwise)
     {_SC("FpZero"),         FP_ZERO},

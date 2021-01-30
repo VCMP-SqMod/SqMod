@@ -4,25 +4,25 @@
 #include "Base/Color3.hpp"
 #include "Base/Color4.hpp"
 #include "Base/Vector3.hpp"
-#include "Library/Utils/Buffer.hpp"
+#include "Library/IO/Buffer.hpp"
 #include "Core.hpp"
-#include "Misc/Areas.hpp"
-#include "Misc/Tasks.hpp"
+#include "Core/Areas.hpp"
+#include "Core/Tasks.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-extern SQRESULT SqGrabPlayerMessageColor(HSQUIRRELVM vm, Int32 idx, Uint32 & color, Int32 & msgidx);
+extern SQRESULT SqGrabPlayerMessageColor(HSQUIRRELVM vm, int32_t idx, uint32_t & color, int32_t & msgidx);
 
 // ------------------------------------------------------------------------------------------------
-SQMODE_DECL_TYPENAME(Typename, _SC("SqPlayer"))
+SQMOD_DECL_TYPENAME(Typename, _SC("SqPlayer"))
 
 // ------------------------------------------------------------------------------------------------
 SQChar  CPlayer::s_Buffer[SQMOD_PLAYER_TMP_BUFFER];
 
 // ------------------------------------------------------------------------------------------------
-const Int32 CPlayer::Max = SQMOD_PLAYER_POOL;
+const int32_t CPlayer::Max = SQMOD_PLAYER_POOL;
 
 // ------------------------------------------------------------------------------------------------
 SQInteger CPlayer::SqGetNull(HSQUIRRELVM vm)
@@ -38,24 +38,24 @@ LightObj & CPlayer::GetNull()
 }
 
 // ------------------------------------------------------------------------------------------------
-CPlayer::CPlayer(Int32 id)
+CPlayer::CPlayer(int32_t id)
     : m_ID(VALID_ENTITYGETEX(id, SQMOD_PLAYER_POOL))
-    , m_Tag(ToStrF("%d", id)), m_Data(), m_Buffer(256), m_CircularLocks(0)
+    , m_Tag(fmt::format("{}", id)), m_Data(), m_Buffer(256), m_CircularLocks(0)
     , mBufferInitSize(256)
     , mMessageColor(0x6599FFFF)
     , mAnnounceStyle(1)
     , mDefaultAmmo(0)
-    , mMessagePrefix(_SC(""))
-    , mMessagePostfix(_SC(""))
-    , mAnnouncePrefix(_SC(""))
-    , mAnnouncePostfix(_SC(""))
+    , mMessagePrefix()
+    , mMessagePostfix()
+    , mAnnouncePrefix()
+    , mAnnouncePostfix()
     , mMessagePrefixes()
     , mLimitPrefixPostfixMessage(true)
 {
     // Reset message prefixes
-    for (auto & mMessagePrefixe : mMessagePrefixes)
+    for (auto & prefix : mMessagePrefixes)
     {
-        mMessagePrefixe.assign(_SC(""));
+        prefix.assign(_SC(""));
     }
 }
 
@@ -119,11 +119,11 @@ LightObj & CPlayer::GetEvents() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::CustomEvent(Int32 header, LightObj & payload) const
+void CPlayer::CustomEvent(int32_t header, LightObj & payload) const
 {
     // Validate the managed identifier
     Validate();
-    // Perfrom the requested action
+    // Perform the requested action
     Core::Get().EmitPlayerCustom(m_ID, header, payload);
 }
 
@@ -181,7 +181,7 @@ void CPlayer::SetAdmin(bool toggle)
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr CPlayer::GetIP() const
+const SQChar * CPlayer::GetIP() const
 {
     // Validate the managed identifier
     Validate();
@@ -197,7 +197,7 @@ CSStr CPlayer::GetIP() const
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr CPlayer::GetUID() const
+const SQChar * CPlayer::GetUID() const
 {
     // Validate the managed identifier
     Validate();
@@ -213,7 +213,7 @@ CSStr CPlayer::GetUID() const
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr CPlayer::GetUID2() const
+const SQChar * CPlayer::GetUID2() const
 {
     // Validate the managed identifier
     Validate();
@@ -250,7 +250,7 @@ void CPlayer::Kick() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::KickBecause(Int32 header, LightObj & payload) const
+void CPlayer::KickBecause(int32_t header, LightObj & payload) const
 {
     // Validate the managed identifier
     Validate();
@@ -274,7 +274,7 @@ void CPlayer::Ban() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::BanBecause(Int32 header, LightObj & payload) const
+void CPlayer::BanBecause(int32_t header, LightObj & payload) const
 {
     // Validate the managed identifier
     Validate();
@@ -286,7 +286,7 @@ void CPlayer::BanBecause(Int32 header, LightObj & payload) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint32 CPlayer::GetKey() const
+uint32_t CPlayer::GetKey() const
 {
     // Validate the managed identifier
     Validate();
@@ -295,7 +295,7 @@ Uint32 CPlayer::GetKey() const
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr CPlayer::GetName() const
+const SQChar * CPlayer::GetName() const
 {
     // Validate the managed identifier
     Validate();
@@ -333,7 +333,7 @@ void CPlayer::SetName(StackStrF & name) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetState() const
+int32_t CPlayer::GetState() const
 {
     // Validate the managed identifier
     Validate();
@@ -342,7 +342,7 @@ Int32 CPlayer::GetState() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetOption(Int32 option_id) const
+int32_t CPlayer::GetOption(int32_t option_id) const
 {
     // Attempt to obtain the current value of the specified option
     const bool value = _Func->GetPlayerOption(m_ID, static_cast< vcmpPlayerOption >(option_id));
@@ -356,13 +356,13 @@ Int32 CPlayer::GetOption(Int32 option_id) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetOption(Int32 option_id, bool toggle)
+void CPlayer::SetOption(int32_t option_id, bool toggle)
 {
     SetOptionEx(option_id, toggle, 0, NullLightObj());
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetOptionEx(Int32 option_id, bool toggle, Int32 header, LightObj & payload)
+void CPlayer::SetOptionEx(int32_t option_id, bool toggle, int32_t header, LightObj & payload)
 {
     // Validate the managed identifier
     Validate();
@@ -391,7 +391,7 @@ void CPlayer::SetOptionEx(Int32 option_id, bool toggle, Int32 header, LightObj &
 }
 #if SQMOD_SDK_LEAST(2, 1)
 // ------------------------------------------------------------------------------------------------
-SQFloat CPlayer::GetNetworkStatisticsF(Int32 option_id) const
+SQFloat CPlayer::GetNetworkStatisticsF(int32_t option_id) const
 {
     // Validate the managed identifier
     Validate();
@@ -402,7 +402,7 @@ SQFloat CPlayer::GetNetworkStatisticsF(Int32 option_id) const
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger CPlayer::GetNetworkStatisticsI(Int32 option_id) const
+SQInteger CPlayer::GetNetworkStatisticsI(int32_t option_id) const
 {
     // Validate the managed identifier
     Validate();
@@ -413,7 +413,7 @@ SQInteger CPlayer::GetNetworkStatisticsI(Int32 option_id) const
 }
 #endif
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetWorld() const
+int32_t CPlayer::GetWorld() const
 {
     // Validate the managed identifier
     Validate();
@@ -422,12 +422,12 @@ Int32 CPlayer::GetWorld() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetWorld(Int32 world)
+void CPlayer::SetWorld(int32_t world)
 {
     // Validate the managed identifier
     Validate();
     // Grab the current value for this property
-    const Int32 current = _Func->GetPlayerWorld(m_ID);
+    const int32_t current = _Func->GetPlayerWorld(m_ID);
     // Don't even bother if it's the same value
     if (current == world)
     {
@@ -446,7 +446,7 @@ void CPlayer::SetWorld(Int32 world)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetSecondaryWorld() const
+int32_t CPlayer::GetSecondaryWorld() const
 {
     // Validate the managed identifier
     Validate();
@@ -455,12 +455,12 @@ Int32 CPlayer::GetSecondaryWorld() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetSecondaryWorld(Int32 world)
+void CPlayer::SetSecondaryWorld(int32_t world)
 {
     // Validate the managed identifier
     Validate();
     // Grab the current value for this property
-    const Int32 current = _Func->GetPlayerSecondaryWorld(m_ID);
+    const int32_t current = _Func->GetPlayerSecondaryWorld(m_ID);
     // Don't even bother if it's the same value
     if (current == world)
     {
@@ -479,7 +479,7 @@ void CPlayer::SetSecondaryWorld(Int32 world)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetUniqueWorld() const
+int32_t CPlayer::GetUniqueWorld() const
 {
     // Validate the managed identifier
     Validate();
@@ -488,7 +488,7 @@ Int32 CPlayer::GetUniqueWorld() const
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::IsWorldCompatible(Int32 world) const
+bool CPlayer::IsWorldCompatible(int32_t world) const
 {
     // Validate the managed identifier
     Validate();
@@ -497,7 +497,7 @@ bool CPlayer::IsWorldCompatible(Int32 world) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetClass() const
+int32_t CPlayer::GetClass() const
 {
     // Validate the managed identifier
     Validate();
@@ -506,7 +506,7 @@ Int32 CPlayer::GetClass() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetTeam() const
+int32_t CPlayer::GetTeam() const
 {
     // Validate the managed identifier
     Validate();
@@ -515,12 +515,12 @@ Int32 CPlayer::GetTeam() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetTeam(Int32 team)
+void CPlayer::SetTeam(int32_t team)
 {
     // Validate the managed identifier
     Validate();
     // Grab the current value for this property
-    const Int32 current = _Func->GetPlayerTeam(m_ID);
+    const int32_t current = _Func->GetPlayerTeam(m_ID);
     // Don't even bother if it's the same value
     if (current == team)
     {
@@ -542,7 +542,7 @@ void CPlayer::SetTeam(Int32 team)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetSkin() const
+int32_t CPlayer::GetSkin() const
 {
     // Validate the managed identifier
     Validate();
@@ -551,12 +551,12 @@ Int32 CPlayer::GetSkin() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetSkin(Int32 skin)
+void CPlayer::SetSkin(int32_t skin)
 {
     // Validate the managed identifier
     Validate();
     // Grab the current value for this property
-    const Int32 current = _Func->GetPlayerSkin(m_ID);
+    const int32_t current = _Func->GetPlayerSkin(m_ID);
     // Don't even bother if it's the same value
     if (current == skin)
     {
@@ -600,7 +600,7 @@ void CPlayer::SetColor(const Color3 & color) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetColorEx(Uint8 r, Uint8 g, Uint8 b) const
+void CPlayer::SetColorEx(uint8_t r, uint8_t g, uint8_t b) const
 {
     // Validate the managed identifier
     Validate();
@@ -645,7 +645,7 @@ bool CPlayer::IsTyping() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetMoney() const
+int32_t CPlayer::GetMoney() const
 {
     // Validate the managed identifier
     Validate();
@@ -654,12 +654,12 @@ Int32 CPlayer::GetMoney() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetMoney(Int32 amount)
+void CPlayer::SetMoney(int32_t amount)
 {
     // Validate the managed identifier
     Validate();
     // Grab the current value for this property
-    const Int32 current = _Func->GetPlayerMoney(m_ID);
+    const int32_t current = _Func->GetPlayerMoney(m_ID);
     // Don't even bother if it's the same value
     if (current == amount)
     {
@@ -678,12 +678,12 @@ void CPlayer::SetMoney(Int32 amount)
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::GiveMoney(Int32 amount)
+void CPlayer::GiveMoney(int32_t amount)
 {
     // Validate the managed identifier
     Validate();
     // Grab the current value for this property
-    const Int32 current = _Func->GetPlayerMoney(m_ID);
+    const int32_t current = _Func->GetPlayerMoney(m_ID);
     // Avoid property unwind from a recursive call
     _Func->GivePlayerMoney(m_ID, amount);
     // Avoid infinite recursive event loops
@@ -697,7 +697,7 @@ void CPlayer::GiveMoney(Int32 amount)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetScore() const
+int32_t CPlayer::GetScore() const
 {
     // Validate the managed identifier
     Validate();
@@ -706,12 +706,12 @@ Int32 CPlayer::GetScore() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetScore(Int32 score)
+void CPlayer::SetScore(int32_t score)
 {
     // Validate the managed identifier
     Validate();
     // Grab the current value for this property
-    const Int32 current = _Func->GetPlayerScore(m_ID);
+    const int32_t current = _Func->GetPlayerScore(m_ID);
     // Don't even bother if it's the same value
     if (current == score)
     {
@@ -730,7 +730,7 @@ void CPlayer::SetScore(Int32 score)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetWantedLevel() const
+int32_t CPlayer::GetWantedLevel() const
 {
     // Validate the managed identifier
     Validate();
@@ -739,12 +739,12 @@ Int32 CPlayer::GetWantedLevel() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetWantedLevel(Int32 level)
+void CPlayer::SetWantedLevel(int32_t level)
 {
     // Validate the managed identifier
     Validate();
     // Grab the current value for this property
-    const Int32 current = _Func->GetPlayerWantedLevel(m_ID);
+    const int32_t current = _Func->GetPlayerWantedLevel(m_ID);
     // Don't even bother if it's the same value
     if (current == level)
     {
@@ -763,7 +763,7 @@ void CPlayer::SetWantedLevel(Int32 level)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetPing() const
+int32_t CPlayer::GetPing() const
 {
     // Validate the managed identifier
     Validate();
@@ -781,7 +781,7 @@ SQFloat CPlayer::GetFPS() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CPlayer::GetHealth() const
+float CPlayer::GetHealth() const
 {
     // Validate the managed identifier
     Validate();
@@ -790,7 +790,7 @@ Float32 CPlayer::GetHealth() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetHealth(Float32 amount) const
+void CPlayer::SetHealth(float amount) const
 {
     // Validate the managed identifier
     Validate();
@@ -799,7 +799,7 @@ void CPlayer::SetHealth(Float32 amount) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CPlayer::GetArmor() const
+float CPlayer::GetArmor() const
 {
     // Validate the managed identifier
     Validate();
@@ -808,7 +808,7 @@ Float32 CPlayer::GetArmor() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetArmor(Float32 amount) const
+void CPlayer::SetArmor(float amount) const
 {
     // Validate the managed identifier
     Validate();
@@ -817,7 +817,7 @@ void CPlayer::SetArmor(Float32 amount) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetImmunity() const
+int32_t CPlayer::GetImmunity() const
 {
     // Validate the managed identifier
     Validate();
@@ -826,12 +826,12 @@ Int32 CPlayer::GetImmunity() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetImmunity(Int32 flags)
+void CPlayer::SetImmunity(int32_t flags)
 {
     // Validate the managed identifier
     Validate();
     // Grab the current value for this property
-    const Int32 current = _Func->GetPlayerImmunityFlags(m_ID);
+    const int32_t current = _Func->GetPlayerImmunityFlags(m_ID);
     // Avoid property unwind from a recursive call
     _Func->SetPlayerImmunityFlags(m_ID, static_cast< uint32_t >(flags));
     // Avoid infinite recursive event loops
@@ -867,7 +867,7 @@ void CPlayer::SetPosition(const Vector3 & pos) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetPositionEx(Float32 x, Float32 y, Float32 z) const
+void CPlayer::SetPositionEx(float x, float y, float z) const
 {
     // Validate the managed identifier
     Validate();
@@ -898,7 +898,7 @@ void CPlayer::SetSpeed(const Vector3 & vel) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetSpeedEx(Float32 x, Float32 y, Float32 z) const
+void CPlayer::SetSpeedEx(float x, float y, float z) const
 {
     // Validate the managed identifier
     Validate();
@@ -916,7 +916,7 @@ void CPlayer::AddSpeed(const Vector3 & vel) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::AddSpeedEx(Float32 x, Float32 y, Float32 z) const
+void CPlayer::AddSpeedEx(float x, float y, float z) const
 {
     // Validate the managed identifier
     Validate();
@@ -925,7 +925,7 @@ void CPlayer::AddSpeedEx(Float32 x, Float32 y, Float32 z) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CPlayer::GetHeading() const
+float CPlayer::GetHeading() const
 {
     // Validate the managed identifier
     Validate();
@@ -934,7 +934,7 @@ Float32 CPlayer::GetHeading() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetHeading(Float32 angle) const
+void CPlayer::SetHeading(float angle) const
 {
     // Validate the managed identifier
     Validate();
@@ -943,7 +943,7 @@ void CPlayer::SetHeading(Float32 angle) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetAlpha() const
+int32_t CPlayer::GetAlpha() const
 {
     // Validate the managed identifier
     Validate();
@@ -952,18 +952,18 @@ Int32 CPlayer::GetAlpha() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetAlpha(Int32 alpha)
+void CPlayer::SetAlpha(int32_t alpha)
 {
     SetAlphaEx(alpha, 0);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetAlphaEx(Int32 alpha, Int32 fade)
+void CPlayer::SetAlphaEx(int32_t alpha, int32_t fade)
 {
     // Validate the managed identifier
     Validate();
     // Grab the current value for this property
-    const Int32 current = _Func->GetPlayerAlpha(m_ID);
+    const int32_t current = _Func->GetPlayerAlpha(m_ID);
     // Don't even bother if it's the same value
     if (current == alpha)
     {
@@ -1026,7 +1026,7 @@ bool CPlayer::IsCrouched() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetAction() const
+int32_t CPlayer::GetAction() const
 {
     // Validate the managed identifier
     Validate();
@@ -1035,7 +1035,7 @@ Int32 CPlayer::GetAction() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetGameKeys() const
+int32_t CPlayer::GetGameKeys() const
 {
     // Validate the managed identifier
     Validate();
@@ -1059,7 +1059,7 @@ bool CPlayer::Embark(CVehicle & vehicle) const
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::Embark(CVehicle & vehicle, Int32 slot, bool allocate, bool warp) const
+bool CPlayer::EmbarkEx(CVehicle & vehicle, int32_t slot, bool allocate, bool warp) const
 {
     // Is the specified vehicle even valid?
     if (!vehicle.IsActive())
@@ -1083,7 +1083,7 @@ void CPlayer::Disembark() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetVehicleStatus() const
+int32_t CPlayer::GetVehicleStatus() const
 {
     // Validate the managed identifier
     Validate();
@@ -1092,7 +1092,7 @@ Int32 CPlayer::GetVehicleStatus() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetVehicleSlot() const
+int32_t CPlayer::GetVehicleSlot() const
 {
     // Validate the managed identifier
     Validate();
@@ -1106,7 +1106,7 @@ LightObj & CPlayer::GetVehicle() const
     // Validate the managed identifier
     Validate();
     // Retrieve the identifier of the vehicle
-    const Int32 id = _Func->GetPlayerVehicleId(m_ID);
+    const int32_t id = _Func->GetPlayerVehicleId(m_ID);
     // Validate the obtained identifier
     if (VALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
     {
@@ -1118,7 +1118,7 @@ LightObj & CPlayer::GetVehicle() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetVehicleID() const
+int32_t CPlayer::GetVehicleID() const
 {
     // Validate the managed identifier
     Validate();
@@ -1127,7 +1127,7 @@ Int32 CPlayer::GetVehicleID() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetWeapon() const
+int32_t CPlayer::GetWeapon() const
 {
     // Validate the managed identifier
     Validate();
@@ -1136,7 +1136,7 @@ Int32 CPlayer::GetWeapon() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetWeapon(Int32 wep) const
+void CPlayer::SetWeapon(int32_t wep) const
 {
     // Validate the managed identifier
     Validate();
@@ -1148,7 +1148,7 @@ void CPlayer::SetWeapon(Int32 wep) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetWeaponEx(Int32 wep, Int32 ammo) const
+void CPlayer::SetWeaponEx(int32_t wep, int32_t ammo) const
 {
     // Validate the managed identifier
     Validate();
@@ -1160,7 +1160,7 @@ void CPlayer::SetWeaponEx(Int32 wep, Int32 ammo) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::GiveWeapon(Int32 wep, Int32 ammo) const
+void CPlayer::GiveWeapon(int32_t wep, int32_t ammo) const
 {
     // Validate the managed identifier
     Validate();
@@ -1172,7 +1172,7 @@ void CPlayer::GiveWeapon(Int32 wep, Int32 ammo) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetAmmo() const
+int32_t CPlayer::GetAmmo() const
 {
     // Validate the managed identifier
     Validate();
@@ -1181,7 +1181,7 @@ Int32 CPlayer::GetAmmo() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetWeaponSlot() const
+int32_t CPlayer::GetWeaponSlot() const
 {
     // Validate the managed identifier
     Validate();
@@ -1190,7 +1190,7 @@ Int32 CPlayer::GetWeaponSlot() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetWeaponSlot(Int32 slot) const
+void CPlayer::SetWeaponSlot(int32_t slot) const
 {
     // Validate the managed identifier
     Validate();
@@ -1202,10 +1202,10 @@ void CPlayer::SetWeaponSlot(Int32 slot) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetWeaponAtSlot(Int32 slot) const
+int32_t CPlayer::GetWeaponAtSlot(int32_t slot) const
 {
     // Attempt to obtain the weapon identifier of the specified slot
-    const Int32 id = _Func->GetPlayerWeaponAtSlot(m_ID, slot);
+    const int32_t id = _Func->GetPlayerWeaponAtSlot(m_ID, slot);
     // Check for errors
     if (_Func->GetLastError() == vcmpErrorArgumentOutOfBounds)
     {
@@ -1216,10 +1216,10 @@ Int32 CPlayer::GetWeaponAtSlot(Int32 slot) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetAmmoAtSlot(Int32 slot) const
+int32_t CPlayer::GetAmmoAtSlot(int32_t slot) const
 {
     // Attempt to obtain the weapon ammo of the specified slot
-    const Int32 ammo = _Func->GetPlayerAmmoAtSlot(m_ID, slot);
+    const int32_t ammo = _Func->GetPlayerAmmoAtSlot(m_ID, slot);
     // Check for errors
     if (_Func->GetLastError() == vcmpErrorArgumentOutOfBounds)
     {
@@ -1230,7 +1230,7 @@ Int32 CPlayer::GetAmmoAtSlot(Int32 slot) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::RemoveWeapon(Int32 wep) const
+void CPlayer::RemoveWeapon(int32_t wep) const
 {
     // Validate the managed identifier
     Validate();
@@ -1257,7 +1257,7 @@ void CPlayer::SetCameraPosition(const Vector3 & pos, const Vector3 & aim) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetCameraPosition(Float32 xp, Float32 yp, Float32 zp, Float32 xa, Float32 ya, Float32 za) const
+void CPlayer::SetCameraPositionEx(float xp, float yp, float zp, float xa, float ya, float za) const
 {
     // Validate the managed identifier
     Validate();
@@ -1284,7 +1284,7 @@ bool CPlayer::IsCameraLocked() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetAnimation(Int32 anim) const
+void CPlayer::SetAnimation(int32_t anim) const
 {
     // Validate the managed identifier
     Validate();
@@ -1293,7 +1293,7 @@ void CPlayer::SetAnimation(Int32 anim) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetAnimation(Int32 anim, Int32 group) const
+void CPlayer::SetAnimationEx(int32_t anim, int32_t group) const
 {
     // Validate the managed identifier
     Validate();
@@ -1307,7 +1307,7 @@ LightObj & CPlayer::StandingOnVehicle() const
     // Validate the managed identifier
     Validate();
     // Retrieve the identifier of the vehicle
-    const Int32 id = _Func->GetPlayerStandingOnVehicle(m_ID);
+    const int32_t id = _Func->GetPlayerStandingOnVehicle(m_ID);
     // Validate the obtained identifier
     if (VALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
     {
@@ -1324,7 +1324,7 @@ LightObj & CPlayer::StandingOnObject() const
     // Validate the managed identifier
     Validate();
     // Retrieve the identifier of the object
-    const Int32 id = _Func->GetPlayerStandingOnObject(m_ID);
+    const int32_t id = _Func->GetPlayerStandingOnObject(m_ID);
     // Validate the obtained identifier
     if (VALID_ENTITYEX(id, SQMOD_OBJECT_POOL))
     {
@@ -1350,7 +1350,7 @@ LightObj & CPlayer::GetSpectator() const
     // Validate the managed identifier
     Validate();
     // Retrieve the identifier of the player
-    const Int32 id = _Func->GetPlayerSpectateTarget(m_ID);
+    const int32_t id = _Func->GetPlayerSpectateTarget(m_ID);
     // Validated the obtained identifier
     if (_Func->GetLastError() != vcmpErrorNoSuchEntity && VALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
     {
@@ -1433,7 +1433,7 @@ bool CPlayer::GetPlayer3DArrowID(SQInteger id) const
     return _Func->GetPlayer3DArrowForPlayer(m_ID, id);
 }
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::InterpolateCameraLookAt(const Vector3 & pos, Uint32 ms) const
+bool CPlayer::InterpolateCameraLookAt(const Vector3 & pos, uint32_t ms) const
 {
     // Validate the managed identifier
     Validate();
@@ -1442,7 +1442,7 @@ bool CPlayer::InterpolateCameraLookAt(const Vector3 & pos, Uint32 ms) const
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::InterpolateCameraLookAtEx(Float32 x, Float32 y, Float32 z, Uint32 ms) const
+bool CPlayer::InterpolateCameraLookAtEx(float x, float y, float z, uint32_t ms) const
 {
     // Validate the managed identifier
     Validate();
@@ -1451,8 +1451,8 @@ bool CPlayer::InterpolateCameraLookAtEx(Float32 x, Float32 y, Float32 z, Uint32 
 }
 #endif
 // ------------------------------------------------------------------------------------------------
-void CPlayer::Redirect(StackStrF & ip, Uint32 port, StackStrF & nick,
-                        StackStrF & server_pass, StackStrF & user_pass)
+void CPlayer::Redirect(StackStrF & ip, uint32_t port, StackStrF & nick,
+                        StackStrF & server_pass, StackStrF & user_pass) const
 {
     // Validate the managed identifier
     Validate();
@@ -1474,7 +1474,7 @@ void CPlayer::GetModuleList() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::PlaySound(Int32 sound_id) const
+void CPlayer::PlaySound(int32_t sound_id) const
 {
     // Validate the managed identifier
     Validate();
@@ -1488,7 +1488,7 @@ void CPlayer::SetDrunkHandling(SQInteger level) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetPlayerDrunkHandling(m_ID, static_cast< Uint32 >(level));
+    _Func->SetPlayerDrunkHandling(m_ID, static_cast< uint32_t >(level));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1506,7 +1506,7 @@ void CPlayer::SetDrunkVisuals(SQInteger level) const
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetPlayerDrunkVisuals(m_ID, static_cast< Uint8 >(level));
+    _Func->SetPlayerDrunkVisuals(m_ID, static_cast< uint8_t >(level));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1519,8 +1519,8 @@ SQInteger CPlayer::GetDrunkVisuals() const
 }
 #endif
 // ------------------------------------------------------------------------------------------------
-LightObj & CPlayer::CreateCheckpointEx(Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
-                            Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius) const
+LightObj & CPlayer::CreateCheckpointEx1a(int32_t world, bool sphere, float x, float y, float z,
+                            uint8_t r, uint8_t g, uint8_t b, uint8_t a, float radius) const
 {
     // Validate the managed identifier
     Validate();
@@ -1530,9 +1530,9 @@ LightObj & CPlayer::CreateCheckpointEx(Int32 world, bool sphere, Float32 x, Floa
 }
 
 // ------------------------------------------------------------------------------------------------
-LightObj & CPlayer::CreateCheckpointEx(Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
-                            Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius,
-                            Int32 header, LightObj & payload) const
+LightObj & CPlayer::CreateCheckpointEx1b(int32_t world, bool sphere, float x, float y, float z,
+                            uint8_t r, uint8_t g, uint8_t b, uint8_t a, float radius,
+                            int32_t header, LightObj & payload) const
 {
     // Validate the managed identifier
     Validate();
@@ -1542,8 +1542,8 @@ LightObj & CPlayer::CreateCheckpointEx(Int32 world, bool sphere, Float32 x, Floa
 }
 
 // ------------------------------------------------------------------------------------------------
-LightObj & CPlayer::CreateCheckpoint(Int32 world, bool sphere, const Vector3 & pos,
-                        const Color4 & color, Float32 radius) const
+LightObj & CPlayer::CreateCheckpoint1a(int32_t world, bool sphere, const Vector3 & pos,
+                        const Color4 & color, float radius) const
 {
     // Validate the managed identifier
     Validate();
@@ -1554,8 +1554,8 @@ LightObj & CPlayer::CreateCheckpoint(Int32 world, bool sphere, const Vector3 & p
 }
 
 // ------------------------------------------------------------------------------------------------
-LightObj & CPlayer::CreateCheckpoint(Int32 world, bool sphere, const Vector3 & pos, const Color4 & color,
-                                    Float32 radius, Int32 header, LightObj & payload) const
+LightObj & CPlayer::CreateCheckpoint1b(int32_t world, bool sphere, const Vector3 & pos, const Color4 & color,
+                                    float radius, int32_t header, LightObj & payload) const
 {
     // Validate the managed identifier
     Validate();
@@ -1642,7 +1642,7 @@ void CPlayer::SetAreasCollide(bool toggle) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetAuthority() const
+int32_t CPlayer::GetAuthority() const
 {
     // Validate the managed identifier
     Validate();
@@ -1651,7 +1651,7 @@ Int32 CPlayer::GetAuthority() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetAuthority(Int32 level) const
+void CPlayer::SetAuthority(int32_t level) const
 {
     // Validate the managed identifier
     Validate();
@@ -1660,7 +1660,7 @@ void CPlayer::SetAuthority(Int32 level) const
 }
 
 // ------------------------------------------------------------------------------------------------
-const String & CPlayer::GetMessagePrefix(Uint32 index) const
+const String & CPlayer::GetMessagePrefix(uint32_t index) const
 {
     // Perform a range check on the specified prefix index
     if (index >= SQMOD_PLAYER_MSG_PREFIXES)
@@ -1674,7 +1674,7 @@ const String & CPlayer::GetMessagePrefix(Uint32 index) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetMessagePrefix(Uint32 index, StackStrF & prefix)
+void CPlayer::SetMessagePrefix(uint32_t index, StackStrF & prefix)
 {
     // Perform a range check on the specified prefix index
     if (index >= SQMOD_PLAYER_MSG_PREFIXES)
@@ -1707,7 +1707,7 @@ void CPlayer::SetTrackPosition(SQInteger num) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetTrackPositionEx(SQInteger num, Int32 header, const LightObj & payload) const
+void CPlayer::SetTrackPositionEx(SQInteger num, int32_t header, const LightObj & payload) const
 {
     // Validate the managed identifier
     Validate();
@@ -1736,7 +1736,7 @@ void CPlayer::SetTrackHeading(SQInteger num) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetLastWeapon() const
+int32_t CPlayer::GetLastWeapon() const
 {
     // Validate the managed identifier
     Validate();
@@ -1745,7 +1745,7 @@ Int32 CPlayer::GetLastWeapon() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CPlayer::GetLastHealth() const
+float CPlayer::GetLastHealth() const
 {
     // Validate the managed identifier
     Validate();
@@ -1754,7 +1754,7 @@ Float32 CPlayer::GetLastHealth() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CPlayer::GetLastArmour() const
+float CPlayer::GetLastArmour() const
 {
     // Validate the managed identifier
     Validate();
@@ -1763,7 +1763,7 @@ Float32 CPlayer::GetLastArmour() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CPlayer::GetLastHeading() const
+float CPlayer::GetLastHeading() const
 {
     // Validate the managed identifier
     Validate();
@@ -1795,7 +1795,7 @@ void CPlayer::SetDistance(SQFloat distance) const
     // Validate the managed identifier
     Validate();
     // Assign the requested information
-    Core::Get().GetPlayer(m_ID).mDistance = static_cast< Float64 >(distance);
+    Core::Get().GetPlayer(m_ID).mDistance = static_cast< double >(distance);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1834,7 +1834,7 @@ void CPlayer::StartStream()
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::StartStream(Uint32 size)
+void CPlayer::StartStreamEx(uint32_t size)
 {
     // Validate the managed identifier
     Validate();
@@ -1844,13 +1844,13 @@ void CPlayer::StartStream(Uint32 size)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetBufferCursor() const
+int32_t CPlayer::GetBufferCursor() const
 {
     return m_Buffer.Position();
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetBufferCursor(Int32 pos)
+void CPlayer::SetBufferCursor(int32_t pos)
 {
     // Validate the managed identifier
     Validate();
@@ -1864,7 +1864,7 @@ void CPlayer::StreamByte(SQInteger val)
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    m_Buffer.Push< Uint8 >(ConvTo< Uint8 >::From(val));
+    m_Buffer.Push< uint8_t >(ConvTo< uint8_t >::From(val));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1873,7 +1873,7 @@ void CPlayer::StreamShort(SQInteger val)
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    m_Buffer.Push< Int16 >(ConvTo< Int16 >::From(val));
+    m_Buffer.Push< int16_t >(ConvTo< int16_t >::From(val));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1882,7 +1882,7 @@ void CPlayer::StreamInt(SQInteger val)
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    m_Buffer.Push< Int32 >(ConvTo< Int32 >::From(val));
+    m_Buffer.Push< int32_t >(ConvTo< int32_t >::From(val));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1891,7 +1891,7 @@ void CPlayer::StreamFloat(SQFloat val)
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    m_Buffer.Push< Float32 >(ConvTo< Float32 >::From(val));
+    m_Buffer.Push< float >(ConvTo< float >::From(val));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1900,11 +1900,11 @@ void CPlayer::StreamString(StackStrF & val)
     // Validate the managed identifier
     Validate();
     // Calculate the string length
-    Uint16 length = ConvTo< Uint16 >::From(val.mLen);
+    uint16_t length = ConvTo< uint16_t >::From(val.mLen);
     // Change the size endianness to big endian
-    auto size = static_cast< Uint16 >(((length >> 8u) & 0xFFu) | ((length & 0xFFu) << 8u)); // NOLINT(hicpp-signed-bitwise)
+    auto size = static_cast< uint16_t >(((length >> 8u) & 0xFFu) | ((length & 0xFFu) << 8u)); // NOLINT(hicpp-signed-bitwise)
     // Write the size and then the string contents
-    m_Buffer.Push< Uint16 >(size);
+    m_Buffer.Push< uint16_t >(size);
     m_Buffer.AppendS(val.mPtr, length);
 }
 
@@ -1946,7 +1946,7 @@ void CPlayer::FlushStream(bool reset)
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint32 CPlayer::GetBufferCapacity() const
+uint32_t CPlayer::GetBufferCapacity() const
 {
     return m_Buffer.Capacity();
 }
@@ -1974,12 +1974,12 @@ void CPlayer::SendBuffer(const SqBuffer & buffer) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CPlayer::GetPositionX() const
+float CPlayer::GetPositionX() const
 {
     // Validate the managed identifier
     Validate();
     // Reserve a temporary float to retrieve the requested component
-    Float32 x = 0.0f, dummy;
+    float x = 0.0f, dummy;
     // Query the server for the requested component value
     _Func->GetPlayerPosition(m_ID, &x, &dummy, &dummy);
     // Return the requested information
@@ -1987,12 +1987,12 @@ Float32 CPlayer::GetPositionX() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CPlayer::GetPositionY() const
+float CPlayer::GetPositionY() const
 {
     // Validate the managed identifier
     Validate();
     // Reserve a temporary float to retrieve the requested component
-    Float32 y = 0.0f, dummy;
+    float y = 0.0f, dummy;
     // Query the server for the requested component value
     _Func->GetPlayerPosition(m_ID, &dummy, &y, &dummy);
     // Return the requested information
@@ -2000,12 +2000,12 @@ Float32 CPlayer::GetPositionY() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CPlayer::GetPositionZ() const
+float CPlayer::GetPositionZ() const
 {
     // Validate the managed identifier
     Validate();
     // Reserve a temporary float to retrieve the requested component
-    Float32 z = 0.0f, dummy;
+    float z = 0.0f, dummy;
     // Query the server for the requested component value
     _Func->GetPlayerPosition(m_ID, &dummy, &dummy, &z);
     // Return the requested information
@@ -2013,12 +2013,12 @@ Float32 CPlayer::GetPositionZ() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetPositionX(Float32 x) const
+void CPlayer::SetPositionX(float x) const
 {
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 y, z, dummy;
+    float y, z, dummy;
     // Retrieve the current values for unchanged components
     _Func->GetPlayerPosition(m_ID, &dummy, &y, &z);
     // Perform the requested operation
@@ -2026,12 +2026,12 @@ void CPlayer::SetPositionX(Float32 x) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetPositionY(Float32 y) const
+void CPlayer::SetPositionY(float y) const
 {
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 x, z, dummy;
+    float x, z, dummy;
     // Retrieve the current values for unchanged components
     _Func->GetPlayerPosition(m_ID, &x, &dummy, &z);
     // Perform the requested operation
@@ -2039,12 +2039,12 @@ void CPlayer::SetPositionY(Float32 y) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetPositionZ(Float32 z) const
+void CPlayer::SetPositionZ(float z) const
 {
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 x, y, dummy;
+    float x, y, dummy;
     // Retrieve the current values for unchanged components
     _Func->GetPlayerPosition(m_ID, &x, &y, &dummy);
     // Perform the requested operation
@@ -2052,59 +2052,59 @@ void CPlayer::SetPositionZ(Float32 z) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetColorR() const
+int32_t CPlayer::GetColorR() const
 {
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return static_cast< Int32 >((_Func->GetPlayerColour(m_ID) >> 16u) & 0xFFu);
+    return static_cast< int32_t >((_Func->GetPlayerColour(m_ID) >> 16u) & 0xFFu);
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetColorG() const
+int32_t CPlayer::GetColorG() const
 {
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return static_cast< Int32 >((_Func->GetPlayerColour(m_ID) >> 8u) & 0xFFu);
+    return static_cast< int32_t >((_Func->GetPlayerColour(m_ID) >> 8u) & 0xFFu);
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CPlayer::GetColorB() const
+int32_t CPlayer::GetColorB() const
 {
     // Validate the managed identifier
     Validate();
     // Return the requested information
-    return static_cast< Int32 >(_Func->GetPlayerColour(m_ID) & 0xFFu);
+    return static_cast< int32_t >(_Func->GetPlayerColour(m_ID) & 0xFFu);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetColorR(Int32 r) const
+void CPlayer::SetColorR(int32_t r) const
 {
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetPlayerColour(m_ID, (ConvTo< Uint8 >::From(r) << 16u) | // NOLINT(hicpp-signed-bitwise)
+    _Func->SetPlayerColour(m_ID, (ConvTo< uint8_t >::From(r) << 16u) | // NOLINT(hicpp-signed-bitwise)
                                     (~(0xFFu << 16u) & _Func->GetPlayerColour(m_ID)));
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetColorG(Int32 g) const
+void CPlayer::SetColorG(int32_t g) const
 {
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetPlayerColour(m_ID, (ConvTo< Uint8 >::From(g) << 8u) | // NOLINT(hicpp-signed-bitwise)
+    _Func->SetPlayerColour(m_ID, (ConvTo< uint8_t >::From(g) << 8u) | // NOLINT(hicpp-signed-bitwise)
                                     (~(0xFFu << 8u) & _Func->GetPlayerColour(m_ID)));
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetColorB(Int32 g) const
+void CPlayer::SetColorB(int32_t g) const
 {
     // Validate the managed identifier
     Validate();
     // Perform the requested operation
-    _Func->SetPlayerColour(m_ID, (ConvTo< Uint8 >::From(g)) |
+    _Func->SetPlayerColour(m_ID, (ConvTo< uint8_t >::From(g)) |
                                     (~(0xFFu) & _Func->GetPlayerColour(m_ID)));
 }
 
@@ -2131,7 +2131,7 @@ SQInteger CPlayer::Msg(HSQUIRRELVM vm)
     {
         player = Var< CPlayer * >(vm, 1).value;
     }
-    catch (const Sqrat::Exception & e)
+    catch (const std::exception & e)
     {
         // Propagate the error
         return sq_throwerror(vm, e.what());
@@ -2145,13 +2145,13 @@ SQInteger CPlayer::Msg(HSQUIRRELVM vm)
     // Do we have a valid player identifier?
     else if (!player->IsActive())
     {
-        return sq_throwerror(vm, ToStrF("Invalid player reference [%s]", player->GetTag().c_str()));
+        return sq_throwerrorf(vm, "Invalid player reference [%s]", player->GetTag().c_str());
     }
 
     // The index where the message should start
-    Int32 msgidx = 2;
+    int32_t msgidx = 2;
     // The message color
-    Uint32 color = 0;
+    uint32_t color = 0;
     // Attempt to identify and extract the color
     const SQRESULT res = SqGrabPlayerMessageColor(vm, 2, color, msgidx);
     // Did we fail to identify a color?
@@ -2178,7 +2178,7 @@ SQInteger CPlayer::Msg(HSQUIRRELVM vm)
     // Check the result
     if (result == vcmpErrorTooLargeInput)
     {
-        return sq_throwerror(vm, ToStrF("Client message too big [%s]", player->GetTag().c_str()));
+        return sq_throwerrorf(vm, "Client message too big [%s]", player->GetTag().c_str());
     }
     // This function does not return a value
     return 0;
@@ -2200,13 +2200,13 @@ SQInteger CPlayer::MsgP(HSQUIRRELVM vm)
     }
 
     // The player instance
-    CPlayer * player = nullptr;
+    CPlayer * player;
     // Attempt to extract the argument values
     try
     {
         player = Var< CPlayer * >(vm, 1).value;
     }
-    catch (const Sqrat::Exception & e)
+    catch (const std::exception & e)
     {
         return sq_throwerror(vm, e.what());
     }
@@ -2219,17 +2219,17 @@ SQInteger CPlayer::MsgP(HSQUIRRELVM vm)
     // Do we have a valid player identifier?
     else if (!player->IsActive())
     {
-        return sq_throwerror(vm, ToStrF("Invalid player reference [%s]", player->GetTag().c_str()));
+        return sq_throwerrorf(vm, "Invalid player reference [%s]", player->GetTag().c_str());
     }
 
     // The prefix index
-    Uint32 index = 0;
+    uint32_t index;
     // Attempt to extract the argument values
     try
     {
-        index = ConvTo< Uint32 >::From(Var< SQInteger >(vm, 2).value);
+        index = ConvTo< uint32_t >::From(Var< SQInteger >(vm, 2).value);
     }
-    catch (const Sqrat::Exception & e)
+    catch (const std::exception & e)
     {
         return sq_throwerror(vm, e.what());
     }
@@ -2237,8 +2237,8 @@ SQInteger CPlayer::MsgP(HSQUIRRELVM vm)
     // Perform a range check on the specified prefix index
     if (index >= SQMOD_PLAYER_MSG_PREFIXES)
     {
-        return sq_throwerror(vm, ToStrF("Prefix index is out of range: %u >= %u",
-                                        index, SQMOD_PLAYER_MSG_PREFIXES));
+        return sq_throwerrorf(vm, "Prefix index is out of range: %u >= %u",
+                                        index, SQMOD_PLAYER_MSG_PREFIXES);
     }
 
     // Attempt to generate the string value
@@ -2267,7 +2267,7 @@ SQInteger CPlayer::MsgP(HSQUIRRELVM vm)
     // Check the result
     if (result == vcmpErrorTooLargeInput)
     {
-        return sq_throwerror(vm, ToStrF("Client message too big [%s]", player->GetTag().c_str()));
+        return sq_throwerrorf(vm, "Client message too big [%s]", player->GetTag().c_str());
     }
     // This function does not return a value
     return 0;
@@ -2294,13 +2294,13 @@ SQInteger CPlayer::MsgEx(HSQUIRRELVM vm)
     }
 
     // The player instance
-    CPlayer * player = nullptr;
+    CPlayer * player;
     // Attempt to extract the argument values
     try
     {
         player = Var< CPlayer * >(vm, 1).value;
     }
-    catch (const Sqrat::Exception & e)
+    catch (const std::exception & e)
     {
         return sq_throwerror(vm, e.what());
     }
@@ -2313,17 +2313,17 @@ SQInteger CPlayer::MsgEx(HSQUIRRELVM vm)
     // Do we have a valid player identifier?
     else if (!player->IsActive())
     {
-        return sq_throwerror(vm, ToStrF("Invalid player reference [%s]", player->GetTag().c_str()));
+        return sq_throwerrorf(vm, "Invalid player reference [%s]", player->GetTag().c_str());
     }
 
     // The prefix index
-    Uint32 index = 0;
+    uint32_t index;
     // Attempt to extract the argument values
     try
     {
-        index = ConvTo< Uint32 >::From(Var< SQInteger >(vm, 2).value);
+        index = ConvTo< uint32_t >::From(Var< SQInteger >(vm, 2).value);
     }
-    catch (const Sqrat::Exception & e)
+    catch (const std::exception & e)
     {
         return sq_throwerror(vm, e.what());
     }
@@ -2331,14 +2331,14 @@ SQInteger CPlayer::MsgEx(HSQUIRRELVM vm)
     // Perform a range check on the specified prefix index
     if (index >= SQMOD_PLAYER_MSG_PREFIXES)
     {
-        return sq_throwerror(vm, ToStrF("Prefix index is out of range: %u >= %u",
-                                        index, SQMOD_PLAYER_MSG_PREFIXES));
+        return sq_throwerrorf(vm, "Prefix index is out of range: %u >= %u",
+                                        index, SQMOD_PLAYER_MSG_PREFIXES);
     }
 
     // The index where the message should start
-    Int32 msgidx = 3;
+    int32_t msgidx = 3;
     // The message color
-    Uint32 color = 0;
+    uint32_t color = 0;
     // Attempt to identify and extract the color
     const SQRESULT res = SqGrabPlayerMessageColor(vm, 3, color, msgidx);
     // Did we fail to identify a color?
@@ -2372,7 +2372,7 @@ SQInteger CPlayer::MsgEx(HSQUIRRELVM vm)
     // Check the result
     if (result == vcmpErrorTooLargeInput)
     {
-        return sq_throwerror(vm, ToStrF("Client message too big [%s]", player->GetTag().c_str()));
+        return sq_throwerrorf(vm, "Client message too big [%s]", player->GetTag().c_str());
     }
 
     // This function does not return a value
@@ -2390,13 +2390,13 @@ SQInteger CPlayer::Message(HSQUIRRELVM vm)
     }
 
     // The player instance
-    CPlayer * player = nullptr;
+    CPlayer * player;
     // Attempt to extract the argument values
     try
     {
         player = Var< CPlayer * >(vm, 1).value;
     }
-    catch (const Sqrat::Exception & e)
+    catch (const std::exception & e)
     {
         return sq_throwerror(vm, e.what());
     }
@@ -2409,7 +2409,7 @@ SQInteger CPlayer::Message(HSQUIRRELVM vm)
     // Do we have a valid player identifier?
     else if (!player->IsActive())
     {
-        return sq_throwerror(vm, ToStrF("Invalid player reference [%s]", player->GetTag().c_str()));
+        return sq_throwerrorf(vm, "Invalid player reference [%s]", player->GetTag().c_str());
     }
 
     // Attempt to generate the string value
@@ -2429,7 +2429,7 @@ SQInteger CPlayer::Message(HSQUIRRELVM vm)
     // Check the result
     if (result == vcmpErrorTooLargeInput)
     {
-        return sq_throwerror(vm, ToStrF("Client message too big [%s]", player->GetTag().c_str()));
+        return sq_throwerrorf(vm, "Client message too big [%s]", player->GetTag().c_str());
     }
 
     // This function does not return a value
@@ -2447,13 +2447,13 @@ SQInteger CPlayer::Announce(HSQUIRRELVM vm)
     }
 
     // The player instance
-    CPlayer * player = nullptr;
+    CPlayer * player;
     // Attempt to extract the argument values
     try
     {
         player = Var< CPlayer * >(vm, 1).value;
     }
-    catch (const Sqrat::Exception & e)
+    catch (const std::exception & e)
     {
         return sq_throwerror(vm, e.what());
     }
@@ -2466,7 +2466,7 @@ SQInteger CPlayer::Announce(HSQUIRRELVM vm)
     // Do we have a valid player identifier?
     else if (!player->IsActive())
     {
-        return sq_throwerror(vm, ToStrF("Invalid player reference [%s]", player->GetTag().c_str()));
+        return sq_throwerrorf(vm, "Invalid player reference [%s]", player->GetTag().c_str());
     }
 
     // Attempt to generate the string value
@@ -2486,12 +2486,12 @@ SQInteger CPlayer::Announce(HSQUIRRELVM vm)
     // Validate the result
     if (result == vcmpErrorArgumentOutOfBounds)
     {
-        return sq_throwerror(vm, ToStrF("Invalid announcement style %d [%s]",
-                                            player->mAnnounceStyle, player->GetTag().c_str()));
+        return sq_throwerrorf(vm, "Invalid announcement style %d [%s]",
+                                            player->mAnnounceStyle, player->GetTag().c_str());
     }
     else if (result == vcmpErrorTooLargeInput)
     {
-        return sq_throwerror(vm, ToStrF("Game message too big [%s]", player->GetTag().c_str()));
+        return sq_throwerrorf(vm, "Game message too big [%s]", player->GetTag().c_str());
     }
 
     // This function does not return a value
@@ -2514,16 +2514,16 @@ SQInteger CPlayer::AnnounceEx(HSQUIRRELVM vm)
     }
 
     // The player instance
-    CPlayer * player = nullptr;
+    CPlayer * player;
     // The announcement style
-    Int32 style;
+    int32_t style;
     // style to extract the argument values
     try
     {
         player = Var< CPlayer * >(vm, 1).value;
-        style = Var< Int32 >(vm, 2).value;
+        style = Var< int32_t >(vm, 2).value;
     }
-    catch (const Sqrat::Exception & e)
+    catch (const std::exception & e)
     {
         return sq_throwerror(vm, e.what());
     }
@@ -2536,7 +2536,7 @@ SQInteger CPlayer::AnnounceEx(HSQUIRRELVM vm)
     // Do we have a valid player identifier?
     else if (!player->IsActive())
     {
-        return sq_throwerror(vm, ToStrF("Invalid player reference [%s]", player->GetTag().c_str()));
+        return sq_throwerrorf(vm, "Invalid player reference [%s]", player->GetTag().c_str());
     }
 
     // Attempt to generate the string value
@@ -2555,12 +2555,12 @@ SQInteger CPlayer::AnnounceEx(HSQUIRRELVM vm)
     // Validate the result
     if (result == vcmpErrorArgumentOutOfBounds)
     {
-        return sq_throwerror(vm, ToStrF("Invalid announcement style %d [%s]",
-                                            style, player->GetTag().c_str()));
+        return sq_throwerrorf(vm, "Invalid announcement style %d [%s]",
+                                            style, player->GetTag().c_str());
     }
     else if (result == vcmpErrorTooLargeInput)
     {
-        return sq_throwerror(vm, ToStrF("Game message too big [%s]", player->GetTag().c_str()));
+        return sq_throwerrorf(vm, "Game message too big [%s]", player->GetTag().c_str());
     }
 
     // This function does not return a value
@@ -2595,7 +2595,7 @@ SQInteger Player_FindAuto(HSQUIRRELVM vm)
             // Finally, attempt to push the return value
             else
             {
-                sq_pushobject(vm, Core::Get().GetPlayer(static_cast< Int32 >(id)).mObj.mObj);
+                sq_pushobject(vm, Core::Get().GetPlayer(static_cast< int32_t >(id)).mObj.mObj);
             }
         } break;
         case OT_FLOAT: {
@@ -2609,7 +2609,7 @@ SQInteger Player_FindAuto(HSQUIRRELVM vm)
                 return res; // Propagate the error
             }
             // Convert the float value to an integer
-            const auto id = static_cast< Int32 >(std::lround(static_cast< Float32 >(fid)));
+            const auto id = static_cast< int32_t >(std::lround(static_cast< float >(fid)));
             // Check identifier range
             if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
             {
@@ -2638,7 +2638,7 @@ SQInteger Player_FindAuto(HSQUIRRELVM vm)
                 break;
             }
             // Attempt to locate the player with this name
-            Int32 id = _Func->GetPlayerIdFromName(val.mPtr);
+            int32_t id = _Func->GetPlayerIdFromName(val.mPtr);
             // Was there a player with this name?
             if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
             {
@@ -2676,7 +2676,7 @@ SQInteger Player_ExistsAuto(HSQUIRRELVM vm)
                 return res; // Propagate the error
             }
             // Check identifier range and the entity instance
-            else if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL) || INVALID_ENTITY(Core::Get().GetPlayer(static_cast< Int32 >(id)).mID))
+            else if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL) || INVALID_ENTITY(Core::Get().GetPlayer(static_cast< int32_t >(id)).mID))
             {
                 sq_pushbool(vm, SQFalse);
             }
@@ -2696,7 +2696,7 @@ SQInteger Player_ExistsAuto(HSQUIRRELVM vm)
                 return res; // Propagate the error
             }
             // Convert the float value to an integer
-            const auto id = static_cast< Int32 >(std::lround(static_cast< Float32 >(fid)));
+            const auto id = static_cast< int32_t >(std::lround(static_cast< float >(fid)));
             // Check identifier range and the entity instance
             if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL) || INVALID_ENTITY(Core::Get().GetPlayer(id).mID))
             {
@@ -2724,7 +2724,7 @@ SQInteger Player_ExistsAuto(HSQUIRRELVM vm)
                 break;
             }
             // Attempt to locate the player with this name
-            Int32 id = _Func->GetPlayerIdFromName(val.mPtr);
+            int32_t id = _Func->GetPlayerIdFromName(val.mPtr);
             // Check identifier range and the entity instance
             if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL) || INVALID_ENTITY(Core::Get().GetPlayer(id).mID))
             {
@@ -2911,34 +2911,20 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Func(_SC("FlushStream"), &CPlayer::FlushStream)
         .Func(_SC("SendBuffer"), &CPlayer::SendBuffer)
         // Member Overloads
-        .Overload< void (CPlayer::*)(const Vector3 &) const >
-            (_SC("AddSpeed"), &CPlayer::AddSpeed)
-        .Overload< void (CPlayer::*)(Float32, Float32, Float32) const >
-            (_SC("AddSpeed"), &CPlayer::AddSpeedEx)
-        .Overload< bool (CPlayer::*)(CVehicle &) const >
-            (_SC("Embark"), &CPlayer::Embark)
-        .Overload< bool (CPlayer::*)(CVehicle &, SQInt32, bool, bool) const >
-            (_SC("Embark"), &CPlayer::Embark)
-        .Overload< void (CPlayer::*)(const Vector3 &, const Vector3 &) const >
-            (_SC("CameraPosition"), &CPlayer::SetCameraPosition)
-        .Overload< void (CPlayer::*)(Float32, Float32, Float32, Float32, Float32, Float32) const >
-            (_SC("CameraPosition"), &CPlayer::SetCameraPosition)
-        .Overload< void (CPlayer::*)(void) >
-            (_SC("StartStream"), &CPlayer::StartStream)
-        .Overload< void (CPlayer::*)(Uint32) >
-            (_SC("StartStream"), &CPlayer::StartStream)
-        .Overload< void (CPlayer::*)(Int32) const >
-            (_SC("SetAnimation"), &CPlayer::SetAnimation)
-        .Overload< void (CPlayer::*)(Int32, Int32) const >
-            (_SC("SetAnimation"), &CPlayer::SetAnimation)
-        .Overload< LightObj & (CPlayer::*)(Int32, bool, Float32, Float32, Float32, Uint8, Uint8, Uint8, Uint8, Float32) const >
-            (_SC("CreateCheckpointEx"), &CPlayer::CreateCheckpointEx)
-        .Overload< LightObj & (CPlayer::*)(Int32, bool, Float32, Float32, Float32, Uint8, Uint8, Uint8, Uint8, Float32, Int32, LightObj &) const >
-            (_SC("CreateCheckpointEx"), &CPlayer::CreateCheckpointEx)
-        .Overload< LightObj & (CPlayer::*)(Int32, bool, const Vector3 &, const Color4 &, Float32) const >
-            (_SC("CreateCheckpoint"), &CPlayer::CreateCheckpoint)
-        .Overload< LightObj & (CPlayer::*)(Int32, bool, const Vector3 &, const Color4 &, Float32, Int32, LightObj &) const >
-            (_SC("CreateCheckpoint"), &CPlayer::CreateCheckpoint)
+        .Overload(_SC("AddSpeed"), &CPlayer::AddSpeed)
+        .Overload(_SC("AddSpeed"), &CPlayer::AddSpeedEx)
+        .Overload(_SC("Embark"), &CPlayer::Embark)
+        .Overload(_SC("Embark"), &CPlayer::EmbarkEx)
+        .Overload(_SC("CameraPosition"), &CPlayer::SetCameraPosition)
+        .Overload(_SC("CameraPosition"), &CPlayer::SetCameraPositionEx)
+        .Overload(_SC("StartStream"), &CPlayer::StartStream)
+        .Overload(_SC("StartStream"), &CPlayer::StartStreamEx)
+        .Overload(_SC("SetAnimation"), &CPlayer::SetAnimation)
+        .Overload(_SC("SetAnimation"), &CPlayer::SetAnimationEx)
+        .Overload(_SC("CreateCheckpointEx"), &CPlayer::CreateCheckpointEx1a)
+        .Overload(_SC("CreateCheckpointEx"), &CPlayer::CreateCheckpointEx1b)
+        .Overload(_SC("CreateCheckpoint"), &CPlayer::CreateCheckpoint1a)
+        .Overload(_SC("CreateCheckpoint"), &CPlayer::CreateCheckpoint1b)
         // Static Functions
         .SquirrelFunc(_SC("Find"), &Player_FindAuto)
         .SquirrelFunc(_SC("Exists"), &Player_ExistsAuto)

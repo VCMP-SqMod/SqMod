@@ -1,7 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Library/Numeric/Math.hpp"
-#include "Library/Numeric/LongInt.hpp"
-#include "Base/Shared.hpp"
+#include "Library/Numeric/Long.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cmath>
@@ -61,12 +60,12 @@ static SQInteger SqRemainder(HSQUIRRELVM vm)
     }
     // Are we both arguments floats?
     if ((sq_gettype(vm, 2) == OT_FLOAT) && sq_gettype(vm, 3) == OT_FLOAT)
-    {
+    { // NOLINT(bugprone-branch-clone)
         sq_pushfloat(vm, std::remainder(PopStackFloat(vm, 2), PopStackFloat(vm, 3)));
     }
     // Are we both arguments integers?
     else if ((sq_gettype(vm, 2) == OT_INTEGER) && sq_gettype(vm, 3) == OT_INTEGER)
-    {
+    { // NOLINT(bugprone-branch-clone)
         sq_pushinteger(vm, std::remainder(PopStackInteger(vm, 2), PopStackInteger(vm, 3)));
     }
     // Is the first argument float?
@@ -79,7 +78,7 @@ static SQInteger SqRemainder(HSQUIRRELVM vm)
     {
         sq_pushinteger(vm, std::remainder(PopStackInteger(vm, 2), PopStackInteger(vm, 3)));
     }
-    // Default to both arhuments as float so we don't loos precision from the float one
+    // Default to both arguments as float so we don't loos precision from the float one
     else
     {
         sq_pushfloat(vm, std::remainder(PopStackFloat(vm, 2), PopStackFloat(vm, 3)));
@@ -188,10 +187,6 @@ static SQInteger SqNanL(HSQUIRRELVM vm)
     try
     {
         Var< SLongInt * >::push(vm, new SLongInt(std::nanl(val.mPtr)));
-    }
-    catch (const Sqrat::Exception & e)
-    {
-        return sq_throwerror(vm, e.what());
     }
     catch (const std::exception & e)
     {
@@ -694,10 +689,6 @@ static SQInteger SqRoundL(HSQUIRRELVM vm)
             Var< SLongInt * >::push(vm, new SLongInt(std::llround(PopStackInteger(vm, 2))));
         }
     }
-    catch (const Sqrat::Exception & e)
-    {
-        return sq_throwerror(vm, e.what());
-    }
     catch (const std::exception & e)
     {
         return sq_throwerror(vm, e.what());
@@ -733,7 +724,7 @@ static SQInteger SqFrexp(HSQUIRRELVM vm)
         return sq_throwerror(vm, "Wrong number of arguments");
     }
     // Where the exponent is retrieved
-    Int32 expv = 0;
+    int32_t expv = 0;
     // Fetch the arguments from the stack and perform the requested operation
     const SQFloat sigv = std::frexp(PopStackFloat(vm, 2), &expv);
     // Create a new table on the stack
@@ -1075,9 +1066,9 @@ static SQInteger SqDigits1(HSQUIRRELVM vm)
         return sq_throwerror(vm, "Wrong number of arguments");
     }
     // Fetch the integer value from the stack
-    Int64 n = std::llabs(PopStackSLong(vm, 2));
+    int64_t n = std::llabs(PopStackSLong(vm, 2));
     // Start with 0 digits
-    Uint8 d = 0;
+    uint8_t d = 0;
     // Identify the number of digits
     while (n != 0)
     {
@@ -1099,9 +1090,9 @@ static SQInteger SqDigits0(HSQUIRRELVM vm)
         return sq_throwerror(vm, "Wrong number of arguments");
     }
     // Fetch the integer value from the stack
-    Int64 n = std::llabs(PopStackSLong(vm, 2));
+    int64_t n = std::llabs(PopStackSLong(vm, 2));
     // Start with 0 digits
-    Uint8 d = 0;
+    uint8_t d = 0;
     // Identify the number of digits
     do
     {
@@ -1115,14 +1106,14 @@ static SQInteger SqDigits0(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-SQFloat SqIToF(Int64 sigv, Int64 expv, Int32 padn, bool negf)
+SQFloat SqIToF(int64_t sigv, int64_t expv, int32_t padn, bool negf)
 {
     // The number of characters to add before the exponent
-    static CharT padb[64];
+    CharT padb[64];
     // Make sure the pad number is positive
     padn = ClampMin(padn, 0);
     // Is the number of pad characters out of range?
-    if (static_cast< Uint32 >(padn) >= sizeof(padb))
+    if (static_cast< uint32_t >(padn) >= sizeof(padb))
     {
         STHROWF("Pad characters out of range: %d >= %d", padn, sizeof(padb));
     }
@@ -1130,23 +1121,23 @@ SQFloat SqIToF(Int64 sigv, Int64 expv, Int32 padn, bool negf)
     std::memset(padb, '0', padn);
     // Add the null terminator
     padb[padn] = '\0';
-    // The obtained string containing the floating point
-    CSStr fstr = nullptr;
-    // Generate the floating point value
+    // Now transform the resulted string to a floating point value
     if (negf)
     {
-        fstr = ToStrF("-%lld.%s%lld", sigv, padb, expv);
+#ifdef SQUSEDOUBLE
+    return std::strtod(fmt::format("-{}.{}{}", sigv, padb, expv).c_str(), nullptr);
+#else
+    return std::strtof(fmt::format("-{}.{}{}", sigv, padb, expv).c_str(), nullptr);
+#endif // SQUSEDOUBLE
     }
     else
     {
-        fstr = ToStrF("%lld.%s%lld", sigv, padb, expv);
-    }
-    // Now transform the resulted string to a floating point value
 #ifdef SQUSEDOUBLE
-    return std::strtod(fstr, nullptr);
+    return std::strtod(fmt::format("{}.{}{}", sigv, padb, expv).c_str(), nullptr);
 #else
-    return std::strtof(fstr, nullptr);
+    return std::strtof(fmt::format("{}.{}{}", sigv, padb, expv).c_str(), nullptr);
 #endif // SQUSEDOUBLE
+    }
 }
 
 // ================================================================================================

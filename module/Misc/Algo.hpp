@@ -12,13 +12,13 @@
 #define SQMOD_VALID_TAG_STR(t) if (!(t)) { STHROWF("The specified tag is invalid"); }
 
 // ------------------------------------------------------------------------------------------------
-namespace SqMod {
+namespace SqMod { // NOLINT(modernize-concat-nested-namespaces)
 namespace Algo {
 
 /* ------------------------------------------------------------------------------------------------
  * Returns a pointer to the first occurrence of 'needle' in 'haystack'.
 */
-inline CSStr sqmod_stristr(CSStr haystack, CSStr needle)
+inline const SQChar * sqmod_stristr(const SQChar * haystack, const SQChar * needle)
 {
     for (const auto chr = static_cast< const SQChar >(std::tolower(*needle)); *haystack != '\0'; ++haystack)
     {
@@ -27,7 +27,7 @@ inline CSStr sqmod_stristr(CSStr haystack, CSStr needle)
             continue;
         }
 
-        for (CSStr itr = haystack, str = needle;; ++itr, ++str)
+        for (const SQChar * itr = haystack, * str = needle;; ++itr, ++str)
         {
             if (*str == '\0')
             {
@@ -50,7 +50,7 @@ inline CSStr sqmod_stristr(CSStr haystack, CSStr needle)
 /* ------------------------------------------------------------------------------------------------
  * Find the specified string in another string.
 */
-inline bool FindStr(CSStr str1, CSStr str2, bool cs)
+inline bool FindStr(const SQChar * str1, const SQChar * str2, bool cs)
 {
     if (!str1 || !str2 || (*str1 == '\0' && *str2 == '\0'))
     {
@@ -67,7 +67,7 @@ inline bool FindStr(CSStr str1, CSStr str2, bool cs)
 /* ------------------------------------------------------------------------------------------------
  * Compare the specified strings.
 */
-inline Int32 CompareStr(CSStr lhs, CSStr rhs, bool cs)
+inline int32_t CompareStr(const SQChar * lhs, const SQChar * rhs, bool cs)
 {
     if (!lhs)
     {
@@ -90,7 +90,7 @@ inline Int32 CompareStr(CSStr lhs, CSStr rhs, bool cs)
 /* ------------------------------------------------------------------------------------------------
  * Compare a portion from the specified strings.
 */
-inline Int32 CompareStr(CSStr lhs, CSStr rhs, Uint32 len, bool cs)
+inline int32_t CompareStr(const SQChar * lhs, const SQChar * rhs, uint32_t len, bool cs)
 {
     if (!lhs)
     {
@@ -113,7 +113,7 @@ inline Int32 CompareStr(CSStr lhs, CSStr rhs, Uint32 len, bool cs)
 /* ------------------------------------------------------------------------------------------------
  * Compare a portion from the specified strings starting from a certain position.
 */
-inline Int32 CompareStr(CSStr lhs, CSStr rhs, Uint32 pos, Uint32 len, bool cs)
+inline int32_t CompareStr(const SQChar * lhs, const SQChar * rhs, uint32_t pos, uint32_t len, bool cs)
 {
     if (!lhs)
     {
@@ -146,7 +146,7 @@ inline Int32 CompareStr(CSStr lhs, CSStr rhs, Uint32 pos, Uint32 len, bool cs)
 /* ------------------------------------------------------------------------------------------------
  * Compare the specified strings.
 */
-inline bool ApplyStrFilter(CSStr name, CSStr filter, bool cs)
+inline bool ApplyStrFilter(const SQChar * name, const SQChar * filter, bool cs)
 {
     return cs ? NameFilterCheck(filter, name) : NameFilterCheckInsensitive(filter, name);
 }
@@ -190,7 +190,7 @@ void CollectWhile(Iterator first, Iterator last, Inspector inspect, Collector co
 template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
 void EachEquals(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Collector collect,
-                        CSStr str, bool neg, bool cs)
+                        const SQChar * str, bool neg, bool cs)
 {
     for (; first != last; ++first)
     {
@@ -207,7 +207,7 @@ void EachEquals(Iterator first, Iterator last,
 template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
 void EachEqualsWhile(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Collector collect,
-                        CSStr str, bool neg, bool cs)
+                        const SQChar * str, bool neg, bool cs)
 {
     for (; first != last; ++first)
     {
@@ -228,7 +228,7 @@ void EachEqualsWhile(Iterator first, Iterator last,
 template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
 void EachBegins(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Collector collect,
-                        CSStr str, std::size_t len, bool neg, bool cs)
+                        const SQChar * str, std::size_t len, bool neg, bool cs)
 {
     for (; first != last; ++first)
     {
@@ -241,7 +241,7 @@ void EachBegins(Iterator first, Iterator last,
         // Compare the string
         if (s.size() >= len)
         {
-            if ((CompareStr(s.c_str(), str, static_cast< Uint32 >(len), cs) == 0) == neg)
+            if ((CompareStr(s.c_str(), str, static_cast< uint32_t >(len), cs) == 0) == neg)
             {
                 collect(*first);
             }
@@ -260,7 +260,7 @@ void EachBegins(Iterator first, Iterator last,
 template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
 void EachBeginsWhile(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Collector collect,
-                        CSStr str, std::size_t len, bool neg, bool cs)
+                        const SQChar * str, std::size_t len, bool neg, bool cs)
 {
     for (; first != last; ++first)
     {
@@ -273,7 +273,7 @@ void EachBeginsWhile(Iterator first, Iterator last,
         // Compare the string
         if (s.size() >= len)
         {
-            if ((CompareStr(s.c_str(), str, static_cast< Uint32 >(len), cs) == 0) == neg)
+            if ((CompareStr(s.c_str(), str, static_cast< uint32_t >(len), cs) == 0) == neg)
             {
                 if (!collect(*first))
                 {
@@ -298,7 +298,7 @@ void EachBeginsWhile(Iterator first, Iterator last,
 template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
 void EachEnds(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Collector collect,
-                        CSStr str, std::size_t len, bool neg, bool cs)
+                        const SQChar * str, std::size_t len, bool neg, bool cs)
 {
     for (; first != last; ++first)
     {
@@ -311,7 +311,7 @@ void EachEnds(Iterator first, Iterator last,
         // Compare the tag
         if (s.size() >= len)
         {
-            if ((CompareStr(s.c_str(), str, static_cast< Uint32 >(s.size() - len), static_cast< Uint32 >(len), cs) == 0) == neg)
+            if ((CompareStr(s.c_str(), str, static_cast< uint32_t >(s.size() - len), static_cast< uint32_t >(len), cs) == 0) == neg)
             {
                 collect(*first);
             }
@@ -330,7 +330,7 @@ void EachEnds(Iterator first, Iterator last,
 template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
 void EachEndsWhile(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Collector collect,
-                        CSStr str, std::size_t len, bool neg, bool cs)
+                        const SQChar * str, std::size_t len, bool neg, bool cs)
 {
     for (; first != last; ++first)
     {
@@ -343,7 +343,7 @@ void EachEndsWhile(Iterator first, Iterator last,
         // Compare the tag
         if (s.size() >= len)
         {
-            if ((CompareStr(s.c_str(), str, static_cast< Uint32 >(s.size() - len), static_cast< Uint32 >(len), cs) == 0) == neg)
+            if ((CompareStr(s.c_str(), str, static_cast< uint32_t >(s.size() - len), static_cast< uint32_t >(len), cs) == 0) == neg)
             {
                 if (!collect(*first))
                 {
@@ -368,7 +368,7 @@ void EachEndsWhile(Iterator first, Iterator last,
 template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
 void EachContains(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Collector collect,
-                        CSStr str, bool neg, bool cs)
+                        const SQChar * str, bool neg, bool cs)
 {
     for (; first != last; ++first)
     {
@@ -386,7 +386,7 @@ void EachContains(Iterator first, Iterator last,
 template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
 void EachContainsWhile(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Collector collect,
-                        CSStr str, bool neg, bool cs)
+                        const SQChar * str, bool neg, bool cs)
 {
     for (; first != last; ++first)
     {
@@ -407,7 +407,7 @@ void EachContainsWhile(Iterator first, Iterator last,
 template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
 void EachMatches(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Collector collect,
-                        CSStr str, bool neg, bool cs)
+                        const SQChar * str, bool neg, bool cs)
 {
     for (; first != last; ++first)
     {
@@ -425,7 +425,7 @@ void EachMatches(Iterator first, Iterator last,
 template < typename Iterator, typename Inspector, typename Retriever, typename Collector >
 void EachMatchesWhile(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Collector collect,
-                        CSStr str, bool neg, bool cs)
+                        const SQChar * str, bool neg, bool cs)
 {
     for (; first != last; ++first)
     {
@@ -445,7 +445,7 @@ void EachMatchesWhile(Iterator first, Iterator last,
 template < typename Iterator, typename Inspector, typename Retriever, typename Receiver >
 void FirstEquals(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Receiver receive,
-                        CSStr str, bool neg, bool cs)
+                        const SQChar * str, bool neg, bool cs)
 {
     for (; first != last; ++first)
     {
@@ -464,7 +464,7 @@ void FirstEquals(Iterator first, Iterator last,
 template < typename Iterator, typename Inspector, typename Retriever, typename Receiver >
 void FirstBegins(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Receiver receive,
-                        CSStr str, std::size_t len, bool neg, bool cs)
+                        const SQChar * str, std::size_t len, bool neg, bool cs)
 {
     for (; first != last; ++first)
     {
@@ -477,7 +477,7 @@ void FirstBegins(Iterator first, Iterator last,
         // Compare the string
         if (s.size() >= len)
         {
-            if ((CompareStr(s.c_str(), str, static_cast< Uint32 >(len), cs) == 0) == neg)
+            if ((CompareStr(s.c_str(), str, static_cast< uint32_t >(len), cs) == 0) == neg)
             {
                 receive(*first);
                 break;
@@ -498,7 +498,7 @@ void FirstBegins(Iterator first, Iterator last,
 template < typename Iterator, typename Inspector, typename Retriever, typename Receiver >
 void FirstEnds(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Receiver receive,
-                        CSStr str, std::size_t len, bool neg, bool cs)
+                        const SQChar * str, std::size_t len, bool neg, bool cs)
 {
     for (; first != last; ++first)
     {
@@ -511,7 +511,7 @@ void FirstEnds(Iterator first, Iterator last,
         // Compare the string
         if (s.size() >= len)
         {
-            if ((CompareStr(s.c_str(), str, static_cast< Uint32 >(s.size() - len), static_cast< Uint32 >(len), cs) == 0) == neg)
+            if ((CompareStr(s.c_str(), str, static_cast< uint32_t >(s.size() - len), static_cast< uint32_t >(len), cs) == 0) == neg)
             {
                 receive(*first);
                 break;
@@ -532,7 +532,7 @@ void FirstEnds(Iterator first, Iterator last,
 template < typename Iterator, typename Inspector, typename Retriever, typename Receiver >
 void FirstContains(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Receiver receive,
-                        CSStr str, bool neg, bool cs)
+                        const SQChar * str, bool neg, bool cs)
 {
     for (; first != last; ++first)
     {
@@ -551,7 +551,7 @@ void FirstContains(Iterator first, Iterator last,
 template < typename Iterator, typename Inspector, typename Retriever, typename Receiver >
 void FirstMatches(Iterator first, Iterator last,
                         Inspector inspect, Retriever retrieve, Receiver receive,
-                        CSStr str, bool neg, bool cs)
+                        const SQChar * str, bool neg, bool cs)
 {
     for (; first != last; ++first)
     {
@@ -581,8 +581,8 @@ template <> struct InstSpec< CBlip >
     static constexpr int Max = SQMOD_BLIP_POOL; // Maximum identifier for this entity type.
 
     // --------------------------------------------------------------------------------------------
-    static constexpr CSStr LcName = "blip"; // Lowercase name of this entity type.
-    static constexpr CSStr UcName = "Blip"; // Uppercase name of this entity type.
+    static constexpr const SQChar * LcName = "blip"; // Lowercase name of this entity type.
+    static constexpr const SQChar * UcName = "Blip"; // Uppercase name of this entity type.
 
     /* --------------------------------------------------------------------------------------------
      * Iterator to the beginning of the instance container.
@@ -622,8 +622,8 @@ template <> struct InstSpec< CCheckpoint >
     static constexpr int Max = SQMOD_CHECKPOINT_POOL; // Maximum identifier for this entity type.
 
     // --------------------------------------------------------------------------------------------
-    static constexpr CSStr LcName = "checkpoint"; // Lowercase name of this entity type.
-    static constexpr CSStr UcName = "Checkpoint"; // Uppercase name of this entity type.
+    static constexpr const SQChar * LcName = "checkpoint"; // Lowercase name of this entity type.
+    static constexpr const SQChar * UcName = "Checkpoint"; // Uppercase name of this entity type.
 
     /* --------------------------------------------------------------------------------------------
      * Iterator to the beginning of the instance container.
@@ -651,27 +651,27 @@ template <> struct InstSpec< CCheckpoint >
 };
 
 /* ------------------------------------------------------------------------------------------------
- * Specialization for the Keybind entity type.
+ * Specialization for the KeyBind entity type.
 */
-template <> struct InstSpec< CKeybind >
+template <> struct InstSpec< CKeyBind >
 {
     // --------------------------------------------------------------------------------------------
-    typedef Core::Keybinds Instances; // Container to store instances of this entity type.
-    typedef Core::Keybinds::value_type Instance; // Type that manages this type of entity instance.
+    typedef Core::KeyBinds Instances; // Container to store instances of this entity type.
+    typedef Core::KeyBinds::value_type Instance; // Type that manages this type of entity instance.
 
     // --------------------------------------------------------------------------------------------
     static constexpr int Max = SQMOD_KEYBIND_POOL; // Maximum identifier for this entity type.
 
     // --------------------------------------------------------------------------------------------
-    static constexpr CSStr LcName = "keybind"; // Lowercase name of this entity type.
-    static constexpr CSStr UcName = "Keybind"; // Uppercase name of this entity type.
+    static constexpr const SQChar * LcName = "keybind"; // Lowercase name of this entity type.
+    static constexpr const SQChar * UcName = "KeyBind"; // Uppercase name of this entity type.
 
     /* --------------------------------------------------------------------------------------------
      * Iterator to the beginning of the instance container.
     */
     static inline Instances::const_iterator CBegin()
     {
-        return Core::Get().GetKeybinds().cbegin();
+        return Core::Get().GetKeyBinds().cbegin();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -679,7 +679,7 @@ template <> struct InstSpec< CKeybind >
     */
     static inline Instances::const_iterator CEnd()
     {
-        return Core::Get().GetKeybinds().cend();
+        return Core::Get().GetKeyBinds().cend();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -687,7 +687,7 @@ template <> struct InstSpec< CKeybind >
     */
     static inline LightObj & Null()
     {
-        return Core::Get().GetNullKeybind();
+        return Core::Get().GetNullKeyBind();
     }
 };
 
@@ -704,8 +704,8 @@ template <> struct InstSpec< CObject >
     static constexpr int Max = SQMOD_OBJECT_POOL; // Maximum identifier for this entity type.
 
     // --------------------------------------------------------------------------------------------
-    static constexpr CSStr LcName = "object"; // Lowercase name of this entity type.
-    static constexpr CSStr UcName = "Object"; // Uppercase name of this entity type.
+    static constexpr const SQChar * LcName = "object"; // Lowercase name of this entity type.
+    static constexpr const SQChar * UcName = "Object"; // Uppercase name of this entity type.
 
     /* --------------------------------------------------------------------------------------------
      * Iterator to the beginning of the instance container.
@@ -745,8 +745,8 @@ template <> struct InstSpec< CPickup >
     static constexpr int Max = SQMOD_PICKUP_POOL; // Maximum identifier for this entity type.
 
     // --------------------------------------------------------------------------------------------
-    static constexpr CSStr LcName = "pickup"; // Lowercase name of this entity type.
-    static constexpr CSStr UcName = "Pickup"; // Uppercase name of this entity type.
+    static constexpr const SQChar * LcName = "pickup"; // Lowercase name of this entity type.
+    static constexpr const SQChar * UcName = "Pickup"; // Uppercase name of this entity type.
 
     /* --------------------------------------------------------------------------------------------
      * Iterator to the beginning of the instance container.
@@ -786,8 +786,8 @@ template <> struct InstSpec< CPlayer >
     static constexpr int Max = SQMOD_PLAYER_POOL; // Maximum identifier for this entity type.
 
     // --------------------------------------------------------------------------------------------
-    static constexpr CSStr LcName = "player"; // Lowercase name of this entity type.
-    static constexpr CSStr UcName = "Player"; // Uppercase name of this entity type.
+    static constexpr const SQChar * LcName = "player"; // Lowercase name of this entity type.
+    static constexpr const SQChar * UcName = "Player"; // Uppercase name of this entity type.
 
     /* --------------------------------------------------------------------------------------------
      * Iterator to the beginning of the instance container.
@@ -827,8 +827,8 @@ template <> struct InstSpec< CVehicle >
     static constexpr int Max = SQMOD_VEHICLE_POOL; // Maximum identifier for this entity type.
 
     // --------------------------------------------------------------------------------------------
-    static constexpr CSStr LcName = "vehicle"; // Lowercase name of this entity type.
-    static constexpr CSStr UcName = "Vehicle"; // Uppercase name of this entity type.
+    static constexpr const SQChar * LcName = "vehicle"; // Lowercase name of this entity type.
+    static constexpr const SQChar * UcName = "Vehicle"; // Uppercase name of this entity type.
 
     /* --------------------------------------------------------------------------------------------
      * Iterator to the beginning of the instance container.
@@ -952,12 +952,12 @@ public:
     // --------------------------------------------------------------------------------------------
     LightObj    mEnv; // The script callback environment object.
     LightObj    mFunc; // The script callback object to receive the element.
-    Uint32      mCount; // The number of elements forwarded by this functor.
+    uint32_t      mCount; // The number of elements forwarded by this functor.
 
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    ForwardElemFunc(Function & func)
+    explicit ForwardElemFunc(Function & func)
         : mEnv(func.GetEnv()), mFunc(func.GetFunc()), mCount(0)
     {
         if (mFunc.IsNull())
@@ -1009,7 +1009,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit cast to the count value.
     */
-    operator Uint32 () const // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
+    operator uint32_t () const // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
     {
         return mCount;
     }
@@ -1026,7 +1026,7 @@ public:
     LightObj    mEnv; // The script callback environment object.
     LightObj    mFunc; // The script callback object to receive the element.
     LightObj    mData; // The script payload to accompany the element.
-    Uint32      mCount; // The number of elements forwarded by this functor.
+    uint32_t      mCount; // The number of elements forwarded by this functor.
 
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
@@ -1085,7 +1085,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit cast to the count value.
     */
-    operator Uint32 () const // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
+    operator uint32_t () const // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
     {
         return mCount;
     }
@@ -1099,7 +1099,7 @@ template < typename T > struct CountElemFunc
 public:
 
     // --------------------------------------------------------------------------------------------
-    Uint32      mCount; // The number of elements received by this functor.
+    uint32_t      mCount; // The number of elements received by this functor.
 
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
@@ -1121,7 +1121,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit cast to the count value.
     */
-    operator Uint32 () const // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
+    operator uint32_t () const // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
     {
         return mCount;
     }
@@ -1182,7 +1182,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Find the entity that matches the specified identifier.
     */
-    static inline const LightObj & FindByID(Int32 id)
+    static inline const LightObj & FindByID(int32_t id)
     {
         // Perform a range check on the specified identifier
         if (INVALID_ENTITYEX(id, Inst::Max))
@@ -1222,7 +1222,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Collect all entities of this type where the tag matches or not the specified one.
     */
-    static inline Array AllWhereTagEquals(bool neg, bool cs, CSStr tag)
+    static inline Array AllWhereTagEquals(bool neg, bool cs, const SQChar * tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Remember the current stack size
@@ -1238,7 +1238,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Collect all entities of this type where the tag begins or not with the specified string.
     */
-    static inline Array AllWhereTagBegins(bool neg, bool cs, CSStr tag)
+    static inline Array AllWhereTagBegins(bool neg, bool cs, const SQChar * tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Remember the current stack size
@@ -1254,7 +1254,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Collect all entities of this type where the tag ends or not with the specified string.
     */
-    static inline Array AllWhereTagEnds(bool neg, bool cs, CSStr tag)
+    static inline Array AllWhereTagEnds(bool neg, bool cs, const SQChar * tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Remember the current stack size
@@ -1270,7 +1270,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Collect all entities of this type where the tag contains or not the specified string.
     */
-    static inline Array AllWhereTagContains(bool neg, bool cs, CSStr tag)
+    static inline Array AllWhereTagContains(bool neg, bool cs, const SQChar * tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Remember the current stack size
@@ -1286,7 +1286,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Collect all entities of this type where the tag matches or not the specified filter.
     */
-    static inline Array AllWhereTagMatches(bool neg, bool cs, CSStr tag)
+    static inline Array AllWhereTagMatches(bool neg, bool cs, const SQChar * tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Remember the current stack size
@@ -1302,7 +1302,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the first entity of this type where the tag matches or not the specified one.
     */
-    static inline LightObj FirstWhereTagEquals(bool neg, bool cs, CSStr tag)
+    static inline LightObj FirstWhereTagEquals(bool neg, bool cs, const SQChar * tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element receiver
@@ -1317,7 +1317,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the first entity of this type where the tag begins or not with the specified string.
     */
-    static inline LightObj FirstWhereTagBegins(bool neg, bool cs, CSStr tag)
+    static inline LightObj FirstWhereTagBegins(bool neg, bool cs, const SQChar * tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element receiver
@@ -1332,7 +1332,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the first entity of this type where the tag ends or not with the specified string.
     */
-    static inline LightObj FirstWhereTagEnds(bool neg, bool cs, CSStr tag)
+    static inline LightObj FirstWhereTagEnds(bool neg, bool cs, const SQChar * tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element receiver
@@ -1347,7 +1347,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the first entity of this type where the tag contains or not the specified string.
     */
-    static inline LightObj FirstWhereTagContains(bool neg, bool cs, CSStr tag)
+    static inline LightObj FirstWhereTagContains(bool neg, bool cs, const SQChar * tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element receiver
@@ -1362,7 +1362,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the first entity of this type where the tag matches or not the specified filter.
     */
-    static inline LightObj FirstWhereTagMatches(bool neg, bool cs, CSStr tag)
+    static inline LightObj FirstWhereTagMatches(bool neg, bool cs, const SQChar * tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element receiver
@@ -1377,7 +1377,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all active entities of this type.
     */
-    static inline Uint32 EachActive(Function & func)
+    static inline uint32_t EachActive(Function & func)
     {
         // Create a new element forwarder
         ForwardElem fwd(func);
@@ -1391,7 +1391,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all active entities of this type.
     */
-    static inline Uint32 EachActiveData(LightObj & data, Function & func)
+    static inline uint32_t EachActiveData(LightObj & data, Function & func)
     {
         // Create a new element forwarder
         ForwardElemData fwd(data, func);
@@ -1405,7 +1405,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag matches or not the specified one.
     */
-    static inline Uint32 EachWhereTagEquals(bool neg, bool cs, CSStr tag, Function & func)
+    static inline uint32_t EachWhereTagEquals(bool neg, bool cs, const SQChar * tag, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
@@ -1420,7 +1420,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag matches or not the specified one.
     */
-    static inline Uint32 EachWhereTagEqualsData(bool neg, bool cs, CSStr tag, LightObj & data, Function & func)
+    static inline uint32_t EachWhereTagEqualsData(bool neg, bool cs, const SQChar * tag, LightObj & data, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
@@ -1435,7 +1435,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag begins with the specified string.
     */
-    static inline Uint32 EachWhereTagBegins(bool neg, bool cs, CSStr tag, Function & func)
+    static inline uint32_t EachWhereTagBegins(bool neg, bool cs, const SQChar * tag, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
@@ -1450,7 +1450,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag begins with the specified string.
     */
-    static inline Uint32 EachWhereTagBeginsData(bool neg, bool cs, CSStr tag, LightObj & data, Function & func)
+    static inline uint32_t EachWhereTagBeginsData(bool neg, bool cs, const SQChar * tag, LightObj & data, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
@@ -1465,7 +1465,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag ends or not with the specified string.
     */
-    static inline Uint32 EachWhereTagEnds(bool neg, bool cs, CSStr tag, Function & func)
+    static inline uint32_t EachWhereTagEnds(bool neg, bool cs, const SQChar * tag, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
@@ -1480,7 +1480,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag ends or not with the specified string.
     */
-    static inline Uint32 EachWhereTagEndsData(bool neg, bool cs, CSStr tag, LightObj & data, Function & func)
+    static inline uint32_t EachWhereTagEndsData(bool neg, bool cs, const SQChar * tag, LightObj & data, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
@@ -1495,7 +1495,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag contains the specified string.
     */
-    static inline Uint32 EachWhereTagContains(bool neg, bool cs, CSStr tag, Function & func)
+    static inline uint32_t EachWhereTagContains(bool neg, bool cs, const SQChar * tag, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
@@ -1510,7 +1510,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag contains the specified string.
     */
-    static inline Uint32 EachWhereTagContainsData(bool neg, bool cs, CSStr tag, LightObj & data, Function & func)
+    static inline uint32_t EachWhereTagContainsData(bool neg, bool cs, const SQChar * tag, LightObj & data, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
@@ -1525,7 +1525,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag match the specified filter.
     */
-    static inline Uint32 EachWhereTagMatches(bool neg, bool cs, CSStr tag, Function & func)
+    static inline uint32_t EachWhereTagMatches(bool neg, bool cs, const SQChar * tag, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
@@ -1540,7 +1540,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Process all entities of this type where the tag match the specified filter.
     */
-    static inline Uint32 EachWhereTagMatchesData(bool neg, bool cs, CSStr tag, LightObj & data, Function & func)
+    static inline uint32_t EachWhereTagMatchesData(bool neg, bool cs, const SQChar * tag, LightObj & data, Function & func)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element forwarder
@@ -1555,7 +1555,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Count all active entities of this type.
     */
-    static inline Uint32 CountActive()
+    static inline uint32_t CountActive()
     {
         // Create a new element counter
         CountElem cnt;
@@ -1569,7 +1569,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Count all entities of this type where the tag matches or not the specified one.
     */
-    static inline Uint32 CountWhereTagEquals(bool neg, bool cs, CSStr tag)
+    static inline uint32_t CountWhereTagEquals(bool neg, bool cs, const SQChar * tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element counter
@@ -1584,7 +1584,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Count all entities of this type where the tag begins with the specified string.
     */
-    static inline Uint32 CountWhereTagBegins(bool neg, bool cs, CSStr tag)
+    static inline uint32_t CountWhereTagBegins(bool neg, bool cs, const SQChar * tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element counter
@@ -1599,7 +1599,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Count all entities of this type where the tag ends or not with the specified string.
     */
-    static inline Uint32 CountWhereTagEnds(bool neg, bool cs, CSStr tag)
+    static inline uint32_t CountWhereTagEnds(bool neg, bool cs, const SQChar * tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element counter
@@ -1614,7 +1614,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Count all entities of this type where the tag contains the specified string.
     */
-    static inline Uint32 CountWhereTagContains(bool neg, bool cs, CSStr tag)
+    static inline uint32_t CountWhereTagContains(bool neg, bool cs, const SQChar * tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element counter
@@ -1629,7 +1629,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Count all entities of this type where the tag matches the specified filter.
     */
-    static inline CountElem CountWhereTagMatches(bool neg, bool cs, CSStr tag)
+    static inline CountElem CountWhereTagMatches(bool neg, bool cs, const SQChar * tag)
     {
         SQMOD_VALID_TAG_STR(tag)
         // Create a new element counter

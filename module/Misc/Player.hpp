@@ -9,21 +9,21 @@ namespace SqMod {
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the name associated with a skin model identifier.
 */
-CCStr GetSkinName(Uint32 id);
+SQMOD_NODISCARD const char * GetSkinName(uint32_t id);
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the name associated with a skin model identifier.
 */
-void SetSkinName(Uint32 id, StackStrF & name);
+void SetSkinName(uint32_t id, StackStrF & name);
 
 /* ------------------------------------------------------------------------------------------------
  * Convert a vehicle model name to a skin model identifier.
 */
-Int32 GetSkinID(StackStrF & name);
+SQMOD_NODISCARD int32_t GetSkinID(StackStrF & name);
 
 /* ------------------------------------------------------------------------------------------------
  * See whether the specified skin model identifier is valid.
 */
-bool IsSkinValid(Int32 id);
+SQMOD_NODISCARD bool IsSkinValid(int32_t id);
 
 } // Namespace:: SqMod

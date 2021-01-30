@@ -1,7 +1,7 @@
 #pragma once
 
 // ------------------------------------------------------------------------------------------------
-#include "SqBase.hpp"
+#include "Base/Shared.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -32,12 +32,12 @@ struct Quaternion
     /* --------------------------------------------------------------------------------------------
      * The x, y, z and w components of this type.
     */
-    Value x, y, z, w;
+    Value x{0}, y{0}, z{0}, w{0};
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Quaternion() noexcept;
+    Quaternion() noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Construct from scalar value.
@@ -257,12 +257,12 @@ struct Quaternion
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    Int32 Cmp(const Quaternion & q) const;
+    SQMOD_NODISCARD int32_t Cmp(const Quaternion & q) const;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(SQFloat s) const
+    SQMOD_NODISCARD int32_t Cmp(SQFloat s) const
     {
         return Cmp(Quaternion(static_cast< Value >(s)));
     }
@@ -270,7 +270,7 @@ struct Quaternion
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(SQInteger s) const
+    SQMOD_NODISCARD int32_t Cmp(SQInteger s) const
     {
         return Cmp(Quaternion(static_cast< Value >(s)));
     }
@@ -278,7 +278,7 @@ struct Quaternion
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(bool s) const
+    SQMOD_NODISCARD int32_t Cmp(bool s) const
     {
         return Cmp(Quaternion(static_cast< Value >(s)));
     }
@@ -286,7 +286,7 @@ struct Quaternion
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(std::nullptr_t) const
+    SQMOD_NODISCARD int32_t Cmp(std::nullptr_t) const
     {
         return Cmp(Quaternion(static_cast< Value >(0)));
     }
@@ -294,7 +294,7 @@ struct Quaternion
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    CSStr ToString() const;
+    SQMOD_NODISCARD String ToString() const;
 
     /* --------------------------------------------------------------------------------------------
      * Set all components to the specified scalar value.
@@ -357,27 +357,27 @@ struct Quaternion
     /* --------------------------------------------------------------------------------------------
      * Retrieve a new instance of this type with absolute component values.
     */
-    Quaternion Abs() const;
+    SQMOD_NODISCARD Quaternion Abs() const;
 
     /* --------------------------------------------------------------------------------------------
      * Return whether is NaN.
     */
-    bool IsNaN() const;
+    SQMOD_NODISCARD bool IsNaN() const;
 
     /* --------------------------------------------------------------------------------------------
      * Return squared length.
     */
-    Value LengthSquared() const;
+    SQMOD_NODISCARD Value LengthSquared() const;
 
     /* --------------------------------------------------------------------------------------------
      * Calculate dot product.
     */
-    Value DotProduct(const Quaternion & quat) const;
+    SQMOD_NODISCARD Value DotProduct(const Quaternion & quat) const;
 
     /* --------------------------------------------------------------------------------------------
      * Return conjugate.
     */
-    Quaternion Conjugate() const;
+    SQMOD_NODISCARD Quaternion Conjugate() const;
 
     /* --------------------------------------------------------------------------------------------
      * Normalize to unit length.
@@ -387,7 +387,7 @@ struct Quaternion
     /* --------------------------------------------------------------------------------------------
      * Return normalized to unit length.
     */
-    Quaternion Normalized() const;
+    SQMOD_NODISCARD Quaternion Normalized() const;
 
     /* --------------------------------------------------------------------------------------------
      * Define from an angle (in degrees) and axis.
@@ -402,47 +402,47 @@ struct Quaternion
     /* --------------------------------------------------------------------------------------------
      * Return inverse.
     */
-    Quaternion Inverse() const;
+    SQMOD_NODISCARD Quaternion Inverse() const;
 
     /* --------------------------------------------------------------------------------------------
      * Return Euler angles in degrees.
     */
-    Vector3 ToEuler() const;
+    SQMOD_NODISCARD Vector3 ToEuler() const;
 
     /* --------------------------------------------------------------------------------------------
      * Return yaw angle in degrees.
     */
-    Value YawAngle() const;
+    SQMOD_NODISCARD Value YawAngle() const;
 
     /* --------------------------------------------------------------------------------------------
      * Return pitch angle in degrees.
     */
-    Value PitchAngle() const;
+    SQMOD_NODISCARD Value PitchAngle() const;
 
     /* --------------------------------------------------------------------------------------------
      * Return roll angle in degrees.
     */
-    Value RollAngle() const;
+    SQMOD_NODISCARD Value RollAngle() const;
 
     /* --------------------------------------------------------------------------------------------
      * Spherical interpolation with another quaternion.
     */
-    Quaternion Slerp(Quaternion quat, Value t) const;
+    SQMOD_NODISCARD Quaternion Slerp(Quaternion quat, Value t) const;
 
     /* --------------------------------------------------------------------------------------------
      * Normalized linear interpolation with another quaternion.
     */
-    Quaternion Nlerp(const Quaternion & quat, Value t) const;
+    SQMOD_NODISCARD Quaternion Nlerp(const Quaternion & quat, Value t) const;
 
     /* --------------------------------------------------------------------------------------------
      * Normalized linear interpolation with another quaternion.
     */
-    Quaternion NlerpEx(const Quaternion & quat, Value t, bool shortest_path) const;
+    SQMOD_NODISCARD Quaternion NlerpEx(const Quaternion & quat, Value t, bool shortest_path) const;
 
     /* --------------------------------------------------------------------------------------------
      * Generate a formatted string with the values from this instance.
     */
-    LightObj Format(const String & spec, StackStrF & fmt) const;
+    SQMOD_NODISCARD String Format(StackStrF & str) const;
 
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Quaternion type from a string.

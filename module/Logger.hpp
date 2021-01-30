@@ -11,7 +11,7 @@
 #include <thread>
 
 // ------------------------------------------------------------------------------------------------
-#include <sqrat/sqratFunction.h>
+#include <sqratFunction.h>
 #include <concurrentqueue.h>
 
 // ------------------------------------------------------------------------------------------------
@@ -103,19 +103,19 @@ protected:
         /* ----------------------------------------------------------------------------------------
          * Append a C string to the message.
         */
-        uint32_t Append(CSStr str);
+        uint32_t Append(const SQChar * str);
         /* ----------------------------------------------------------------------------------------
          * Append a fixed width string to the message.
         */
-        uint32_t Append(CSStr str, size_t len);
+        uint32_t Append(const SQChar * str, size_t len);
         /* ----------------------------------------------------------------------------------------
          * Append a formatted string to the message.
         */
-        uint32_t AppendF(CSStr str, ...);
+        uint32_t AppendF(const SQChar * str, ...);
         /* ----------------------------------------------------------------------------------------
          * Append a formatted string to the message.
         */
-        uint32_t AppendFv(CSStr str, va_list vl);
+        uint32_t AppendFv(const SQChar * str, va_list vl);
     };
 
 public:
@@ -155,8 +155,8 @@ private:
     MsgQueue        m_Queue; // Queue of messages outside of main thread.
 
     // --------------------------------------------------------------------------------------------
-    Uint8           m_ConsoleLevels; // The levels allowed to be outputted to console.
-    Uint8           m_LogFileLevels; // The levels allowed to be outputted to log file.
+    uint8_t           m_ConsoleLevels; // The levels allowed to be outputted to console.
+    uint8_t           m_LogFileLevels; // The levels allowed to be outputted to log file.
 
     // --------------------------------------------------------------------------------------------
     bool            m_ConsoleTime; // Whether console messages should be timestamped.
@@ -164,7 +164,7 @@ private:
     bool            m_CyclicLock; // Prevent the script callback from entering a loop.
 
     // --------------------------------------------------------------------------------------------
-    Uint32          m_StringTruncate; // The length at which to truncate strings in debug.
+    uint32_t          m_StringTruncate; // The length at which to truncate strings in debug.
 
     // --------------------------------------------------------------------------------------------
     std::FILE*      m_File; // Handle to the file where the logs should be saved.
@@ -228,7 +228,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Initialize the logging utility.
     */
-    void Initialize(CCStr filename);
+    void Initialize(const char * filename);
 
     /* --------------------------------------------------------------------------------------------
      * Terminate the logging utility.
@@ -256,7 +256,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether console message time stamping is enabled.
     */
-    bool ConsoleHasTime() const
+    SQMOD_NODISCARD bool ConsoleHasTime() const
     {
         return m_ConsoleTime;
     }
@@ -272,7 +272,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether log file message time stamping is enabled.
     */
-    bool LogFileHasTime() const
+    SQMOD_NODISCARD bool LogFileHasTime() const
     {
         return m_LogFileTime;
     }
@@ -280,7 +280,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Set the console level flags.
     */
-    void SetConsoleLevels(Uint8 levels)
+    void SetConsoleLevels(uint8_t levels)
     {
         m_ConsoleLevels = levels;
     }
@@ -288,7 +288,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the console level flags.
     */
-    Uint8 GetConsoleLevels() const
+    SQMOD_NODISCARD uint8_t GetConsoleLevels() const
     {
         return m_ConsoleLevels;
     }
@@ -296,7 +296,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Set the log file level flags.
     */
-    void SetLogFileLevels(Uint8 levels)
+    void SetLogFileLevels(uint8_t levels)
     {
         m_LogFileLevels = levels;
     }
@@ -304,7 +304,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the log file level flags.
     */
-    Uint8 GetLogFileLevels() const
+    SQMOD_NODISCARD uint8_t GetLogFileLevels() const
     {
         return m_LogFileLevels;
     }
@@ -312,7 +312,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Enable a certain console logging level.
     */
-    void EnableConsoleLevel(Uint8 level)
+    void EnableConsoleLevel(uint8_t level)
     {
         m_ConsoleLevels |= level;
     }
@@ -320,7 +320,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Disable a certain console logging level.
     */
-    void DisableConsoleLevel(Uint8 level)
+    void DisableConsoleLevel(uint8_t level)
     {
         if (m_ConsoleLevels & level)
         {
@@ -331,7 +331,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Toggle a certain console logging level.
     */
-    void ToggleConsoleLevel(Uint8 level, bool toggle)
+    void ToggleConsoleLevel(uint8_t level, bool toggle)
     {
         if (toggle)
         {
@@ -346,7 +346,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Enable a certain log file logging level.
     */
-    void EnableLogFileLevel(Uint8 level)
+    void EnableLogFileLevel(uint8_t level)
     {
         m_LogFileLevels |= level;
     }
@@ -354,7 +354,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Disable a certain log file logging level.
     */
-    void DisableLogFileLevel(Uint8 level)
+    void DisableLogFileLevel(uint8_t level)
     {
         m_LogFileLevels |= level;
         m_LogFileLevels ^= level;
@@ -363,7 +363,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Toggle a certain log file logging level.
     */
-    void ToggleLogFileLevel(Uint8 level, bool toggle)
+    void ToggleLogFileLevel(uint8_t level, bool toggle)
     {
         if (toggle)
         {
@@ -378,7 +378,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the number of characters that strings will be truncated in debug output.
     */
-    Uint32 GetStringTruncate() const
+    SQMOD_NODISCARD uint32_t GetStringTruncate() const
     {
         return m_StringTruncate;
     }
@@ -386,7 +386,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the number of characters that strings will be truncated in debug output.
     */
-    void SetStringTruncate(Uint32 nc)
+    void SetStringTruncate(uint32_t nc)
     {
         m_StringTruncate = nc;
     }
@@ -394,7 +394,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the log file name.
     */
-    const std::string & GetLogFilename() const
+    SQMOD_NODISCARD const std::string & GetLogFilename() const
     {
         return m_Filename;
     }
@@ -402,37 +402,37 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the log file name.
     */
-    void SetLogFilename(CCStr filename);
+    void SetLogFilename(const char * filename);
 
     /* --------------------------------------------------------------------------------------------
      * Bind a script callback to a log level.
     */
-    void BindCb(Uint8 level, Function & func);
+    void BindCb(uint8_t level, Function & func);
 
     /* --------------------------------------------------------------------------------------------
      * Send a log message.
     */
-    void Send(Uint8 level, bool sub, CCStr msg, size_t len);
+    void Send(uint8_t level, bool sub, const char * msg, size_t len);
 
     /* --------------------------------------------------------------------------------------------
      * Send a log message.
     */
-    void SendFv(Uint8 level, bool sub, CCStr fmt, va_list args);
+    void SendFv(uint8_t level, bool sub, const char * fmt, va_list args);
 
     /* --------------------------------------------------------------------------------------------
      * Write a log message.
     */
-    void WriteF(Uint8 level, bool sub, CCStr fmt, ...);
+    void WriteF(uint8_t level, bool sub, const char * fmt, ...);
 
     /* --------------------------------------------------------------------------------------------
      * Generate a debug message.
     */
-    void DebugF(HSQUIRRELVM vm, CCStr fmt, ...);
+    void DebugF(HSQUIRRELVM vm, const char * fmt, ...);
 
     /* --------------------------------------------------------------------------------------------
      * Generate a debug message.
     */
-    void DebugFv(HSQUIRRELVM vm, CCStr fmt, va_list args);
+    void DebugFv(HSQUIRRELVM vm, const char * fmt, va_list args);
 
 private:
 
@@ -445,16 +445,16 @@ private:
 /* ------------------------------------------------------------------------------------------------
  * Raw console message output.
 */
-void OutputDebug(CCStr msg, ...);
+void OutputDebug(const char * msg, ...);
 
 /* ------------------------------------------------------------------------------------------------
  * Raw console message output.
 */
-void OutputMessage(CCStr msg, ...);
+void OutputMessage(const char * msg, ...);
 
 /* ------------------------------------------------------------------------------------------------
  * Raw console message output.
 */
-void OutputError(CCStr msg, ...);
+void OutputError(const char * msg, ...);
 
 } // Namespace:: SqMod

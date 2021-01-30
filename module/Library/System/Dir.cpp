@@ -5,8 +5,8 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQMODE_DECL_TYPENAME(TypenameD, _SC("SqSysDir"))
-SQMODE_DECL_TYPENAME(TypenameF, _SC("SqSysFile"))
+SQMOD_DECL_TYPENAME(TypenameD, _SC("SqSysDir"))
+SQMOD_DECL_TYPENAME(TypenameF, _SC("SqSysFile"))
 
 // ------------------------------------------------------------------------------------------------
 LightObj SysDir::ReadFile() const
@@ -68,7 +68,7 @@ LightObj SysDir::ReadFileAt(SQInteger i) const
   	// The file handle where it will be opened
   	tinydir_file * handle = ptr->GetOrMake();
   	// Attempt to read the current file
-  	if (tinydir_readfile_n(mHandle.get(), handle, i) == -1)
+  	if (tinydir_readfile_n(mHandle.get(), handle, static_cast< size_t >(i)) == -1)
   	{
   		STHROWF("Failed to read file at index (" PRINT_INT_FMT ")", i);
   	}

@@ -2,15 +2,13 @@
 #include "Library/Chrono/Timestamp.hpp"
 #include "Library/Chrono/Timer.hpp"
 #include "Library/Chrono/Date.hpp"
-#include "Library/Chrono/Time.hpp"
-#include "Library/Chrono/Datetime.hpp"
-#include "Library/Numeric/LongInt.hpp"
+#include "Library/Numeric/Long.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQMODE_DECL_TYPENAME(Typename, _SC("SqTimestamp"))
+SQMOD_DECL_TYPENAME(Typename, _SC("SqTimestamp"))
 
 // ------------------------------------------------------------------------------------------------
 Timestamp::Timestamp(const SLongInt & t)
@@ -20,7 +18,7 @@ Timestamp::Timestamp(const SLongInt & t)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 Timestamp::Cmp(const Timestamp & o) const
+int32_t Timestamp::Cmp(const Timestamp & o) const
 {
     if (m_Timestamp == o.m_Timestamp)
     {
@@ -37,9 +35,9 @@ Int32 Timestamp::Cmp(const Timestamp & o) const
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr Timestamp::ToString() const
+String Timestamp::ToString() const
 {
-    return ToStrF("%lld", m_Timestamp);
+    return fmt::format("{}", m_Timestamp);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -55,9 +53,9 @@ SLongInt Timestamp::GetMicroseconds() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Timestamp::SetMicroseconds(const SLongInt & ammount)
+void Timestamp::SetMicroseconds(const SLongInt & amount)
 {
-    m_Timestamp = ammount.GetNum();
+    m_Timestamp = amount.GetNum();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -67,9 +65,9 @@ SLongInt Timestamp::GetMilliseconds() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Timestamp::SetMilliseconds(const SLongInt & ammount)
+void Timestamp::SetMilliseconds(const SLongInt & amount)
 {
-    m_Timestamp = (ammount.GetNum() * 1000L);
+    m_Timestamp = (amount.GetNum() * 1000L);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -79,51 +77,51 @@ static Timestamp SqGetEpochTimeNow()
 }
 
 // ------------------------------------------------------------------------------------------------
-static Timestamp SqGetMicrosecondsRaw(Int64 ammount)
+static Timestamp SqGetMicrosecondsRaw(int64_t amount)
 {
-    return Timestamp(ammount);
+    return Timestamp(amount);
 }
 
 // ------------------------------------------------------------------------------------------------
-static Timestamp SqGetMicroseconds(const SLongInt & ammount)
+static Timestamp SqGetMicroseconds(const SLongInt & amount)
 {
-    return Timestamp(ammount);
+    return Timestamp(amount);
 }
 
 // ------------------------------------------------------------------------------------------------
-static Timestamp SqGetMilliseconds(SQInteger ammount)
+static Timestamp SqGetMilliseconds(SQInteger amount)
 {
-    return Timestamp(Int64(Int64(ammount) * 1000L));
+    return Timestamp(int64_t(int64_t(amount) * 1000L));
 }
 
 // ------------------------------------------------------------------------------------------------
-static Timestamp SqGetSeconds(SQFloat ammount)
+static Timestamp SqGetSeconds(SQFloat amount)
 {
-    return Timestamp(Int64(Float64(ammount) * 1000000L));
+    return Timestamp(int64_t(double(amount) * 1000000L));
 }
 
 // ------------------------------------------------------------------------------------------------
-static Timestamp SqGetMinutes(SQFloat ammount)
+static Timestamp SqGetMinutes(SQFloat amount)
 {
-    return Timestamp(Int64((Float64(ammount) * 60000000L)));
+    return Timestamp(int64_t((double(amount) * 60000000L)));
 }
 
 // ------------------------------------------------------------------------------------------------
-static Timestamp SqGetHours(SQFloat ammount)
+static Timestamp SqGetHours(SQFloat amount)
 {
-    return Timestamp(Int64(Float64(ammount) * 3600000000LL));
+    return Timestamp(int64_t(double(amount) * 3600000000LL));
 }
 
 // ------------------------------------------------------------------------------------------------
-static Timestamp SqGetDays(SQFloat ammount)
+static Timestamp SqGetDays(SQFloat amount)
 {
-    return Timestamp(Int64(Float64(ammount) * 86400000000LL));
+    return Timestamp(int64_t(double(amount) * 86400000000LL));
 }
 
 // ------------------------------------------------------------------------------------------------
-static Timestamp SqGetYears(SQFloat ammount)
+static Timestamp SqGetYears(SQFloat amount)
 {
-    return Timestamp(Int64(Float64(ammount) * 31557600000000LL));
+    return Timestamp(int64_t(double(amount) * 31557600000000LL));
 }
 
 // ================================================================================================
@@ -174,7 +172,6 @@ void Register_ChronoTimestamp(HSQUIRRELVM vm, Table & /*cns*/)
         .StaticFunc(_SC("GetDays"), &SqGetDays)
         .StaticFunc(_SC("GetYears"), &SqGetYears)
     );
-;
 }
 
 } // Namespace:: SqMod

@@ -1,28 +1,26 @@
 // ------------------------------------------------------------------------------------------------
 #include "Library/Chrono/Time.hpp"
-#include "Library/Chrono/Date.hpp"
-#include "Library/Chrono/Datetime.hpp"
 #include "Library/Chrono/Timestamp.hpp"
-#include "Base/Shared.hpp"
+#include "Core/Utility.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQMODE_DECL_TYPENAME(Typename, _SC("SqTime"))
+SQMOD_DECL_TYPENAME(Typename, _SC("SqTime"))
 
 // ------------------------------------------------------------------------------------------------
 SQChar Time::Delimiter = ':';
 
 // ------------------------------------------------------------------------------------------------
-Int32 Time::Compare(const Time & o) const
+int32_t Time::Compare(const Time & o) const
 {
     if (m_Hour < o.m_Hour)
-    {
+    { // NOLINT(bugprone-branch-clone)
         return -1;
     }
     else if (m_Hour > o.m_Hour)
-    {
+    { // NOLINT(bugprone-branch-clone)
         return 1;
     }
     else if (m_Minute < o.m_Minute)
@@ -80,9 +78,9 @@ Time Time::operator / (const Time & o) const
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr Time::ToString() const
+String Time::ToString() const
 {
-    return ToStrF("%02u%c%02u%c%02u%c%u",
+    return fmt::format("{:02}{}{:02}{}{:02}{}{}",
                     m_Hour, m_Delimiter,
                     m_Minute, m_Delimiter,
                     m_Second, m_Delimiter,
@@ -90,7 +88,7 @@ CSStr Time::ToString() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Time::Set(Uint8 hour, Uint8 minute, Uint8 second, Uint16 millisecond)
+void Time::Set(uint8_t hour, uint8_t minute, uint8_t second, uint16_t millisecond)
 {
     // Is the specified hour within range?
     if (hour >= 24)
@@ -120,7 +118,7 @@ void Time::Set(Uint8 hour, Uint8 minute, Uint8 second, Uint16 millisecond)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Time::SetStr(CSStr str)
+void Time::SetStr(const SQChar * str)
 {
     // The format specifications that will be used to scan the string
     static SQChar fs[] = _SC(" %u : %u : %u : %u ");
@@ -140,19 +138,19 @@ void Time::SetStr(CSStr str)
     fs[9] = m_Delimiter;
     fs[14] = m_Delimiter;
     // The sscanf function requires at least 32 bit integers
-    Uint32 hour = 0, minute = 0, second = 0, milli = 0;
+    uint32_t hour = 0, minute = 0, second = 0, milli = 0;
     // Attempt to extract the component values from the specified string
     sscanf(str, fs, &hour, &minute, &second, &milli);
     // Clamp the extracted values to the boundaries of associated type and assign them
-    Set(ClampL< Uint32, Uint8 >(hour),
-        ClampL< Uint32, Uint8 >(minute),
-        ClampL< Uint32, Uint8 >(second),
-        ClampL< Uint32, Uint16 >(milli)
+    Set(ClampL< uint32_t, uint8_t >(hour),
+        ClampL< uint32_t, uint8_t >(minute),
+        ClampL< uint32_t, uint8_t >(second),
+        ClampL< uint32_t, uint16_t >(milli)
     );
 }
 
 // ------------------------------------------------------------------------------------------------
-void Time::SetHour(Uint8 hour)
+void Time::SetHour(uint8_t hour)
 {
     // Is the specified hour within range?
     if (hour >= 24)
@@ -164,7 +162,7 @@ void Time::SetHour(Uint8 hour)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Time::SetMinute(Uint8 minute)
+void Time::SetMinute(uint8_t minute)
 {
     // Is the specified minute within range?
     if (minute >= 60)
@@ -176,7 +174,7 @@ void Time::SetMinute(Uint8 minute)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Time::SetSecond(Uint8 second)
+void Time::SetSecond(uint8_t second)
 {
     // Is the specified second within range?
     if (second >= 60)
@@ -188,7 +186,7 @@ void Time::SetSecond(Uint8 second)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Time::SetMillisecond(Uint16 millisecond)
+void Time::SetMillisecond(uint16_t millisecond)
 {
     // Is the specified millisecond within range?
     if (millisecond >= 1000)
@@ -200,7 +198,7 @@ void Time::SetMillisecond(Uint16 millisecond)
 }
 
 // ------------------------------------------------------------------------------------------------
-Time & Time::AddHours(Int32 hours)
+Time & Time::AddHours(int32_t hours)
 {
     // Did we even add any hours?
     if (hours)
@@ -215,13 +213,13 @@ Time & Time::AddHours(Int32 hours)
 }
 
 // ------------------------------------------------------------------------------------------------
-Time & Time::AddMinutes(Int32 minutes)
+Time & Time::AddMinutes(int32_t minutes)
 {
     // Did we even add any minutes?
     if (minutes)
     {
         // Extract the number of hours
-        Int32 hours = static_cast< Int32 >(minutes / 60);
+        auto hours = static_cast< int32_t >(minutes / 60);
         // Extract the number of minutes
         m_Minute += (minutes % 60);
         // Are the minutes overlapping with the next hour?
@@ -243,13 +241,13 @@ Time & Time::AddMinutes(Int32 minutes)
 }
 
 // ------------------------------------------------------------------------------------------------
-Time & Time::AddSeconds(Int32 seconds)
+Time & Time::AddSeconds(int32_t seconds)
 {
     // Did we even add any seconds?
     if (seconds)
     {
         // Extract the number of minutes
-        Int32 minutes = static_cast< Int32 >(seconds / 60);
+        auto minutes = static_cast< int32_t >(seconds / 60);
         // Extract the number of seconds
         m_Second += (seconds % 60);
         // Are the seconds overlapping with the next minute?
@@ -271,13 +269,13 @@ Time & Time::AddSeconds(Int32 seconds)
 }
 
 // ------------------------------------------------------------------------------------------------
-Time & Time::AddMilliseconds(Int32 milliseconds)
+Time & Time::AddMilliseconds(int32_t milliseconds)
 {
     // Did we even add any milliseconds?
     if (milliseconds)
     {
         // Extract the number of seconds
-        Int32 seconds = static_cast< Int32 >(milliseconds / 1000);
+        auto seconds = static_cast< int32_t >(milliseconds / 1000);
         // Extract the number of milliseconds
         m_Millisecond += (milliseconds / 1000);
         // Are the milliseconds overlapping with the next second?
@@ -299,19 +297,19 @@ Time & Time::AddMilliseconds(Int32 milliseconds)
 }
 
 // ------------------------------------------------------------------------------------------------
-Time Time::AndHours(Int32 hours)
+Time Time::AndHours(int32_t hours)
 {
     // Did we even add any hours?
     if (hours)
     {
-        return Time((m_Hour + (hours % 24)) % 24, m_Minute, m_Second, m_Millisecond);
+        return Time(static_cast< uint8_t >((m_Hour + (hours % 24)) % 24), m_Minute, m_Second, m_Millisecond);
     }
     // Return the time as is
     return Time(*this);
 }
 
 // ------------------------------------------------------------------------------------------------
-Time Time::AndMinutes(Int32 minutes)
+Time Time::AndMinutes(int32_t minutes)
 {
     // Did we even added any minutes?
     if (!minutes)
@@ -319,7 +317,7 @@ Time Time::AndMinutes(Int32 minutes)
         return Time(*this); // Return the time as is
     }
     // Extract the number of hours
-    Int32 hours =  static_cast< Int32 >(minutes / 60);
+    auto hours =  static_cast< int32_t >(minutes / 60);
     // Extract the number of minutes
     minutes = m_Minute + (minutes % 60);
     // Are the minutes overlapping with the next hour?
@@ -335,13 +333,13 @@ Time Time::AndMinutes(Int32 minutes)
         t.AddHours(hours);
     }
     // Assign the resulted minutes
-    t.m_Minute = (minutes % 60);
+    t.m_Minute = static_cast< uint8_t >(minutes % 60);
     // Return the result
     return t;
 }
 
 // ------------------------------------------------------------------------------------------------
-Time Time::AndSeconds(Int32 seconds)
+Time Time::AndSeconds(int32_t seconds)
 {
     // Did we even added any seconds?
     if (!seconds)
@@ -349,7 +347,7 @@ Time Time::AndSeconds(Int32 seconds)
         return Time(*this); // Return the time as is
     }
     // Extract the number of minutes
-    Int32 minutes = static_cast< Int32 >(seconds / 60);
+    auto minutes = static_cast< int32_t >(seconds / 60);
     // Extract the number of seconds
     seconds = m_Second + (seconds % 60);
     // Are the seconds overlapping with the next minute?
@@ -365,13 +363,13 @@ Time Time::AndSeconds(Int32 seconds)
         t.AddMinutes(minutes);
     }
     // Assign the resulted seconds
-    t.m_Second = (seconds % 60);
+    t.m_Second = static_cast< uint8_t >(seconds % 60);
     // Return the result
     return t;
 }
 
 // ------------------------------------------------------------------------------------------------
-Time Time::AndMilliseconds(Int32 milliseconds)
+Time Time::AndMilliseconds(int32_t milliseconds)
 {
     // Did we even added any milliseconds?
     if (!milliseconds)
@@ -379,7 +377,7 @@ Time Time::AndMilliseconds(Int32 milliseconds)
         return Time(*this); // Return the time as is
     }
     // Extract the number of seconds
-    Int32 seconds = static_cast< Int32 >(milliseconds / 1000);
+    auto seconds = static_cast< int32_t >(milliseconds / 1000);
     // Extract the number of milliseconds
     milliseconds = m_Millisecond + (milliseconds % 1000);
     // Are the milliseconds overlapping with the next second?
@@ -395,7 +393,7 @@ Time Time::AndMilliseconds(Int32 milliseconds)
         t.AddSeconds(seconds);
     }
     // Assign the resulted milliseconds
-    t.m_Millisecond = (milliseconds % 1000);
+    t.m_Millisecond = static_cast< uint16_t >(milliseconds % 1000);
     // Return the result
     return t;
 }
@@ -404,10 +402,10 @@ Time Time::AndMilliseconds(Int32 milliseconds)
 Timestamp Time::GetTimestamp() const
 {
     // Calculate the microseconds in the current time
-    Int64 ms = static_cast< Int64 >(m_Hour * 3600000000LL);
-    ms += static_cast< Int64 >(m_Minute * 60000000L);
-    ms += static_cast< Int64 >(m_Second * 1000000L);
-    ms += static_cast< Int64 >(m_Millisecond * 1000L);
+    auto ms = static_cast< int64_t >(m_Hour * 3600000000LL);
+    ms += static_cast< int64_t >(m_Minute * 60000000L);
+    ms += static_cast< int64_t >(m_Second * 1000000L);
+    ms += static_cast< int64_t >(m_Millisecond * 1000L);
     // Return the resulted timestamp
     return Timestamp(ms);
 }
@@ -419,10 +417,10 @@ void Register_ChronoTime(HSQUIRRELVM vm, Table & /*cns*/)
         Class< Time >(vm, Typename::Str)
         // Constructors
         .Ctor()
-        .Ctor< Uint8 >()
-        .Ctor< Uint8, Uint8 >()
-        .Ctor< Uint8, Uint8, Uint8 >()
-        .Ctor< Uint8, Uint8, Uint8, Uint16 >()
+        .Ctor< uint8_t >()
+        .Ctor< uint8_t, uint8_t >()
+        .Ctor< uint8_t, uint8_t, uint8_t >()
+        .Ctor< uint8_t, uint8_t, uint8_t, uint16_t >()
         // Static Properties
         .SetStaticValue(_SC("GlobalDelimiter"), &Time::Delimiter)
         // Core Meta-methods
@@ -454,10 +452,10 @@ void Register_ChronoTime(HSQUIRRELVM vm, Table & /*cns*/)
         .Func(_SC("AndMillis"), &Time::AndMilliseconds)
         .Func(_SC("AndMilliseconds"), &Time::AndMilliseconds)
         // Overloaded Methods
-        .Overload< void (Time::*)(Uint8) >(_SC("Set"), &Time::Set)
-        .Overload< void (Time::*)(Uint8, Uint8) >(_SC("Set"), &Time::Set)
-        .Overload< void (Time::*)(Uint8, Uint8, Uint8) >(_SC("Set"), &Time::Set)
-        .Overload< void (Time::*)(Uint8, Uint8, Uint8, Uint16) >(_SC("Set"), &Time::Set)
+        .Overload< void (Time::*)(uint8_t) >(_SC("Set"), &Time::Set)
+        .Overload< void (Time::*)(uint8_t, uint8_t) >(_SC("Set"), &Time::Set)
+        .Overload< void (Time::*)(uint8_t, uint8_t, uint8_t) >(_SC("Set"), &Time::Set)
+        .Overload< void (Time::*)(uint8_t, uint8_t, uint8_t, uint16_t) >(_SC("Set"), &Time::Set)
     );
 }
 

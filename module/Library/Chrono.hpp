@@ -1,7 +1,7 @@
 #pragma once
 
 // ------------------------------------------------------------------------------------------------
-#include "SqBase.hpp"
+#include "Core/Common.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -21,7 +21,7 @@ class Chrono
 public:
 
     // ------------------------------------------------------------------------------------------------
-    static const Uint8  MonthLengths[12];
+    static const uint8_t  MonthLengths[12];
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor. (disabled)
@@ -56,27 +56,27 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the current time as microseconds.
     */
-    static Int64 GetCurrentSysTime();
+    static int64_t GetCurrentSysTime();
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the epoch time as microseconds.
     */
-    static Int64 GetEpochTimeMicro();
+    static int64_t GetEpochTimeMicro();
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the epoch time as milliseconds.
     */
-    static Int64 GetEpochTimeMilli();
+    static int64_t GetEpochTimeMilli();
 
     /* --------------------------------------------------------------------------------------------
      * See whether the specified date is valid.
     */
-    static bool ValidDate(Uint16 year, Uint8 month, Uint8 day);
+    static bool ValidDate(uint16_t year, uint8_t month, uint8_t day);
 
     /* --------------------------------------------------------------------------------------------
      * See whether the specified year is a leap year.
     */
-    static bool IsLeapYear(Uint16 year)
+    static bool IsLeapYear(uint16_t year)
     {
         return !(year % 400) || (!(year % 4) && (year % 100));
     }
@@ -84,7 +84,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * retrieve the number of days in the specified year.
     */
-    static Uint16 DaysInYear(Uint16 year)
+    static uint16_t DaysInYear(uint16_t year)
     {
         return IsLeapYear(year) ? 366 : 365;
     }
@@ -92,22 +92,22 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the number of days in the specified month.
     */
-    static Uint8 DaysInMonth(Uint16 year, Uint8 month);
+    static uint8_t DaysInMonth(uint16_t year, uint8_t month);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the number/position of the specified day in the specified year and month.
     */
-    static Uint16 DayOfYear(Uint16 year, Uint8 month, Uint8 day);
+    static uint16_t DayOfYear(uint16_t year, uint8_t month, uint8_t day);
 
     /* --------------------------------------------------------------------------------------------
      * Convert just the year and day of year to full date.
     */
-    static Date ReverseDayOfyear(Uint16 year, Uint16 doy);
+    static Date ReverseDayOfYear(uint16_t year, uint16_t doy);
 
     /* --------------------------------------------------------------------------------------------
      * Calculate the number of days in the specified date range.
     */
-    static Int64 DateRangeToSeconds(Uint16 _year, Uint8 _month, Uint8 _day, Uint16 year_, Uint8 month_, Uint8 day_);
+    static int64_t DateRangeToSeconds(uint16_t _year, uint8_t _month, uint8_t _day, uint16_t year_, uint8_t month_, uint8_t day_);
 };
 
 } // Namespace:: SqMod

@@ -1,11 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Misc/Weapon.hpp"
-#include "Base/Shared.hpp"
-
-// ------------------------------------------------------------------------------------------------
-#include <cstring>
-#include <algorithm>
-#include <unordered_map>
+#include "Core/Utility.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -50,16 +45,16 @@ static String CS_Weapon_Names[] = { // NOLINT(cert-err58-cpp)
     /* 70 */ "Suicide",                     /* 71 */ ""
 };
 /// Fall back for custom weapon names.
-static std::unordered_map<Uint32, String> CS_Custom_Weapon_Names{};
+static std::unordered_map<uint32_t, String> CS_Custom_Weapon_Names{};
 
 // ------------------------------------------------------------------------------------------------
-static inline bool IsCustomWeapon(Uint32 id)
+static inline bool IsCustomWeapon(uint32_t id)
 {
 	return (id > 70);
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint32 GetWeaponSlot(Uint32 id)
+uint32_t GetWeaponSlot(uint32_t id)
 {
 	switch(id) {
         case 0:
@@ -110,7 +105,7 @@ Uint32 GetWeaponSlot(Uint32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-CCStr GetWeaponName(Uint32 id)
+const char * GetWeaponName(uint32_t id)
 {
 	// Can we consider this a custom weapon ID?
 	if (IsCustomWeapon(id))
@@ -132,7 +127,7 @@ CCStr GetWeaponName(Uint32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetWeaponName(Uint32 id, StackStrF & name)
+void SetWeaponName(uint32_t id, StackStrF & name)
 {
 	// Can we consider this a custom weapon ID?
 	if (IsCustomWeapon(id))
@@ -148,9 +143,9 @@ void SetWeaponName(Uint32 id, StackStrF & name)
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint32 GetCustomWeaponNamePoolSize()
+uint32_t GetCustomWeaponNamePoolSize()
 {
-	return static_cast< Uint32 >(CS_Custom_Weapon_Names.size());
+	return static_cast< uint32_t >(CS_Custom_Weapon_Names.size());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -160,7 +155,7 @@ void ClearCustomWeaponNamePool()
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetWeaponID(StackStrF & name)
+int32_t GetWeaponID(StackStrF & name)
 {
     // Clone the string into an editable version
     String str(name.mPtr, static_cast< size_t >(name.mLen));
@@ -174,7 +169,7 @@ Int32 GetWeaponID(StackStrF & name)
         return SQMOD_UNKNOWN;
     }
     // Grab the actual length of the string
-    const Uint32 len = ConvTo< Uint32 >::From(str.length());
+    const uint32_t len = ConvTo< uint32_t >::From(str.length());
     // Get the most significant characters used to identify a weapon
     CharT a = str[0], b = 0, c = 0, d = str[len-1];
     // Look for deeper specifiers
@@ -369,14 +364,14 @@ Int32 GetWeaponID(StackStrF & name)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool IsWeaponValid(Int32 id)
+bool IsWeaponValid(int32_t id)
 {
-    CSStr name = GetWeaponName(static_cast< Uint32 >(id));
+    const SQChar * name = GetWeaponName(static_cast< uint32_t >(id));
     return (name && *name != '\0');
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 WeaponToModel(Int32 id)
+int32_t WeaponToModel(int32_t id)
 {
     switch (id)
     {
@@ -421,7 +416,7 @@ Int32 WeaponToModel(Int32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool IsWeaponNatural(Int32 id)
+bool IsWeaponNatural(int32_t id)
 {
     switch (id)
     {

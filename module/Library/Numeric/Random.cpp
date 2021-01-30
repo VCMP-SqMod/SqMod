@@ -1,13 +1,12 @@
 // ------------------------------------------------------------------------------------------------
 #include "Library/Numeric/Random.hpp"
-#include "Base/Shared.hpp"
-#include "Base/Buffer.hpp"
+#include "Core/Common.hpp"
+#include "Core/Buffer.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <ctime>
 #include <memory>
 #include <random>
-#include <cstdlib>
 
 // ------------------------------------------------------------------------------------------------
 #ifdef SQMOD_OS_WINDOWS
@@ -21,52 +20,52 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-static std::unique_ptr< std::mt19937 >          RG32_MT19937 =
-                            std::unique_ptr< std::mt19937 >(new std::mt19937(GenerateSeed()));
+static std::unique_ptr< std::mt19937 >          RG32_MT19937 = // NOLINT(cert-err58-cpp)
+                            std::make_unique< std::mt19937 >(GenerateSeed());
 
-static std::unique_ptr< std::mt19937_64 >       RG64_MT19937 =
-                            std::unique_ptr< std::mt19937_64 >(new std::mt19937_64(GenerateSeed()));
+static std::unique_ptr< std::mt19937_64 >       RG64_MT19937 = // NOLINT(cert-err58-cpp)
+                            std::make_unique< std::mt19937_64 >(GenerateSeed());
 
 // ------------------------------------------------------------------------------------------------
-static std::uniform_int_distribution< Int8 >    Int8_Dist(std::numeric_limits< Int8 >::min(),
-                                                            std::numeric_limits< Int8 >::max());
-static std::uniform_int_distribution< Uint8 >   Uint8_Dist(std::numeric_limits< Uint8 >::min(),
-                                                            std::numeric_limits< Uint8 >::max());
+static std::uniform_int_distribution< int8_t >    Int8_Dist(std::numeric_limits< int8_t >::min(), // NOLINT(cert-err58-cpp)
+                                                            std::numeric_limits< int8_t >::max());
+static std::uniform_int_distribution< uint8_t >   uint8_t_Dist(std::numeric_limits< uint8_t >::min(), // NOLINT(cert-err58-cpp)
+                                                            std::numeric_limits< uint8_t >::max());
 
-static std::uniform_int_distribution< Int16 >   Int16_Dist(std::numeric_limits< Int16 >::min(),
-                                                            std::numeric_limits< Int16 >::max());
-static std::uniform_int_distribution< Uint16 >  Uint16_Dist(std::numeric_limits< Uint16 >::min(),
-                                                            std::numeric_limits< Uint16 >::max());
+static std::uniform_int_distribution< int16_t >   Int16_Dist(std::numeric_limits< int16_t >::min(), // NOLINT(cert-err58-cpp)
+                                                            std::numeric_limits< int16_t >::max());
+static std::uniform_int_distribution< uint16_t >  Uint16_Dist(std::numeric_limits< uint16_t >::min(), // NOLINT(cert-err58-cpp)
+                                                            std::numeric_limits< uint16_t >::max());
 
-static std::uniform_int_distribution< Int32 >   Int32_Dist(std::numeric_limits< Int32 >::min(),
-                                                            std::numeric_limits< Int32 >::max());
-static std::uniform_int_distribution< Uint32 >  Uint32_Dist(std::numeric_limits< Uint32 >::min(),
-                                                            std::numeric_limits< Uint32 >::max());
+static std::uniform_int_distribution< int32_t >   Int32_Dist(std::numeric_limits< int32_t >::min(), // NOLINT(cert-err58-cpp)
+                                                            std::numeric_limits< int32_t >::max());
+static std::uniform_int_distribution< uint32_t >  Uint32_Dist(std::numeric_limits< uint32_t >::min(), // NOLINT(cert-err58-cpp)
+                                                            std::numeric_limits< uint32_t >::max());
 
-static std::uniform_int_distribution< Int64 >   Int64_Dist(std::numeric_limits< Int64 >::min(),
-                                                            std::numeric_limits< Int64 >::max());
-static std::uniform_int_distribution< Uint64 >  Uint64_Dist(std::numeric_limits< Uint64 >::min(),
-                                                            std::numeric_limits< Uint64 >::max());
+static std::uniform_int_distribution< int64_t >   Int64_Dist(std::numeric_limits< int64_t >::min(), // NOLINT(cert-err58-cpp)
+                                                            std::numeric_limits< int64_t >::max());
+static std::uniform_int_distribution< uint64_t >  Uint64_Dist(std::numeric_limits< uint64_t >::min(), // NOLINT(cert-err58-cpp)
+                                                            std::numeric_limits< uint64_t >::max());
 
-static std::uniform_real_distribution<Float32>  Float32_Dist(std::numeric_limits< Float32 >::min(),
-                                                            std::numeric_limits< Float32 >::max());
-static std::uniform_real_distribution<Float64>  Float64_Dist(std::numeric_limits< Float64 >::min(),
-                                                            std::numeric_limits< Float64 >::max());
+static std::uniform_real_distribution<float>  Float32_Dist(std::numeric_limits< float >::min(), // NOLINT(cert-err58-cpp)
+                                                            std::numeric_limits< float >::max());
+static std::uniform_real_distribution<double>  Float64_Dist(std::numeric_limits< double >::min(), // NOLINT(cert-err58-cpp)
+                                                            std::numeric_limits< double >::max());
 
 // ------------------------------------------------------------------------------------------------
 static std::uniform_int_distribution< String::value_type >
-                                    String_Dist(std::numeric_limits< String::value_type >::min(),
+                                    String_Dist(std::numeric_limits< String::value_type >::min(), // NOLINT(cert-err58-cpp)
                                                 std::numeric_limits< String::value_type >::max());
 
 // ------------------------------------------------------------------------------------------------
-SizeT GenerateSeed()
+uint32_t GenerateSeed()
 {
-    Ulong a = clock();
-    Ulong b = time(NULL);
+    unsigned long a = clock();
+    unsigned long b = time(nullptr);
 #ifdef SQMOD_OS_WINDOWS
-    Ulong c = _getpid();
+    unsigned long c = _getpid();
 #else
-    Ulong c = getpid();
+    unsigned long c = getpid();
 #endif
     // Mangle
     a=a-b;  a=a-c;  a=a^(c >> 13);
@@ -83,9 +82,9 @@ SizeT GenerateSeed()
 }
 
 // ------------------------------------------------------------------------------------------------
-SizeT GenerateSeed2()
+size_t GenerateSeed2()
 {
-    struct {
+    struct { // NOLINT(cppcoreguidelines-pro-type-member-init)
         std::clock_t    c;
         std::time_t     t;
 #ifdef SQMOD_OS_WINDOWS
@@ -108,199 +107,199 @@ SizeT GenerateSeed2()
 // ------------------------------------------------------------------------------------------------
 void ReseedRandom()
 {
-    RG32_MT19937.reset(new std::mt19937(GenerateSeed()));
-    RG64_MT19937.reset(new std::mt19937_64(GenerateSeed()));
+    RG32_MT19937 = std::make_unique<std::mt19937>(GenerateSeed());
+    RG64_MT19937 = std::make_unique<std::mt19937_64>(GenerateSeed());
 }
 
-void ReseedRandom(Uint32 n)
+void ReseedRandom(uint32_t n)
 {
-    RG32_MT19937.reset(new std::mt19937(n));
-    RG64_MT19937.reset(new std::mt19937_64(n));
+    RG32_MT19937 = std::make_unique<std::mt19937>(n);
+    RG64_MT19937 = std::make_unique<std::mt19937_64>(n);
 }
 
 // ------------------------------------------------------------------------------------------------
 void ReseedRandom32()
 {
-    RG32_MT19937.reset(new std::mt19937(GenerateSeed()));
+    RG32_MT19937 = std::make_unique<std::mt19937>(GenerateSeed());
 }
 
-void ReseedRandom32(Uint32 n)
+void ReseedRandom32(uint32_t n)
 {
-    RG32_MT19937.reset(new std::mt19937(n));
+    RG32_MT19937 = std::make_unique<std::mt19937>(n);
 }
 
 // ------------------------------------------------------------------------------------------------
 void ReseedRandom64()
 {
-    RG64_MT19937.reset(new std::mt19937_64(GenerateSeed()));
+    RG64_MT19937 = std::make_unique<std::mt19937_64>(GenerateSeed());
 }
 
-void ReseedRandom64(Uint32 n)
+void ReseedRandom64(uint32_t n)
 {
-    RG64_MT19937.reset(new std::mt19937_64(n));
+    RG64_MT19937 = std::make_unique<std::mt19937_64>(n);
 }
 
 // ------------------------------------------------------------------------------------------------
-Int8 GetRandomInt8()
+int8_t GetRandomInt8()
 {
     return Int8_Dist(*RG32_MT19937);
 }
 
-Int8 GetRandomInt8(Int8 n)
+int8_t GetRandomInt8(int8_t n)
 {
-    return std::uniform_int_distribution< Int8 >(0, n)(*RG32_MT19937);
+    return std::uniform_int_distribution< int8_t >(0, n)(*RG32_MT19937);
 }
 
-Int8 GetRandomInt8(Int8 m, Int8 n)
+int8_t GetRandomInt8(int8_t m, int8_t n)
 {
-    return std::uniform_int_distribution< Int8 >(m, n)(*RG32_MT19937);
-}
-
-// ------------------------------------------------------------------------------------------------
-Uint8 GetRandomUint8()
-{
-    return Uint8_Dist(*RG32_MT19937);
-}
-
-Uint8 GetRandomUint8(Uint8 n)
-{
-    return std::uniform_int_distribution< Uint8 >(0, n)(*RG32_MT19937);
-}
-
-Uint8 GetRandomUint8(Uint8 m, Uint8 n)
-{
-    return std::uniform_int_distribution< Uint8 >(m, n)(*RG32_MT19937);
+    return std::uniform_int_distribution< int8_t >(m, n)(*RG32_MT19937);
 }
 
 // ------------------------------------------------------------------------------------------------
-Int16 GetRandomInt16()
+uint8_t GetRandomUint8()
+{
+    return uint8_t_Dist(*RG32_MT19937);
+}
+
+uint8_t GetRandomUint8(uint8_t n)
+{
+    return std::uniform_int_distribution< uint8_t >(0, n)(*RG32_MT19937);
+}
+
+uint8_t GetRandomUint8(uint8_t m, uint8_t n)
+{
+    return std::uniform_int_distribution< uint8_t >(m, n)(*RG32_MT19937);
+}
+
+// ------------------------------------------------------------------------------------------------
+int16_t GetRandomInt16()
 {
     return Int16_Dist(*RG32_MT19937);
 }
 
-Int16 GetRandomInt16(Int16 n)
+int16_t GetRandomInt16(int16_t n)
 {
-    return std::uniform_int_distribution< Int16 >(0, n)(*RG32_MT19937);
+    return std::uniform_int_distribution< int16_t >(0, n)(*RG32_MT19937);
 }
 
-Int16 GetRandomInt16(Int16 m, Int16 n)
+int16_t GetRandomInt16(int16_t m, int16_t n)
 {
-    return std::uniform_int_distribution< Int16 >(m, n)(*RG32_MT19937);
+    return std::uniform_int_distribution< int16_t >(m, n)(*RG32_MT19937);
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint16 GetRandomUint16()
+uint16_t GetRandomUint16()
 {
     return Uint16_Dist(*RG32_MT19937);
 }
 
-Uint16 GetRandomUint16(Uint16 n)
+uint16_t GetRandomUint16(uint16_t n)
 {
-    return std::uniform_int_distribution< Uint16 >(0, n)(*RG32_MT19937);
+    return std::uniform_int_distribution< uint16_t >(0, n)(*RG32_MT19937);
 }
 
-Uint16 GetRandomUint16(Uint16 m, Uint16 n)
+uint16_t GetRandomUint16(uint16_t m, uint16_t n)
 {
-    return std::uniform_int_distribution< Uint16 >(m, n)(*RG32_MT19937);
+    return std::uniform_int_distribution< uint16_t >(m, n)(*RG32_MT19937);
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetRandomInt32()
+int32_t GetRandomInt32()
 {
     return Int32_Dist(*RG32_MT19937);
 }
 
-Int32 GetRandomInt32(Int32 n)
+int32_t GetRandomInt32(int32_t n)
 {
-    return std::uniform_int_distribution< Int32 >(0, n)(*RG32_MT19937);
+    return std::uniform_int_distribution< int32_t >(0, n)(*RG32_MT19937);
 }
 
-Int32 GetRandomInt32(Int32 m, Int32 n)
+int32_t GetRandomInt32(int32_t m, int32_t n)
 {
-    return std::uniform_int_distribution< Int32 >(m, n)(*RG32_MT19937);
-}
-
-
-// ------------------------------------------------------------------------------------------------
-Uint32 GetRandomUint32()
-{
-    return Int32_Dist(*RG32_MT19937);
-}
-
-Uint32 GetRandomUint32(Uint32 n)
-{
-    return std::uniform_int_distribution< Int32 >(0, n)(*RG32_MT19937);
-}
-
-Uint32 GetRandomUint32(Uint32 m, Uint32 n)
-{
-    return std::uniform_int_distribution< Int32 >(m, n)(*RG32_MT19937);
+    return std::uniform_int_distribution< int32_t >(m, n)(*RG32_MT19937);
 }
 
 
 // ------------------------------------------------------------------------------------------------
-Int64 GetRandomInt64()
+uint32_t GetRandomUint32()
+{
+    return Uint32_Dist(*RG32_MT19937);
+}
+
+uint32_t GetRandomUint32(uint32_t n)
+{
+    return std::uniform_int_distribution< uint32_t >(0, n)(*RG32_MT19937);
+}
+
+uint32_t GetRandomUint32(uint32_t m, uint32_t n)
+{
+    return std::uniform_int_distribution< uint32_t >(m, n)(*RG32_MT19937);
+}
+
+
+// ------------------------------------------------------------------------------------------------
+int64_t GetRandomInt64()
 {
     return Int64_Dist(*RG64_MT19937);
 }
 
-Int64 GetRandomInt64(Int64 n)
+int64_t GetRandomInt64(int64_t n)
 {
-    return std::uniform_int_distribution< Int64 >(0, n)(*RG64_MT19937);
+    return std::uniform_int_distribution< int64_t >(0, n)(*RG64_MT19937);
 }
 
-Int64 GetRandomInt64(Int64 m, Int64 n)
+int64_t GetRandomInt64(int64_t m, int64_t n)
 {
-    return std::uniform_int_distribution< Int64 >(m, n)(*RG64_MT19937);
+    return std::uniform_int_distribution< int64_t >(m, n)(*RG64_MT19937);
 }
 
 
 // ------------------------------------------------------------------------------------------------
-Uint64 GetRandomUint64()
+uint64_t GetRandomUint64()
 {
     return Uint64_Dist(*RG64_MT19937);
 }
 
-Uint64 GetRandomUint64(Uint64 n)
+uint64_t GetRandomUint64(uint64_t n)
 {
-    return std::uniform_int_distribution< Uint64 >(0, n)(*RG64_MT19937);
+    return std::uniform_int_distribution< uint64_t >(0, n)(*RG64_MT19937);
 }
 
-Uint64 GetRandomUint64(Uint64 m, Uint64 n)
+uint64_t GetRandomUint64(uint64_t m, uint64_t n)
 {
-    return std::uniform_int_distribution< Uint64 >(m, n)(*RG64_MT19937);
+    return std::uniform_int_distribution< uint64_t >(m, n)(*RG64_MT19937);
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 GetRandomFloat32()
+float GetRandomFloat32()
 {
     return Float32_Dist(*RG32_MT19937);
 }
 
-Float32 GetRandomFloat32(Float32 n)
+float GetRandomFloat32(float n)
 {
-    return std::uniform_real_distribution< Float32 >(0, n)(*RG32_MT19937);
+    return std::uniform_real_distribution< float >(0, n)(*RG32_MT19937);
 }
 
-Float32 GetRandomFloat32(Float32 m, Float32 n)
+float GetRandomFloat32(float m, float n)
 {
-    return std::uniform_real_distribution< Float32 >(m, n)(*RG32_MT19937);
+    return std::uniform_real_distribution< float >(m, n)(*RG32_MT19937);
 }
 
 // ------------------------------------------------------------------------------------------------
-Float64 GetRandomFloat64()
+double GetRandomFloat64()
 {
     return Float64_Dist(*RG64_MT19937);
 }
 
-Float64 GetRandomFloat64(Float64 n)
+double GetRandomFloat64(double n)
 {
-    return std::uniform_real_distribution< Float64 >(0, n)(*RG64_MT19937);
+    return std::uniform_real_distribution< double >(0, n)(*RG64_MT19937);
 }
 
-Float64 GetRandomFloat64(Float64 m, Float64 n)
+double GetRandomFloat64(double m, double n)
 {
-    return std::uniform_real_distribution< Float64 >(m, n)(*RG64_MT19937);
+    return std::uniform_real_distribution< double >(m, n)(*RG64_MT19937);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -353,7 +352,7 @@ bool GetRandomBool(SQFloat p)
 }
 
 // ------------------------------------------------------------------------------------------------
-static String RandomString(Int32 len)
+static String RandomString(int32_t len)
 {
     // Is there anything to generate?
     if (len <= 0)
@@ -367,7 +366,7 @@ static String RandomString(Int32 len)
 }
 
 // ------------------------------------------------------------------------------------------------
-static String RandomString(Int32 len, SQChar n)
+static String RandomString(int32_t len, SQChar n)
 {
     // Is there anything to generate?
     if (len <= 0)
@@ -381,7 +380,7 @@ static String RandomString(Int32 len, SQChar n)
 }
 
 // ------------------------------------------------------------------------------------------------
-static String RandomString(Int32 len, SQChar m, SQChar n)
+static String RandomString(int32_t len, SQChar m, SQChar n)
 {
     // Is there anything to generate?
     if (len <= 0)
@@ -401,11 +400,11 @@ void Register_Random(HSQUIRRELVM vm)
         .Func(_SC("GenSeed"), &GenerateSeed)
         .Func(_SC("GenSeed2"), &GenerateSeed2)
         .Overload< void (*)(void) >(_SC("Reseed"), &ReseedRandom)
-        .Overload< void (*)(Uint32) >(_SC("Reseed"), &ReseedRandom)
+        .Overload< void (*)(uint32_t) >(_SC("Reseed"), &ReseedRandom)
         .Overload< void (*)(void) >(_SC("Reseed32"), &ReseedRandom32)
-        .Overload< void (*)(Uint32) >(_SC("Reseed32"), &ReseedRandom32)
+        .Overload< void (*)(uint32_t) >(_SC("Reseed32"), &ReseedRandom32)
         .Overload< void (*)(void) >(_SC("Reseed64"), &ReseedRandom64)
-        .Overload< void (*)(Uint32) >(_SC("Reseed64"), &ReseedRandom64)
+        .Overload< void (*)(uint32_t) >(_SC("Reseed64"), &ReseedRandom64)
 
 #ifdef _SQ64
         .Overload< SQInteger (*)(void) >(_SC("Integer"), &GetRandomInt64)
@@ -427,9 +426,9 @@ void Register_Random(HSQUIRRELVM vm)
         .Overload< SQFloat (*)(SQFloat, SQFloat) >(_SC("Float"), &GetRandomFloat32)
 #endif // SQUSEDOUBLE
 
-        .Overload< String (*)(Int32) >(_SC("String"), &RandomString)
-        .Overload< String (*)(Int32, SQChar) >(_SC("String"), &RandomString)
-        .Overload< String (*)(Int32, SQChar, SQChar) >(_SC("String"), &RandomString)
+        .Overload< String (*)(int32_t) >(_SC("String"), &RandomString)
+        .Overload< String (*)(int32_t, SQChar) >(_SC("String"), &RandomString)
+        .Overload< String (*)(int32_t, SQChar, SQChar) >(_SC("String"), &RandomString)
         .Overload< bool (*)(void) >(_SC("Bool"), &GetRandomBool)
         .Overload< bool (*)(SQFloat) >(_SC("Bool"), &GetRandomBool)
     );

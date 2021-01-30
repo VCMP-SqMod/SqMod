@@ -1,13 +1,12 @@
 // ------------------------------------------------------------------------------------------------
 #include "Library/Chrono/Timer.hpp"
 #include "Library/Chrono/Timestamp.hpp"
-#include "Base/Shared.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQMODE_DECL_TYPENAME(Typename, _SC("SqTimer"))
+SQMOD_DECL_TYPENAME(Typename, _SC("SqTimer"))
 
 // ------------------------------------------------------------------------------------------------
 Timer::Timer()
@@ -17,7 +16,7 @@ Timer::Timer()
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 Timer::Cmp(const Timer & o) const
+int32_t Timer::Cmp(const Timer & o) const
 {
     if (m_Timestamp == o.m_Timestamp)
         return 0;
@@ -28,9 +27,9 @@ Int32 Timer::Cmp(const Timer & o) const
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr Timer::ToString() const
+String Timer::ToString() const
 {
-    return ToStrF("%lld", m_Timestamp);
+    return fmt::format("{}", m_Timestamp);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -42,15 +41,15 @@ void Timer::Reset()
 // ------------------------------------------------------------------------------------------------
 Timestamp Timer::Restart()
 {
-    const Int64 now = Chrono::GetCurrentSysTime(), elapsed = now - m_Timestamp;
+    const int64_t now = Chrono::GetCurrentSysTime(), elapsed = now - m_Timestamp;
     m_Timestamp = now;
     return Timestamp(elapsed);
 }
 
 // ------------------------------------------------------------------------------------------------
-Int64 Timer::RestartRaw()
+int64_t Timer::RestartRaw()
 {
-    const Int64 now = Chrono::GetCurrentSysTime(), elapsed = now - m_Timestamp;
+    const int64_t now = Chrono::GetCurrentSysTime(), elapsed = now - m_Timestamp;
     m_Timestamp = now;
     return elapsed;
 }
@@ -62,7 +61,7 @@ Timestamp Timer::GetElapsedTime() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int64 Timer::GetElapsedTimeRaw() const
+int64_t Timer::GetElapsedTimeRaw() const
 {
     return (Chrono::GetCurrentSysTime() - m_Timestamp);
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 // ------------------------------------------------------------------------------------------------
-#include "SqBase.hpp"
+#include "Base/Shared.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -36,12 +36,12 @@ struct Color4
     /* --------------------------------------------------------------------------------------------
      * The red, green and blue components of this type.
     */
-    Value r, g, b, a;
+    Value r{0}, g{0}, b{0}, a{0};
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Color4() noexcept;
+    Color4() noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Construct a color with all components with the same specified color.
@@ -366,12 +366,12 @@ struct Color4
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    Int32 Cmp(const Color4 & c) const;
+    SQMOD_NODISCARD int32_t Cmp(const Color4 & c) const;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(SQInteger s) const
+    SQMOD_NODISCARD int32_t Cmp(SQInteger s) const
     {
         return Cmp(Color4(static_cast< Value >(s)));
     }
@@ -379,7 +379,7 @@ struct Color4
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(SQFloat s) const
+    SQMOD_NODISCARD int32_t Cmp(SQFloat s) const
     {
         return Cmp(Color4(static_cast< Value >(s)));
     }
@@ -387,7 +387,7 @@ struct Color4
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(bool s) const
+    SQMOD_NODISCARD int32_t Cmp(bool s) const
     {
         return Cmp(Color4(static_cast< Value >(s)));
     }
@@ -395,7 +395,7 @@ struct Color4
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(std::nullptr_t) const
+    SQMOD_NODISCARD int32_t Cmp(std::nullptr_t) const
     {
         return Cmp(Color4(static_cast< Value >(0)));
     }
@@ -403,7 +403,7 @@ struct Color4
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    CSStr ToString() const;
+    SQMOD_NODISCARD String ToString() const;
 
     /* --------------------------------------------------------------------------------------------
      * Set all components to the specified scalar value.
@@ -443,32 +443,32 @@ struct Color4
     /* --------------------------------------------------------------------------------------------
      * Get the component values packed inside an integer value.
     */
-    Uint32 GetRGB() const;
+    SQMOD_NODISCARD uint32_t GetRGB() const;
 
     /* --------------------------------------------------------------------------------------------
      * Set the component values wxtracted from an integer value.
     */
-    void SetRGB(Uint32 p);
+    void SetRGB(uint32_t p);
 
     /* --------------------------------------------------------------------------------------------
      * Get the component values packed inside an integer value.
     */
-    Uint32 GetRGBA() const;
+    SQMOD_NODISCARD uint32_t GetRGBA() const;
 
     /* --------------------------------------------------------------------------------------------
      * Set the component values wxtracted from an integer value.
     */
-    void SetRGBA(Uint32 p);
+    void SetRGBA(uint32_t p);
 
     /* --------------------------------------------------------------------------------------------
      * Get the component values packed inside an integer value.
     */
-    Uint32 GetARGB() const;
+    SQMOD_NODISCARD uint32_t GetARGB() const;
 
     /* --------------------------------------------------------------------------------------------
      * Set the component values wxtracted from an integer value.
     */
-    void SetARGB(Uint32 p);
+    void SetARGB(uint32_t p);
 
     /* --------------------------------------------------------------------------------------------
      * Generate random values for all components of this instance.
@@ -506,17 +506,17 @@ struct Color4
     /* --------------------------------------------------------------------------------------------
      * Generate a 4 component hex color from the values in this instance.
     */
-    LightObj ToHex() const;
+    SQMOD_NODISCARD LightObj ToHex() const;
 
     /* --------------------------------------------------------------------------------------------
      * Generate a 3 component hex color from the values in this instance.
     */
-    LightObj ToHex3() const;
+    SQMOD_NODISCARD LightObj ToHex3() const;
 
     /* --------------------------------------------------------------------------------------------
      * Generate a formatted string with the values from this instance.
     */
-    LightObj Format(const String & spec, StackStrF & fmt) const;
+    SQMOD_NODISCARD String Format(StackStrF & str) const;
 
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Color4 type from a string.

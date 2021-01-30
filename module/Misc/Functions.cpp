@@ -1,12 +1,10 @@
 // ------------------------------------------------------------------------------------------------
 #include "Misc/Functions.hpp"
-#include "Base/Shared.hpp"
+#include "Core.hpp"
 #include "Base/Color3.hpp"
 #include "Base/Vector2.hpp"
-#include "Base/Vector3.hpp"
 #include "Entity/Player.hpp"
-#include "Core.hpp"
-#include "Library/Numeric/LongInt.hpp"
+#include "Library/Numeric/Long.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -17,9 +15,9 @@ namespace SqMod {
 struct District
 {
     // District boundaries.
-    Float32 mMinX, mMinY, mMaxX, mMaxY;
+    float mMinX, mMinY, mMaxX, mMaxY;
     // District name
-    CSStr mName;
+    const SQChar * mName;
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -48,7 +46,7 @@ static const District g_Districts[] = {
 };
 
 // ------------------------------------------------------------------------------------------------
-static String CS_Keycode_Names[] = {"", /* index 0 is not used */
+static String CS_Keycode_Names[] = {"", /* index 0 is not used */ // NOLINT(cert-err58-cpp)
 "Left Button **",    "Right Button **",   "Break",             "Middle Button **",  "X Button 1 **",
 "X Button 2 **",     "",                  "Backspace",         "Tab",               "",
 "",                  "Clear",             "Enter",             "",                  "",
@@ -103,19 +101,19 @@ static String CS_Keycode_Names[] = {"", /* index 0 is not used */
 };
 
 // ------------------------------------------------------------------------------------------------
-CSStr GetKeyCodeName(Uint8 keycode)
+const SQChar * GetKeyCodeName(uint8_t keycode)
 {
     return CS_Keycode_Names[keycode].c_str();
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetKeyCodeName(Uint8 keycode, StackStrF & name)
+void SetKeyCodeName(uint8_t keycode, StackStrF & name)
 {
     CS_Keycode_Names[keycode].assign(name.mPtr);
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint32 GetServerVersion()
+uint32_t GetServerVersion()
 {
     return _Func->GetServerVersion();
 }
@@ -137,13 +135,13 @@ Table GetServerSettings()
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint32 GetNumberOfPlugins()
+uint32_t GetNumberOfPlugins()
 {
     return _Func->GetNumberOfPlugins();
 }
 
 // ------------------------------------------------------------------------------------------------
-Table GetPluginInfo(Int32 plugin_id)
+Table GetPluginInfo(int32_t plugin_id)
 {
     // Attempt to update the plug-in info structure
     if (_Func->GetPluginInfo(plugin_id, &g_PluginInfo) == vcmpErrorNoSuchEntity)
@@ -163,13 +161,13 @@ Table GetPluginInfo(Int32 plugin_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 FindPlugin(StackStrF & name)
+int32_t FindPlugin(StackStrF & name)
 {
     return _Func->FindPlugin(name.mPtr);
 }
 
 // ------------------------------------------------------------------------------------------------
-void SendPluginCommand(Uint32 identifier, StackStrF & payload)
+void SendPluginCommand(uint32_t identifier, StackStrF & payload)
 {
     _Func->SendPluginCommand(identifier, payload.mPtr);
 }
@@ -190,43 +188,43 @@ void SendLogMessage(StackStrF & msg)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetLastError()
+int32_t GetLastError()
 {
     return _Func->GetLastError();
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint32 GetPluginVersion()
+uint32_t GetPluginVersion()
 {
     return SQMOD_VERSION;
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr GetPluginVersionStr()
+const SQChar * GetPluginVersionStr()
 {
     return SQMOD_VERSION_STR;
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr GetPluginName()
+const SQChar * GetPluginName()
 {
     return SQMOD_NAME;
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr GetPluginAuthor()
+const SQChar * GetPluginAuthor()
 {
     return SQMOD_AUTHOR;
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetPluginID()
+int32_t GetPluginID()
 {
     return _Info->pluginId;
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint32 GetServerPort()
+uint32_t GetServerPort()
 {
     // Update the server settings structure
     _Func->GetServerSettings(&g_SvSettings);
@@ -235,7 +233,7 @@ Uint32 GetServerPort()
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint32 GetServerFlags()
+uint32_t GetServerFlags()
 {
     // Update the server settings structure
     _Func->GetServerSettings(&g_SvSettings);
@@ -244,19 +242,19 @@ Uint32 GetServerFlags()
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetMaxPlayers()
+int32_t GetMaxPlayers()
 {
     return _Func->GetMaxPlayers();
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetMaxPlayers(Int32 max)
+void SetMaxPlayers(int32_t max)
 {
     _Func->SetMaxPlayers(static_cast< uint32_t >(max));
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr GetServerName()
+const SQChar * GetServerName()
 {
 	// The server is retarded and returns `vcmpErrorBufferTooSmall` regardless of the buffer size.
     // Populate the buffer
@@ -283,7 +281,7 @@ void SetServerName(StackStrF & name)
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr GetServerPassword()
+const SQChar * GetServerPassword()
 {
 	// The server is retarded and returns `vcmpErrorBufferTooSmall` regardless of the buffer size.
     // Populate the buffer
@@ -310,7 +308,7 @@ void SetServerPassword(StackStrF & passwd)
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr GetGameModeText()
+const SQChar * GetGameModeText()
 {
 	// The server is retarded and returns `vcmpErrorBufferTooSmall` regardless of the buffer size.
     // Populate the buffer
@@ -343,13 +341,13 @@ SQInteger CreateRadioStream(bool listed, StackStrF & name, StackStrF & url)
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger CreateRadioStreamEx(Int32 id, bool listed, StackStrF & name, StackStrF & url)
+SQInteger CreateRadioStreamEx(int32_t id, bool listed, StackStrF & name, StackStrF & url)
 {
     return static_cast< SQInteger >(_Func->AddRadioStream(id, name.mPtr, url.mPtr, static_cast< uint8_t >(listed)));
 }
 
 // ------------------------------------------------------------------------------------------------
-void RemoveRadioStream(Int32 id)
+void RemoveRadioStream(int32_t id)
 {
     if (_Func->RemoveRadioStream(id) == vcmpErrorNoSuchEntity)
     {
@@ -364,7 +362,7 @@ void ShutdownServer()
 }
 
 // ------------------------------------------------------------------------------------------------
-bool GetServerOption(Int32 option_id)
+bool GetServerOption(int32_t option_id)
 {
     // Attempt to obtain the current value of the specified option
     const bool value = _Func->GetServerOption(static_cast< vcmpServerOption >(option_id));
@@ -378,7 +376,7 @@ bool GetServerOption(Int32 option_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetServerOption(Int32 option_id, bool toggle)
+void SetServerOption(int32_t option_id, bool toggle)
 {
     if (_Func->SetServerOption(static_cast< vcmpServerOption >(option_id),
                                static_cast< uint8_t >(toggle)) == vcmpErrorArgumentOutOfBounds)
@@ -392,7 +390,7 @@ void SetServerOption(Int32 option_id, bool toggle)
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetServerOptionEx(Int32 option_id, bool toggle, Int32 header, LightObj & payload)
+void SetServerOptionEx(int32_t option_id, bool toggle, int32_t header, LightObj & payload)
 {
     if (_Func->SetServerOption(static_cast< vcmpServerOption >(option_id),
                                static_cast< uint8_t >(toggle)) == vcmpErrorArgumentOutOfBounds)
@@ -427,15 +425,15 @@ void SetWorldBounds(const Vector2 & max, const Vector2 & min)
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetWorldBoundsEx(Float32 max_x, Float32 max_y, Float32 min_x, Float32 min_y)
+void SetWorldBoundsEx(float max_x, float max_y, float min_x, float min_y)
 {
     _Func->SetWorldBounds(max_x, min_x, max_y, min_y);
 }
 
 Table GetWastedSettings()
 {
-    Uint32 fc, dt, ft, cfs, cft;
-    Float32 fis, fos;
+    uint32_t fc, dt, ft, cfs, cft;
+    float fis, fos;
     Color3 c;
     // Retrieve the current wasted settings bounds
     _Func->GetWastedSettings(&dt, &ft, &fis, &fos, &fc, &cfs, &cft);
@@ -457,134 +455,134 @@ Table GetWastedSettings()
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetWastedSettings(Uint32 dt, Uint32 ft, Float32 fis, Float32 fos,
-                        const Color3 & fc, Uint32 cfs, Uint32 cft)
+void SetWastedSettings(uint32_t dt, uint32_t ft, float fis, float fos,
+                        const Color3 & fc, uint32_t cfs, uint32_t cft)
 {
     _Func->SetWastedSettings(dt, ft, fis, fos, fc.GetRGB(), cfs, cft);
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetTimeRate()
+int32_t GetTimeRate()
 {
     return _Func->GetTimeRate();
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetTimeRate(Uint32 rate)
+void SetTimeRate(uint32_t rate)
 {
     _Func->SetTimeRate(rate);
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetHour()
+int32_t GetHour()
 {
     return _Func->GetHour();
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetHour(Int32 hour)
+void SetHour(int32_t hour)
 {
     _Func->SetHour(hour);
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetMinute()
+int32_t GetMinute()
 {
     return _Func->GetMinute();
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetMinute(Int32 minute)
+void SetMinute(int32_t minute)
 {
     _Func->SetMinute(minute);
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetWeather()
+int32_t GetWeather()
 {
     return _Func->GetWeather();
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetWeather(Int32 weather)
+void SetWeather(int32_t weather)
 {
     _Func->SetWeather(weather);
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 GetGravity()
+float GetGravity()
 {
     return _Func->GetGravity();
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetGravity(Float32 gravity)
+void SetGravity(float gravity)
 {
     _Func->SetGravity(gravity);
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 GetGameSpeed()
+float GetGameSpeed()
 {
     return _Func->GetGameSpeed();
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetGameSpeed(Float32 speed)
+void SetGameSpeed(float speed)
 {
     _Func->SetGameSpeed(speed);
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 GetWaterLevel()
+float GetWaterLevel()
 {
     return _Func->GetWaterLevel();
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetWaterLevel(Float32 level)
+void SetWaterLevel(float level)
 {
     _Func->SetWaterLevel(level);
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 GetMaximumFlightAltitude()
+float GetMaximumFlightAltitude()
 {
     return _Func->GetMaximumFlightAltitude();
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetMaximumFlightAltitude(Float32 height)
+void SetMaximumFlightAltitude(float height)
 {
     _Func->SetMaximumFlightAltitude(height);
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetKillCommandDelay()
+int32_t GetKillCommandDelay()
 {
     return _Func->GetKillCommandDelay();
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetKillCommandDelay(Int32 delay)
+void SetKillCommandDelay(int32_t delay)
 {
     _Func->SetKillCommandDelay(delay);
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 GetVehiclesForcedRespawnHeight()
+float GetVehiclesForcedRespawnHeight()
 {
     return _Func->GetVehiclesForcedRespawnHeight();
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetVehiclesForcedRespawnHeight(Float32 height)
+void SetVehiclesForcedRespawnHeight(float height)
 {
     _Func->SetVehiclesForcedRespawnHeight(height);
 }
 
 // ------------------------------------------------------------------------------------------------
-void CreateExplosion(Int32 world, Int32 type, const Vector3 & pos, CPlayer & source, bool grounded)
+void CreateExplosion(int32_t world, int32_t type, const Vector3 & pos, CPlayer & source, bool grounded)
 {
     if (_Func->CreateExplosion(world, type, pos.x, pos.y, pos.z,
                                source.GetID(), static_cast< uint8_t >(grounded)) == vcmpErrorArgumentOutOfBounds)
@@ -594,7 +592,7 @@ void CreateExplosion(Int32 world, Int32 type, const Vector3 & pos, CPlayer & sou
 }
 
 // ------------------------------------------------------------------------------------------------
-void CreateExplosionEx(Int32 world, Int32 type, Float32 x, Float32 y, Float32 z, CPlayer & source, bool grounded)
+void CreateExplosionEx(int32_t world, int32_t type, float x, float y, float z, CPlayer & source, bool grounded)
 {
     if (_Func->CreateExplosion(world, type, x, y, z,
                                source.GetID(), static_cast< uint8_t >(grounded)) == vcmpErrorArgumentOutOfBounds)
@@ -604,7 +602,7 @@ void CreateExplosionEx(Int32 world, Int32 type, Float32 x, Float32 y, Float32 z,
 }
 
 // ------------------------------------------------------------------------------------------------
-void PlaySound(Int32 world, Int32 sound, const Vector3 & pos)
+void PlaySound(int32_t world, int32_t sound, const Vector3 & pos)
 {
     if (_Func->PlaySound(world, sound, pos.x, pos.y, pos.z) == vcmpErrorArgumentOutOfBounds)
     {
@@ -613,7 +611,7 @@ void PlaySound(Int32 world, Int32 sound, const Vector3 & pos)
 }
 
 // ------------------------------------------------------------------------------------------------
-void PlaySoundEx(Int32 world, Int32 sound, Float32 x, Float32 y, Float32 z)
+void PlaySoundEx(int32_t world, int32_t sound, float x, float y, float z)
 {
     if (_Func->PlaySound(world, sound, x, y, z) == vcmpErrorArgumentOutOfBounds)
     {
@@ -622,7 +620,7 @@ void PlaySoundEx(Int32 world, Int32 sound, Float32 x, Float32 y, Float32 z)
 }
 
 // ------------------------------------------------------------------------------------------------
-void PlaySoundForWorld(Int32 world, Int32 sound)
+void PlaySoundForWorld(int32_t world, int32_t sound)
 {
     if (_Func->PlaySound(world, sound, NAN, NAN, NAN) == vcmpErrorArgumentOutOfBounds)
     {
@@ -631,89 +629,89 @@ void PlaySoundForWorld(Int32 world, Int32 sound)
 }
 
 // ------------------------------------------------------------------------------------------------
-void HideMapObject(Int32 model, const Vector3 & pos)
+void HideMapObject(int32_t model, const Vector3 & pos)
 {
     _Func->HideMapObject(model,
-        static_cast< Int16 >(std::lround(std::floor(pos.x * 10.0f) + 0.5f)),
-        static_cast< Int16 >(std::lround(std::floor(pos.y * 10.0f) + 0.5f)),
-        static_cast< Int16 >(std::lround(std::floor(pos.z * 10.0f) + 0.5f))
+        static_cast< int16_t >(std::lround(std::floor(pos.x * 10.0f) + 0.5f)),
+        static_cast< int16_t >(std::lround(std::floor(pos.y * 10.0f) + 0.5f)),
+        static_cast< int16_t >(std::lround(std::floor(pos.z * 10.0f) + 0.5f))
     );
 }
 
 // ------------------------------------------------------------------------------------------------
-void HideMapObjectEx(Int32 model, Float32 x, Float32 y, Float32 z)
+void HideMapObjectEx(int32_t model, float x, float y, float z)
 {
     _Func->HideMapObject(model,
-        static_cast< Int16 >(std::lround(std::floor(x * 10.0f) + 0.5f)),
-        static_cast< Int16 >(std::lround(std::floor(y * 10.0f) + 0.5f)),
-        static_cast< Int16 >(std::lround(std::floor(z * 10.0f) + 0.5f))
+        static_cast< int16_t >(std::lround(std::floor(x * 10.0f) + 0.5f)),
+        static_cast< int16_t >(std::lround(std::floor(y * 10.0f) + 0.5f)),
+        static_cast< int16_t >(std::lround(std::floor(z * 10.0f) + 0.5f))
     );
 }
 
 // ------------------------------------------------------------------------------------------------
-void HideMapObjectRaw(Int32 model, Int16 x, Int16 y, Int16 z)
+void HideMapObjectRaw(int32_t model, int16_t x, int16_t y, int16_t z)
 {
     _Func->HideMapObject(model, x, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
-void ShowMapObject(Int32 model, const Vector3 & pos)
+void ShowMapObject(int32_t model, const Vector3 & pos)
 {
     _Func->ShowMapObject(model,
-        static_cast< Int16 >(std::lround(std::floor(pos.x * 10.0f) + 0.5f)),
-        static_cast< Int16 >(std::lround(std::floor(pos.y * 10.0f) + 0.5f)),
-        static_cast< Int16 >(std::lround(std::floor(pos.z * 10.0f) + 0.5f))
+        static_cast< int16_t >(std::lround(std::floor(pos.x * 10.0f) + 0.5f)),
+        static_cast< int16_t >(std::lround(std::floor(pos.y * 10.0f) + 0.5f)),
+        static_cast< int16_t >(std::lround(std::floor(pos.z * 10.0f) + 0.5f))
     );
 }
 
 // ------------------------------------------------------------------------------------------------
-void ShowMapObjectEx(Int32 model, Float32 x, Float32 y, Float32 z)
+void ShowMapObjectEx(int32_t model, float x, float y, float z)
 {
     _Func->ShowMapObject(model,
-        static_cast< Int16 >(std::lround(std::floor(x * 10.0f) + 0.5f)),
-        static_cast< Int16 >(std::lround(std::floor(y * 10.0f) + 0.5f)),
-        static_cast< Int16 >(std::lround(std::floor(z * 10.0f) + 0.5f))
+        static_cast< int16_t >(std::lround(std::floor(x * 10.0f) + 0.5f)),
+        static_cast< int16_t >(std::lround(std::floor(y * 10.0f) + 0.5f)),
+        static_cast< int16_t >(std::lround(std::floor(z * 10.0f) + 0.5f))
     );
 }
 
 // ------------------------------------------------------------------------------------------------
-void ShowMapObjectRaw(Int32 model, Int16 x, Int16 y, Int16 z)
+void ShowMapObjectRaw(int32_t model, int16_t x, int16_t y, int16_t z)
 {
     _Func->ShowMapObject(model, x, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
-void ShowAllMapObjects(void)
+void ShowAllMapObjects()
 {
     _Func->ShowAllMapObjects();
 }
 
 // ------------------------------------------------------------------------------------------------
-SQFloat GetWeaponDataValue(Int32 weapon, Int32 field)
+SQFloat GetWeaponDataValue(int32_t weapon, int32_t field)
 {
     return ConvTo< SQFloat >::From(_Func->GetWeaponDataValue(weapon, field));
 }
 
 // ------------------------------------------------------------------------------------------------
-bool SetWeaponDataValue(Int32 weapon, Int32 field, SQFloat value)
+bool SetWeaponDataValue(int32_t weapon, int32_t field, SQFloat value)
 {
     return (_Func->SetWeaponDataValue(weapon, field, value) != vcmpErrorArgumentOutOfBounds);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool ResetWeaponDataValue(Int32 weapon, Int32 field)
+bool ResetWeaponDataValue(int32_t weapon, int32_t field)
 {
     return (_Func->ResetWeaponDataValue(weapon, field) != vcmpErrorArgumentOutOfBounds);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool IsWeaponDataValueModified(Int32 weapon, Int32 field)
+bool IsWeaponDataValueModified(int32_t weapon, int32_t field)
 {
     return _Func->IsWeaponDataValueModified(weapon, field);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool ResetWeaponData(Int32 weapon)
+bool ResetWeaponData(int32_t weapon)
 {
     return (_Func->ResetWeaponData(weapon) != vcmpErrorArgumentOutOfBounds);
 }
@@ -725,8 +723,8 @@ void ResetAllWeaponData()
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 AddPlayerClass(Int32 team, const Color3 & color, Int32 skin, const Vector3 & pos, Float32 angle,
-                        Int32 wep1, Int32 ammo1, Int32 wep2, Int32 ammo2, Int32 wep3, Int32 ammo3)
+int32_t AddPlayerClass(int32_t team, const Color3 & color, int32_t skin, const Vector3 & pos, float angle,
+                        int32_t wep1, int32_t ammo1, int32_t wep2, int32_t ammo2, int32_t wep3, int32_t ammo3)
 {
     return _Func->AddPlayerClass(team, color.GetRGB(), skin, pos.x, pos.y, pos.z, angle,
                                     wep1, ammo1, wep2, ammo2, wep3, ammo3);
@@ -751,19 +749,19 @@ void SetSpawnCameraLookAt(const Vector3 & pos)
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetSpawnPlayerPositionEx(Float32 x, Float32 y, Float32 z)
+void SetSpawnPlayerPositionEx(float x, float y, float z)
 {
     _Func->SetSpawnPlayerPosition(x, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetSpawnCameraPositionEx(Float32 x, Float32 y, Float32 z)
+void SetSpawnCameraPositionEx(float x, float y, float z)
 {
     _Func->SetSpawnCameraPosition(x, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetSpawnCameraLookAtEx(Float32 x, Float32 y, Float32 z)
+void SetSpawnCameraLookAtEx(float x, float y, float z)
 {
     _Func->SetSpawnPlayerPosition(x, y, z);
 }
@@ -771,29 +769,29 @@ void SetSpawnCameraLookAtEx(Float32 x, Float32 y, Float32 z)
 // ------------------------------------------------------------------------------------------------
 void BanIP(StackStrF & addr)
 {
-    _Func->BanIP(const_cast< SStr >(addr.mPtr));
+    _Func->BanIP(const_cast< SQChar * >(addr.mPtr));
 }
 
 // ------------------------------------------------------------------------------------------------
 bool UnbanIP(StackStrF & addr)
 {
-    return _Func->UnbanIP(const_cast< SStr >(addr.mPtr));
+    return _Func->UnbanIP(const_cast< SQChar * >(addr.mPtr));
 }
 
 // ------------------------------------------------------------------------------------------------
 bool IsIPBanned(StackStrF & addr)
 {
-    return _Func->IsIPBanned(const_cast< SStr >(addr.mPtr));
+    return _Func->IsIPBanned(const_cast< SQChar * >(addr.mPtr));
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetPlayerIdFromName(StackStrF & name)
+int32_t GetPlayerIdFromName(StackStrF & name)
 {
     return _Func->GetPlayerIdFromName(name.mPtr);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool IsPlayerConnected(Int32 player_id)
+bool IsPlayerConnected(int32_t player_id)
 {
     return _Func->IsPlayerConnected(player_id);
 }
@@ -805,22 +803,22 @@ void ForceAllSelect()
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CheckEntityExists(Int32 type, Int32 index)
+bool CheckEntityExists(int32_t type, int32_t index)
 {
     return _Func->CheckEntityExists(static_cast< vcmpEntityPool >(type), index);
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr GetDistrictName(const Vector2 & point)
+const SQChar * GetDistrictName(const Vector2 & point)
 {
     return GetDistrictNameEx(point.x, point.y);
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr GetDistrictNameEx(SQFloat x, SQFloat y)
+const SQChar * GetDistrictNameEx(SQFloat x, SQFloat y)
 {
     // Attempt to see if the specified point is within one of the known districts
-    for (Uint32 n = 0; n < (sizeof(g_Districts) / sizeof(District)); ++n)
+    for (uint32_t n = 0; n < (sizeof(g_Districts) / sizeof(District)); ++n) // NOLINT(modernize-loop-convert)
     {
         // Grab the district
         const District & d = g_Districts[n];
@@ -835,19 +833,19 @@ CSStr GetDistrictNameEx(SQFloat x, SQFloat y)
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint16 GetFallTimer()
+uint16_t GetFallTimer()
 {
     return _Func->GetFallTimer();
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetFallTimer(Uint16 rate)
+void SetFallTimer(uint16_t rate)
 {
     _Func->SetFallTimer(rate);
 }
 #if SQMOD_SDK_LEAST(2, 1)
 // ------------------------------------------------------------------------------------------------
-SQFloat GetNetworkStatisticsF(Int32 option_id)
+SQFloat GetNetworkStatisticsF(int32_t option_id)
 {
     // Retrieve the requested information
     double value = _Func->GetNetworkStatistics(-1, static_cast< vcmpNetworkStatisticsOption  >(option_id));
@@ -856,7 +854,7 @@ SQFloat GetNetworkStatisticsF(Int32 option_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger GetNetworkStatisticsI(Int32 option_id)
+SQInteger GetNetworkStatisticsI(int32_t option_id)
 {
     // Retrieve the requested information
     double value = _Func->GetNetworkStatistics(-1, static_cast< vcmpNetworkStatisticsOption  >(option_id));

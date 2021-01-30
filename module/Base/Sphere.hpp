@@ -1,7 +1,6 @@
 #pragma once
 
 // ------------------------------------------------------------------------------------------------
-#include "SqBase.hpp"
 #include "Base/Vector3.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -32,13 +31,13 @@ struct Sphere
     /* --------------------------------------------------------------------------------------------
      * The position and radius components of this type.
     */
-    Vector3     pos;
-    Value       rad;
+    Vector3     pos{};
+    Value       rad{0};
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Sphere() noexcept;
+    Sphere() noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Construct a sphere at position 0,0,0 using the specified radius.
@@ -303,12 +302,12 @@ struct Sphere
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    Int32 Cmp(const Sphere & s) const;
+    SQMOD_NODISCARD int32_t Cmp(const Sphere & s) const;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(SQFloat s) const
+    SQMOD_NODISCARD int32_t Cmp(SQFloat s) const
     {
         return Cmp(Sphere(static_cast< Value >(s)));
     }
@@ -316,7 +315,7 @@ struct Sphere
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(SQInteger s) const
+    SQMOD_NODISCARD int32_t Cmp(SQInteger s) const
     {
         return Cmp(Sphere(static_cast< Value >(s)));
     }
@@ -324,7 +323,7 @@ struct Sphere
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(bool s) const
+    SQMOD_NODISCARD int32_t Cmp(bool s) const
     {
         return Cmp(Sphere(static_cast< Value >(s)));
     }
@@ -332,7 +331,7 @@ struct Sphere
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(std::nullptr_t) const
+    SQMOD_NODISCARD int32_t Cmp(std::nullptr_t) const
     {
         return Cmp(Sphere(static_cast< Value >(0)));
     }
@@ -340,7 +339,7 @@ struct Sphere
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    CSStr ToString() const;
+    SQMOD_NODISCARD String ToString() const;
 
     /* --------------------------------------------------------------------------------------------
      * Set the specified radius.
@@ -408,12 +407,12 @@ struct Sphere
     /* --------------------------------------------------------------------------------------------
      * Retrieve a new instance of this type with absolute component values.
     */
-    Sphere Abs() const;
+    SQMOD_NODISCARD Sphere Abs() const;
 
     /* --------------------------------------------------------------------------------------------
      * Generate a formatted string with the values from this instance.
     */
-    LightObj Format(const String & spec, StackStrF & fmt) const;
+    SQMOD_NODISCARD String Format(StackStrF & str) const;
 
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Sphere type from a string.

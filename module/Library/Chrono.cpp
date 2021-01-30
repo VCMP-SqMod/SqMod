@@ -1,12 +1,10 @@
 // ------------------------------------------------------------------------------------------------
 #include "Library/Chrono.hpp"
 #include "Library/Chrono/Date.hpp"
-#include "Library/Chrono/Datetime.hpp"
-#include "Library/Chrono/Time.hpp"
 #include "Library/Chrono/Timer.hpp"
 #include "Library/Chrono/Timestamp.hpp"
-#include "Library/Numeric/LongInt.hpp"
-#include "Base/Shared.hpp"
+#include "Library/Numeric/Long.hpp"
+#include "Core/Utility.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #ifdef SQMOD_OS_WINDOWS
@@ -33,7 +31,7 @@ extern void Register_ChronoTimer(HSQUIRRELVM vm, Table & cns);
 extern void Register_ChronoTimestamp(HSQUIRRELVM vm, Table & cns);
 
 // ------------------------------------------------------------------------------------------------
-const Uint8 Chrono::MonthLengths[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+const uint8_t Chrono::MonthLengths[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
 // ------------------------------------------------------------------------------------------------
 #ifdef SQMOD_OS_WINDOWS
@@ -49,7 +47,7 @@ inline LARGE_INTEGER GetFrequency()
 }
 
 // ------------------------------------------------------------------------------------------------
-Int64 Chrono::GetCurrentSysTime()
+int64_t Chrono::GetCurrentSysTime()
 {
     // Force the following code to run on first core
     // (see http://msdn.microsoft.com/en-us/library/windows/desktop/ms644904(v=vs.85).aspx)
@@ -68,54 +66,54 @@ Int64 Chrono::GetCurrentSysTime()
     SetThreadAffinityMask(current_thread, previous_mask);
 
     // Return the current time as microseconds
-    return Int64(1000000LL * time.QuadPart / frequency.QuadPart);
+    return int64_t(1000000LL * time.QuadPart / frequency.QuadPart);
 }
 
 // ------------------------------------------------------------------------------------------------
-Int64 Chrono::GetEpochTimeMicro()
+int64_t Chrono::GetEpochTimeMicro()
 {
     FILETIME ft;
     GetSystemTimeAsFileTime(&ft);
     // Extract the nanoseconds from the resulted timestamp
-    Uint64 time = ft.dwHighDateTime;
+    uint64_t time = ft.dwHighDateTime;
     time <<= 32;
     time |= ft.dwLowDateTime;
     time /= 10;
     time -= 11644473600000000ULL;
     // Return the resulted timestamp
-    return Int64(time);
+    return int64_t(time);
 }
 
 // ------------------------------------------------------------------------------------------------
 #ifndef _SQ64
-Int64 GetTickCount64()
+int64_t GetTickCount64()
 {
-    return static_cast< Int64 >(GetTickCount()); // Fall-back to 32 bit?
+    return static_cast< int64_t >(GetTickCount()); // Fall-back to 32 bit?
 }
 #endif // _SQ64
 
 #else
 
 // ------------------------------------------------------------------------------------------------
-Int64 Chrono::GetCurrentSysTime()
+int64_t Chrono::GetCurrentSysTime()
 {
     // POSIX implementation
     timespec time;
     clock_gettime(CLOCK_MONOTONIC, &time);
-    return Int64(Uint64(time.tv_sec) * 1000000 + time.tv_nsec / 1000);
+    return int64_t(uint64_t(time.tv_sec) * 1000000 + time.tv_nsec / 1000);
 }
 
 // ------------------------------------------------------------------------------------------------
-Int64 Chrono::GetEpochTimeMicro()
+int64_t Chrono::GetEpochTimeMicro()
 {
     // POSIX implementation
     timespec time;
     clock_gettime(CLOCK_REALTIME, &time);
-    return Int64(Uint64(time.tv_sec) * 1000000 + time.tv_nsec / 1000);
+    return int64_t(uint64_t(time.tv_sec) * 1000000 + time.tv_nsec / 1000);
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint32 GetTickCount()
+uint32_t GetTickCount()
 {
     // POSIX implementation
     struct timespec time;
@@ -127,7 +125,7 @@ Uint32 GetTickCount()
 }
 
 // ------------------------------------------------------------------------------------------------
-Int64 GetTickCount64()
+int64_t GetTickCount64()
 {
     struct timespec time;
     if (clock_gettime(CLOCK_MONOTONIC, &time))
@@ -140,21 +138,16 @@ Int64 GetTickCount64()
 #endif // SQMOD_OS_WINDOWS
 
 // ------------------------------------------------------------------------------------------------
-Int64 Chrono::GetEpochTimeMilli()
+int64_t Chrono::GetEpochTimeMilli()
 {
     return (GetEpochTimeMicro() / 1000L);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Chrono::ValidDate(Uint16 year, Uint8 month, Uint8 day)
+bool Chrono::ValidDate(uint16_t year, uint8_t month, uint8_t day)
 {
-    // Is this a valid date?
-    if (year == 0 || month == 0 || day == 0)
-    {
-        return false;
-    }
-    // Is the month within range?
-    else if (month > 12)
+    // Is this a valid date? & Is the month within range?
+    if (year == 0 || month == 0 || day == 0 || month > 12)
     {
         return false;
     }
@@ -163,7 +156,7 @@ bool Chrono::ValidDate(Uint16 year, Uint8 month, Uint8 day)
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint8 Chrono::DaysInMonth(Uint16 year, Uint8 month)
+uint8_t Chrono::DaysInMonth(uint16_t year, uint8_t month)
 {
     // Is the specified month within range?
     if (month > 12)
@@ -171,7 +164,7 @@ Uint8 Chrono::DaysInMonth(Uint16 year, Uint8 month)
         STHROWF("Month value is out of range: %u > 12", month);
     }
     // Obtain the days in this month
-    Uint8 days = *(MonthLengths + month);
+    uint8_t days = *(MonthLengths + month);
     // Should we account for January?
     if (month == 2 && IsLeapYear(year))
     {
@@ -182,12 +175,12 @@ Uint8 Chrono::DaysInMonth(Uint16 year, Uint8 month)
 }
 
 // ------------------------------------------------------------------------------------------------
-Uint16 Chrono::DayOfYear(Uint16 year, Uint8 month, Uint8 day)
+uint16_t Chrono::DayOfYear(uint16_t year, uint8_t month, uint8_t day)
 {
     // Start with 0 days
-    Uint16 doy = 0;
+    uint16_t doy = 0;
     // Cumulate the days in months
-    for (Uint8 m = 1; m < month; ++month)
+    for (uint8_t m = 1; m < month; ++month)
     {
         doy += DaysInMonth(year, m);
     }
@@ -198,15 +191,15 @@ Uint16 Chrono::DayOfYear(Uint16 year, Uint8 month, Uint8 day)
 }
 
 // ------------------------------------------------------------------------------------------------
-Date Chrono::ReverseDayOfyear(Uint16 year, Uint16 doy)
+Date Chrono::ReverseDayOfYear(uint16_t year, uint16_t doy)
 {
     // The resulted month
-    Uint8 month = 1;
+    uint8_t month = 1;
     // Calculate the months till the specified day of year
     for (; month < 12; ++month)
     {
         // Get the number of days in the current month
-        Uint32 days = DaysInMonth(year, month);
+        uint32_t days = DaysInMonth(year, month);
         // Can this month fit in the remaining days?
         if (days >= doy)
         {
@@ -220,7 +213,7 @@ Date Chrono::ReverseDayOfyear(Uint16 year, Uint16 doy)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int64 Chrono::DateRangeToSeconds(Uint16 _year, Uint8 _month, Uint8 _day, Uint16 year_, Uint8 month_, Uint8 day_)
+int64_t Chrono::DateRangeToSeconds(uint16_t _year, uint8_t _month, uint8_t _day, uint16_t year_, uint8_t month_, uint8_t day_)
 {
     // Are we within the same year?
     if (_year == year_)
@@ -235,7 +228,7 @@ Int64 Chrono::DateRangeToSeconds(Uint16 _year, Uint8 _month, Uint8 _day, Uint16 
         std::swap(_day, day_);
     }
     // Calculate the remaining days from the first year
-    Int64 num = DaysInYear(_year) - DayOfYear(_year, _month, _day);
+    int64_t num = DaysInYear(_year) - DayOfYear(_year, _month, _day);
     // Calculate the days withing the years range
     while (++_year < year_)
     {
@@ -301,7 +294,7 @@ void Register_Chrono(HSQUIRRELVM vm)
     .Func(_SC("DaysInYear"), &Chrono::DaysInYear)
     .Func(_SC("DaysInMonth"), &Chrono::DaysInMonth)
     .Func(_SC("DayOfYear"), &Chrono::DayOfYear)
-    .Func(_SC("ReverseDayOfyear"), &Chrono::ReverseDayOfyear);
+    .Func(_SC("ReverseDayOfYear"), &Chrono::ReverseDayOfYear);
 
     RootTable(vm).Bind(_SC("SqChrono"), cns);
 }

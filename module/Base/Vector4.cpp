@@ -2,19 +2,16 @@
 #include "Base/Vector4.hpp"
 #include "Base/Vector3.hpp"
 #include "Base/Quaternion.hpp"
-#include "Base/Shared.hpp"
 #include "Base/DynArg.hpp"
-#include "Base/Buffer.hpp"
+#include "Core/Buffer.hpp"
+#include "Core/Utility.hpp"
 #include "Library/Numeric/Random.hpp"
-
-// ------------------------------------------------------------------------------------------------
-#include <limits>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQMODE_DECL_TYPENAME(Typename, _SC("Vector4"))
+SQMOD_DECL_TYPENAME(Typename, _SC("Vector4"))
 
 // ------------------------------------------------------------------------------------------------
 const Vector4 Vector4::NIL = Vector4(0);
@@ -23,13 +20,6 @@ const Vector4 Vector4::MAX = Vector4(std::numeric_limits< Vector4::Value >::max(
 
 // ------------------------------------------------------------------------------------------------
 SQChar Vector4::Delim = ',';
-
-// ------------------------------------------------------------------------------------------------
-Vector4::Vector4() noexcept
-    : x(0.0), y(0.0), z(0.0), w(0.0)
-{
-    /* ... */
-}
 
 // ------------------------------------------------------------------------------------------------
 Vector4::Vector4(Value sv) noexcept
@@ -125,10 +115,10 @@ Vector4 & Vector4::operator /= (const Vector4 & v)
 // ------------------------------------------------------------------------------------------------
 Vector4 & Vector4::operator %= (const Vector4 & v)
 {
-    x = std::fmod(x, v.x);
-    y = std::fmod(y, v.y);
-    z = std::fmod(z, v.z);
-    w = std::fmod(w, v.w);
+    x = fmodf(x, v.x);
+    y = fmodf(y, v.y);
+    z = fmodf(z, v.z);
+    w = fmodf(w, v.w);
     return *this;
 }
 
@@ -174,10 +164,10 @@ Vector4 & Vector4::operator /= (Value s)
 // ------------------------------------------------------------------------------------------------
 Vector4 & Vector4::operator %= (Value s)
 {
-    x = std::fmod(x, s);
-    y = std::fmod(y, s);
-    z = std::fmod(z, s);
-    w = std::fmod(w, s);
+    x = fmodf(x, s);
+    y = fmodf(y, s);
+    z = fmodf(z, s);
+    w = fmodf(w, s);
     return *this;
 }
 
@@ -250,7 +240,7 @@ Vector4 Vector4::operator / (const Vector4 & v) const
 // ------------------------------------------------------------------------------------------------
 Vector4 Vector4::operator % (const Vector4 & v) const
 {
-    return {std::fmod(x, v.x), std::fmod(y, v.y), std::fmod(z, v.z), std::fmod(w, v.w)};
+    return {fmodf(x, v.x), fmodf(y, v.y), fmodf(z, v.z), fmodf(w, v.w)};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -280,13 +270,13 @@ Vector4 Vector4::operator / (Value s) const
 // ------------------------------------------------------------------------------------------------
 Vector4 Vector4::operator % (Value s) const
 {
-    return {std::fmod(x, s), std::fmod(y, s), std::fmod(z, s), std::fmod(w, s)};
+    return {fmodf(x, s), fmodf(y, s), fmodf(z, s), fmodf(w, s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector4 Vector4::operator + () const
 {
-    return {std::fabs(x), std::fabs(y), std::fabs(z), std::fabs(w)};
+    return {fabsf(x), fabsf(y), fabsf(z), fabsf(w)};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -332,7 +322,7 @@ bool Vector4::operator >= (const Vector4 & v) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 Vector4::Cmp(const Vector4 & o) const
+int32_t Vector4::Cmp(const Vector4 & o) const
 {
     if (*this == o)
     {
@@ -349,9 +339,9 @@ Int32 Vector4::Cmp(const Vector4 & o) const
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr Vector4::ToString() const
+String Vector4::ToString() const
 {
-    return ToStrF("%f,%f,%f,%f", x, y, z, w);
+    return fmt::format("{},{},{},{}", x, y, z, w);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -462,7 +452,7 @@ void Vector4::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmi
 // ------------------------------------------------------------------------------------------------
 Vector4 Vector4::Abs() const
 {
-    return {std::fabs(x), std::fabs(y), std::fabs(z), std::fabs(w)};
+    return {fabsf(x), fabsf(y), fabsf(z), fabsf(w)};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -472,30 +462,14 @@ const Vector4 & Vector4::Get(StackStrF & str)
 }
 
 // ------------------------------------------------------------------------------------------------
-LightObj Vector4::Format(const String & spec, StackStrF & fmt) const
+String Vector4::Format(StackStrF & str) const
 {
-    String out;
-    // Attempt to build the format string
-    if (!BuildFormatString(out, fmt, 4, spec))
-    {
-        return LightObj{}; // Default to null
-    }
-    // Empty string is unacceptable
-    else if (out.empty())
-    {
-        STHROWF("Unable to build a valid format string.");
-    }
-    // Grab a temporary buffer
-    Buffer buff(out.size());
-    // Generate the string
-    Buffer::SzType n = buff.WriteF(0, out.c_str(), x, y, z, w);
-    // Did the format failed?
-    if (!n && !out.empty())
-    {
-        STHROWF("Format failed. Please check format specifier and parameter count.");
-    }
-    // Return the resulted string
-    return LightObj{buff.Begin< SQChar >(), static_cast< SQInteger >(n)};
+    return fmt::format(str.ToStr()
+        , fmt::arg("x", x)
+        , fmt::arg("y", y)
+        , fmt::arg("z", z)
+        , fmt::arg("w", w)
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -575,39 +549,6 @@ void Register_Vector4(HSQUIRRELVM vm)
         .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< Vector4 >)
         .StaticFmtFunc(_SC("FromStr"), &Vector4::Get)
         .StaticFmtFunc(_SC("FromStrEx"), &Vector4::GetEx)
-        // Operator Exposure
-        .Func< Vector4 & (Vector4::*)(const Vector4 &) >(_SC("opAddAssign"), &Vector4::operator +=)
-        .Func< Vector4 & (Vector4::*)(const Vector4 &) >(_SC("opSubAssign"), &Vector4::operator -=)
-        .Func< Vector4 & (Vector4::*)(const Vector4 &) >(_SC("opMulAssign"), &Vector4::operator *=)
-        .Func< Vector4 & (Vector4::*)(const Vector4 &) >(_SC("opDivAssign"), &Vector4::operator /=)
-        .Func< Vector4 & (Vector4::*)(const Vector4 &) >(_SC("opModAssign"), &Vector4::operator %=)
-        .Func< Vector4 & (Vector4::*)(Vector4::Value) >(_SC("opAddAssignS"), &Vector4::operator +=)
-        .Func< Vector4 & (Vector4::*)(Vector4::Value) >(_SC("opSubAssignS"), &Vector4::operator -=)
-        .Func< Vector4 & (Vector4::*)(Vector4::Value) >(_SC("opMulAssignS"), &Vector4::operator *=)
-        .Func< Vector4 & (Vector4::*)(Vector4::Value) >(_SC("opDivAssignS"), &Vector4::operator /=)
-        .Func< Vector4 & (Vector4::*)(Vector4::Value) >(_SC("opModAssignS"), &Vector4::operator %=)
-        .Func< Vector4 & (Vector4::*)(void) >(_SC("opPreInc"), &Vector4::operator ++)
-        .Func< Vector4 & (Vector4::*)(void) >(_SC("opPreDec"), &Vector4::operator --)
-        .Func< Vector4 (Vector4::*)(int) >(_SC("opPostInc"), &Vector4::operator ++)
-        .Func< Vector4 (Vector4::*)(int) >(_SC("opPostDec"), &Vector4::operator --)
-        .Func< Vector4 (Vector4::*)(const Vector4 &) const >(_SC("opAdd"), &Vector4::operator +)
-        .Func< Vector4 (Vector4::*)(const Vector4 &) const >(_SC("opSub"), &Vector4::operator -)
-        .Func< Vector4 (Vector4::*)(const Vector4 &) const >(_SC("opMul"), &Vector4::operator *)
-        .Func< Vector4 (Vector4::*)(const Vector4 &) const >(_SC("opDiv"), &Vector4::operator /)
-        .Func< Vector4 (Vector4::*)(const Vector4 &) const >(_SC("opMod"), &Vector4::operator %)
-        .Func< Vector4 (Vector4::*)(Vector4::Value) const >(_SC("opAddS"), &Vector4::operator +)
-        .Func< Vector4 (Vector4::*)(Vector4::Value) const >(_SC("opSubS"), &Vector4::operator -)
-        .Func< Vector4 (Vector4::*)(Vector4::Value) const >(_SC("opMulS"), &Vector4::operator *)
-        .Func< Vector4 (Vector4::*)(Vector4::Value) const >(_SC("opDivS"), &Vector4::operator /)
-        .Func< Vector4 (Vector4::*)(Vector4::Value) const >(_SC("opModS"), &Vector4::operator %)
-        .Func< Vector4 (Vector4::*)(void) const >(_SC("opUnPlus"), &Vector4::operator +)
-        .Func< Vector4 (Vector4::*)(void) const >(_SC("opUnMinus"), &Vector4::operator -)
-        .Func< bool (Vector4::*)(const Vector4 &) const >(_SC("opEqual"), &Vector4::operator ==)
-        .Func< bool (Vector4::*)(const Vector4 &) const >(_SC("opNotEqual"), &Vector4::operator !=)
-        .Func< bool (Vector4::*)(const Vector4 &) const >(_SC("opLessThan"), &Vector4::operator <)
-        .Func< bool (Vector4::*)(const Vector4 &) const >(_SC("opGreaterThan"), &Vector4::operator >)
-        .Func< bool (Vector4::*)(const Vector4 &) const >(_SC("opLessEqual"), &Vector4::operator <=)
-        .Func< bool (Vector4::*)(const Vector4 &) const >(_SC("opGreaterEqual"), &Vector4::operator >=)
     );
 }
 

@@ -1,7 +1,7 @@
 #pragma once
 
 // ------------------------------------------------------------------------------------------------
-#include "Base/Shared.hpp"
+#include "Core/Common.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <vector>
@@ -12,7 +12,7 @@ namespace SqMod {
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the full path of file.
 */
-Buffer GetRealFilePath(CSStr path);
+Buffer GetRealFilePath(const SQChar * path);
 
 /* ------------------------------------------------------------------------------------------------
  * This class represents filesystem paths in a platform-independent manner.
@@ -44,37 +44,37 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Creates an empty absolute or relative path.
     */
-    SysPath(bool absolute);
+    explicit SysPath(bool absolute);
 
     /* --------------------------------------------------------------------------------------------
      * Creates a path in native format from a string.
     */
-    SysPath(CSStr path);
+    explicit SysPath(const SQChar * path);
 
     /* --------------------------------------------------------------------------------------------
      * Creates a path from a string.
     */
-    SysPath(CSStr path, Int32 style);
+    SysPath(const SQChar * path, int32_t style);
 
     /* --------------------------------------------------------------------------------------------
      * Creates a path from a string.
     */
-    SysPath(CSStr path, Style style);
+    SysPath(const SQChar * path, Style style);
 
     /* --------------------------------------------------------------------------------------------
      * Creates a path in native format from a string.
     */
-    SysPath(const Buffer & path, Int32 size = -1);
+    explicit SysPath(const Buffer & path, int32_t size = -1);
 
     /* --------------------------------------------------------------------------------------------
      * Creates a path from a string.
     */
-    SysPath(const Buffer & path, Style style, Int32 size = -1);
+    SysPath(const Buffer & path, Style style, int32_t size = -1);
 
     /* --------------------------------------------------------------------------------------------
      * Creates a path in native format from a string.
     */
-    SysPath(const String & path);
+    explicit SysPath(const String & path);
 
     /* --------------------------------------------------------------------------------------------
      * Creates a path from a string.
@@ -85,7 +85,7 @@ public:
      * Creates a path from a parent path and a file name. The parent path is expected to reference
      * a directory.
     */
-    SysPath(const SysPath & parent, CSStr  name);
+    SysPath(const SysPath & parent, const SQChar *  name);
 
     /* --------------------------------------------------------------------------------------------
      * Creates a path from a parent path and a file name. The parent path is expected to reference
@@ -102,32 +102,32 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    SysPath(const SysPath & o);
+    SysPath(const SysPath & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    SysPath(SysPath && o);
+    SysPath(SysPath && o) noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~SysPath();
+    ~SysPath() = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    SysPath & operator = (const SysPath & o);
+    SysPath & operator = (const SysPath & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator.
     */
-    SysPath & operator = (SysPath && o);
+    SysPath & operator = (SysPath && o) noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Assigns a string containing a path in native format.
     */
-    SysPath & operator = (CSStr path);
+    SysPath & operator = (const SQChar * path);
 
     /* --------------------------------------------------------------------------------------------
      * Assigns a string containing a path in native format.
@@ -147,22 +147,22 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to boolean operator.
     */
-    operator bool () const;
+    operator bool () const; // NOLINT(google-explicit-constructor)
 
     /* --------------------------------------------------------------------------------------------
      * Returns the n'th directory in the directory list. If n == depth(), returns the file name.
     */
-    const String & operator [] (Uint32 n) const;
+    const String & operator [] (uint32_t n) const;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    Int32 Cmp(const SysPath & o) const;
+    SQMOD_NODISCARD int32_t Cmp(const SysPath & o) const;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    Object ToString() const;
+    SQMOD_NODISCARD Object ToString() const;
 
     /* --------------------------------------------------------------------------------------------
      * Swaps the path with another one.
@@ -177,27 +177,27 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Assigns a string containing a path in native format.
     */
-    SysPath & Assign(CSStr path);
+    SysPath & Assign(const SQChar * path);
 
     /* --------------------------------------------------------------------------------------------
      * Assigns a string containing a path.
     */
-    SysPath & Assign(CSStr path, Int32 style);
+    SysPath & Assign(const SQChar * path, int32_t style);
 
     /* --------------------------------------------------------------------------------------------
      * Assigns a string containing a path.
     */
-    SysPath & Assign(CSStr path, Style style);
+    SysPath & Assign(const SQChar * path, Style style);
 
     /* --------------------------------------------------------------------------------------------
      * Assigns a string containing a path in native format.
     */
-    SysPath & Assign(const Buffer & path, Int32 size = -1);
+    SysPath & Assign(const Buffer & path, int32_t size = -1);
 
     /* --------------------------------------------------------------------------------------------
      * Assigns a string containing a path.
     */
-    SysPath & Assign(const Buffer & path, Style style, Int32 size = -1);
+    SysPath & Assign(const Buffer & path, Style style, int32_t size = -1);
 
     /* --------------------------------------------------------------------------------------------
      * Assigns a string containing a path in native format.
@@ -213,7 +213,7 @@ public:
      * Creates a path from a parent path and a file name. The parent path is expected to reference
      * a directory.
     */
-    SysPath & Assign(const SysPath & parent, CSStr  name);
+    SysPath & Assign(const SysPath & parent, const SQChar *  name);
 
     /* --------------------------------------------------------------------------------------------
      * Creates a path from a parent path and a file name. The parent path is expected to reference
@@ -240,27 +240,27 @@ public:
     /* --------------------------------------------------------------------------------------------
      * The resulting path always refers to a directory and the filename part is empty.
     */
-    SysPath & AssignDir(CSStr path);
+    SysPath & AssignDir(const SQChar * path);
 
     /* --------------------------------------------------------------------------------------------
      * The resulting path always refers to a directory and the filename part is empty.
     */
-    SysPath & AssignDir(CSStr path, Int32 style);
+    SysPath & AssignDir(const SQChar * path, int32_t style);
 
     /* --------------------------------------------------------------------------------------------
      * The resulting path always refers to a directory and the filename part is empty.
     */
-    SysPath & AssignDir(CSStr path, Style style);
+    SysPath & AssignDir(const SQChar * path, Style style);
 
     /* --------------------------------------------------------------------------------------------
      * The resulting path always refers to a directory and the filename part is empty.
     */
-    SysPath & AssignDir(const Buffer & path, Int32 size = -1);
+    SysPath & AssignDir(const Buffer & path, int32_t size = -1);
 
     /* --------------------------------------------------------------------------------------------
      * The resulting path always refers to a directory and the filename part is empty.
     */
-    SysPath & AssignDir(const Buffer & path, Style style, Int32 size = -1);
+    SysPath & AssignDir(const Buffer & path, Style style, int32_t size = -1);
 
     /* --------------------------------------------------------------------------------------------
      * The resulting path always refers to a directory and the filename part is empty.
@@ -275,27 +275,27 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Returns a string containing the path in native format.
     */
-    Buffer ToBuffer() const;
+    SQMOD_NODISCARD Buffer ToBuffer() const;
 
     /* --------------------------------------------------------------------------------------------
      * Returns a string containing the path in the given format.
     */
-    Buffer ToBuffer(Style style) const;
+    SQMOD_NODISCARD Buffer ToBuffer(Style style) const;
 
     /* --------------------------------------------------------------------------------------------
      * Returns a string containing the path in the given format.
     */
-    Object ToStr(Int32 style) const;
+    SQMOD_NODISCARD Object ToStr(int32_t style) const;
 
     /* --------------------------------------------------------------------------------------------
      * Assigns a string containing a path.
     */
-    void FromString(CSStr path);
+    void FromString(const SQChar * path);
 
     /* --------------------------------------------------------------------------------------------
      * See whether the path is absolute.
     */
-    bool IsAbsolute() const
+    SQMOD_NODISCARD bool IsAbsolute() const
     {
         return m_Absolute;
     }
@@ -303,7 +303,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether the path is relative.
     */
-    bool IsRelative() const
+    SQMOD_NODISCARD bool IsRelative() const
     {
         return !m_Absolute;
     }
@@ -311,7 +311,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether the path references a directory.
     */
-    bool IsDirectory() const
+    SQMOD_NODISCARD bool IsDirectory() const
     {
         return m_Name.empty();
     }
@@ -319,7 +319,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether the path references a file.
     */
-    bool IsFile() const
+    SQMOD_NODISCARD bool IsFile() const
     {
         return !m_Name.empty();
     }
@@ -327,7 +327,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether the path Does not contain a drive, directories or file name.
     */
-    bool Empty() const
+    SQMOD_NODISCARD bool Empty() const
     {
         return (m_Dirs.empty() && m_Name.empty() && m_Drive == 0);
     }
@@ -376,27 +376,27 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Parse the given string and append the resulted path.
     */
-    SysPath & Append(CSStr path);
+    SysPath & Append(const SQChar * path);
 
     /* --------------------------------------------------------------------------------------------
      * Parse the given string and append the resulted path.
     */
-    SysPath & Append(CSStr path, Int32 style);
+    SysPath & Append(const SQChar * path, int32_t style);
 
     /* --------------------------------------------------------------------------------------------
      * Parse the given string and append the resulted path.
     */
-    SysPath & Append(CSStr path, Style style);
+    SysPath & Append(const SQChar * path, Style style);
 
     /* --------------------------------------------------------------------------------------------
      * Parse the given string and append the resulted path.
     */
-    SysPath & Append(const Buffer & path, Int32 size = -1);
+    SysPath & Append(const Buffer & path, int32_t size = -1);
 
     /* --------------------------------------------------------------------------------------------
      * Parse the given string and append the resulted path.
     */
-    SysPath & Append(const Buffer & path, Style style, Int32 size = -1);
+    SysPath & Append(const Buffer & path, Style style, int32_t size = -1);
 
     /* --------------------------------------------------------------------------------------------
      * Parse the given string and append the resulted path.
@@ -411,7 +411,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Returns the drive letter.
     */
-    CharT GetDrive() const
+    SQMOD_NODISCARD CharT GetDrive() const
     {
         return m_Drive;
     }
@@ -427,20 +427,20 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Returns the number of directories in the directory list.
     */
-    Uint32 Depth() const
+    SQMOD_NODISCARD uint32_t Depth() const
     {
-        return m_Dirs.size();
+        return static_cast< uint32_t >(m_Dirs.size());
     }
 
     /* --------------------------------------------------------------------------------------------
      * Returns the n'th directory in the directory list. If n == depth(), returns the file name.
     */
-    const String & Directory(Uint32 n) const;
+    SQMOD_NODISCARD const String & Directory(uint32_t n) const;
 
     /* --------------------------------------------------------------------------------------------
      * Adds a directory to the directory list.
     */
-    SysPath & Push(CSStr dir);
+    SysPath & Push(const SQChar * dir);
 
     /* --------------------------------------------------------------------------------------------
      * Adds a directory to the directory list.
@@ -465,7 +465,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Set the specified file name.
     */
-    SysPath & SetFilename(CSStr name);
+    SysPath & SetFilename(const SQChar * name);
 
     /* --------------------------------------------------------------------------------------------
      * Set the specified file name.
@@ -480,7 +480,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieves the file name.
     */
-    const String & GetFilename() const
+    SQMOD_NODISCARD const String & GetFilename() const
     {
         return m_Name;
     }
@@ -488,7 +488,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Set the specified file name.
     */
-    void SqSetFilename(CSStr name)
+    void SqSetFilename(const SQChar * name)
     {
         SetFilename(name);
     }
@@ -496,7 +496,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Sets the basename part of the file name and does not change the extension.
     */
-    SysPath & SetBasename(CSStr name);
+    SysPath & SetBasename(const SQChar * name);
 
     /* --------------------------------------------------------------------------------------------
      * Sets the basename part of the file name and does not change the extension.
@@ -511,12 +511,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Returns the basename (the file name without extension) of the path.
     */
-    String GetBasename() const;
+    SQMOD_NODISCARD String GetBasename() const;
 
     /* --------------------------------------------------------------------------------------------
      * Sets the basename part of the file name and does not change the extension.
     */
-    void SqSetBasename(CSStr name)
+    void SqSetBasename(const SQChar * name)
     {
         SetBasename(name);
     }
@@ -524,7 +524,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Sets the file name extension.
     */
-    SysPath & SetExtension(CSStr ext);
+    SysPath & SetExtension(const SQChar * ext);
 
     /* --------------------------------------------------------------------------------------------
      * Sets the file name extension.
@@ -534,12 +534,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Returns the file name extension.
     */
-    String GetExtension() const;
+    SQMOD_NODISCARD String GetExtension() const;
 
     /* --------------------------------------------------------------------------------------------
      * Sets the file name extension.
     */
-    void SqSetExtension(CSStr ext)
+    void SqSetExtension(const SQChar * ext)
     {
         SetExtension(ext);
     }
@@ -547,12 +547,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Returns a pointer to the internal name string where the extension starts.
     */
-    CSStr GetExtensionC() const;
+    SQMOD_NODISCARD const SQChar * GetExtensionC() const;
 
     /* --------------------------------------------------------------------------------------------
      * Returns a path referring to the path's directory.
     */
-    SysPath Parent() const;
+    SQMOD_NODISCARD SysPath Parent() const;
 
     /* --------------------------------------------------------------------------------------------
      * Resolves the given path against the current one. If the given path is absolute, it replaces
@@ -565,32 +565,32 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Parse a path using the unix standards.
     */
-    void ParseUnix(CSStr pos, CSStr end);
+    void ParseUnix(const SQChar * pos, const SQChar * end);
 
     /* --------------------------------------------------------------------------------------------
      * Parse a path using the windows standards.
     */
-    void ParseWindows(CSStr pos, CSStr end);
+    void ParseWindows(const SQChar * pos, const SQChar * end);
 
     /* --------------------------------------------------------------------------------------------
      * Parse a path and expect combined windows and unix styles.
     */
-    void ParseDynamic(CSStr pos, CSStr end);
+    void ParseDynamic(const SQChar * pos, const SQChar * end);
 
     /* --------------------------------------------------------------------------------------------
      * Parse a path and try to detect it's type automatically.
     */
-    void ParseGuess(CSStr pos, CSStr end);
+    void ParseGuess(const SQChar * pos, const SQChar * end);
 
     /* --------------------------------------------------------------------------------------------
      * Build a path string using the Unix conventions.
     */
-    Buffer BuildUnix() const;
+    SQMOD_NODISCARD Buffer BuildUnix() const;
 
     /* --------------------------------------------------------------------------------------------
      * Build a path string using the Windows conventions.
     */
-    Buffer BuildWindows() const;
+    SQMOD_NODISCARD Buffer BuildWindows() const;
 
 private:
 
@@ -629,17 +629,17 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Creates a path referring to a directory.
     */
-    static SysPath ForDirectory(CSStr path);
+    static SysPath ForDirectory(const SQChar * path);
 
     /* --------------------------------------------------------------------------------------------
      * Creates a path referring to a directory.
     */
-    static SysPath ForDirectory(CSStr path, Int32 style);
+    static SysPath ForDirectory(const SQChar * path, int32_t style);
 
     /* --------------------------------------------------------------------------------------------
      * Creates a path referring to a directory.
     */
-    static SysPath ForDirectory(CSStr path, Style style);
+    static SysPath ForDirectory(const SQChar * path, Style style);
 
     /* --------------------------------------------------------------------------------------------
      * Creates a path referring to a directory.
@@ -655,7 +655,7 @@ public:
      * Expands all environment variables contained in the path. On Unix, a tilde as first character
      * in the path is replaced with the path to user's home directory.
     */
-    static SysPath Expand(CSStr path);
+    static SysPath Expand(const SQChar * path);
 
     /* --------------------------------------------------------------------------------------------
      * Expands all environment variables contained in the path.
@@ -701,7 +701,7 @@ public:
     static SysPath Temp();
 
     /* --------------------------------------------------------------------------------------------
-     * Returns the systemwide config directory.
+     * Returns the system-wide config directory.
     */
     static SysPath Config();
 
@@ -718,38 +718,38 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Returns the real path to the specified file or directory.
     */
-    static SysPath Real(CSStr path);
+    static SysPath Real(const SQChar * path);
 
     /* --------------------------------------------------------------------------------------------
      * Creates a path from a parent path and a file name. The parent path is expected to reference
      * a directory.
     */
-    static SysPath With(const SysPath & parent, CSStr name);
+    static SysPath With(const SysPath & parent, const SQChar * name);
 
     /* --------------------------------------------------------------------------------------------
      * Creates a path in unix format from a string.
     */
-    static SysPath MakeUnix(CSStr path);
+    static SysPath MakeUnix(const SQChar * path);
 
     /* --------------------------------------------------------------------------------------------
      * Creates a path in windows format from a string.
     */
-    static SysPath MakeWindows(CSStr path);
+    static SysPath MakeWindows(const SQChar * path);
 
     /* --------------------------------------------------------------------------------------------
      * Creates a path in native format from a string.
     */
-    static SysPath MakeNative(CSStr path);
+    static SysPath MakeNative(const SQChar * path);
 
     /* --------------------------------------------------------------------------------------------
      * Creates a path in and guess the format from a string.
     */
-    static SysPath MakeGuess(CSStr path);
+    static SysPath MakeGuess(const SQChar * path);
 
     /* --------------------------------------------------------------------------------------------
      * Creates a path in dynamic format from a string.
     */
-    static SysPath MakeDynamic(CSStr path);
+    static SysPath MakeDynamic(const SQChar * path);
 
     /* --------------------------------------------------------------------------------------------
      * Makes sure all separators from a path are the same.

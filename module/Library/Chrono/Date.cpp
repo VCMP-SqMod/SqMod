@@ -1,28 +1,26 @@
 // ------------------------------------------------------------------------------------------------
 #include "Library/Chrono/Date.hpp"
-#include "Library/Chrono/Time.hpp"
-#include "Library/Chrono/Datetime.hpp"
 #include "Library/Chrono/Timestamp.hpp"
-#include "Base/Shared.hpp"
+#include "Core/Utility.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQMODE_DECL_TYPENAME(Typename, _SC("SqDate"))
+SQMOD_DECL_TYPENAME(Typename, _SC("SqDate"))
 
 // ------------------------------------------------------------------------------------------------
 SQChar Date::Delimiter = '-';
 
 // ------------------------------------------------------------------------------------------------
-Int32 Date::Compare(const Date & o) const
+int32_t Date::Compare(const Date & o) const
 {
     if (m_Year < o.m_Year)
-    {
+    { // NOLINT(bugprone-branch-clone)
         return -1;
     }
     else if (m_Year > o.m_Year)
-    {
+    { // NOLINT(bugprone-branch-clone)
         return 1;
     }
     else if (m_Month < o.m_Month)
@@ -71,13 +69,13 @@ Date Date::operator / (const Date & o) const
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr Date::ToString() const
+String Date::ToString() const
 {
-    return ToStrF("%04u%c%02u%c%02u", m_Year, m_Delimiter, m_Month, m_Delimiter, m_Day);
+    return fmt::format("{:04}{}{:02}{}{:02}", m_Year, m_Delimiter, m_Month, m_Delimiter, m_Day);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Date::Set(Uint16 year, Uint8 month, Uint8 day)
+void Date::Set(uint16_t year, uint8_t month, uint8_t day)
 {
     if (!Chrono::ValidDate(year, month, day))
     {
@@ -90,7 +88,7 @@ void Date::Set(Uint16 year, Uint8 month, Uint8 day)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Date::SetStr(CSStr str)
+void Date::SetStr(const SQChar * str)
 {
     // The format specifications that will be used to scan the string
     static SQChar fs[] = _SC(" %u - %u - %u ");
@@ -108,21 +106,21 @@ void Date::SetStr(CSStr str)
     fs[4] = m_Delimiter;
     fs[9] = m_Delimiter;
     // The sscanf function requires at least 32 bit integers
-    Uint32 year = 0, month = 0, day = 0;
+    uint32_t year = 0, month = 0, day = 0;
     // Attempt to extract the component values from the specified string
     sscanf(str, fs, &year, &month, &day);
     // Clamp the extracted values to the boundaries of associated type and assign them
-    Set(ClampL< Uint32, Uint8 >(year),
-        ClampL< Uint32, Uint8 >(month),
-        ClampL< Uint32, Uint8 >(day)
+    Set(ClampL< uint32_t, uint8_t >(year),
+        ClampL< uint32_t, uint8_t >(month),
+        ClampL< uint32_t, uint8_t >(day)
     );
 }
 
 // ------------------------------------------------------------------------------------------------
-void Date::SetDayOfYear(Uint16 doy)
+void Date::SetDayOfYear(uint16_t doy)
 {
     // Reverse the given day of year to a full date
-    Date d = Chrono::ReverseDayOfyear(m_Year, doy);
+    Date d = Chrono::ReverseDayOfYear(m_Year, doy);
     // Set the obtained month
     SetMonth(d.m_Month);
     // Set the obtained day
@@ -130,7 +128,7 @@ void Date::SetDayOfYear(Uint16 doy)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Date::SetYear(Uint16 year)
+void Date::SetYear(uint16_t year)
 {
     // Make sure the year is valid
     if (!year)
@@ -148,7 +146,7 @@ void Date::SetYear(Uint16 year)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Date::SetMonth(Uint8 month)
+void Date::SetMonth(uint8_t month)
 {
     // Make sure the month is valid
     if (month == 0 || month > 12)
@@ -165,10 +163,10 @@ void Date::SetMonth(Uint8 month)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Date::SetDay(Uint8 day)
+void Date::SetDay(uint8_t day)
 {
     // Grab the amount of days in the current month
-    const Uint8 dim = Chrono::DaysInMonth(m_Year, m_Month);
+    const uint8_t dim = Chrono::DaysInMonth(m_Year, m_Month);
     // Make sure the day is valid
     if (day == 0)
     {
@@ -183,26 +181,26 @@ void Date::SetDay(Uint8 day)
 }
 
 // ------------------------------------------------------------------------------------------------
-Date & Date::AddYears(Int32 years)
+Date & Date::AddYears(int32_t years)
 {
     // Do we have a valid amount of years?
     if (years)
     {
         // Add the specified amount of years
-        SetYear(ConvTo< Uint16 >::From(static_cast< Int32 >(m_Year) + years));
+        SetYear(ConvTo< uint16_t >::From(static_cast< int32_t >(m_Year) + years));
     }
     // Allow chaining operations
     return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-Date & Date::AddMonths(Int32 months)
+Date & Date::AddMonths(int32_t months)
 {
     // Do we have a valid amount of months?
     if (months)
     {
         // Extract the number of years
-        Int32 years = static_cast< Int32 >(months / 12);
+        auto years = static_cast< int32_t >(months / 12);
         // Extract the number of months
         months = (months % 12) + m_Month;
         // Do we have extra months?
@@ -223,47 +221,47 @@ Date & Date::AddMonths(Int32 months)
         // Are there any years to add?
         if (years)
         {
-            SetYear(ConvTo< Uint16 >::From(static_cast< Int32 >(m_Year) + years));
+            SetYear(ConvTo< uint16_t >::From(static_cast< int32_t >(m_Year) + years));
         }
         // Add the months
-        SetMonth(months);
+        SetMonth(static_cast< uint8_t >(months));
     }
     // Allow chaining operations
     return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-Date & Date::AddDays(Int32 days)
+Date & Date::AddDays(int32_t days)
 {
     // Do we have a valid amount of days?
     if (days)
     {
         // Whether the number of days is positive or negative
-        const Int32 dir = days > 0 ? 1 : -1;
+        const int32_t dir = days > 0 ? 1 : -1;
         // Grab current year
-        Int32 year = m_Year;
+        int32_t year = m_Year;
         // Calculate the days in the current year
-        Int32 diy = Chrono::DaysInYear(year);
+        int32_t diy = Chrono::DaysInYear(static_cast< uint16_t >(year));
         // Calculate the day of year
-        Int32 doy = GetDayOfYear() + days;
+        int32_t doy = GetDayOfYear() + days;
         // Calculate the resulting years
         while (doy > diy || doy < 0)
         {
             doy -= diy * dir;
             year += dir;
-            diy = Chrono::DaysInYear(year);
+            diy = Chrono::DaysInYear(static_cast< uint16_t >(year));
         }
         // Set the obtained year
-        SetYear(year);
+        SetYear(static_cast< uint16_t >(year));
         // Set the obtained day of year
-        SetDayOfYear(doy);
+        SetDayOfYear(static_cast< uint16_t >(doy));
     }
     // Allow chaining operations
     return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-Date Date::AndYears(Int32 years)
+Date Date::AndYears(int32_t years)
 {
     // Do we have a valid amount of years?
     if (!years)
@@ -273,13 +271,13 @@ Date Date::AndYears(Int32 years)
     // Replicate the current date
     Date d(*this);
     // Add the specified amount of years
-    d.SetYear(ConvTo< Uint16 >::From(static_cast< Int32 >(m_Year) + years));
+    d.SetYear(ConvTo< uint16_t >::From(static_cast< int32_t >(m_Year) + years));
     // Return the resulted date
     return d;
 }
 
 // ------------------------------------------------------------------------------------------------
-Date Date::AndMonths(Int32 months)
+Date Date::AndMonths(int32_t months)
 {
     // Do we have a valid amount of months?
     if (!months)
@@ -287,7 +285,7 @@ Date Date::AndMonths(Int32 months)
         return Date(*this); // Return the date as is
     }
     // Extract the number of years
-    Int32 years = static_cast< Int32 >(months / 12);
+    auto years = static_cast< int32_t >(months / 12);
     // Extract the number of months
     months = (months % 12) + m_Month;
     // Do we have extra months?
@@ -310,16 +308,16 @@ Date Date::AndMonths(Int32 months)
     // Are there any years to add?
     if (years)
     {
-        d.SetYear(ConvTo< Uint16 >::From(static_cast< Int32 >(m_Year) + years));
+        d.SetYear(ConvTo< uint16_t >::From(static_cast< int32_t >(m_Year) + years));
     }
     // Add the months
-    d.SetMonth(months);
+    d.SetMonth(static_cast< uint8_t >(months));
     // Return the resulted date
     return d;
 }
 
 // ------------------------------------------------------------------------------------------------
-Date Date::AndDays(Int32 days)
+Date Date::AndDays(int32_t days)
 {
     // Do we have a valid amount of days?
     if (!days)
@@ -327,26 +325,26 @@ Date Date::AndDays(Int32 days)
         return Date(*this); // Return the date as is
     }
     // Whether the number of days is positive or negative
-    const Int32 dir = days > 0 ? 1 : -1;
+    const int32_t dir = days > 0 ? 1 : -1;
     // Grab current year
-    Int32 year = m_Year;
+    int32_t year = m_Year;
     // Calculate the days in the current year
-    Int32 diy = Chrono::DaysInYear(year);
+    int32_t diy = Chrono::DaysInYear(static_cast< uint16_t >(year));
     // Calculate the day of year
-    Int32 doy = GetDayOfYear() + days;
+    int32_t doy = GetDayOfYear() + days;
     // Calculate the resulting years
     while (doy > diy || doy < 0)
     {
         doy -= diy * dir;
         year += dir;
-        diy = Chrono::DaysInYear(year);
+        diy = Chrono::DaysInYear(static_cast< uint16_t >(year));
     }
     // Replicate the current date
     Date d(*this);
     // Set the obtained year
-    d.SetYear(year);
+    d.SetYear(static_cast< uint16_t >(year));
     // Set the obtained day of year
-    d.SetDayOfYear(doy);
+    d.SetDayOfYear(static_cast< uint16_t >(doy));
     // Return the resulted date
     return d;
 }
@@ -355,14 +353,14 @@ Date Date::AndDays(Int32 days)
 Timestamp Date::GetTimestamp() const
 {
     // Calculate the current day of the year
-    Int32 days = Chrono::DayOfYear(m_Year, m_Month, m_Day);
+    int32_t days = Chrono::DayOfYear(m_Year, m_Month, m_Day);
     // Calculate all days till the current year
-    for (Int32 year = 0; year < m_Year; --year)
+    for (int32_t year = 0; year < m_Year; --year)
     {
-        days += Chrono::DaysInYear(year);
+        days += Chrono::DaysInYear(static_cast< uint16_t >(year));
     }
     // Return the resulted timestamp
-    return Timestamp(static_cast< Int64 >(days * 86400000000LL));
+    return Timestamp(static_cast< int64_t >(days * 86400000000LL));
 }
 
 // ================================================================================================
@@ -372,9 +370,9 @@ void Register_ChronoDate(HSQUIRRELVM vm, Table & /*cns*/)
         Class< Date >(vm, Typename::Str)
         // Constructors
         .Ctor()
-        .Ctor< Uint16 >()
-        .Ctor< Uint16, Uint8 >()
-        .Ctor< Uint16, Uint8, Uint8 >()
+        .Ctor< uint16_t >()
+        .Ctor< uint16_t, uint8_t >()
+        .Ctor< uint16_t, uint8_t, uint8_t >()
         // Static Properties
         .SetStaticValue(_SC("GlobalDelimiter"), &Date::Delimiter)
         // Core Meta-methods
@@ -405,9 +403,9 @@ void Register_ChronoDate(HSQUIRRELVM vm, Table & /*cns*/)
         .Func(_SC("AndMonths"), &Date::AndMonths)
         .Func(_SC("AndDays"), &Date::AndDays)
         // Overloaded Methods
-        .Overload< void (Date::*)(Uint16) >(_SC("Set"), &Date::Set)
-        .Overload< void (Date::*)(Uint16, Uint8) >(_SC("Set"), &Date::Set)
-        .Overload< void (Date::*)(Uint16, Uint8, Uint8) >(_SC("Set"), &Date::Set)
+        .Overload< void (Date::*)(uint16_t) >(_SC("Set"), &Date::Set)
+        .Overload< void (Date::*)(uint16_t, uint8_t) >(_SC("Set"), &Date::Set)
+        .Overload< void (Date::*)(uint16_t, uint8_t, uint8_t) >(_SC("Set"), &Date::Set)
     );
 }
 

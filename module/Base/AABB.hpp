@@ -4,6 +4,9 @@
 #include "Base/Vector3.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <cmath>
+
+// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
@@ -31,12 +34,12 @@ struct AABB
     /* --------------------------------------------------------------------------------------------
      * The minimum and maximum components of this type.
     */
-    Vector3 min, max;
+    Vector3 min{HUGE_VALF}, max{-HUGE_VALF};
 
     /* --------------------------------------------------------------------------------------------
      * Construct with zero size.
     */
-    AABB() noexcept;
+    AABB() noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Construct a an equally sized and perfectly shaped box from scalar values.
@@ -254,12 +257,12 @@ struct AABB
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    Int32 Cmp(const AABB & b) const;
+    SQMOD_NODISCARD int32_t Cmp(const AABB & b) const;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(SQFloat s) const
+    SQMOD_NODISCARD int32_t Cmp(SQFloat s) const
     {
         return Cmp(AABB(s, s, s, s, s, s));
     }
@@ -267,7 +270,7 @@ struct AABB
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(SQInteger s) const
+    SQMOD_NODISCARD int32_t Cmp(SQInteger s) const
     {
         const auto v = static_cast< Value >(s);
         return Cmp(AABB(v, v, v, v, v, v));
@@ -276,7 +279,7 @@ struct AABB
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(bool s) const
+    SQMOD_NODISCARD int32_t Cmp(bool s) const
     {
         const auto v = static_cast< Value >(s);
         return Cmp(AABB(v, v, v, v, v, v));
@@ -285,7 +288,7 @@ struct AABB
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(std::nullptr_t) const
+    SQMOD_NODISCARD int32_t Cmp(std::nullptr_t) const
     {
         const auto v = static_cast< Value >(0);
         return Cmp(AABB(v, v, v, v, v, v));
@@ -294,7 +297,7 @@ struct AABB
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    CSStr ToString() const;
+    SQMOD_NODISCARD String ToString() const;
 
     /* --------------------------------------------------------------------------------------------
      * Set the values extracted from the specified string using the specified delimiter.
@@ -379,97 +382,97 @@ struct AABB
     /* --------------------------------------------------------------------------------------------
      * Check if the box is empty. This means that there is no space between the min and max edge.
     */
-    bool Empty() const;
+    SQMOD_NODISCARD bool Empty() const;
 
     /* --------------------------------------------------------------------------------------------
      * Return true if this bounding box is defined via a previous call to Define() or Merge().
     */
-    bool Defined() const;
+    SQMOD_NODISCARD bool Defined() const;
 
     /* --------------------------------------------------------------------------------------------
      * Return center.
     */
-    Vector3 Center() const;
+    SQMOD_NODISCARD Vector3 Center() const;
 
     /* --------------------------------------------------------------------------------------------
      * Get size/extent of the box (maximal distance of two points in the box).
     */
-    Vector3 Size() const;
+    SQMOD_NODISCARD Vector3 Size() const;
 
     /* --------------------------------------------------------------------------------------------
      * Return half-size.
     */
-    Vector3 HalfSize() const;
+    SQMOD_NODISCARD Vector3 HalfSize() const;
 
     /* --------------------------------------------------------------------------------------------
      * Get radius of the bounding sphere.
     */
-    Value Radius() const;
+    SQMOD_NODISCARD Value Radius() const;
 
     /* --------------------------------------------------------------------------------------------
      * Get the volume enclosed by the box in cubed units.
     */
-    Value Volume() const;
+    SQMOD_NODISCARD Value Volume() const;
 
     /* --------------------------------------------------------------------------------------------
      * Get the surface area of the box in squared units.
     */
-    Value Area() const;
+    SQMOD_NODISCARD Value Area() const;
 
     /* --------------------------------------------------------------------------------------------
      * Test if a point is inside.
     */
-    Int32 IsVector3Inside(const Vector3 & point) const;
+    SQMOD_NODISCARD int32_t IsVector3Inside(const Vector3 & point) const;
 
     /* --------------------------------------------------------------------------------------------
      * Test if a point is inside.
     */
-    Int32 IsVector3InsideEx(Value x, Value y, Value z) const;
+    SQMOD_NODISCARD int32_t IsVector3InsideEx(Value x, Value y, Value z) const;
 
     /* --------------------------------------------------------------------------------------------
      * Test if another bounding box is inside, outside or intersects.
     */
-    Int32 IsAABBInside(const AABB & box) const;
+    SQMOD_NODISCARD int32_t IsAABBInside(const AABB & box) const;
 
     /* --------------------------------------------------------------------------------------------
      * Test if another bounding box is inside, outside or intersects.
     */
-    Int32 IsAABBInsideEx(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax) const;
+    SQMOD_NODISCARD int32_t IsAABBInsideEx(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax) const;
 
     /* --------------------------------------------------------------------------------------------
      * Test if another bounding box is (partially) inside or outside.
     */
-    Int32 IsAABBInsideFast(const AABB & box) const;
+    SQMOD_NODISCARD int32_t IsAABBInsideFast(const AABB & box) const;
 
     /* --------------------------------------------------------------------------------------------
      * Test if another bounding box is (partially) inside or outside.
     */
-    Int32 IsAABBInsideFastEx(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax) const;
+    SQMOD_NODISCARD int32_t IsAABBInsideFastEx(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax) const;
 
     /* --------------------------------------------------------------------------------------------
      * Test if a sphere is inside, outside or intersects.
     */
-    Int32 IsSphereInside(const Sphere & sphere) const;
+    SQMOD_NODISCARD int32_t IsSphereInside(const Sphere & sphere) const;
 
     /* --------------------------------------------------------------------------------------------
      * Test if a sphere is inside, outside or intersects.
     */
-    Int32 IsSphereInsideEx(Value x, Value y, Value z, Value r) const;
+    SQMOD_NODISCARD int32_t IsSphereInsideEx(Value x, Value y, Value z, Value r) const;
 
     /* --------------------------------------------------------------------------------------------
      * Test if a sphere is (partially) inside or outside.
     */
-    Int32 IsSphereInsideFast(const Sphere & sphere) const;
+    SQMOD_NODISCARD int32_t IsSphereInsideFast(const Sphere & sphere) const;
 
     /* --------------------------------------------------------------------------------------------
      * Test if a sphere is (partially) inside or outside.
     */
-    Int32 IsSphereInsideFastEx(Value x, Value y, Value z, Value r) const;
+    SQMOD_NODISCARD int32_t IsSphereInsideFastEx(Value x, Value y, Value z, Value r) const;
 
     /* --------------------------------------------------------------------------------------------
      * Generate a formatted string with the values from this instance.
     */
-    LightObj Format(const String & spec, StackStrF & fmt) const;
+    SQMOD_NODISCARD String Format(StackStrF & str) const;
 
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the AABB type from a string.

@@ -21,15 +21,15 @@ public:
 private:
 
     // ------------------------------------------------------------------------------------------------
-    Uint16  m_Year; // Year
-    Uint8   m_Month; // Month
-    Uint8   m_Day; // Day
+    uint16_t  m_Year{}; // Year
+    uint8_t   m_Month{}; // Month
+    uint8_t   m_Day{}; // Day
 
     // ------------------------------------------------------------------------------------------------
-    Uint8   m_Hour; // Hour
-    Uint8   m_Minute; // Minute
-    Uint8   m_Second; // Second
-    Uint16  m_Millisecond; // Millisecond
+    uint8_t   m_Hour{}; // Hour
+    uint8_t   m_Minute{}; // Minute
+    uint8_t   m_Second{}; // Second
+    uint16_t  m_Millisecond{}; // Millisecond
 
     // ------------------------------------------------------------------------------------------------
     SQChar  m_Delimiter; // Date and time delimiter when generating strings.
@@ -41,7 +41,7 @@ protected:
     /* ------------------------------------------------------------------------------------------------
      * Compare the values of two instances.
     */
-    Int32 Compare(const Datetime & o) const;
+    SQMOD_NODISCARD int32_t Compare(const Datetime & o) const;
 
 public:
 
@@ -64,9 +64,9 @@ public:
     }
 
     /* ------------------------------------------------------------------------------------------------
-     * Speciffic year constructor.
+     * Specific year constructor.
     */
-    Datetime(Uint16 year)
+    explicit Datetime(uint16_t year)
         : m_Delimiter(Delimiter)
         , m_DateDelim(DateDelim)
         , m_TimeDelim(TimeDelim)
@@ -75,9 +75,9 @@ public:
     }
 
     /* ------------------------------------------------------------------------------------------------
-     * Speciffic year and month constructor.
+     * Specific year and month constructor.
     */
-    Datetime(Uint16 year, Uint8 month)
+    Datetime(uint16_t year, uint8_t month)
         : m_Delimiter(Delimiter)
         , m_DateDelim(DateDelim)
         , m_TimeDelim(TimeDelim)
@@ -86,9 +86,9 @@ public:
     }
 
     /* ------------------------------------------------------------------------------------------------
-     * Speciffic date constructor.
+     * Specific date constructor.
     */
-    Datetime(Uint16 year, Uint8 month, Uint8 day)
+    Datetime(uint16_t year, uint8_t month, uint8_t day)
         : m_Delimiter(Delimiter)
         , m_DateDelim(DateDelim)
         , m_TimeDelim(TimeDelim)
@@ -97,9 +97,9 @@ public:
     }
 
     /* ------------------------------------------------------------------------------------------------
-     * Speciffic date and hour constructor.
+     * Specific date and hour constructor.
     */
-    Datetime(Uint16 year, Uint8 month, Uint8 day, Uint8 hour)
+    Datetime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour)
         : m_Delimiter(Delimiter)
         , m_DateDelim(DateDelim)
         , m_TimeDelim(TimeDelim)
@@ -108,9 +108,9 @@ public:
     }
 
     /* ------------------------------------------------------------------------------------------------
-     * Speciffic date, hour and minute constructor.
+     * Specific date, hour and minute constructor.
     */
-    Datetime(Uint16 year, Uint8 month, Uint8 day, Uint8 hour, Uint8 minute)
+    Datetime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute)
         : m_Delimiter(Delimiter)
         , m_DateDelim(DateDelim)
         , m_TimeDelim(TimeDelim)
@@ -119,9 +119,9 @@ public:
     }
 
     /* ------------------------------------------------------------------------------------------------
-     * Speciffic date and time constructor.
+     * Specific date and time constructor.
     */
-    Datetime(Uint16 year, Uint8 month, Uint8 day, Uint8 hour, Uint8 minute, Uint8 second)
+    Datetime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second)
         : m_Delimiter(Delimiter)
         , m_DateDelim(DateDelim)
         , m_TimeDelim(TimeDelim)
@@ -130,9 +130,9 @@ public:
     }
 
     /* ------------------------------------------------------------------------------------------------
-     * Speciffic date and precise time constructor.
+     * Specific date and precise time constructor.
     */
-    Datetime(Uint16 year, Uint8 month, Uint8 day, Uint8 hour, Uint8 minute, Uint8 second, Uint16 millisecond)
+    Datetime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint16_t millisecond)
         : m_Delimiter(Delimiter)
         , m_DateDelim(DateDelim)
         , m_TimeDelim(TimeDelim)
@@ -236,7 +236,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    Int32 Cmp(const Datetime & o) const
+    SQMOD_NODISCARD int32_t Cmp(const Datetime & o) const
     {
         return Compare(o);
     }
@@ -244,12 +244,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    CSStr ToString() const;
+    SQMOD_NODISCARD String ToString() const;
 
     /* ------------------------------------------------------------------------------------------------
      * Assign the specified values.
     */
-    void Set(Uint16 year)
+    void Set(uint16_t year)
     {
         Set(year, m_Month, m_Day, m_Hour, m_Minute, m_Second, m_Millisecond);
     }
@@ -257,7 +257,7 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Assign the specified values.
     */
-    void Set(Uint16 year, Uint8 month)
+    void Set(uint16_t year, uint8_t month)
     {
         Set(year, month, m_Day, m_Hour, m_Minute, m_Second, m_Millisecond);
     }
@@ -265,7 +265,7 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Assign the specified values.
     */
-    void Set(Uint16 year, Uint8 month, Uint8 day)
+    void Set(uint16_t year, uint8_t month, uint8_t day)
     {
         Set(year, month, day, m_Hour, m_Minute, m_Second, m_Millisecond);
     }
@@ -273,7 +273,7 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Assign the specified values.
     */
-    void Set(Uint16 year, Uint8 month, Uint8 day, Uint8 hour)
+    void Set(uint16_t year, uint8_t month, uint8_t day, uint8_t hour)
     {
         Set(year, month, day, hour, m_Minute, m_Second, m_Millisecond);
     }
@@ -281,7 +281,7 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Assign the specified values.
     */
-    void Set(Uint16 year, Uint8 month, Uint8 day, Uint8 hour, Uint8 minute)
+    void Set(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute)
     {
         Set(year, month, day, hour, minute, m_Second, m_Millisecond);
     }
@@ -289,7 +289,7 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Assign the specified values.
     */
-    void Set(Uint16 year, Uint8 month, Uint8 day, Uint8 hour, Uint8 minute, Uint8 second)
+    void Set(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second)
     {
         Set(year, month, day, hour, minute, second, m_Millisecond);
     }
@@ -297,12 +297,12 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Assign the specified values.
     */
-    void Set(Uint16 year, Uint8 month, Uint8 day, Uint8 hour, Uint8 minute, Uint8 second, Uint16 millisecond);
+    void Set(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint16_t millisecond);
 
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the local delimiter character.
     */
-    SQChar GetDelimiter() const
+    SQMOD_NODISCARD SQChar GetDelimiter() const
     {
         return m_Delimiter;
     }
@@ -318,7 +318,7 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the local date delimiter character.
     */
-    SQChar GetDateDelim() const
+    SQMOD_NODISCARD SQChar GetDateDelim() const
     {
         return m_DateDelim;
     }
@@ -334,7 +334,7 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the local time delimiter character.
     */
-    SQChar GetTimeDelim() const
+    SQMOD_NODISCARD SQChar GetTimeDelim() const
     {
         return m_TimeDelim;
     }
@@ -350,7 +350,7 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the values as a string.
     */
-    CSStr GetStr() const
+    SQMOD_NODISCARD String GetStr() const
     {
         return ToString();
     }
@@ -358,12 +358,12 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Extract the values from a string.
     */
-    void SetStr(CSStr str);
+    void SetStr(const SQChar * str);
 
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the day component.
     */
-    Uint16 GetDayOfYear() const
+    SQMOD_NODISCARD uint16_t GetDayOfYear() const
     {
         return Chrono::DayOfYear(m_Year, m_Month, m_Day);
     }
@@ -371,12 +371,12 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Modify the day component.
     */
-    void SetDayOfYear(Uint16 doy);
+    void SetDayOfYear(uint16_t doy);
 
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the year component.
     */
-    Uint16 GetYear() const
+    SQMOD_NODISCARD uint16_t GetYear() const
     {
         return m_Year;
     }
@@ -384,12 +384,12 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Modify the year component.
     */
-    void SetYear(Uint16 year);
+    void SetYear(uint16_t year);
 
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the month component.
     */
-    Uint8 GetMonth() const
+    SQMOD_NODISCARD uint8_t GetMonth() const
     {
         return m_Month;
     }
@@ -397,12 +397,12 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Modify the month component.
     */
-    void SetMonth(Uint8 month);
+    void SetMonth(uint8_t month);
 
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the day component.
     */
-    Uint8 GetDay() const
+    SQMOD_NODISCARD uint8_t GetDay() const
     {
         return m_Day;
     }
@@ -410,12 +410,12 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Modify the day component.
     */
-    void SetDay(Uint8 day);
+    void SetDay(uint8_t day);
 
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the hour component.
     */
-    Uint8 GetHour() const
+    SQMOD_NODISCARD uint8_t GetHour() const
     {
         return m_Hour;
     }
@@ -423,12 +423,12 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Modify the hour component.
     */
-    void SetHour(Uint8 hour);
+    void SetHour(uint8_t hour);
 
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the minute component.
     */
-    Uint8 GetMinute() const
+    SQMOD_NODISCARD uint8_t GetMinute() const
     {
         return m_Minute;
     }
@@ -436,12 +436,12 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Modify the minute component.
     */
-    void SetMinute(Uint8 minute);
+    void SetMinute(uint8_t minute);
 
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the second component.
     */
-    Uint8 GetSecond() const
+    SQMOD_NODISCARD uint8_t GetSecond() const
     {
         return m_Second;
     }
@@ -449,12 +449,12 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Modify the second component.
     */
-    void SetSecond(Uint8 second);
+    void SetSecond(uint8_t second);
 
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the millisecond component.
     */
-    Uint16 GetMillisecond() const
+    SQMOD_NODISCARD uint16_t GetMillisecond() const
     {
         return m_Millisecond;
     }
@@ -462,82 +462,82 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Modify the millisecond component.
     */
-    void SetMillisecond(Uint16 millisecond);
+    void SetMillisecond(uint16_t millisecond);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of years to the current date.
     */
-    Datetime & AddYears(Int32 years);
+    Datetime & AddYears(int32_t years);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of months to the current date.
     */
-    Datetime & AddMonths(Int32 months);
+    Datetime & AddMonths(int32_t months);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of days to the current date.
     */
-    Datetime & AddDays(Int32 days);
+    Datetime & AddDays(int32_t days);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of hours to the current time.
     */
-    Datetime & AddHours(Int32 hours);
+    Datetime & AddHours(int32_t hours);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of minutes to the current time.
     */
-    Datetime & AddMinutes(Int32 minutes);
+    Datetime & AddMinutes(int32_t minutes);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of seconds to the current time.
     */
-    Datetime & AddSeconds(Int32 seconds);
+    Datetime & AddSeconds(int32_t seconds);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of milliseconds to the current time.
     */
-    Datetime & AddMilliseconds(Int32 milliseconds);
+    Datetime & AddMilliseconds(int32_t milliseconds);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of years to obtain a new date.
     */
-    Datetime AndYears(Int32 years);
+    SQMOD_NODISCARD Datetime AndYears(int32_t years);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of months to obtain a new date.
     */
-    Datetime AndMonths(Int32 months);
+    SQMOD_NODISCARD Datetime AndMonths(int32_t months);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of days to obtain a new date.
     */
-    Datetime AndDays(Int32 days);
+    SQMOD_NODISCARD Datetime AndDays(int32_t days);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of hours to obtain a new time.
     */
-    Datetime AndHours(Int32 hours);
+    SQMOD_NODISCARD Datetime AndHours(int32_t hours);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of minutes to obtain a new time.
     */
-    Datetime AndMinutes(Int32 minutes);
+    SQMOD_NODISCARD Datetime AndMinutes(int32_t minutes);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of seconds to obtain a new time.
     */
-    Datetime AndSeconds(Int32 seconds);
+    SQMOD_NODISCARD Datetime AndSeconds(int32_t seconds);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of milliseconds to obtain a new time.
     */
-    Datetime AndMilliseconds(Int32 milliseconds);
+    SQMOD_NODISCARD Datetime AndMilliseconds(int32_t milliseconds);
 
     /* ------------------------------------------------------------------------------------------------
      * See whether the associated year is a leap year.
     */
-    bool IsThisLeapYear() const
+    SQMOD_NODISCARD bool IsThisLeapYear() const
     {
         return Chrono::IsLeapYear(m_Year);
     }
@@ -545,7 +545,7 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the number of days in the associated year.
     */
-    Uint16 GetYearDays() const
+    SQMOD_NODISCARD uint16_t GetYearDays() const
     {
         return Chrono::DaysInYear(m_Year);
     }
@@ -553,7 +553,7 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the number of days in the associated month.
     */
-    Uint8 GetMonthDays() const
+    SQMOD_NODISCARD uint8_t GetMonthDays() const
     {
         return Chrono::DaysInMonth(m_Year, m_Month);
     }
@@ -561,17 +561,17 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the date from this date-time instance.
     */
-    Date GetDate() const;
+    SQMOD_NODISCARD Date GetDate() const;
 
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the time from this date-time instance.
     */
-    Time GetTime() const;
+    SQMOD_NODISCARD Time GetTime() const;
 
     /* ------------------------------------------------------------------------------------------------
      * Convert this date-time instance to a time-stamp.
     */
-    Timestamp GetTimestamp() const;
+    SQMOD_NODISCARD Timestamp GetTimestamp() const;
 };
 
 } // Namespace:: SqMod

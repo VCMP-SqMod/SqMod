@@ -1,7 +1,7 @@
 #pragma once
 
 // ------------------------------------------------------------------------------------------------
-#include "SqBase.hpp"
+#include "Base/Shared.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -38,12 +38,12 @@ struct Vector3
     /* --------------------------------------------------------------------------------------------
      * The x, y and z components of this type.
     */
-    Value x, y, z;
+    Value x{0}, y{0}, z{0};
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Vector3() noexcept;
+    Vector3() noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Construct a vector with the same scalar value for all components.
@@ -258,12 +258,12 @@ struct Vector3
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    Int32 Cmp(const Vector3 & v) const;
+    SQMOD_NODISCARD int32_t Cmp(const Vector3 & v) const;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(SQFloat s) const
+    SQMOD_NODISCARD int32_t Cmp(SQFloat s) const
     {
         return Cmp(Vector3(static_cast< Value >(s)));
     }
@@ -271,7 +271,7 @@ struct Vector3
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(SQInteger s) const
+    SQMOD_NODISCARD int32_t Cmp(SQInteger s) const
     {
         return Cmp(Vector3(static_cast< Value >(s)));
     }
@@ -279,7 +279,7 @@ struct Vector3
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(bool s) const
+    SQMOD_NODISCARD int32_t Cmp(bool s) const
     {
         return Cmp(Vector3(static_cast< Value >(s)));
     }
@@ -287,7 +287,7 @@ struct Vector3
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(std::nullptr_t) const
+    SQMOD_NODISCARD int32_t Cmp(std::nullptr_t) const
     {
         return Cmp(static_cast< Value >(0));
     }
@@ -295,7 +295,7 @@ struct Vector3
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    CSStr ToString() const;
+    SQMOD_NODISCARD String ToString() const;
 
     /* --------------------------------------------------------------------------------------------
      * Set all components to the specified scalar value.
@@ -363,17 +363,17 @@ struct Vector3
     /* --------------------------------------------------------------------------------------------
      * Retrieve a new instance of this type with absolute component values.
     */
-    Vector3 Abs() const;
+    SQMOD_NODISCARD Vector3 Abs() const;
 
     /* --------------------------------------------------------------------------------------------
      * Return whether is NaN.
     */
-    bool IsNaN() const;
+    SQMOD_NODISCARD bool IsNaN() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the length.
     */
-    Value GetLength() const;
+    SQMOD_NODISCARD Value GetLength() const;
 
     /* --------------------------------------------------------------------------------------------
      * Assign the length.
@@ -383,7 +383,7 @@ struct Vector3
     /* --------------------------------------------------------------------------------------------
      * Return the squared length.
     */
-    Value GetLengthSquared() const;
+    SQMOD_NODISCARD Value GetLengthSquared() const;
 
     /* --------------------------------------------------------------------------------------------
      * Assign the squared length.
@@ -393,7 +393,7 @@ struct Vector3
     /* --------------------------------------------------------------------------------------------
      * Return normalized to unit length.
     */
-    Vector3 Normalized() const;
+    SQMOD_NODISCARD Vector3 Normalized() const;
 
     /* --------------------------------------------------------------------------------------------
      * Normalize to unit length.
@@ -403,37 +403,37 @@ struct Vector3
     /* --------------------------------------------------------------------------------------------
      * Calculate dot product.
     */
-    Value DotProduct(const Vector3 & vec) const;
+    SQMOD_NODISCARD Value DotProduct(const Vector3 & vec) const;
 
     /* --------------------------------------------------------------------------------------------
      * Calculate absolute dot product.
     */
-    Value AbsDotProduct(const Vector3 & vec) const;
+    SQMOD_NODISCARD Value AbsDotProduct(const Vector3 & vec) const;
 
     /* --------------------------------------------------------------------------------------------
      * Calculate cross product.
     */
-    Vector3 CrossProduct(const Vector3 & vec) const;
+    SQMOD_NODISCARD Vector3 CrossProduct(const Vector3 & vec) const;
 
     /* --------------------------------------------------------------------------------------------
      * Returns the angle between this vector and another vector in degrees.
     */
-    Value Angle(const Vector3 & vec) const;
+    SQMOD_NODISCARD Value Angle(const Vector3 & vec) const;
 
     /* --------------------------------------------------------------------------------------------
      * Return the distance between this vector and another vector.
     */
-    Value GetDistanceTo(const Vector3 & vec) const;
+    SQMOD_NODISCARD Value GetDistanceTo(const Vector3 & vec) const;
 
     /* --------------------------------------------------------------------------------------------
      * Return the squared distance between this vector and another vector.
     */
-    Value GetSquaredDistanceTo(const Vector3 & vec) const;
+    SQMOD_NODISCARD Value GetSquaredDistanceTo(const Vector3 & vec) const;
 
     /* --------------------------------------------------------------------------------------------
      * Linear interpolation with another vector.
     */
-    bool IsBetweenPoints(const Vector3 & begin, const Vector3 & end) const;
+    SQMOD_NODISCARD bool IsBetweenPoints(const Vector3 & begin, const Vector3 & end) const;
 
     /* --------------------------------------------------------------------------------------------
      * Sets this vector to the linearly interpolated vector between a and b.
@@ -443,12 +443,12 @@ struct Vector3
     /* --------------------------------------------------------------------------------------------
      * Sets this vector to the linearly interpolated vector between a and b.
     */
-    Vector3 Interpolated(const Vector3 & vec, Value d) const;
+    SQMOD_NODISCARD Vector3 Interpolated(const Vector3 & vec, Value d) const;
 
     /* --------------------------------------------------------------------------------------------
      * Rotates the vector by a specified number of degrees around the Y axis and the specified center.
     */
-    Vector3 Rotated(const Vector3 & axis, Value angle) const;
+    SQMOD_NODISCARD Vector3 Rotated(const Vector3 & axis, Value angle) const;
 
     /* --------------------------------------------------------------------------------------------
      * Rotates the vector by a specified number of degrees around the Y axis and the specified center.
@@ -492,7 +492,7 @@ struct Vector3
     /* --------------------------------------------------------------------------------------------
      * Generate a formatted string with the values from this instance.
     */
-    LightObj Format(const String & spec, StackStrF & fmt) const;
+    SQMOD_NODISCARD String Format(StackStrF & str) const;
 
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Vector3 type from a string.

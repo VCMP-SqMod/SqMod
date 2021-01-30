@@ -2,13 +2,10 @@
 #include "Base/Quaternion.hpp"
 #include "Base/Vector3.hpp"
 #include "Base/Vector4.hpp"
-#include "Base/Shared.hpp"
 #include "Base/DynArg.hpp"
-#include "Base/Buffer.hpp"
+#include "Core/Buffer.hpp"
+#include "Core/Utility.hpp"
 #include "Library/Numeric/Random.hpp"
-
-// ------------------------------------------------------------------------------------------------
-#include <limits>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -17,7 +14,7 @@ namespace SqMod {
 #define STOVAL(v) static_cast< Quaternion::Value >(v)
 
 // ------------------------------------------------------------------------------------------------
-SQMODE_DECL_TYPENAME(Typename, _SC("Quaternion"))
+SQMOD_DECL_TYPENAME(Typename, _SC("Quaternion"))
 
 // ------------------------------------------------------------------------------------------------
 const Quaternion Quaternion::NIL(0);
@@ -27,13 +24,6 @@ const Quaternion Quaternion::IDENTITY(1.0, 0.0, 0.0, 0.0);
 
 // ------------------------------------------------------------------------------------------------
 SQChar Quaternion::Delim = ',';
-
-// ------------------------------------------------------------------------------------------------
-Quaternion::Quaternion() noexcept
-    : x(0.0), y(0.0), z(0.0), w(0.0)
-{
-    /* ... */
-}
 
 // ------------------------------------------------------------------------------------------------
 Quaternion::Quaternion(Value sv) noexcept
@@ -129,10 +119,10 @@ Quaternion & Quaternion::operator /= (const Quaternion & q)
 // ------------------------------------------------------------------------------------------------
 Quaternion & Quaternion::operator %= (const Quaternion & q)
 {
-    x = std::fmod(x, q.x);
-    y = std::fmod(y, q.y);
-    z = std::fmod(z, q.z);
-    w = std::fmod(w, q.w);
+    x = fmodf(x, q.x);
+    y = fmodf(y, q.y);
+    z = fmodf(z, q.z);
+    w = fmodf(w, q.w);
     return *this;
 }
 
@@ -179,10 +169,10 @@ Quaternion & Quaternion::operator /= (Value s)
 // ------------------------------------------------------------------------------------------------
 Quaternion & Quaternion::operator %= (Value s)
 {
-    x = std::fmod(x, s);
-    y = std::fmod(y, s);
-    z = std::fmod(z, s);
-    w = std::fmod(w, s);
+    x = fmodf(x, s);
+    y = fmodf(y, s);
+    z = fmodf(z, s);
+    w = fmodf(w, s);
     return *this;
 }
 
@@ -279,19 +269,19 @@ Quaternion Quaternion::operator / (Value s) const
 // ------------------------------------------------------------------------------------------------
 Quaternion Quaternion::operator % (const Quaternion & q) const
 {
-    return {std::fmod(x, q.x), std::fmod(y, q.y), std::fmod(z, q.z), std::fmod(w, q.w)};
+    return {fmodf(x, q.x), fmodf(y, q.y), fmodf(z, q.z), fmodf(w, q.w)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Quaternion Quaternion::operator % (Value s) const
 {
-    return {std::fmod(x, s), std::fmod(y, s), std::fmod(z, s), std::fmod(w, s)};
+    return {fmodf(x, s), fmodf(y, s), fmodf(z, s), fmodf(w, s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Quaternion Quaternion::operator + () const
 {
-    return {std::fabs(x), std::fabs(y), std::fabs(z), std::fabs(w)};
+    return {fabsf(x), fabsf(y), fabsf(z), fabsf(w)};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -337,7 +327,7 @@ bool Quaternion::operator >= (const Quaternion & q) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 Quaternion::Cmp(const Quaternion & o) const
+int32_t Quaternion::Cmp(const Quaternion & o) const
 {
     if (*this == o)
     {
@@ -354,9 +344,9 @@ Int32 Quaternion::Cmp(const Quaternion & o) const
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr Quaternion::ToString() const
+String Quaternion::ToString() const
 {
-    return ToStrF("%f,%f,%f,%f", x, y, z, w);
+    return fmt::format("{},{},{},{}", x, y, z, w);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -395,24 +385,24 @@ void Quaternion::SetVector3(const Vector3 & v)
 // ------------------------------------------------------------------------------------------------
 void Quaternion::SetVector3Ex(Value nx, Value ny, Value nz)
 {
-    Float64 angle;
+    double angle;
 
     angle = (nx * 0.5);
-    const Float64 sr = std::sin(angle);
-    const Float64 cr = std::cos(angle);
+    const double sr = sin(angle);
+    const double cr = cos(angle);
 
     angle = (ny * 0.5);
-    const Float64 sp = std::sin(angle);
-    const Float64 cp = std::cos(angle);
+    const double sp = sin(angle);
+    const double cp = cos(angle);
 
     angle = (nz * 0.5);
-    const Float64 sy = std::sin(angle);
-    const Float64 cy = std::cos(angle);
+    const double sy = sin(angle);
+    const double cy = cos(angle);
 
-    const Float64 cpcy = (cp * cy);
-    const Float64 spcy = (sp * cy);
-    const Float64 cpsy = (cp * sy);
-    const Float64 spsy = (sp * sy);
+    const double cpcy = (cp * cy);
+    const double spcy = (sp * cy);
+    const double cpsy = (cp * sy);
+    const double spsy = (sp * sy);
 
     x = STOVAL(sr * cpcy - cr * spsy);
     y = STOVAL(cr * spcy + sr * cpsy);
@@ -477,13 +467,13 @@ void Quaternion::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value 
 // ------------------------------------------------------------------------------------------------
 Quaternion Quaternion::Abs() const
 {
-    return {std::fabs(x), std::fabs(y), std::fabs(z), std::fabs(w)};
+    return {fabsf(x), fabsf(y), fabsf(z), fabsf(w)};
 }
 
 // ------------------------------------------------------------------------------------------------
 bool Quaternion::IsNaN() const
 {
-    return std::isnan(w) || std::isnan(x) || std::isnan(y) || std::isnan(z);
+    return isnanf(w) || isnanf(x) || isnanf(y) || isnanf(z);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -511,7 +501,7 @@ void Quaternion::Normalize()
 
     if (!EpsEq(len_squared, STOVAL(1.0)) && EpsGt(len_squared, STOVAL(0.0)))
     {
-        const Value inv_len = STOVAL(1.0) / std::sqrt(len_squared);
+        const Value inv_len = STOVAL(1.0) / sqrtf(len_squared);
 
         x *= inv_len;
         y *= inv_len;
@@ -542,11 +532,11 @@ void Quaternion::FromAngleAxis(Value angle, const Vector3 & axis)
 {
     const Vector3 norm_axis = axis.Normalized();
     angle *= SQMOD_DEGTORAD_2;
-    const Value sin_angle = std::sin(angle);
+    const Value sin_angle = sinf(angle);
     x = norm_axis.x * sin_angle;
     y = norm_axis.y * sin_angle;
     z = norm_axis.z * sin_angle;
-    w = std::cos(angle);
+    w = cosf(angle);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -559,7 +549,7 @@ void Quaternion::FromRotationTo(const Vector3 & start, const Vector3 & end)
     if (EpsGt(d, STOVAL(-1.0)))
     {
         const Vector3 c = norm_start.CrossProduct(norm_end);
-        const Value s = std::sqrt((STOVAL(1.0) + d) * STOVAL(2.0));
+        const Value s = sqrtf((STOVAL(1.0) + d) * STOVAL(2.0));
         const Value inv_s = STOVAL(1.0) / s;
 
         x = c.x * inv_s;
@@ -603,11 +593,11 @@ Quaternion Quaternion::Inverse() const
 // ------------------------------------------------------------------------------------------------
 Vector3 Quaternion::ToEuler() const
 {
-    const Float64 sqw = (w * w);
-    const Float64 sqx = (x * x);
-    const Float64 sqy = (y * y);
-    const Float64 sqz = (z * z);
-    const Float64 test = 2.0 * ((y * w) - (x * z));
+    const double sqw = (w * w);
+    const double sqx = (x * x);
+    const double sqy = (y * y);
+    const double sqz = (z * z);
+    const double test = 2.0 * ((y * w) - (x * z));
 
     if (EpsEq(test, 1.0))
     {
@@ -617,7 +607,7 @@ Vector3 Quaternion::ToEuler() const
             // attitude = rotation about y-axis
             STOVAL(SQMOD_PI64 / 2.0),
             // heading = rotation about z-axis
-            STOVAL(-2.0 * std::atan2(x, w))
+            STOVAL(-2.0 * atan2f(x, w))
         };
     }
     else if (EpsEq(test, -1.0))
@@ -628,17 +618,17 @@ Vector3 Quaternion::ToEuler() const
             // attitude = rotation about y-axis
             STOVAL(SQMOD_PI64 / -2.0),
             // heading = rotation about z-axis
-            STOVAL(2.0 * std::atan2(x, w))
+            STOVAL(2.0 * atan2f(x, w))
         };
     }
 
     return {
         // bank = rotation about x-axis
-        STOVAL(std::atan2(2.0 * ((y * z) + (x * w)), (-sqx - sqy + sqz + sqw))),
+        STOVAL(atan2(2.0 * ((y * z) + (x * w)), (-sqx - sqy + sqz + sqw))),
         // attitude = rotation about y-axis
-        STOVAL(std::asin(Clamp(test, -1.0, 1.0))),
+        STOVAL(asin(Clamp(test, -1.0, 1.0))),
         // heading = rotation about z-axis
-        STOVAL(std::atan2(2.0 * ((x * y) + (z * w)), (sqx - sqy - sqz + sqw)))
+        STOVAL(atan2(2.0 * ((x * y) + (z * w)), (sqx - sqy - sqz + sqw)))
     };
 }
 
@@ -672,15 +662,15 @@ Quaternion Quaternion::Slerp(Quaternion quat, Value t) const
         quat = -quat;
     }
 
-    const Value angle = std::acos(cos_angle);
-    Value sin_angle = std::sin(angle);
+    const Value angle = acosf(cos_angle);
+    Value sin_angle = sinf(angle);
     Value t1, t2;
 
     if (sin_angle > STOVAL(0.001))
     {
         Value inv_sin_angle = STOVAL(1.0) / sin_angle;
-        t1 = std::sin((STOVAL(1.0) - t) * angle) * inv_sin_angle;
-        t2 = std::sin(t * angle) * inv_sin_angle;
+        t1 = sinf((STOVAL(1.0) - t) * angle) * inv_sin_angle;
+        t2 = sinf(t * angle) * inv_sin_angle;
     }
     else
     {
@@ -721,30 +711,14 @@ const Quaternion & Quaternion::Get(StackStrF & str)
 }
 
 // ------------------------------------------------------------------------------------------------
-LightObj Quaternion::Format(const String & spec, StackStrF & fmt) const
+String Quaternion::Format(StackStrF & str) const
 {
-    String out;
-    // Attempt to build the format string
-    if (!BuildFormatString(out, fmt, 4, spec))
-    {
-        return LightObj{}; // Default to null
-    }
-    // Empty string is unacceptable
-    else if (out.empty())
-    {
-        STHROWF("Unable to build a valid format string.");
-    }
-    // Grab a temporary buffer
-    Buffer buff(out.size());
-    // Generate the string
-    Buffer::SzType n = buff.WriteF(0, out.c_str(), x, y, z, w);
-    // Did the format failed?
-    if (!n && !out.empty())
-    {
-        STHROWF("Format failed. Please check format specifier and parameter count.");
-    }
-    // Return the resulted string
-    return LightObj{buff.Begin< SQChar >(), static_cast< SQInteger >(n)};
+    return fmt::format(str.ToStr()
+        , fmt::arg("x", x)
+        , fmt::arg("y", y)
+        , fmt::arg("z", z)
+        , fmt::arg("w", w)
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -839,39 +813,6 @@ void Register_Quaternion(HSQUIRRELVM vm)
         .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< Quaternion >)
         .StaticFmtFunc(_SC("FromStr"), &Quaternion::Get)
         .StaticFmtFunc(_SC("FromStrEx"), &Quaternion::GetEx)
-        // Operator Exposure
-        .Func< Quaternion & (Quaternion::*)(const Quaternion &) >(_SC("opAddAssign"), &Quaternion::operator +=)
-        .Func< Quaternion & (Quaternion::*)(const Quaternion &) >(_SC("opSubAssign"), &Quaternion::operator -=)
-        .Func< Quaternion & (Quaternion::*)(const Quaternion &) >(_SC("opMulAssign"), &Quaternion::operator *=)
-        .Func< Quaternion & (Quaternion::*)(const Quaternion &) >(_SC("opDivAssign"), &Quaternion::operator /=)
-        .Func< Quaternion & (Quaternion::*)(const Quaternion &) >(_SC("opModAssign"), &Quaternion::operator %=)
-        .Func< Quaternion & (Quaternion::*)(Quaternion::Value) >(_SC("opAddAssignS"), &Quaternion::operator +=)
-        .Func< Quaternion & (Quaternion::*)(Quaternion::Value) >(_SC("opSubAssignS"), &Quaternion::operator -=)
-        .Func< Quaternion & (Quaternion::*)(Quaternion::Value) >(_SC("opMulAssignS"), &Quaternion::operator *=)
-        .Func< Quaternion & (Quaternion::*)(Quaternion::Value) >(_SC("opDivAssignS"), &Quaternion::operator /=)
-        .Func< Quaternion & (Quaternion::*)(Quaternion::Value) >(_SC("opModAssignS"), &Quaternion::operator %=)
-        .Func< Quaternion & (Quaternion::*)(void) >(_SC("opPreInc"), &Quaternion::operator ++)
-        .Func< Quaternion & (Quaternion::*)(void) >(_SC("opPreDec"), &Quaternion::operator --)
-        .Func< Quaternion (Quaternion::*)(int) >(_SC("opPostInc"), &Quaternion::operator ++)
-        .Func< Quaternion (Quaternion::*)(int) >(_SC("opPostDec"), &Quaternion::operator --)
-        .Func< Quaternion (Quaternion::*)(const Quaternion &) const >(_SC("opAdd"), &Quaternion::operator +)
-        .Func< Quaternion (Quaternion::*)(const Quaternion &) const >(_SC("opSub"), &Quaternion::operator -)
-        .Func< Quaternion (Quaternion::*)(const Quaternion &) const >(_SC("opMul"), &Quaternion::operator *)
-        .Func< Quaternion (Quaternion::*)(const Quaternion &) const >(_SC("opDiv"), &Quaternion::operator /)
-        .Func< Quaternion (Quaternion::*)(const Quaternion &) const >(_SC("opMod"), &Quaternion::operator %)
-        .Func< Quaternion (Quaternion::*)(Quaternion::Value) const >(_SC("opAddS"), &Quaternion::operator +)
-        .Func< Quaternion (Quaternion::*)(Quaternion::Value) const >(_SC("opSubS"), &Quaternion::operator -)
-        .Func< Quaternion (Quaternion::*)(Quaternion::Value) const >(_SC("opMulS"), &Quaternion::operator *)
-        .Func< Quaternion (Quaternion::*)(Quaternion::Value) const >(_SC("opDivS"), &Quaternion::operator /)
-        .Func< Quaternion (Quaternion::*)(Quaternion::Value) const >(_SC("opModS"), &Quaternion::operator %)
-        .Func< Quaternion (Quaternion::*)(void) const >(_SC("opUnPlus"), &Quaternion::operator +)
-        .Func< Quaternion (Quaternion::*)(void) const >(_SC("opUnMinus"), &Quaternion::operator -)
-        .Func< bool (Quaternion::*)(const Quaternion &) const >(_SC("opEqual"), &Quaternion::operator ==)
-        .Func< bool (Quaternion::*)(const Quaternion &) const >(_SC("opNotEqual"), &Quaternion::operator !=)
-        .Func< bool (Quaternion::*)(const Quaternion &) const >(_SC("opLessThan"), &Quaternion::operator <)
-        .Func< bool (Quaternion::*)(const Quaternion &) const >(_SC("opGreaterThan"), &Quaternion::operator >)
-        .Func< bool (Quaternion::*)(const Quaternion &) const >(_SC("opLessEqual"), &Quaternion::operator <=)
-        .Func< bool (Quaternion::*)(const Quaternion &) const >(_SC("opGreaterEqual"), &Quaternion::operator >=)
     );
 }
 

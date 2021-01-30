@@ -1,7 +1,7 @@
 #pragma once
 
 // ------------------------------------------------------------------------------------------------
-#include "SqBase.hpp"
+#include "Base/Shared.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -31,12 +31,12 @@ struct Vector4
     /* --------------------------------------------------------------------------------------------
      * The x, y, z and w components of this type.
     */
-    Value x, y, z, w;
+    Value x{0}, y{0}, z{0}, w{0};
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Vector4() noexcept;
+    Vector4() noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Construct a vector with the same scalar value for all components.
@@ -256,12 +256,12 @@ struct Vector4
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    Int32 Cmp(const Vector4 & v) const;
+    SQMOD_NODISCARD int32_t Cmp(const Vector4 & v) const;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(SQFloat s) const
+    SQMOD_NODISCARD int32_t Cmp(SQFloat s) const
     {
         return Cmp(Vector4(static_cast< Value >(s)));
     }
@@ -269,7 +269,7 @@ struct Vector4
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(SQInteger s) const
+    SQMOD_NODISCARD int32_t Cmp(SQInteger s) const
     {
         return Cmp(Vector4(static_cast< Value >(s)));
     }
@@ -277,7 +277,7 @@ struct Vector4
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(bool s) const
+    SQMOD_NODISCARD int32_t Cmp(bool s) const
     {
         return Cmp(Vector4(static_cast< Value >(s)));
     }
@@ -285,7 +285,7 @@ struct Vector4
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(std::nullptr_t) const
+    SQMOD_NODISCARD int32_t Cmp(std::nullptr_t) const
     {
         return Cmp(Vector4(static_cast< Value >(0)));
     }
@@ -293,7 +293,7 @@ struct Vector4
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    CSStr ToString() const;
+    SQMOD_NODISCARD String ToString() const;
 
     /* --------------------------------------------------------------------------------------------
      * Set all components to the specified scalar value.
@@ -361,12 +361,12 @@ struct Vector4
     /* --------------------------------------------------------------------------------------------
      * Retrieve a new instance of this type with absolute component values.
     */
-    Vector4 Abs() const;
+    SQMOD_NODISCARD Vector4 Abs() const;
 
     /* --------------------------------------------------------------------------------------------
      * Generate a formatted string with the values from this instance.
     */
-    LightObj Format(const String & spec, StackStrF & fmt) const;
+    SQMOD_NODISCARD String Format(StackStrF & str) const;
 
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Vector4 type from a string.

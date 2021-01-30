@@ -1,19 +1,16 @@
 // ------------------------------------------------------------------------------------------------
 #include "Base/Vector2.hpp"
 #include "Base/Vector2i.hpp"
-#include "Base/Shared.hpp"
 #include "Base/DynArg.hpp"
-#include "Base/Buffer.hpp"
+#include "Core/Buffer.hpp"
+#include "Core/Utility.hpp"
 #include "Library/Numeric/Random.hpp"
-
-// ------------------------------------------------------------------------------------------------
-#include <limits>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQMODE_DECL_TYPENAME(Typename, _SC("Vector2"))
+SQMOD_DECL_TYPENAME(Typename, _SC("Vector2"))
 
 // ------------------------------------------------------------------------------------------------
 const Vector2 Vector2::NIL = Vector2(0);
@@ -22,13 +19,6 @@ const Vector2 Vector2::MAX = Vector2(std::numeric_limits< Vector2::Value >::max(
 
 // ------------------------------------------------------------------------------------------------
 SQChar Vector2::Delim = ',';
-
-// ------------------------------------------------------------------------------------------------
-Vector2::Vector2() noexcept
-    : x(0.0), y(0.0)
-{
-    /* ... */
-}
 
 // ------------------------------------------------------------------------------------------------
 Vector2::Vector2(Value sv) noexcept
@@ -95,8 +85,8 @@ Vector2 & Vector2::operator /= (const Vector2 & v)
 // ------------------------------------------------------------------------------------------------
 Vector2 & Vector2::operator %= (const Vector2 & v)
 {
-    x = std::fmod(x, v.x);
-    y = std::fmod(y, v.y);
+    x = fmodf(x, v.x);
+    y = fmodf(y, v.y);
     return *this;
 }
 
@@ -135,8 +125,8 @@ Vector2 & Vector2::operator /= (Value s)
 // ------------------------------------------------------------------------------------------------
 Vector2 & Vector2::operator %= (Value s)
 {
-    x = std::fmod(x, s);
-    y = std::fmod(y, s);
+    x = fmodf(x, s);
+    y = fmodf(y, s);
     return *this;
 }
 
@@ -201,7 +191,7 @@ Vector2 Vector2::operator / (const Vector2 & v) const
 // ------------------------------------------------------------------------------------------------
 Vector2 Vector2::operator % (const Vector2 & v) const
 {
-    return {std::fmod(x, v.x), std::fmod(y, v.y)};
+    return {fmodf(x, v.x), fmodf(y, v.y)};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -231,13 +221,13 @@ Vector2 Vector2::operator / (Value s) const
 // ------------------------------------------------------------------------------------------------
 Vector2 Vector2::operator % (Value s) const
 {
-    return {std::fmod(x, s), std::fmod(y, s)};
+    return {fmodf(x, s), fmodf(y, s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector2 Vector2::operator + () const
 {
-    return {std::fabs(x), std::fabs(y)};
+    return {fabsf(x), fabsf(y)};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -283,7 +273,7 @@ bool Vector2::operator >= (const Vector2 & v) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 Vector2::Cmp(const Vector2 & o) const
+int32_t Vector2::Cmp(const Vector2 & o) const
 {
     if (*this == o)
     {
@@ -300,9 +290,9 @@ Int32 Vector2::Cmp(const Vector2 & o) const
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr Vector2::ToString() const
+String Vector2::ToString() const
 {
-    return ToStrF("%f,%f", x, y);
+    return fmt::format("{},{}", x, y);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -373,34 +363,16 @@ void Vector2::Generate(Value xmin, Value xmax, Value ymin, Value ymax)
 // ------------------------------------------------------------------------------------------------
 Vector2 Vector2::Abs() const
 {
-    return {std::fabs(x), std::fabs(y)};
+    return {fabsf(x), fabsf(y)};
 }
 
 // ------------------------------------------------------------------------------------------------
-LightObj Vector2::Format(const String & spec, StackStrF & fmt) const
+String Vector2::Format(StackStrF & str) const
 {
-    String out;
-    // Attempt to build the format string
-    if (!BuildFormatString(out, fmt, 2, spec))
-    {
-        return LightObj{}; // Default to null
-    }
-    // Empty string is unacceptable
-    else if (out.empty())
-    {
-        STHROWF("Unable to build a valid format string.");
-    }
-    // Grab a temporary buffer
-    Buffer buff(out.size());
-    // Generate the string
-    Buffer::SzType n = buff.WriteF(0, out.c_str(), x, y);
-    // Did the format failed?
-    if (!n && !out.empty())
-    {
-        STHROWF("Format failed. Please check format specifier and parameter count.");
-    }
-    // Return the resulted string
-    return LightObj{buff.Begin< SQChar >(), static_cast< SQInteger >(n)};
+    return fmt::format(str.ToStr()
+        , fmt::arg("x", x)
+        , fmt::arg("y", y)
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -476,39 +448,6 @@ void Register_Vector2(HSQUIRRELVM vm)
         .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< Vector2 >)
         .StaticFmtFunc(_SC("FromStr"), &Vector2::Get)
         .StaticFmtFunc(_SC("FromStrEx"), &Vector2::GetEx)
-        // Operator Exposure
-        .Func< Vector2 & (Vector2::*)(const Vector2 &) >(_SC("opAddAssign"), &Vector2::operator +=)
-        .Func< Vector2 & (Vector2::*)(const Vector2 &) >(_SC("opSubAssign"), &Vector2::operator -=)
-        .Func< Vector2 & (Vector2::*)(const Vector2 &) >(_SC("opMulAssign"), &Vector2::operator *=)
-        .Func< Vector2 & (Vector2::*)(const Vector2 &) >(_SC("opDivAssign"), &Vector2::operator /=)
-        .Func< Vector2 & (Vector2::*)(const Vector2 &) >(_SC("opModAssign"), &Vector2::operator %=)
-        .Func< Vector2 & (Vector2::*)(Vector2::Value) >(_SC("opAddAssignS"), &Vector2::operator +=)
-        .Func< Vector2 & (Vector2::*)(Vector2::Value) >(_SC("opSubAssignS"), &Vector2::operator -=)
-        .Func< Vector2 & (Vector2::*)(Vector2::Value) >(_SC("opMulAssignS"), &Vector2::operator *=)
-        .Func< Vector2 & (Vector2::*)(Vector2::Value) >(_SC("opDivAssignS"), &Vector2::operator /=)
-        .Func< Vector2 & (Vector2::*)(Vector2::Value) >(_SC("opModAssignS"), &Vector2::operator %=)
-        .Func< Vector2 & (Vector2::*)(void) >(_SC("opPreInc"), &Vector2::operator ++)
-        .Func< Vector2 & (Vector2::*)(void) >(_SC("opPreDec"), &Vector2::operator --)
-        .Func< Vector2 (Vector2::*)(int) >(_SC("opPostInc"), &Vector2::operator ++)
-        .Func< Vector2 (Vector2::*)(int) >(_SC("opPostDec"), &Vector2::operator --)
-        .Func< Vector2 (Vector2::*)(const Vector2 &) const >(_SC("opAdd"), &Vector2::operator +)
-        .Func< Vector2 (Vector2::*)(const Vector2 &) const >(_SC("opSub"), &Vector2::operator -)
-        .Func< Vector2 (Vector2::*)(const Vector2 &) const >(_SC("opMul"), &Vector2::operator *)
-        .Func< Vector2 (Vector2::*)(const Vector2 &) const >(_SC("opDiv"), &Vector2::operator /)
-        .Func< Vector2 (Vector2::*)(const Vector2 &) const >(_SC("opMod"), &Vector2::operator %)
-        .Func< Vector2 (Vector2::*)(Vector2::Value) const >(_SC("opAddS"), &Vector2::operator +)
-        .Func< Vector2 (Vector2::*)(Vector2::Value) const >(_SC("opSubS"), &Vector2::operator -)
-        .Func< Vector2 (Vector2::*)(Vector2::Value) const >(_SC("opMulS"), &Vector2::operator *)
-        .Func< Vector2 (Vector2::*)(Vector2::Value) const >(_SC("opDivS"), &Vector2::operator /)
-        .Func< Vector2 (Vector2::*)(Vector2::Value) const >(_SC("opModS"), &Vector2::operator %)
-        .Func< Vector2 (Vector2::*)(void) const >(_SC("opUnPlus"), &Vector2::operator +)
-        .Func< Vector2 (Vector2::*)(void) const >(_SC("opUnMinus"), &Vector2::operator -)
-        .Func< bool (Vector2::*)(const Vector2 &) const >(_SC("opEqual"), &Vector2::operator ==)
-        .Func< bool (Vector2::*)(const Vector2 &) const >(_SC("opNotEqual"), &Vector2::operator !=)
-        .Func< bool (Vector2::*)(const Vector2 &) const >(_SC("opLessThan"), &Vector2::operator <)
-        .Func< bool (Vector2::*)(const Vector2 &) const >(_SC("opGreaterThan"), &Vector2::operator >)
-        .Func< bool (Vector2::*)(const Vector2 &) const >(_SC("opLessEqual"), &Vector2::operator <=)
-        .Func< bool (Vector2::*)(const Vector2 &) const >(_SC("opGreaterEqual"), &Vector2::operator >=)
     );
 }
 

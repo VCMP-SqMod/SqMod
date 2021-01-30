@@ -9,21 +9,21 @@ namespace SqMod {
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the name associated with a vehicle model identifier.
 */
-String GetAutomobileName(Uint32 id);
+SQMOD_NODISCARD String GetAutomobileName(uint32_t id);
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the name associated with a vehicle model identifier.
 */
-void SetAutomobileName(Uint32 id, StackStrF & name);
+void SetAutomobileName(uint32_t id, StackStrF & name);
 
 /* ------------------------------------------------------------------------------------------------
  * Convert a vehicle model name to a vehicle model identifier.
 */
-Int32 GetAutomobileID(StackStrF & name);
+SQMOD_NODISCARD int32_t GetAutomobileID(StackStrF & name);
 
 /* ------------------------------------------------------------------------------------------------
  * See whether the specified vehicle model identifier is valid.
 */
-bool IsAutomobileValid(Int32 id);
+SQMOD_NODISCARD bool IsAutomobileValid(int32_t id);
 
 } // Namespace:: SqMod

@@ -21,15 +21,15 @@ protected:
     /* ------------------------------------------------------------------------------------------------
      * Compare the values of two instances.
     */
-    Int32 Compare(const Time & o) const;
+    SQMOD_NODISCARD int32_t Compare(const Time & o) const;
 
 private:
 
     // ------------------------------------------------------------------------------------------------
-    Uint8   m_Hour; // Hour
-    Uint8   m_Minute; // Minute
-    Uint8   m_Second; // Second
-    Uint16  m_Millisecond; // Millisecond
+    uint8_t   m_Hour{}; // Hour
+    uint8_t   m_Minute{}; // Minute
+    uint8_t   m_Second{}; // Second
+    uint16_t  m_Millisecond{}; // Millisecond
 
     // ------------------------------------------------------------------------------------------------
     SQChar  m_Delimiter; // Component delimiter when generating strings.
@@ -52,7 +52,7 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    Time(Uint8 hour)
+    explicit Time(uint8_t hour)
         : m_Delimiter(Delimiter)
     {
         Set(hour, 0, 0, 0);
@@ -61,7 +61,7 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    Time(Uint8 hour, Uint8 minute)
+    Time(uint8_t hour, uint8_t minute)
         : m_Delimiter(Delimiter)
     {
         Set(hour, minute, 0, 0);
@@ -70,7 +70,7 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    Time(Uint8 hour, Uint8 minute, Uint8 second)
+    Time(uint8_t hour, uint8_t minute, uint8_t second)
         : m_Delimiter(Delimiter)
     {
         Set(hour, minute, second, 0);
@@ -79,7 +79,7 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    Time(Uint8 hour, Uint8 minute, Uint8 second, Uint16 millisecond)
+    Time(uint8_t hour, uint8_t minute, uint8_t second, uint16_t millisecond)
         : m_Delimiter(Delimiter)
     {
         Set(hour, minute, second, millisecond);
@@ -88,7 +88,7 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * String constructor.
     */
-    Time(CSStr str)
+    explicit Time(const SQChar * str)
         : m_Delimiter(Delimiter)
     {
         SetStr(str);
@@ -190,7 +190,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    Int32 Cmp(const Time & o) const
+    SQMOD_NODISCARD int32_t Cmp(const Time & o) const
     {
         return Compare(o);
     }
@@ -198,12 +198,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    CSStr ToString() const;
+    SQMOD_NODISCARD String ToString() const;
 
     /* ------------------------------------------------------------------------------------------------
      * Assign the specified values.
     */
-    void Set(Uint8 hour)
+    void Set(uint8_t hour)
     {
         Set(hour, m_Minute, m_Second, m_Millisecond);
     }
@@ -211,7 +211,7 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Assign the specified values.
     */
-    void Set(Uint8 hour, Uint8 minute)
+    void Set(uint8_t hour, uint8_t minute)
     {
         Set(hour, minute, m_Second, m_Millisecond);
     }
@@ -219,7 +219,7 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Assign the specified values.
     */
-    void Set(Uint8 hour, Uint8 minute, Uint8 second)
+    void Set(uint8_t hour, uint8_t minute, uint8_t second)
     {
         Set(hour, minute, second, m_Millisecond);
     }
@@ -227,12 +227,12 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Assign the specified values.
     */
-    void Set(Uint8 hour, Uint8 minute, Uint8 second, Uint16 millisecond);
+    void Set(uint8_t hour, uint8_t minute, uint8_t second, uint16_t millisecond);
 
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the local delimiter character.
     */
-    SQChar GetDelimiter() const
+    SQMOD_NODISCARD SQChar GetDelimiter() const
     {
         return m_Delimiter;
     }
@@ -248,7 +248,7 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the values as a string.
     */
-    CSStr GetStr() const
+    SQMOD_NODISCARD String GetStr() const
     {
         return ToString();
     }
@@ -256,12 +256,12 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Extract the values from a string.
     */
-    void SetStr(CSStr str);
+    void SetStr(const SQChar * str);
 
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the hour component.
     */
-    Uint8 GetHour() const
+    SQMOD_NODISCARD uint8_t GetHour() const
     {
         return m_Hour;
     }
@@ -269,12 +269,12 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Modify the hour component.
     */
-    void SetHour(Uint8 hour);
+    void SetHour(uint8_t hour);
 
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the minute component.
     */
-    Uint8 GetMinute() const
+    SQMOD_NODISCARD uint8_t GetMinute() const
     {
         return m_Minute;
     }
@@ -282,12 +282,12 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Modify the minute component.
     */
-    void SetMinute(Uint8 minute);
+    void SetMinute(uint8_t minute);
 
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the second component.
     */
-    Uint8 GetSecond() const
+    SQMOD_NODISCARD uint8_t GetSecond() const
     {
         return m_Second;
     }
@@ -295,12 +295,12 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Modify the second component.
     */
-    void SetSecond(Uint8 second);
+    void SetSecond(uint8_t second);
 
     /* ------------------------------------------------------------------------------------------------
      * Retrieve the millisecond component.
     */
-    Uint16 GetMillisecond() const
+    SQMOD_NODISCARD uint16_t GetMillisecond() const
     {
         return m_Millisecond;
     }
@@ -308,52 +308,52 @@ public:
     /* ------------------------------------------------------------------------------------------------
      * Modify the millisecond component.
     */
-    void SetMillisecond(Uint16 millisecond);
+    void SetMillisecond(uint16_t millisecond);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of hours to the current time.
     */
-    Time & AddHours(Int32 hours);
+    Time & AddHours(int32_t hours);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of minutes to the current time.
     */
-    Time & AddMinutes(Int32 minutes);
+    Time & AddMinutes(int32_t minutes);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of seconds to the current time.
     */
-    Time & AddSeconds(Int32 seconds);
+    Time & AddSeconds(int32_t seconds);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of milliseconds to the current time.
     */
-    Time & AddMilliseconds(Int32 milliseconds);
+    Time & AddMilliseconds(int32_t milliseconds);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of hours to obtain a new time.
     */
-    Time AndHours(Int32 hours);
+    SQMOD_NODISCARD Time AndHours(int32_t hours);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of minutes to obtain a new time.
     */
-    Time AndMinutes(Int32 minutes);
+    SQMOD_NODISCARD Time AndMinutes(int32_t minutes);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of seconds to obtain a new time.
     */
-    Time AndSeconds(Int32 seconds);
+    SQMOD_NODISCARD Time AndSeconds(int32_t seconds);
 
     /* ------------------------------------------------------------------------------------------------
      * Add the specified amount of milliseconds to obtain a new time.
     */
-    Time AndMilliseconds(Int32 milliseconds);
+    SQMOD_NODISCARD Time AndMilliseconds(int32_t milliseconds);
 
     /* ------------------------------------------------------------------------------------------------
      * Convert this time instance to a time-stamp.
     */
-    Timestamp GetTimestamp() const;
+    SQMOD_NODISCARD Timestamp GetTimestamp() const;
 };
 
 } // Namespace:: SqMod

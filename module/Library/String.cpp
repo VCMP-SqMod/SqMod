@@ -1,11 +1,10 @@
 // ------------------------------------------------------------------------------------------------
 #include "Library/String.hpp"
-#include "Base/Shared.hpp"
-#include "Base/Buffer.hpp"
+#include "Core/Utility.hpp"
+#include "Core/Buffer.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cctype>
-#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 
@@ -16,7 +15,7 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-static LightObj SqLeftStr(SQChar f, Uint32 w, StackStrF & s)
+static LightObj SqLeftStr(SQChar f, uint32_t w, StackStrF & s)
 {
     // Is the specified width valid?
     if (!w)
@@ -46,7 +45,7 @@ static LightObj SqLeftStr(SQChar f, Uint32 w, StackStrF & s)
 }
 
 // ------------------------------------------------------------------------------------------------
-static LightObj SqLeftOffsetStr(SQChar f, Uint32 w, Uint32 o, StackStrF & s)
+static LightObj SqLeftOffsetStr(SQChar f, uint32_t w, uint32_t o, StackStrF & s)
 {
     // Is the specified width valid?
     if (!w)
@@ -68,7 +67,7 @@ static LightObj SqLeftOffsetStr(SQChar f, Uint32 w, Uint32 o, StackStrF & s)
     else
     {
         // Calculate the string length
-        const Uint32 n = ConvTo< Uint32 >::From(s.mLen);
+        const uint32_t n = ConvTo< uint32_t >::From(s.mLen);
         // Insert the fill character first
         std::memset(b.Data(), f, w);
         // Overwrite with the specified string
@@ -90,7 +89,7 @@ static LightObj SqLeftOffsetStr(SQChar f, Uint32 w, Uint32 o, StackStrF & s)
 }
 
 // ------------------------------------------------------------------------------------------------
-static LightObj SqRightStr(SQChar f, Uint32 w, StackStrF & s)
+static LightObj SqRightStr(SQChar f, uint32_t w, StackStrF & s)
 {
     // Is the specified width valid?
     if (!w)
@@ -107,7 +106,7 @@ static LightObj SqRightStr(SQChar f, Uint32 w, StackStrF & s)
     else
     {
         // Calculate the string length
-        const Uint32 n = ConvTo< Uint32 >::From(s.mLen);
+        const uint32_t n = ConvTo< uint32_t >::From(s.mLen);
         // Insert the fill character first
         std::memset(b.Data(), f, w);
         // Overwrite with the specified string
@@ -129,7 +128,7 @@ static LightObj SqRightStr(SQChar f, Uint32 w, StackStrF & s)
 }
 
 // ------------------------------------------------------------------------------------------------
-static LightObj SqRightOffsetStr(SQChar f, Uint32 w, Uint32 o, StackStrF & s)
+static LightObj SqRightOffsetStr(SQChar f, uint32_t w, uint32_t o, StackStrF & s)
 {
     // Is the specified width valid?
     if (!w)
@@ -151,7 +150,7 @@ static LightObj SqRightOffsetStr(SQChar f, Uint32 w, Uint32 o, StackStrF & s)
     else
     {
         // Calculate the string length
-        const Uint32 n = ConvTo< Uint32 >::From(s.mLen);
+        const uint32_t n = ConvTo< uint32_t >::From(s.mLen);
         // Insert the fill character first
         std::memset(b.Data(), f, w);
         // Overwrite with the specified string
@@ -173,7 +172,7 @@ static LightObj SqRightOffsetStr(SQChar f, Uint32 w, Uint32 o, StackStrF & s)
 }
 
 // ------------------------------------------------------------------------------------------------
-static LightObj SqCenterStr(SQChar f, Uint32 w, StackStrF & s)
+static LightObj SqCenterStr(SQChar f, uint32_t w, StackStrF & s)
 {
     // Is the specified width valid?
     if (!w)
@@ -190,7 +189,7 @@ static LightObj SqCenterStr(SQChar f, Uint32 w, StackStrF & s)
     else
     {
         // Calculate the insert position
-        const Int32 p = ((w/2) - (s.mLen/2));
+        const int32_t p = ((w/2) - (s.mLen/2));
         // Insert only the fill character first
         std::memset(b.Data(), f, w);
         // Overwrite with the specified string
@@ -205,7 +204,7 @@ static LightObj SqCenterStr(SQChar f, Uint32 w, StackStrF & s)
 }
 
 // ------------------------------------------------------------------------------------------------
-static Buffer StrJustAlphaNumImpl(CSStr str, Uint32 len)
+static Buffer StrJustAlphaNumImpl(const SQChar * str, uint32_t len)
 {
     // See if we actually have something to search for
     if(!len)
@@ -215,9 +214,9 @@ static Buffer StrJustAlphaNumImpl(CSStr str, Uint32 len)
     // Obtain a temporary buffer
     Buffer b(len + 1); // + null terminator
     // Resulted string size
-    Uint32 n = 0;
+    uint32_t n = 0;
     // Currently processed character
-    SQChar c = 0;
+    SQChar c;
     // Process characters
     while ((c = *(str++)) != '\0')
     {
@@ -237,7 +236,7 @@ static Buffer StrJustAlphaNumImpl(CSStr str, Uint32 len)
 }
 
 // ------------------------------------------------------------------------------------------------
-Buffer StrJustAlphaNumB(CSStr str)
+Buffer StrJustAlphaNumB(const SQChar * str)
 {
     // See if we actually have something to search for
     if(!str || *str == '\0')
@@ -249,7 +248,7 @@ Buffer StrJustAlphaNumB(CSStr str)
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr StrJustAlphaNum(CSStr str)
+const SQChar * StrJustAlphaNum(const SQChar * str)
 {
     // See if we actually have something to search for
     if(!str || *str == '\0')
@@ -273,7 +272,7 @@ static LightObj SqJustAlphaNum(StackStrF & s)
 }
 
 // ------------------------------------------------------------------------------------------------
-static Buffer StrToLowercaseImpl(CSStr str, Uint32 len)
+static Buffer StrToLowercaseImpl(const SQChar * str, uint32_t len)
 {
     // See if we actually have something to search for
     if(!len)
@@ -283,7 +282,7 @@ static Buffer StrToLowercaseImpl(CSStr str, Uint32 len)
     // Obtain a temporary buffer
     Buffer b(len + 1); // + null terminator
     // Resulted string size
-    Uint32 n = 0;
+    uint32_t n = 0;
     // Process characters
     while (*str != '\0')
     {
@@ -299,7 +298,7 @@ static Buffer StrToLowercaseImpl(CSStr str, Uint32 len)
 }
 
 // ------------------------------------------------------------------------------------------------
-Buffer StrToLowercaseB(CSStr str)
+Buffer StrToLowercaseB(const SQChar * str)
 {
     // See if we actually have something to search for
     if(!str || *str == '\0')
@@ -311,7 +310,7 @@ Buffer StrToLowercaseB(CSStr str)
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr StrToLowercase(CSStr str)
+const SQChar * StrToLowercase(const SQChar * str)
 {
     // See if we actually have something to search for
     if(!str || *str == '\0')
@@ -335,7 +334,7 @@ static LightObj SqToLowercase(StackStrF & s)
 }
 
 // ------------------------------------------------------------------------------------------------
-static Buffer StrToUppercaseImpl(CSStr str, Uint32 len)
+static Buffer StrToUppercaseImpl(const SQChar * str, uint32_t len)
 {
     // See if we actually have something to search for
     if(!len)
@@ -345,7 +344,7 @@ static Buffer StrToUppercaseImpl(CSStr str, Uint32 len)
     // Obtain a temporary buffer
     Buffer b(len + 1); // + null terminator
     // Resulted string size
-    Uint32 n = 0;
+    uint32_t n = 0;
     // Process characters
     while (*str != '\0')
     {
@@ -361,7 +360,7 @@ static Buffer StrToUppercaseImpl(CSStr str, Uint32 len)
 }
 
 // ------------------------------------------------------------------------------------------------
-Buffer StrToUppercaseB(CSStr str)
+Buffer StrToUppercaseB(const SQChar * str)
 {
     // See if we actually have something to search for
     if(!str || *str == '\0')
@@ -373,7 +372,7 @@ Buffer StrToUppercaseB(CSStr str)
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr StrToUppercase(CSStr str)
+const SQChar * StrToUppercase(const SQChar * str)
 {
     // See if we actually have something to search for
     if(!str || *str == '\0')
@@ -409,7 +408,7 @@ template < int (*Fn)(int) > static bool SqAllChars(StackStrF & s)
         return true;
     }
     // Start iterating characters and find the first that doesn't match
-    for (CSStr itr = s.mPtr; *itr != '\0'; ++itr)
+    for (const SQChar * itr = s.mPtr; *itr != '\0'; ++itr)
     {
         // Call the predicate with the current character
         if (Fn(*itr) == 0)
@@ -430,7 +429,7 @@ template < int (*Fn)(int), bool Neg > static LightObj SqFirstChar(StackStrF & s)
     if (s.mLen)
     {
         // Start iterating characters and find the first that doesn't match
-        for (CSStr itr = s.mPtr; *itr != '\0'; ++itr)
+        for (const SQChar * itr = s.mPtr; *itr != '\0'; ++itr)
         {
             // Call the predicate with the current character
             if ((Fn(*itr) == 0) == Neg)
@@ -458,7 +457,7 @@ template < int (*Fn)(int), bool Neg > static LightObj SqLastChar(StackStrF & s)
     if (s.mLen)
     {
         // Start iterating characters and find the first that doesn't match
-        for (CSStr itr = (s.mPtr + s.mLen) - 1; itr >= s.mPtr; --itr)
+        for (const SQChar * itr = (s.mPtr + s.mLen) - 1; itr >= s.mPtr; --itr)
         {
             // Call the predicate with the current character
             if ((Fn(*itr) == 0) == Neg)
@@ -507,10 +506,10 @@ static SQInteger SplitWhereCharImpl(HSQUIRRELVM vm, int(*fn)(int), bool neg)
     }
 
     // Remember the position of the last found match
-    CSStr last = val.mPtr;
+    const SQChar * last = val.mPtr;
 
     // Start iterating characters and slice where a match is found
-    for (CSStr itr = val.mPtr; *itr != '\0'; ++itr)
+    for (const SQChar * itr = val.mPtr; *itr != '\0'; ++itr)
     {
         // Call the predicate with the current character
         if ((fn(*itr) == 0) == neg)
@@ -577,7 +576,7 @@ template < int (*Fn)(int) > static bool IsCharOfType(int c)
 }
 
 // ------------------------------------------------------------------------------------------------
-static bool OnlyDelimiter(CSStr str, SQChar chr)
+static bool OnlyDelimiter(const SQChar * str, SQChar chr)
 {
     while (*str != '\0')
     {
@@ -595,7 +594,7 @@ static bool OnlyDelimiter(CSStr str, SQChar chr)
 // ------------------------------------------------------------------------------------------------
 static SQInteger SqStrExplode(HSQUIRRELVM vm)
 {
-    const Int32 top = sq_gettop(vm);
+    const int32_t top = sq_gettop(vm);
     // Was the delimiter character specified?
     if (top <= 1)
     {
@@ -619,15 +618,15 @@ static SQInteger SqStrExplode(HSQUIRRELVM vm)
         return val.mRes; // Propagate the error!
     }
     // The delimiter character and boolean empty
-    SQChar delim = 0;
-    bool empty = 0;
+    SQChar delim;
+    bool empty;
     // Attempt to retrieve the remaining arguments from the stack
     try
     {
         delim = Var< SQChar >(vm, 2).value;
         empty = Var< bool >(vm, 3).value;
     }
-    catch (const Sqrat::Exception & e)
+    catch (const std::exception & e)
     {
         return sq_throwerror(vm, e.what());
     }
@@ -636,7 +635,7 @@ static SQInteger SqStrExplode(HSQUIRRELVM vm)
         return sq_throwerror(vm, _SC("Unable to retrieve arguments"));
     }
     // Grab the string value to a shorter name
-    CSStr str = val.mPtr;
+    const SQChar * str = val.mPtr;
     // Create an empty array on the stack
     sq_newarray(vm, 0);
     // See if we actually have something to explode
@@ -646,9 +645,9 @@ static SQInteger SqStrExplode(HSQUIRRELVM vm)
         return 1;
     }
     // Don't modify the specified string pointer
-    CSStr itr = str, last = str;
+    const SQChar * itr = str, * last = str;
     // The number of delimiter occurrences
-    Uint32 num = 0;
+    uint32_t num = 0;
     // Pre-count how many delimiters of this type exist
     while (*itr != '\0')
     {
@@ -755,10 +754,10 @@ static SQInteger SqStrExplode(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-static CSStr StrImplode(SQChar chr, Array & arr)
+static const SQChar * StrImplode(SQChar chr, Array & arr)
 {
     // Determine array size
-    const Int32 length = static_cast< Int32 >(arr.Length());
+    const auto length = static_cast< int32_t >(arr.Length());
     // Is there anything to implode?
     if (length <= 0)
     {
@@ -789,18 +788,18 @@ static CSStr StrImplode(SQChar chr, Array & arr)
 }
 
 // ------------------------------------------------------------------------------------------------
-static CSStr FromArray(Array & arr)
+static const SQChar * FromArray(Array & arr)
 {
     // Determine array size
-    const Int32 length = ConvTo< Int32 >::From(arr.Length());
+    const int32_t length = ConvTo< int32_t >::From(arr.Length());
     // Obtain a temporary buffer
-    Buffer b(length * sizeof(Int32));
+    Buffer b(length * sizeof(int32_t));
     // Get array elements as integers
-    arr.GetArray< Int32 >(b.Get< Int32 >(), length);
+    arr.GetArray< int32_t >(b.Get< int32_t >(), length);
     // Overwrite integers with characters
-    for (Int32 n = 0; n < length; ++n)
+    for (int32_t n = 0; n < length; ++n)
     {
-        b.At(n) = ConvTo< SQChar >::From(b.At< Int32 >(n * sizeof(Int32)));
+        b.At(n) = ConvTo< SQChar >::From(b.At< int32_t >(n * sizeof(int32_t)));
     }
     // Terminate the resulted string
     b.At(length) = '\0';
@@ -839,7 +838,7 @@ static String StrCharacterSwap(SQInteger a, SQInteger b, StackStrF & val)
     }
     // Turn it into a string that we can edit
     String str(val.mPtr, val.mLen);
-    // Replace all occurences of the specified character
+    // Replace all occurrences of the specified character
     std::replace(str.begin(), str.end(),
                     static_cast< String::value_type >(a), static_cast< String::value_type >(b));
     // Return the new string

@@ -61,38 +61,6 @@
             #define SQMOD_PLATFORM 2
         #endif
     #endif
-#elif defined(__APPLE__) || defined(__MACH__) || defined(MACOSX) || defined(macintosh) || defined(Macintosh)
-    // MacOS
-    #define SQMOD_OS_MACOS
-    #if __GNUC__
-        #if __x86_64__ || __ppc64__
-            #define SQMOD_OS_64
-            #define SQMOD_OS_MACOS64
-            #define SQMOD_ARCHITECTURE 2
-            #define SQMOD_PLATFORM 3
-        #else
-            #define SQMOD_OS_32
-            #define SQMOD_OS_MACOS32
-            #define SQMOD_ARCHITECTURE 1
-            #define SQMOD_PLATFORM 3
-        #endif
-    #endif
-#elif defined(__unix) || defined(__unix__)
-    // Unix
-    #define SQMOD_OS_UNIX
-    #if __GNUC__
-        #if __x86_64__ || __ppc64__
-            #define SQMOD_OS_64
-            #define SQMOD_OS_UNIX64
-            #define SQMOD_ARCHITECTURE 2
-            #define SQMOD_PLATFORM 4
-        #else
-            #define SQMOD_OS_32
-            #define SQMOD_OS_UNIX32
-            #define SQMOD_ARCHITECTURE 1
-            #define SQMOD_PLATFORM 4
-        #endif
-    #endif
 #else
     // Unsupported system
     #error This operating system is not supported by the Squirrel Module
@@ -120,15 +88,15 @@
 #define SQMOD_SDK_PRIOR(MJR, MNR) ((PLUGIN_API_MAJOR < (MJR)) && (PLUGIN_API_MINOR < (MNR)))
 
 /* ------------------------------------------------------------------------------------------------
- * SQUIRREL FORWARD DECLARATIONS
+ * API EXPORT.
 */
-
-extern "C" {
-    typedef struct tagSQObject SQObject;
-    struct SQVM;
-    typedef struct SQVM* HSQUIRRELVM;
-    typedef SQObject HSQOBJECT;
-} /*extern "C"*/
+#if defined(_MSC_VER)
+    #define SQMOD_API_EXPORT    extern "C" __declspec(dllexport)
+#elif defined(__GNUC__)
+    #define SQMOD_API_EXPORT    extern "C"
+#else
+    #define SQMOD_API_EXPORT    extern "C"
+#endif
 
 /* ------------------------------------------------------------------------------------------------
  * SQRAT FORWARD DECLARATIONS
@@ -149,48 +117,17 @@ namespace Sqrat {
 
 namespace SqMod {
 
-/**< 8 bits integer types */
-typedef char                        Int8, I8;
-typedef unsigned char               Uint8, U8;
-
-/**< 16 bits integer types */
-typedef short                       Int16, I16;
-typedef unsigned short              Uint16, U16;
-
-/**< 32 bits integer types */
-typedef int                         Int32, I32;
-typedef unsigned int                Uint32, U32;
-
-/**< 64 bits integer types */
-#if defined(_MSC_VER)
-    typedef __int64                 Int64, I64;
-    typedef unsigned __int64        Uint64, U64;
-#else
-    typedef long long               Int64, I64;
-    typedef unsigned long long      Uint64, U64;
-#endif
-
 /**< integer type */
 #ifdef SQMOD_LONG
-    typedef Int64                   Int, Integer;
-    typedef Uint64                  Uint, Uinteger, UnisgnedInteger;
+    typedef int64_t                   Int, Integer;
+    typedef uint64_t                  Uint, Uinteger, UnisgnedInteger;
 #else
-    typedef Int32                   Int, Integer;
-    typedef Uint32                  Uint, Uinteger, UnisgnedInteger;
+    typedef int32_t                   Int, Integer;
+    typedef uint32_t                  Uint, Uinteger, UnisgnedInteger;
 #endif
 
-/**< long integer type */
-typedef long                        LongI;
-typedef unsigned long               Ulong;
-
-/**< 32 bits float types */
-typedef float                       Float32, Real32, F32;
-
-/**< 64 bits float types */
-typedef double                      Float64, Real64, F64;
-
 /**< boolean type */
-typedef Uint8                       Boolean;
+typedef uint8_t                     Boolean;
 
 /**< character type */
 typedef bool                        BoolT;
@@ -200,21 +137,6 @@ typedef char                        CharT;
 
 /**< user type */
 typedef void *                      VoidP;
-
-/**< size type */
-typedef Uint32                      SizeT;
-
-/* ------------------------------------------------------------------------------------------------
- * STRING TYPE
-*/
-
-typedef std::basic_string<SQChar>   String;
-
-typedef char *                      CStr;
-typedef const char *                CCStr;
-
-typedef SQChar *                    SStr;
-typedef const SQChar *              CSStr;
 
 /* ------------------------------------------------------------------------------------------------
  * SHORT SQUIRREL TYPENAMES
@@ -265,22 +187,27 @@ struct Vector3;
 struct Vector4;
 
 // ------------------------------------------------------------------------------------------------
+struct BlipInst;
+struct CheckpointInst;
+struct KeyBindInst;
+struct ObjectInst;
+struct PickupInst;
+struct PlayerInst;
+struct VehicleInst;
+
+// ------------------------------------------------------------------------------------------------
 class CBlip;
 class CCheckpoint;
-class CForcefield;
-class CKeybind;
+class CKeyBind;
 class CObject;
 class CPickup;
 class CPlayer;
-class CSprite;
-class CTextdraw;
 class CVehicle;
 
 // ------------------------------------------------------------------------------------------------
-template < typename T > class LongInt;
-
-typedef LongInt< Int64 > SLongInt;
-typedef LongInt< Uint64 > ULongInt;
+template < typename > class LongInt;
+typedef LongInt< int64_t > SLongInt;
+typedef LongInt< uint64_t > ULongInt;
 
 // ------------------------------------------------------------------------------------------------
 class SqBuffer;
@@ -531,7 +458,9 @@ enum EntityType
 
 #if defined(_MSC_VER)
     #define SQMOD_FORCEINLINE    __forceinline
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
+    #define SQMOD_FORCEINLINE    __attribute__((always_inline))
+#else
     #define SQMOD_FORCEINLINE    inline
 #endif
 
@@ -543,6 +472,16 @@ enum EntityType
 #else
  #define SQ_FALL_THROUGH ((void)0)
 #endif // __GNUC__ >= 7
+
+/* ------------------------------------------------------------------------------------------------
+ * COMMON ATTRIBUTES
+*/
+
+#if __cplusplus >= 201703L
+    #define SQMOD_NODISCARD [[nodiscard]]
+#else
+    #define SQMOD_NODISCARD
+#endif
 
 /* ------------------------------------------------------------------------------------------------
  * LOGGING LOCATION
@@ -609,12 +548,12 @@ enum EntityType
  * COLOR PACKING
 */
 
-#define SQMOD_PACK_RGB(r, g, b) static_cast< Uint32 >((r) << 16u | (g) << 8u | (b))
-#define SQMOD_PACK_RGBA(r, g, b, a) static_cast< Uint32 >((r) << 24u | (g) << 16u | (b) << 8u | (a))
-#define SQMOD_PACK_ARGB(a, r, g, b) static_cast< Uint32 >((a) << 24u | (r) << 16u | (g) << 8u | (b))
+#define SQMOD_PACK_RGB(r, g, b) static_cast< uint32_t >((r) << 16u | (g) << 8u | (b))
+#define SQMOD_PACK_RGBA(r, g, b, a) static_cast< uint32_t >((r) << 24u | (g) << 16u | (b) << 8u | (a))
+#define SQMOD_PACK_ARGB(a, r, g, b) static_cast< uint32_t >((a) << 24u | (r) << 16u | (g) << 8u | (b))
 
-#define SQMOD_PACK_RGB_TO_RGBA(r, g, b) static_cast< Uint32 >((r) << 24u | (g) << 16u | (b) << 8u | 0u)
-#define SQMOD_PACK_RGB_TO_ARGB(r, g, b) static_cast< Uint32 >(0u << 24u | (r) << 16u | (g) << 8u | (b))
+#define SQMOD_PACK_RGB_TO_RGBA(r, g, b) static_cast< uint32_t >((r) << 24u | (g) << 16u | (b) << 8u | 0u)
+#define SQMOD_PACK_RGB_TO_ARGB(r, g, b) static_cast< uint32_t >(0u << 24u | (r) << 16u | (g) << 8u | (b))
 
 /* ------------------------------------------------------------------------------------------------
  * GENERAL RESPONSES
@@ -625,7 +564,7 @@ enum EntityType
 #define SQMOD_UNKNOWN     (-1)
 #define SQMOD_TRUE        1
 #define SQMOD_FALSE       0
-#define SQMOD_NULL        NULL
+#define SQMOD_NULL        nullptr
 #define SQMOD_BLANK       0
 
 /* ------------------------------------------------------------------------------------------------

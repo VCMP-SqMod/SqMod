@@ -4,16 +4,16 @@
 #include "Base/Color4.hpp"
 #include "Base/Vector3.hpp"
 #include "Core.hpp"
-#include "Misc/Tasks.hpp"
+#include "Core/Tasks.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQMODE_DECL_TYPENAME(Typename, _SC("SqCheckpoint"))
+SQMOD_DECL_TYPENAME(Typename, _SC("SqCheckpoint"))
 
 // ------------------------------------------------------------------------------------------------
-const Int32 CCheckpoint::Max = SQMOD_CHECKPOINT_POOL;
+const int32_t CCheckpoint::Max = SQMOD_CHECKPOINT_POOL;
 
 // ------------------------------------------------------------------------------------------------
 SQInteger CCheckpoint::SqGetNull(HSQUIRRELVM vm)
@@ -29,9 +29,9 @@ LightObj & CCheckpoint::GetNull()
 }
 
 // ------------------------------------------------------------------------------------------------
-CCheckpoint::CCheckpoint(Int32 id)
+CCheckpoint::CCheckpoint(int32_t id)
     : m_ID(VALID_ENTITYGETEX(id, SQMOD_CHECKPOINT_POOL))
-    , m_Tag(ToStrF("%d", id)), m_Data(), m_CircularLocks(0)
+    , m_Tag(fmt::format("{}", id)), m_Data(), m_CircularLocks(0)
 {
     /* ... */
 }
@@ -87,7 +87,7 @@ void CCheckpoint::SetData(LightObj & data)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CCheckpoint::Destroy(Int32 header, LightObj & payload)
+bool CCheckpoint::Destroy(int32_t header, LightObj & payload) const
 {
     // Validate the managed identifier
     Validate();
@@ -105,7 +105,7 @@ LightObj & CCheckpoint::GetEvents() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::CustomEvent(Int32 header, LightObj & payload) const
+void CCheckpoint::CustomEvent(int32_t header, LightObj & payload) const
 {
     // Validate the managed identifier
     Validate();
@@ -137,7 +137,7 @@ bool CCheckpoint::IsSphere() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CCheckpoint::GetWorld() const
+int32_t CCheckpoint::GetWorld() const
 {
     // Validate the managed identifier
     Validate();
@@ -146,12 +146,12 @@ Int32 CCheckpoint::GetWorld() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetWorld(Int32 world)
+void CCheckpoint::SetWorld(int32_t world)
 {
     // Validate the managed identifier
     Validate();
     // Grab the current value for this property
-    const Int32 current = _Func->GetCheckPointWorld(m_ID);
+    const int32_t current = _Func->GetCheckPointWorld(m_ID);
     // Don't even bother if it's the same value
     if (current == world)
     {
@@ -175,7 +175,7 @@ Color4 CCheckpoint::GetColor() const
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the color information
-    Int32 r, g, b, a;
+    int32_t r, g, b, a;
     // Query the server for the color values
     _Func->GetCheckPointColour(m_ID, &r, &g, &b, &a);
     // Return the requested information
@@ -193,7 +193,7 @@ void CCheckpoint::SetColor(const Color4 & col) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetColorEx(Uint8 r, Uint8 g, Uint8 b) const
+void CCheckpoint::SetColorEx3(uint8_t r, uint8_t g, uint8_t b) const
 {
     // Validate the managed identifier
     Validate();
@@ -202,7 +202,7 @@ void CCheckpoint::SetColorEx(Uint8 r, Uint8 g, Uint8 b) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetColorEx(Uint8 r, Uint8 g, Uint8 b, Uint8 a) const
+void CCheckpoint::SetColorEx4(uint8_t r, uint8_t g, uint8_t b, uint8_t a) const
 {
     // Validate the managed identifier
     Validate();
@@ -233,7 +233,7 @@ void CCheckpoint::SetPosition(const Vector3 & pos) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetPositionEx(Float32 x, Float32 y, Float32 z) const
+void CCheckpoint::SetPositionEx(float x, float y, float z) const
 {
     // Validate the managed identifier
     Validate();
@@ -242,7 +242,7 @@ void CCheckpoint::SetPositionEx(Float32 x, Float32 y, Float32 z) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CCheckpoint::GetRadius() const
+float CCheckpoint::GetRadius() const
 {
     // Validate the managed identifier
     Validate();
@@ -251,12 +251,12 @@ Float32 CCheckpoint::GetRadius() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetRadius(Float32 radius)
+void CCheckpoint::SetRadius(float radius)
 {
     // Validate the managed identifier
     Validate();
     // Grab the current value for this property
-    const Float32 current = _Func->GetCheckPointRadius(m_ID);
+    const float current = _Func->GetCheckPointRadius(m_ID);
     // Avoid property unwind from a recursive call
     _Func->SetCheckPointRadius(m_ID, radius);
     // Avoid infinite recursive event loops
@@ -279,7 +279,7 @@ LightObj & CCheckpoint::GetOwner() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CCheckpoint::GetOwnerID() const
+int32_t CCheckpoint::GetOwnerID() const
 {
     // Validate the managed identifier
     Validate();
@@ -288,12 +288,12 @@ Int32 CCheckpoint::GetOwnerID() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CCheckpoint::GetPositionX() const
+float CCheckpoint::GetPositionX() const
 {
     // Validate the managed identifier
     Validate();
     // Clear previous position information, if any
-    Float32 x = 0.0f, dummy;
+    float x = 0.0f, dummy;
     // Query the server for the requested component value
     _Func->GetCheckPointPosition(m_ID, &x, &dummy, &dummy);
     // Return the requested information
@@ -301,12 +301,12 @@ Float32 CCheckpoint::GetPositionX() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CCheckpoint::GetPositionY() const
+float CCheckpoint::GetPositionY() const
 {
     // Validate the managed identifier
     Validate();
     // Clear previous position information, if any
-    Float32 y = 0.0f, dummy;
+    float y = 0.0f, dummy;
     // Query the server for the requested component value
     _Func->GetCheckPointPosition(m_ID, &dummy, &y, &dummy);
     // Return the requested information
@@ -314,12 +314,12 @@ Float32 CCheckpoint::GetPositionY() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Float32 CCheckpoint::GetPositionZ() const
+float CCheckpoint::GetPositionZ() const
 {
     // Validate the managed identifier
     Validate();
     // Clear previous position information, if any
-    Float32 z = 0.0f, dummy;
+    float z = 0.0f, dummy;
     // Query the server for the requested component value
     _Func->GetCheckPointPosition(m_ID, &dummy, &dummy, &z);
     // Return the requested information
@@ -327,12 +327,12 @@ Float32 CCheckpoint::GetPositionZ() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetPositionX(Float32 x) const
+void CCheckpoint::SetPositionX(float x) const
 {
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 y, z, dummy;
+    float y, z, dummy;
     // Retrieve the current values for unchanged components
     _Func->GetCheckPointPosition(m_ID, &dummy, &y, &z);
     // Perform the requested operation
@@ -340,12 +340,12 @@ void CCheckpoint::SetPositionX(Float32 x) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetPositionY(Float32 y) const
+void CCheckpoint::SetPositionY(float y) const
 {
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 x, z, dummy;
+    float x, z, dummy;
     // Retrieve the current values for unchanged components
     _Func->GetCheckPointPosition(m_ID, &x, &dummy, &z);
     // Perform the requested operation
@@ -353,12 +353,12 @@ void CCheckpoint::SetPositionY(Float32 y) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetPositionZ(Float32 z) const
+void CCheckpoint::SetPositionZ(float z) const
 {
     // Validate the managed identifier
     Validate();
     // Reserve some temporary floats to retrieve the missing components
-    Float32 x, y, dummy;
+    float x, y, dummy;
     // Retrieve the current values for unchanged components
     _Func->GetCheckPointPosition(m_ID, &x, &y, &dummy);
     // Perform the requested operation
@@ -366,12 +366,12 @@ void CCheckpoint::SetPositionZ(Float32 z) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CCheckpoint::GetColorR() const
+int32_t CCheckpoint::GetColorR() const
 {
     // Validate the managed identifier
     Validate();
     // Clear previous color information, if any
-    Int32 r = 0, dummy;
+    int32_t r = 0, dummy;
     // Query the server for the requested component value
     _Func->GetCheckPointColour(m_ID, &r, &dummy, &dummy, &dummy);
     // Return the requested information
@@ -379,12 +379,12 @@ Int32 CCheckpoint::GetColorR() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CCheckpoint::GetColorG() const
+int32_t CCheckpoint::GetColorG() const
 {
     // Validate the managed identifier
     Validate();
     // Clear previous color information, if any
-    Int32 g = 0, dummy;
+    int32_t g = 0, dummy;
     // Query the server for the requested component value
     _Func->GetCheckPointColour(m_ID, &dummy, &g, &dummy, &dummy);
     // Return the requested information
@@ -392,12 +392,12 @@ Int32 CCheckpoint::GetColorG() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CCheckpoint::GetColorB() const
+int32_t CCheckpoint::GetColorB() const
 {
     // Validate the managed identifier
     Validate();
     // Clear previous color information, if any
-    Int32 b = 0, dummy;
+    int32_t b = 0, dummy;
     // Query the server for the requested component value
     _Func->GetCheckPointColour(m_ID, &dummy, &dummy, &b, &dummy);
     // Return the requested information
@@ -405,12 +405,12 @@ Int32 CCheckpoint::GetColorB() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 CCheckpoint::GetColorA() const
+int32_t CCheckpoint::GetColorA() const
 {
     // Validate the managed identifier
     Validate();
     // Clear previous color information, if any
-    Int32 a = 0, dummy;
+    int32_t a = 0, dummy;
     // Query the server for the requested component value
     _Func->GetCheckPointColour(m_ID, &dummy, &dummy, &dummy, &a);
     // Return the requested information
@@ -418,12 +418,12 @@ Int32 CCheckpoint::GetColorA() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetColorR(Int32 r) const
+void CCheckpoint::SetColorR(int32_t r) const
 {
     // Validate the managed identifier
     Validate();
     // Reserve some temporary integers to retrieve the missing components
-    Int32 g, b, a, dummy;
+    int32_t g, b, a, dummy;
     // Retrieve the current values for unchanged components
     _Func->GetCheckPointColour(m_ID, &dummy, &g, &b, &a);
     // Perform the requested operation
@@ -431,12 +431,12 @@ void CCheckpoint::SetColorR(Int32 r) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetColorG(Int32 g) const
+void CCheckpoint::SetColorG(int32_t g) const
 {
     // Validate the managed identifier
     Validate();
     // Reserve some temporary integers to retrieve the missing components
-    Int32 r, b, a, dummy;
+    int32_t r, b, a, dummy;
     // Retrieve the current values for unchanged components
     _Func->GetCheckPointColour(m_ID, &r, &dummy, &b, &a);
     // Perform the requested operation
@@ -444,12 +444,12 @@ void CCheckpoint::SetColorG(Int32 g) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetColorB(Int32 b) const
+void CCheckpoint::SetColorB(int32_t b) const
 {
     // Validate the managed identifier
     Validate();
     // Reserve some temporary integers to retrieve the missing components
-    Int32 r, g, a, dummy;
+    int32_t r, g, a, dummy;
     // Retrieve the current values for unchanged components
     _Func->GetCheckPointColour(m_ID, &r, &g, &dummy, &a);
     // Perform the requested operation
@@ -457,12 +457,12 @@ void CCheckpoint::SetColorB(Int32 b) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CCheckpoint::SetColorA(Int32 a) const
+void CCheckpoint::SetColorA(int32_t a) const
 {
     // Validate the managed identifier
     Validate();
     // Reserve some temporary integers to retrieve the missing components
-    Int32 r, g, b, dummy;
+    int32_t r, g, b, dummy;
     // Retrieve the current values for unchanged components
     _Func->GetCheckPointColour(m_ID, &r, &g, &b, &dummy);
     // Perform the requested operation
@@ -470,32 +470,32 @@ void CCheckpoint::SetColorA(Int32 a) const
 }
 
 // ------------------------------------------------------------------------------------------------
-static LightObj & Checkpoint_CreateEx(Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
-                            Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius)
+static LightObj & Checkpoint_CreateEx1a(int32_t world, bool sphere, float x, float y, float z,
+                            uint8_t r, uint8_t g, uint8_t b, uint8_t a, float radius)
 {
     return Core::Get().NewCheckpoint(-1, world, sphere, x, y, z, r, g, b, a, radius,
                                 SQMOD_CREATE_DEFAULT, NullLightObj());
 }
 
-static LightObj & Checkpoint_CreateEx(Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
-                            Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius,
-                            Int32 header, LightObj & payload)
+static LightObj & Checkpoint_CreateEx1b(int32_t world, bool sphere, float x, float y, float z,
+                            uint8_t r, uint8_t g, uint8_t b, uint8_t a, float radius,
+                            int32_t header, LightObj & payload)
 {
     return Core::Get().NewCheckpoint(-1, world, sphere, x, y, z, r, g, b, a,
                                 radius, header, payload);
 }
 
 // ------------------------------------------------------------------------------------------------
-static LightObj & Checkpoint_Create(Int32 world, bool sphere, const Vector3 & pos,
-                            const Color4 & color, Float32 radius)
+static LightObj & Checkpoint_Create1a(int32_t world, bool sphere, const Vector3 & pos,
+                            const Color4 & color, float radius)
 {
     return Core::Get().NewCheckpoint(-1, world, sphere, pos.x, pos.y, pos.z,
                                 color.r, color.g, color.b, color.a, radius,
                                 SQMOD_CREATE_DEFAULT, NullLightObj());
 }
 
-static LightObj & Checkpoint_Create(Int32 world, bool sphere, const Vector3 & pos,
-                            const Color4 & color, Float32 radius, Int32 header, LightObj & payload)
+static LightObj & Checkpoint_Create1b(int32_t world, bool sphere, const Vector3 & pos,
+                            const Color4 & color, float radius, int32_t header, LightObj & payload)
 {
     return Core::Get().NewCheckpoint(-1, world, sphere, pos.x, pos.y, pos.z,
                                 color.r, color.g, color.b, color.a, radius, header, payload);
@@ -521,9 +521,9 @@ void Register_CCheckpoint(HSQUIRRELVM vm)
         .FmtFunc(_SC("SetTag"), &CCheckpoint::ApplyTag)
         .Func(_SC("CustomEvent"), &CCheckpoint::CustomEvent)
         // Core Overloads
-        .Overload< bool (CCheckpoint::*)(void) >(_SC("Destroy"), &CCheckpoint::Destroy)
-        .Overload< bool (CCheckpoint::*)(Int32) >(_SC("Destroy"), &CCheckpoint::Destroy)
-        .Overload< bool (CCheckpoint::*)(Int32, LightObj &) >(_SC("Destroy"), &CCheckpoint::Destroy)
+        .Overload(_SC("Destroy"), &CCheckpoint::Destroy0)
+        .Overload(_SC("Destroy"), &CCheckpoint::Destroy1)
+        .Overload(_SC("Destroy"), &CCheckpoint::Destroy)
         // Properties
         .Prop(_SC("Sphere"), &CCheckpoint::IsSphere)
         .Prop(_SC("World"), &CCheckpoint::GetWorld, &CCheckpoint::SetWorld)
@@ -546,19 +546,13 @@ void Register_CCheckpoint(HSQUIRRELVM vm)
         .Func(_SC("SetPos"), &CCheckpoint::SetPositionEx)
         .Func(_SC("SetPosition"), &CCheckpoint::SetPositionEx)
         // Member Overloads
-        .Overload< void (CCheckpoint::*)(Uint8, Uint8, Uint8) const >
-            (_SC("SetColor"), &CCheckpoint::SetColorEx)
-        .Overload< void (CCheckpoint::*)(Uint8, Uint8, Uint8, Uint8) const >
-            (_SC("SetColor"), &CCheckpoint::SetColorEx)
+        .Overload(_SC("SetColor"), &CCheckpoint::SetColorEx3)
+        .Overload(_SC("SetColor"), &CCheckpoint::SetColorEx4)
         // Static Overloads
-        .StaticOverload< LightObj & (*)(Int32, bool, Float32, Float32, Float32, Uint8, Uint8, Uint8, Uint8, Float32) >
-            (_SC("CreateEx"), &Checkpoint_CreateEx)
-        .StaticOverload< LightObj & (*)(Int32, bool, Float32, Float32, Float32, Uint8, Uint8, Uint8, Uint8, Float32, Int32, LightObj &) >
-            (_SC("CreateEx"), &Checkpoint_CreateEx)
-        .StaticOverload< LightObj & (*)(Int32, bool, const Vector3 &, const Color4 &, Float32) >
-            (_SC("Create"), &Checkpoint_Create)
-        .StaticOverload< LightObj & (*)(Int32, bool, const Vector3 &, const Color4 &, Float32, Int32, LightObj &) >
-            (_SC("Create"), &Checkpoint_Create)
+        .StaticOverload(_SC("CreateEx"), &Checkpoint_CreateEx1a)
+        .StaticOverload(_SC("CreateEx"), &Checkpoint_CreateEx1b)
+        .StaticOverload(_SC("Create"), &Checkpoint_Create1a)
+        .StaticOverload(_SC("Create"), &Checkpoint_Create1b)
         // Raw Squirrel Methods
         .SquirrelFunc(_SC("NullInst"), &CCheckpoint::SqGetNull)
         .SquirrelFunc(_SC("MakeTask"), &Tasks::MakeTask< CCheckpoint, ENT_CHECKPOINT >)

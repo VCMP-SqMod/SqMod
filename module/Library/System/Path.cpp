@@ -1,13 +1,13 @@
 // ------------------------------------------------------------------------------------------------
 #include "Library/System/Path.hpp"
-#include "Library/System/Environment.hpp"
+#include "Library/System/Env.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cctype>
-#include <cstdlib>
 #include <cstring>
-#include <limits>
-#include <utility>
+
+// ------------------------------------------------------------------------------------------------
+#include <sqratConst.h>
 
 // ------------------------------------------------------------------------------------------------
 #ifdef SQMOD_OS_WINDOWS
@@ -34,10 +34,10 @@ namespace SqMod {
 #endif // SQMOD_OS_WINDOWS
 
 // ------------------------------------------------------------------------------------------------
-SQMODE_DECL_TYPENAME(Typename, _SC("SqSysPath"))
+SQMOD_DECL_TYPENAME(Typename, _SC("SqSysPath"))
 
 // ------------------------------------------------------------------------------------------------
-Buffer GetRealFilePath(CSStr path)
+Buffer GetRealFilePath(const SQChar * path)
 {
     // Make sure the specified path is valid
     if (!path || *path == '\0')
@@ -49,14 +49,14 @@ Buffer GetRealFilePath(CSStr path)
 
 #ifdef SQMOD_OS_WINDOWS
     // Attempt to obtain the full path to the file
-    DWORD ret = ::GetFullPathName(path, b.Size< PChar >(), b.Get< PChar >(), nullptr);
+    DWORD ret = ::GetFullPathNameA(path, b.Size< char >(), b.Get< char >(), nullptr);
     // Should we allocate a bigger buffer?
     if (ret > b.Size< PChar >())
     {
         // Grab a bigger buffer
         b.Adjust(ret);
         // Grab the path again
-        ret = GetFullPathName(path, b.Size< PChar >(), b.Get< PChar >(), nullptr);
+        ret = GetFullPathNameA(path, b.Size< char >(), b.Get< char >(), nullptr);
     }
     // Did we fail to obtain a path?
     if (ret == 0 && ::GetLastError() != 0)
@@ -100,7 +100,7 @@ SysPath::SysPath(bool absolute)
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath::SysPath(CSStr path)
+SysPath::SysPath(const SQChar * path)
     : m_Dirs()
     , m_Name()
     , m_Drive(0)
@@ -110,7 +110,7 @@ SysPath::SysPath(CSStr path)
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath::SysPath(CSStr path, Int32 style)
+SysPath::SysPath(const SQChar * path, int32_t style)
     : m_Dirs()
     , m_Name()
     , m_Drive(0)
@@ -120,7 +120,7 @@ SysPath::SysPath(CSStr path, Int32 style)
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath::SysPath(CSStr path, Style style)
+SysPath::SysPath(const SQChar * path, Style style)
     : m_Dirs()
     , m_Name()
     , m_Drive(0)
@@ -130,7 +130,7 @@ SysPath::SysPath(CSStr path, Style style)
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath::SysPath(const Buffer & path, Int32 size)
+SysPath::SysPath(const Buffer & path, int32_t size)
     : m_Dirs()
     , m_Name()
     , m_Drive(0)
@@ -140,7 +140,7 @@ SysPath::SysPath(const Buffer & path, Int32 size)
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath::SysPath(const Buffer & path, Style style, Int32 size)
+SysPath::SysPath(const Buffer & path, Style style, int32_t size)
     : m_Dirs()
     , m_Name()
     , m_Drive(0)
@@ -170,7 +170,7 @@ SysPath::SysPath(const String & path, Style style)
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath::SysPath(const SysPath & parent, CSStr  name)
+SysPath::SysPath(const SysPath & parent, const SQChar *  name)
     : m_Dirs(parent.m_Dirs)
     , m_Name(name ? name : "")
     , m_Drive(parent.m_Drive)
@@ -180,7 +180,7 @@ SysPath::SysPath(const SysPath & parent, CSStr  name)
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath::SysPath(const SysPath & parent, const String &  name)
+SysPath::SysPath(const SysPath & parent, const String &  name) // NOLINT(modernize-pass-by-value)
     : m_Dirs(parent.m_Dirs)
     , m_Name(name)
     , m_Drive(parent.m_Drive)
@@ -201,63 +201,7 @@ SysPath::SysPath(const SysPath & parent, const SysPath &  relative)
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath::SysPath(const SysPath & o)
-    : m_Dirs(o.m_Dirs)
-    , m_Name(o.m_Name)
-    , m_Drive(o.m_Drive)
-    , m_Absolute(o.m_Absolute)
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-SysPath::SysPath(SysPath && o)
-    : m_Dirs(std::move(o.m_Dirs))
-    , m_Name(std::move(o.m_Name))
-    , m_Drive(o.m_Drive)
-    , m_Absolute(o.m_Absolute)
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-SysPath::~SysPath()
-{
-    /* ... */
-}
-
-// ------------------------------------------------------------------------------------------------
-SysPath & SysPath::operator = (const SysPath & o)
-{
-    // Prevent self assignment
-    if (this != &o)
-    {
-        m_Dirs = o.m_Dirs;
-        m_Name = o.m_Name;
-        m_Drive = o.m_Drive;
-        m_Absolute = o.m_Absolute;
-    }
-
-    return *this;
-}
-
-// ------------------------------------------------------------------------------------------------
-SysPath & SysPath::operator = (SysPath && o)
-{
-    // Prevent self assignment
-    if (this != &o)
-    {
-        m_Dirs = std::move(o.m_Dirs);
-        m_Name = std::move(o.m_Name);
-        m_Drive = o.m_Drive;
-        m_Absolute = o.m_Absolute;
-    }
-
-    return *this;
-}
-
-// ------------------------------------------------------------------------------------------------
-SysPath & SysPath::operator = (CSStr path)
+SysPath & SysPath::operator = (const SQChar * path)
 {
     Assign(path);
     return *this;
@@ -290,7 +234,7 @@ SysPath::operator bool () const
 }
 
 // ------------------------------------------------------------------------------------------------
-const String & SysPath::operator [] (Uint32 n) const
+const String & SysPath::operator [] (uint32_t n) const
 {
     // Is this within the bounds of the directory list?
     if (n < m_Dirs.size())
@@ -305,7 +249,7 @@ const String & SysPath::operator [] (Uint32 n) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 SysPath::Cmp(const SysPath & o) const
+int32_t SysPath::Cmp(const SysPath & o) const
 {
     if (*this == o)
         return 0;
@@ -340,7 +284,7 @@ void SysPath::Clear()
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath & SysPath::Assign(CSStr path)
+SysPath & SysPath::Assign(const SQChar * path)
 {
     // Is the specified path valid?
     if (!path || *path == '\0')
@@ -361,13 +305,13 @@ SysPath & SysPath::Assign(CSStr path)
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath & SysPath::Assign(CSStr path, Int32 style)
+SysPath & SysPath::Assign(const SQChar * path, int32_t style)
 {
     return Assign(path, static_cast< Style >(style));
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath & SysPath::Assign(CSStr path, Style style)
+SysPath & SysPath::Assign(const SQChar * path, Style style)
 {
     // Is the specified path valid?
     if (!path || *path == '\0')
@@ -383,7 +327,7 @@ SysPath & SysPath::Assign(CSStr path, Style style)
         case Style::Unix:
             ParseUnix(path, path + strlen(path));
         break;
-        case Style::Windows:
+        case Style::Windows: // NOLINT(bugprone-branch-clone)
             ParseWindows(path, path + strlen(path));
         break;
         case Style::Native:
@@ -399,8 +343,6 @@ SysPath & SysPath::Assign(CSStr path, Style style)
         case Style::Dynamic:
             ParseDynamic(path, path + strlen(path));
         break;
-        default:
-            STHROWF("Unknown system path style");
         }
     }
     // Allow chaining
@@ -408,7 +350,7 @@ SysPath & SysPath::Assign(CSStr path, Style style)
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath & SysPath::Assign(const Buffer & path, Int32 size)
+SysPath & SysPath::Assign(const Buffer & path, int32_t size)
 {
     // Is the specified path valid?
     if (!path)
@@ -424,7 +366,7 @@ SysPath & SysPath::Assign(const Buffer & path, Int32 size)
         ParseUnix(path.Data(), &path.Cursor());
 #endif // SQMOD_OS_WINDOWS
     }
-    else if (static_cast< Uint32 >(size) < path.Capacity())
+    else if (static_cast< uint32_t >(size) < path.Capacity())
     {
 #ifdef SQMOD_OS_WINDOWS
         ParseWindows(path.Data(), path.Data() + size);
@@ -441,7 +383,7 @@ SysPath & SysPath::Assign(const Buffer & path, Int32 size)
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath & SysPath::Assign(const Buffer & path, Style style, Int32 size)
+SysPath & SysPath::Assign(const Buffer & path, Style style, int32_t size)
 {
     // Is the specified path valid?
     if (!path)
@@ -457,7 +399,7 @@ SysPath & SysPath::Assign(const Buffer & path, Style style, Int32 size)
         case Style::Unix:
             ParseUnix(path.Data(), &path.Cursor());
         break;
-        case Style::Windows:
+        case Style::Windows: // NOLINT(bugprone-branch-clone)
             ParseWindows(path.Data(), &path.Cursor());
         break;
         case Style::Native:
@@ -473,11 +415,9 @@ SysPath & SysPath::Assign(const Buffer & path, Style style, Int32 size)
         case Style::Dynamic:
             ParseDynamic(path.Data(), &path.Cursor());
         break;
-        default:
-            STHROWF("Unknown system path style");
         }
     }
-    else if (static_cast< Uint32 >(size) < path.Capacity())
+    else if (static_cast< uint32_t >(size) < path.Capacity())
     {
         // Identify which style was requested
         switch (style)
@@ -485,7 +425,7 @@ SysPath & SysPath::Assign(const Buffer & path, Style style, Int32 size)
         case Style::Unix:
             ParseUnix(path.Data(), path.Data() + size);
         break;
-        case Style::Windows:
+        case Style::Windows: // NOLINT(bugprone-branch-clone)
             ParseWindows(path.Data(), path.Data() + size);
         break;
         case Style::Native:
@@ -501,8 +441,6 @@ SysPath & SysPath::Assign(const Buffer & path, Style style, Int32 size)
         case Style::Dynamic:
             ParseDynamic(path.Data(), path.Data() + size);
         break;
-        default:
-            STHROWF("Unknown system path style");
         }
     }
     else
@@ -551,7 +489,7 @@ SysPath & SysPath::Assign(const String & path, Style style)
         case Style::Unix:
             ParseUnix(path.data(), path.data() + path.size());
         break;
-        case Style::Windows:
+        case Style::Windows: // NOLINT(bugprone-branch-clone)
             ParseWindows(path.data(), path.data() + path.size());
         break;
         case Style::Native:
@@ -567,8 +505,6 @@ SysPath & SysPath::Assign(const String & path, Style style)
         case Style::Dynamic:
             ParseDynamic(path.data(), path.data() + path.size());
         break;
-        default:
-            STHROWF("Unknown system path style");
         }
     }
     // Allow chaining
@@ -576,7 +512,7 @@ SysPath & SysPath::Assign(const String & path, Style style)
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath & SysPath::Assign(const SysPath & parent, CSStr  name)
+SysPath & SysPath::Assign(const SysPath & parent, const SQChar *  name)
 {
     // Copy the parent values
     *this = parent;
@@ -627,7 +563,7 @@ SysPath & SysPath::Assign(SysPath && path)
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath & SysPath::AssignDir(CSStr path)
+SysPath & SysPath::AssignDir(const SQChar * path)
 {
     // Assign the specified path
     Assign(path);
@@ -636,7 +572,7 @@ SysPath & SysPath::AssignDir(CSStr path)
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath & SysPath::AssignDir(CSStr path, Int32 style)
+SysPath & SysPath::AssignDir(const SQChar * path, int32_t style)
 {
     // Assign the specified path
     Assign(path, style);
@@ -645,7 +581,7 @@ SysPath & SysPath::AssignDir(CSStr path, Int32 style)
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath & SysPath::AssignDir(CSStr path, Style style)
+SysPath & SysPath::AssignDir(const SQChar * path, Style style)
 {
     // Assign the specified path
     Assign(path, style);
@@ -654,7 +590,7 @@ SysPath & SysPath::AssignDir(CSStr path, Style style)
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath & SysPath::AssignDir(const Buffer & path, Int32 size)
+SysPath & SysPath::AssignDir(const Buffer & path, int32_t size)
 {
     // Assign the specified path
     Assign(path, size);
@@ -663,7 +599,7 @@ SysPath & SysPath::AssignDir(const Buffer & path, Int32 size)
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath & SysPath::AssignDir(const Buffer & path, Style style, Int32 size)
+SysPath & SysPath::AssignDir(const Buffer & path, Style style, int32_t size)
 {
     // Assign the specified path
     Assign(path, style, size);
@@ -718,13 +654,13 @@ Buffer SysPath::ToBuffer(Style style) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Object SysPath::ToStr(Int32 style) const
+Object SysPath::ToStr(int32_t style) const
 {
     return BufferToStrObj(ToBuffer(static_cast< Style >(style)));
 }
 
 // ------------------------------------------------------------------------------------------------
-void SysPath::FromString(CSStr path)
+void SysPath::FromString(const SQChar * path)
 {
     Assign(path);
 }
@@ -776,7 +712,7 @@ SysPath & SysPath::MakeParent()
         else
         {
             // Are we already referencing a parent?
-            if (m_Dirs.back().compare("..") == 0)
+            if (m_Dirs.back().compare("..") == 0) // NOLINT(readability-string-compare)
             {
                 // Then reference the parent of that parent
                 m_Dirs.emplace_back("..");
@@ -885,31 +821,31 @@ SysPath & SysPath::Append(SysPath && path)
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath & SysPath::Append(CSStr path)
+SysPath & SysPath::Append(const SQChar * path)
 {
     return Append(SysPath(path));
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath & SysPath::Append(CSStr path, Int32 style)
+SysPath & SysPath::Append(const SQChar * path, int32_t style)
 {
     return Append(SysPath(path, style));
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath & SysPath::Append(CSStr path, Style style)
+SysPath & SysPath::Append(const SQChar * path, Style style)
 {
     return Append(SysPath(path, style));
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath & SysPath::Append(const Buffer & path, Int32 size)
+SysPath & SysPath::Append(const Buffer & path, int32_t size)
 {
     return Append(SysPath(path, size));
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath & SysPath::Append(const Buffer & path, Style style, Int32 size)
+SysPath & SysPath::Append(const Buffer & path, Style style, int32_t size)
 {
     return Append(SysPath(path, style, size));
 }
@@ -927,7 +863,7 @@ SysPath & SysPath::Append(const String & path, Style style)
 }
 
 // ------------------------------------------------------------------------------------------------
-const String & SysPath::Directory(Uint32 n) const
+const String & SysPath::Directory(uint32_t n) const
 {
     // Is this within the bounds of the directory list?
     if (n < m_Dirs.size())
@@ -942,7 +878,7 @@ const String & SysPath::Directory(Uint32 n) const
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath & SysPath::Push(CSStr dir)
+SysPath & SysPath::Push(const SQChar * dir)
 {
     // Is the specified directory valid?
     if (dir && *dir != 0)
@@ -957,7 +893,7 @@ SysPath & SysPath::Push(CSStr dir)
 SysPath & SysPath::Push(const String & dir)
 {
     // Is the specified directory valid?
-    if (!dir.empty() && dir.compare(".") != 0)
+    if (!dir.empty() && dir.compare(".") != 0) // NOLINT(readability-string-compare)
     {
         Push(String(dir));
     }
@@ -969,13 +905,13 @@ SysPath & SysPath::Push(const String & dir)
 SysPath & SysPath::Push(String && dir)
 {
     // Is the specified directory valid?
-    if (!dir.empty() && dir.compare(".") != 0)
+    if (!dir.empty() && dir.compare(".") != 0) // NOLINT(readability-string-compare)
     {
         // Does it refer to a parent directory?
-        if (dir.compare("..") == 0)
+        if (dir.compare("..") == 0) // NOLINT(readability-string-compare)
         {
             // Is our last directory already a reference to a parent?
-            if (!m_Dirs.empty() && m_Dirs.back().compare("..") != 0)
+            if (!m_Dirs.empty() && m_Dirs.back().compare("..") != 0) // NOLINT(readability-string-compare)
             {
                 m_Dirs.pop_back();
             }
@@ -1022,7 +958,7 @@ SysPath & SysPath::PopFront()
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath & SysPath::SetFilename(CSStr name)
+SysPath & SysPath::SetFilename(const SQChar * name)
 {
     // Is the file name even valid?
     if (name)
@@ -1052,7 +988,7 @@ SysPath & SysPath::SetFilename(String && name)
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath & SysPath::SetBasename(CSStr name)
+SysPath & SysPath::SetBasename(const SQChar * name)
 {
     // Is the file name even valid?
     if (name)
@@ -1128,7 +1064,7 @@ String SysPath::GetBasename() const
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath & SysPath::SetExtension(CSStr ext)
+SysPath & SysPath::SetExtension(const SQChar * ext)
 {
     // Attempt to find the last dot in the file name
     const String::size_type pos = m_Name.rfind('.');
@@ -1185,7 +1121,7 @@ String SysPath::GetExtension() const
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr SysPath::GetExtensionC() const
+const SQChar * SysPath::GetExtensionC() const
 {
     // Attempt to find the last dot in the file name
     const String::size_type pos = m_Name.rfind('.');
@@ -1234,7 +1170,7 @@ SysPath & SysPath::Resolve(const SysPath & path)
 }
 
 // ------------------------------------------------------------------------------------------------
-void SysPath::ParseUnix(CSStr pos, CSStr end)
+void SysPath::ParseUnix(const SQChar * pos, const SQChar * end)
 {
     // Clear previous path information
     Clear();
@@ -1271,7 +1207,7 @@ void SysPath::ParseUnix(CSStr pos, CSStr end)
         }
     }
     // Make another iterator to slice directory names in one go
-    CSStr itr = pos;
+    const SQChar * itr = pos;
     // Extract the remaining directories from the specified path
     while (itr != end)
     {
@@ -1299,7 +1235,7 @@ void SysPath::ParseUnix(CSStr pos, CSStr end)
 }
 
 // ------------------------------------------------------------------------------------------------
-void SysPath::ParseWindows(CSStr pos, CSStr end)
+void SysPath::ParseWindows(const SQChar * pos, const SQChar * end)
 {
     // Clear previous path information
     Clear();
@@ -1354,7 +1290,7 @@ void SysPath::ParseWindows(CSStr pos, CSStr end)
         return;
     }
     // Make another iterator to slice directory names in one go
-    CSStr itr = pos;
+    const SQChar * itr = pos;
     // Extract the remaining directories from the specified path
     while (itr != end)
     {
@@ -1382,7 +1318,7 @@ void SysPath::ParseWindows(CSStr pos, CSStr end)
 }
 
 // ------------------------------------------------------------------------------------------------
-void SysPath::ParseDynamic(CSStr pos, CSStr end)
+void SysPath::ParseDynamic(const SQChar * pos, const SQChar * end)
 {
     // Clear previous path information
     Clear();
@@ -1443,7 +1379,7 @@ void SysPath::ParseDynamic(CSStr pos, CSStr end)
     }
 #endif // SQMOD_OS_WINDOWS
     // Make another iterator to slice directory names in one go
-    CSStr itr = pos;
+    const SQChar * itr = pos;
     // Extract the remaining directories from the specified path
     while (itr != end)
     {
@@ -1471,14 +1407,14 @@ void SysPath::ParseDynamic(CSStr pos, CSStr end)
 }
 
 // ------------------------------------------------------------------------------------------------
-void SysPath::ParseGuess(CSStr pos, CSStr end)
+void SysPath::ParseGuess(const SQChar * pos, const SQChar * end)
 {
     // Scan for forward slash
-    const bool has_fwslash = (strchr(pos, '/') != NULL);
-    const bool has_bwslash = (strchr(pos, '\\') != NULL);
+    const bool has_fwslash = (strchr(pos, '/') != nullptr);
+    const bool has_bwslash = (strchr(pos, '\\') != nullptr);
     // Does it contain both forward and backward slashes?
     if (has_fwslash && has_bwslash)
-    {
+    { // NOLINT(bugprone-branch-clone)
         ParseDynamic(pos, end);
     }
     // Does it contain the forward slash?
@@ -1488,7 +1424,7 @@ void SysPath::ParseGuess(CSStr pos, CSStr end)
     }
     // Does it contain the backward slash?
     else if (has_bwslash)
-    {
+    { // NOLINT(bugprone-branch-clone)
         ParseWindows(pos, end);
     }
     // Does it contain a drive letter?
@@ -1518,14 +1454,14 @@ Buffer SysPath::BuildUnix() const
     for (const auto & dir : m_Dirs)
     {
         // Append the name
-        b.AppendS(dir.c_str(), dir.size());
+        b.AppendS(dir.c_str(), static_cast< uint32_t >(dir.size()));
         // Separate from next
         b.Push('/');
     }
     // Is there a file name to add?
     if (!m_Name.empty())
     {
-        b.AppendS(m_Name.c_str(), m_Name.size());
+        b.AppendS(m_Name.c_str(), static_cast< uint32_t >(m_Name.size()));
     }
     // Make sure the string is null terminated
     b.Cursor() = '\0';
@@ -1558,14 +1494,14 @@ Buffer SysPath::BuildWindows() const
     for (const auto & dir : m_Dirs)
     {
         // Append the name
-        b.AppendS(dir.c_str(), dir.size());
+        b.AppendS(dir.c_str(), static_cast< uint32_t >(dir.size()));
         // Separate from next
         b.Push('\\');
     }
     // Is there a file name to add?
     if (!m_Name.empty())
     {
-        b.AppendS(m_Name.c_str(), m_Name.size());
+        b.AppendS(m_Name.c_str(), static_cast< uint32_t >(m_Name.size()));
     }
     // Make sure the string is null terminated
     b.Cursor() = '\0';
@@ -1574,19 +1510,19 @@ Buffer SysPath::BuildWindows() const
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath SysPath::ForDirectory(CSStr path)
+SysPath SysPath::ForDirectory(const SQChar * path)
 {
     return SysPath(path).MakeDirectory();
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath SysPath::ForDirectory(CSStr path, Int32 style)
+SysPath SysPath::ForDirectory(const SQChar * path, int32_t style)
 {
     return SysPath(path, style).MakeDirectory();
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath SysPath::ForDirectory(CSStr path, Style style)
+SysPath SysPath::ForDirectory(const SQChar * path, Style style)
 {
     return SysPath(path, style).MakeDirectory();
 }
@@ -1604,7 +1540,7 @@ SysPath SysPath::ForDirectory(const String & path, Style style)
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath SysPath::Expand(CSStr path)
+SysPath SysPath::Expand(const SQChar * path)
 {
     return SysPath(SysEnv::ExpandPath(path));
 }
@@ -1670,43 +1606,43 @@ SysPath SysPath::Null()
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath SysPath::Real(CSStr path)
+SysPath SysPath::Real(const SQChar * path)
 {
     return SysPath(GetRealFilePath(path));
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath SysPath::With(const SysPath & parent, CSStr name)
+SysPath SysPath::With(const SysPath & parent, const SQChar * name)
 {
     return SysPath(parent, name);
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath SysPath::MakeUnix(CSStr path)
+SysPath SysPath::MakeUnix(const SQChar * path)
 {
     return SysPath(path, Style::Unix);
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath SysPath::MakeWindows(CSStr path)
+SysPath SysPath::MakeWindows(const SQChar * path)
 {
     return SysPath(path, Style::Windows);
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath SysPath::MakeNative(CSStr path)
+SysPath SysPath::MakeNative(const SQChar * path)
 {
     return SysPath(path, Style::Native);
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath SysPath::MakeGuess(CSStr path)
+SysPath SysPath::MakeGuess(const SQChar * path)
 {
     return SysPath(path, Style::Guess);
 }
 
 // ------------------------------------------------------------------------------------------------
-SysPath SysPath::MakeDynamic(CSStr path)
+SysPath SysPath::MakeDynamic(const SQChar * path)
 {
     return SysPath(path, Style::Dynamic);
 }
@@ -1725,8 +1661,8 @@ String SysPath::NormalizePath(SQInteger s, StackStrF & val)
         return String();
     }
     // Turn it into a string that we can edit
-    String str(val.mPtr, val.mLen);
-    // Replace all occurences of the specified character
+    String str(val.mPtr, static_cast< size_t >(val.mLen));
+    // Replace all occurrences of the specified character
     for (String::reference c : str)
     {
         if (c == '/' || c == '\\')
@@ -1744,8 +1680,8 @@ void Register_SysPath(HSQUIRRELVM vm)
         Class< SysPath >(vm, Typename::Str)
         // Constructors
         .Ctor()
-        .Ctor< CSStr >()
-        .Ctor< CSStr, Int32 >()
+        .Ctor< const SQChar * >()
+        .Ctor< const SQChar *, int32_t >()
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &SysPath::ToString)
@@ -1779,29 +1715,29 @@ void Register_SysPath(HSQUIRRELVM vm)
         .Func(_SC("MakeParent"), &SysPath::MakeParent)
         .Func(_SC("Dir"), &SysPath::Directory)
         .Func(_SC("Directory"), &SysPath::Directory)
-        .Func< SysPath & (SysPath::*)(CSStr) >(_SC("Push"), &SysPath::Push)
+        .Func< SysPath & (SysPath::*)(const SQChar *) >(_SC("Push"), &SysPath::Push)
         .Func(_SC("PopBack"), &SysPath::PopBack)
         .Func(_SC("PopFront"), &SysPath::PopFront)
-        .Func< SysPath & (SysPath::*)(CSStr) >(_SC("SetFilename"), &SysPath::SetFilename)
+        .Func< SysPath & (SysPath::*)(const SQChar *) >(_SC("SetFilename"), &SysPath::SetFilename)
         .Func(_SC("GetFilename"), &SysPath::GetFilename)
-        .Func< SysPath & (SysPath::*)(CSStr) >(_SC("SetBasename"), &SysPath::SetBasename)
+        .Func< SysPath & (SysPath::*)(const SQChar *) >(_SC("SetBasename"), &SysPath::SetBasename)
         .Func(_SC("GetBasename"), &SysPath::GetBasename)
-        .Func< SysPath & (SysPath::*)(CSStr) >(_SC("SetExtension"), &SysPath::SetExtension)
+        .Func< SysPath & (SysPath::*)(const SQChar *) >(_SC("SetExtension"), &SysPath::SetExtension)
         .Func(_SC("GetExtension"), &SysPath::GetExtension)
         .Func(_SC("Resolve"), &SysPath::Resolve)
         // Member Overloads
-        .Overload< SysPath & (SysPath::*)(CSStr) >(_SC("Assign"), &SysPath::Assign)
-        .Overload< SysPath & (SysPath::*)(CSStr, Int32) >(_SC("Assign"), &SysPath::Assign)
-        .Overload< SysPath & (SysPath::*)(CSStr) >(_SC("AssignDir"), &SysPath::AssignDir)
-        .Overload< SysPath & (SysPath::*)(CSStr, Int32) >(_SC("AssignDir"), &SysPath::AssignDir)
-        .Overload< SysPath & (SysPath::*)(CSStr) >(_SC("Append"), &SysPath::Append)
-        .Overload< SysPath & (SysPath::*)(CSStr, Int32) >(_SC("Append"), &SysPath::Append)
+        .Overload< SysPath & (SysPath::*)(const SQChar *) >(_SC("Assign"), &SysPath::Assign)
+        .Overload< SysPath & (SysPath::*)(const SQChar *, int32_t) >(_SC("Assign"), &SysPath::Assign)
+        .Overload< SysPath & (SysPath::*)(const SQChar *) >(_SC("AssignDir"), &SysPath::AssignDir)
+        .Overload< SysPath & (SysPath::*)(const SQChar *, int32_t) >(_SC("AssignDir"), &SysPath::AssignDir)
+        .Overload< SysPath & (SysPath::*)(const SQChar *) >(_SC("Append"), &SysPath::Append)
+        .Overload< SysPath & (SysPath::*)(const SQChar *, int32_t) >(_SC("Append"), &SysPath::Append)
         .Overload< SysPath & (SysPath::*)(void) >(_SC("MakeAbsolute"), &SysPath::MakeAbsolute)
         .Overload< SysPath & (SysPath::*)(const SysPath &) >(_SC("MakeAbsolute"), &SysPath::MakeAbsolute)
         // Static Functions
         .StaticFunc(_SC("Separator"), &SysPath::Separator)
         .StaticFunc(_SC("PathSeparator"), &SysPath::PathSeparator)
-        .StaticFunc< SysPath (*)(CSStr) >(_SC("Expand"), &SysPath::Expand)
+        .StaticFunc< SysPath (*)(const SQChar *) >(_SC("Expand"), &SysPath::Expand)
         .StaticFunc(_SC("Home"), &SysPath::Home)
         .StaticFunc(_SC("ConfigHome"), &SysPath::ConfigHome)
         .StaticFunc(_SC("DataHome"), &SysPath::DataHome)
@@ -1822,18 +1758,18 @@ void Register_SysPath(HSQUIRRELVM vm)
         .StaticFunc(_SC("Dynamic"), &SysPath::MakeDynamic)
         .StaticFmtFunc(_SC("Normalize"), &SysPath::NormalizePath)
         // Static Overloads
-        .StaticOverload< SysPath (*)(CSStr) >(_SC("ForDir"), &SysPath::ForDirectory)
-        .StaticOverload< SysPath (*)(CSStr, Int32) >(_SC("ForDir"), &SysPath::ForDirectory)
-        .StaticOverload< SysPath (*)(CSStr) >(_SC("ForDirectory"), &SysPath::ForDirectory)
-        .StaticOverload< SysPath (*)(CSStr, Int32) >(_SC("ForDirectory"), &SysPath::ForDirectory)
+        .StaticOverload< SysPath (*)(const SQChar *) >(_SC("ForDir"), &SysPath::ForDirectory)
+        .StaticOverload< SysPath (*)(const SQChar *, int32_t) >(_SC("ForDir"), &SysPath::ForDirectory)
+        .StaticOverload< SysPath (*)(const SQChar *) >(_SC("ForDirectory"), &SysPath::ForDirectory)
+        .StaticOverload< SysPath (*)(const SQChar *, int32_t) >(_SC("ForDirectory"), &SysPath::ForDirectory)
     );
 
     ConstTable(vm).Enum(_SC("SqSysPathStyle"), Enumeration(vm)
-        .Const(_SC("Unix"),                     static_cast< Int32 >(SysPath::Style::Unix))
-        .Const(_SC("Windows"),                  static_cast< Int32 >(SysPath::Style::Windows))
-        .Const(_SC("Native"),                   static_cast< Int32 >(SysPath::Style::Native))
-        .Const(_SC("Guess"),                    static_cast< Int32 >(SysPath::Style::Guess))
-        .Const(_SC("Dynamic"),                  static_cast< Int32 >(SysPath::Style::Dynamic))
+        .Const(_SC("Unix"),                     static_cast< int32_t >(SysPath::Style::Unix))
+        .Const(_SC("Windows"),                  static_cast< int32_t >(SysPath::Style::Windows))
+        .Const(_SC("Native"),                   static_cast< int32_t >(SysPath::Style::Native))
+        .Const(_SC("Guess"),                    static_cast< int32_t >(SysPath::Style::Guess))
+        .Const(_SC("Dynamic"),                  static_cast< int32_t >(SysPath::Style::Dynamic))
     );
 }
 

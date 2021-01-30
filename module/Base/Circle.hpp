@@ -1,7 +1,6 @@
 #pragma once
 
 // ------------------------------------------------------------------------------------------------
-#include "SqBase.hpp"
 #include "Base/Vector2.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -32,13 +31,13 @@ struct Circle
     /* --------------------------------------------------------------------------------------------
      * The position and radius components of this type.
     */
-    Vector2     pos;
-    Value       rad;
+    Vector2     pos{};
+    Value       rad{0};
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Circle() noexcept;
+    Circle() noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Construct a circle at position 0,0 using the specified radius.
@@ -303,12 +302,12 @@ struct Circle
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    Int32 Cmp(const Circle & c) const;
+    SQMOD_NODISCARD int32_t Cmp(const Circle & c) const;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(SQFloat s) const
+    SQMOD_NODISCARD int32_t Cmp(SQFloat s) const
     {
         return Cmp(Circle(static_cast< Value >(s)));
     }
@@ -316,7 +315,7 @@ struct Circle
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(SQInteger s) const
+    SQMOD_NODISCARD int32_t Cmp(SQInteger s) const
     {
         return Cmp(Circle(static_cast< Value >(s)));
     }
@@ -324,7 +323,7 @@ struct Circle
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(bool s) const
+    SQMOD_NODISCARD int32_t Cmp(bool s) const
     {
         return Cmp(Circle(static_cast< Value >(s)));
     }
@@ -332,7 +331,7 @@ struct Circle
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
     */
-    Int32 Cmp(std::nullptr_t) const
+    SQMOD_NODISCARD int32_t Cmp(std::nullptr_t) const
     {
         return Cmp(Circle(static_cast< Value >(0)));
     }
@@ -340,7 +339,7 @@ struct Circle
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    CSStr ToString() const;
+    SQMOD_NODISCARD String ToString() const;
 
     /* --------------------------------------------------------------------------------------------
      * Set the specified radius.
@@ -409,17 +408,17 @@ struct Circle
     /* --------------------------------------------------------------------------------------------
      * Retrieve a new instance of this type with absolute component values.
     */
-    Circle Abs() const;
+    SQMOD_NODISCARD Circle Abs() const;
 
     /* --------------------------------------------------------------------------------------------
      * Transform this into an array of Vector2 points that form a circle.
     */
-    Array ToPointsArray(SQInteger num_segments) const;
+    SQMOD_NODISCARD Array ToPointsArray(SQInteger num_segments) const;
 
     /* --------------------------------------------------------------------------------------------
      * Generate a formatted string with the values from this instance.
     */
-    LightObj Format(const String & spec, StackStrF & fmt) const;
+    SQMOD_NODISCARD String Format(StackStrF & str) const;
 
     /* --------------------------------------------------------------------------------------------
      * Extract the values for components of the Circle type from a string.

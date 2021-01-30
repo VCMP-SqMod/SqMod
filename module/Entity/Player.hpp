@@ -1,8 +1,8 @@
 #pragma once
 
 // ------------------------------------------------------------------------------------------------
-#include "Base/Shared.hpp"
-#include "Base/Buffer.hpp"
+#include "Core/Common.hpp"
+#include "Core/Buffer.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -31,6 +31,7 @@ class CPlayer
 {
     // --------------------------------------------------------------------------------------------
     friend class Core;
+    friend class PlayerInst;
 
 private:
 
@@ -40,7 +41,7 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Identifier of the managed entity.
     */
-    Int32       m_ID;
+    int32_t       m_ID;
 
     /* --------------------------------------------------------------------------------------------
      * User tag associated with this instance.
@@ -60,12 +61,12 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Prevent events from triggering themselves.
     */
-    Uint32      m_CircularLocks;
+    uint32_t      m_CircularLocks;
 
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    explicit CPlayer(Int32 id);
+    explicit CPlayer(int32_t id);
 
 public:
 
@@ -75,27 +76,27 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Maximum possible number that could represent an identifier for this entity type.
     */
-    static const Int32 Max;
+    static const int32_t Max;
 
     /* --------------------------------------------------------------------------------------------
      * The initial size of the allocated memory buffer when starting a new stream.
     */
-    Uint32          mBufferInitSize;
+    uint32_t          mBufferInitSize;
 
     /* --------------------------------------------------------------------------------------------
      * Default color to use in client messages.
     */
-    Uint32          mMessageColor;
+    uint32_t          mMessageColor;
 
     /* --------------------------------------------------------------------------------------------
      * Default style to use in client announcements.
     */
-    Int32           mAnnounceStyle;
+    int32_t           mAnnounceStyle;
 
     /* --------------------------------------------------------------------------------------------
      * Default ammo to give to the managed player when not specifying any.
     */
-    Int32           mDefaultAmmo;
+    int32_t           mDefaultAmmo;
 
     /* --------------------------------------------------------------------------------------------
      * Set of strings to add before a client message automatically.
@@ -161,7 +162,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    const String & ToString() const;
+    SQMOD_NODISCARD const String & ToString() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated null entity instance.
@@ -171,12 +172,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated null entity instance.
     */
-    static LightObj & GetNull();
+    SQMOD_NODISCARD static LightObj & GetNull();
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the identifier of the entity managed by this instance.
     */
-    Int32 GetID() const
+    SQMOD_NODISCARD int32_t GetID() const
     {
         return m_ID;
     }
@@ -184,7 +185,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Check whether this instance manages a valid entity.
     */
-    bool IsActive() const
+    SQMOD_NODISCARD bool IsActive() const
     {
         return VALID_ENTITY(m_ID);
     }
@@ -192,7 +193,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated user tag.
     */
-    const String & GetTag() const;
+    SQMOD_NODISCARD const String & GetTag() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user tag.
@@ -207,7 +208,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated user data.
     */
-    LightObj & GetData();
+    SQMOD_NODISCARD LightObj & GetData();
 
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user data.
@@ -217,17 +218,17 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the events table of this entity.
     */
-    LightObj & GetEvents() const;
+    SQMOD_NODISCARD LightObj & GetEvents() const;
 
     /* --------------------------------------------------------------------------------------------
      * Emit a custom event for the managed entity
     */
-    void CustomEvent(Int32 header, LightObj & payload) const;
+    void CustomEvent(int32_t header, LightObj & payload) const;
 
     /* --------------------------------------------------------------------------------------------
      * See whether the managed player entity is connected.
     */
-    bool IsConnected() const;
+    SQMOD_NODISCARD bool IsConnected() const;
 
     /* --------------------------------------------------------------------------------------------
      * See if the managed player entity is streamed for the specified player.
@@ -237,7 +238,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether the managed player entity has administrator privileges.
     */
-    bool GetAdmin() const;
+    SQMOD_NODISCARD bool GetAdmin() const;
 
     /* --------------------------------------------------------------------------------------------
      * Set whether the managed player entity has administrator privileges.
@@ -247,17 +248,17 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the ip address of the managed player entity.
     */
-    CSStr GetIP() const;
+    SQMOD_NODISCARD const SQChar * GetIP() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the unique user identifier of the managed player entity.
     */
-    CSStr GetUID() const;
+    SQMOD_NODISCARD const SQChar * GetUID() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the unique user identifier version 2 of the managed player entity.
     */
-    CSStr GetUID2() const;
+    SQMOD_NODISCARD const SQChar * GetUID2() const;
 #if SQMOD_SDK_LEAST(2, 1)
     /* --------------------------------------------------------------------------------------------
      * Set player's health to 0 and reset the death reason.
@@ -272,7 +273,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Kick the managed player entity from the server.
     */
-    void KickBecause(Int32 header, LightObj & payload) const;
+    void KickBecause(int32_t header, LightObj & payload) const;
 
     /* --------------------------------------------------------------------------------------------
      * Ban the managed player entity from the server.
@@ -282,17 +283,17 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Ban the managed player entity from the server.
     */
-    void BanBecause(Int32 header, LightObj & payload) const;
+    void BanBecause(int32_t header, LightObj & payload) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the key of the managed player entity.
     */
-    Uint32 GetKey() const;
+    SQMOD_NODISCARD uint32_t GetKey() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the nick name of the managed player entity.
     */
-    CSStr GetName() const;
+    SQMOD_NODISCARD const SQChar * GetName() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the nick name of the managed player entity.
@@ -302,92 +303,92 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the current state of the managed player entity.
     */
-    Int32 GetState() const;
+    SQMOD_NODISCARD int32_t GetState() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the current option value of the managed player entity.
     */
-    Int32 GetOption(Int32 option_id) const;
+    SQMOD_NODISCARD int32_t GetOption(int32_t option_id) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the current option value of the managed player entity.
     */
-    void SetOption(Int32 option_id, bool toggle);
+    void SetOption(int32_t option_id, bool toggle);
 
     /* --------------------------------------------------------------------------------------------
      * Modify the current option value of the managed player entity.
     */
-    void SetOptionEx(Int32 option_id, bool toggle, Int32 header, LightObj & payload);
+    void SetOptionEx(int32_t option_id, bool toggle, int32_t header, LightObj & payload);
 #if SQMOD_SDK_LEAST(2, 1)
     /* --------------------------------------------------------------------------------------------
      * Retrieve network statistics related to the managed player entity.
     */
-    SQFloat GetNetworkStatisticsF(Int32 option_id) const;
+    SQMOD_NODISCARD SQFloat GetNetworkStatisticsF(int32_t option_id) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve network statistics related to the managed player entity.
     */
-    SQInteger GetNetworkStatisticsI(Int32 option_id) const;
+    SQMOD_NODISCARD SQInteger GetNetworkStatisticsI(int32_t option_id) const;
 #endif
     /* --------------------------------------------------------------------------------------------
      * Retrieve the world in which the managed player entity exists.
     */
-    Int32 GetWorld() const;
+    SQMOD_NODISCARD int32_t GetWorld() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the world in which the managed player entity exists.
     */
-    void SetWorld(Int32 world);
+    void SetWorld(int32_t world);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the secondary world of the managed player entity.
     */
-    Int32 GetSecondaryWorld() const;
+    SQMOD_NODISCARD int32_t GetSecondaryWorld() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the secondary world of the managed player entity.
     */
-    void SetSecondaryWorld(Int32 world);
+    void SetSecondaryWorld(int32_t world);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the unique world of the managed player entity.
     */
-    Int32 GetUniqueWorld() const;
+    SQMOD_NODISCARD int32_t GetUniqueWorld() const;
 
     /* --------------------------------------------------------------------------------------------
      * See whether the managed player entity is compatible with the specified world.
     */
-    bool IsWorldCompatible(Int32 world) const;
+    SQMOD_NODISCARD bool IsWorldCompatible(int32_t world) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the class of the managed player entity.
     */
-    Int32 GetClass() const;
+    SQMOD_NODISCARD int32_t GetClass() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the team of the managed player entity.
     */
-    Int32 GetTeam() const;
+    SQMOD_NODISCARD int32_t GetTeam() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the team of the managed player entity.
     */
-    void SetTeam(Int32 team);
+    void SetTeam(int32_t team);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the skin identifier of the managed player entity.
     */
-    Int32 GetSkin() const;
+    SQMOD_NODISCARD int32_t GetSkin() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the skin identifier of the managed player entity.
     */
-    void SetSkin(Int32 skin);
+    void SetSkin(int32_t skin);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the color of the managed player entity.
     */
-    Color3 GetColor() const;
+    SQMOD_NODISCARD Color3 GetColor() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the color of the managed player entity.
@@ -397,12 +398,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the color of the managed player entity.
     */
-    void SetColorEx(Uint8 r, Uint8 g, Uint8 b) const;
+    void SetColorEx(uint8_t r, uint8_t g, uint8_t b) const;
 
     /* --------------------------------------------------------------------------------------------
      * See whether the managed player entity is spawned.
     */
-    bool IsSpawned() const;
+    SQMOD_NODISCARD bool IsSpawned() const;
 
     /* --------------------------------------------------------------------------------------------
      * Force the managed player entity to spawn in the game.
@@ -417,87 +418,87 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether the managed player entity is typing.
     */
-    bool IsTyping() const;
+    SQMOD_NODISCARD bool IsTyping() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the money amount of the managed player entity.
     */
-    Int32 GetMoney() const;
+    SQMOD_NODISCARD int32_t GetMoney() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the money amount of the managed player entity.
     */
-    void SetMoney(Int32 amount);
+    void SetMoney(int32_t amount);
 
     /* --------------------------------------------------------------------------------------------
      * Give a certain amount of money to the managed player entity.
     */
-    void GiveMoney(Int32 amount);
+    void GiveMoney(int32_t amount);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the score of the managed player entity.
     */
-    Int32 GetScore() const;
+    SQMOD_NODISCARD int32_t GetScore() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the score of the managed player entity.
     */
-    void SetScore(Int32 score);
+    void SetScore(int32_t score);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the wanted level of the managed player entity.
     */
-    Int32 GetWantedLevel() const;
+    SQMOD_NODISCARD int32_t GetWantedLevel() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the wanted level of the managed player entity.
     */
-    void SetWantedLevel(Int32 level);
+    void SetWantedLevel(int32_t level);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the connection latency of the managed player entity.
     */
-    Int32 GetPing() const;
+    SQMOD_NODISCARD int32_t GetPing() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the frames per second of the managed player entity.
     */
-    SQFloat GetFPS() const;
+    SQMOD_NODISCARD SQFloat GetFPS() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the current health of the managed player entity.
     */
-    Float32 GetHealth() const;
+    SQMOD_NODISCARD float GetHealth() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the health of the managed player entity.
     */
-    void SetHealth(Float32 amount) const;
+    void SetHealth(float amount) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the current health of the managed player entity.
     */
-    Float32 GetArmor() const;
+    SQMOD_NODISCARD float GetArmor() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the health of the managed player entity.
     */
-    void SetArmor(Float32 amount) const;
+    void SetArmor(float amount) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the immunity flags of the managed player entity.
     */
-    Int32 GetImmunity() const;
+    SQMOD_NODISCARD int32_t GetImmunity() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the immunity flags of the managed player entity.
     */
-    void SetImmunity(Int32 flags);
+    void SetImmunity(int32_t flags);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position of the managed player entity.
     */
-    Vector3 GetPosition() const;
+    SQMOD_NODISCARD Vector3 GetPosition() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position of the managed player entity.
@@ -507,12 +508,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the position of the managed player entity.
     */
-    void SetPositionEx(Float32 x, Float32 y, Float32 z) const;
+    void SetPositionEx(float x, float y, float z) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the speed of the managed player entity.
     */
-    Vector3 GetSpeed() const;
+    SQMOD_NODISCARD Vector3 GetSpeed() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the speed of the managed player entity.
@@ -522,7 +523,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the speed of the managed player entity.
     */
-    void SetSpeedEx(Float32 x, Float32 y, Float32 z) const;
+    void SetSpeedEx(float x, float y, float z) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the speed of the managed player entity.
@@ -532,62 +533,62 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the speed of the managed player entity.
     */
-    void AddSpeedEx(Float32 x, Float32 y, Float32 z) const;
+    void AddSpeedEx(float x, float y, float z) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the heading angle of the managed player entity.
     */
-    Float32 GetHeading() const;
+    SQMOD_NODISCARD float GetHeading() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the heading angle of the managed player entity.
     */
-    void SetHeading(Float32 angle) const;
+    void SetHeading(float angle) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the alpha of the managed player entity.
     */
-    Int32 GetAlpha() const;
+    SQMOD_NODISCARD int32_t GetAlpha() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the alpha of the managed player entity.
     */
-    void SetAlpha(Int32 alpha);
+    void SetAlpha(int32_t alpha);
 
     /* --------------------------------------------------------------------------------------------
      * Modify the alpha of the managed player entity.
     */
-    void SetAlphaEx(Int32 alpha, Int32 fade);
+    void SetAlphaEx(int32_t alpha, int32_t fade);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the aim position of the managed player entity.
     */
-    Vector3 GetAimPosition() const;
+    SQMOD_NODISCARD Vector3 GetAimPosition() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the aim direction of the managed player entity.
     */
-    Vector3 GetAimDirection() const;
+    SQMOD_NODISCARD Vector3 GetAimDirection() const;
 
     /* --------------------------------------------------------------------------------------------
      * See whether the managed player entity is burning.
     */
-    bool IsBurning() const;
+    SQMOD_NODISCARD bool IsBurning() const;
 
     /* --------------------------------------------------------------------------------------------
      * See whether the managed player entity is crouched.
     */
-    bool IsCrouched() const;
+    SQMOD_NODISCARD bool IsCrouched() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the current action of the managed player entity.
     */
-    Int32 GetAction() const;
+    SQMOD_NODISCARD int32_t GetAction() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the game keys of the managed player entity.
     */
-    Int32 GetGameKeys() const;
+    SQMOD_NODISCARD int32_t GetGameKeys() const;
 
     /* --------------------------------------------------------------------------------------------
      * Embark the managed player entity into the specified vehicle entity.
@@ -597,7 +598,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Embark the managed player entity into the specified vehicle entity.
     */
-    bool Embark(CVehicle & vehicle, Int32 slot, bool allocate, bool warp) const;
+    bool EmbarkEx(CVehicle & vehicle, int32_t slot, bool allocate, bool warp) const;
 
     /* --------------------------------------------------------------------------------------------
      * Disembark the managed player entity from the currently embarked vehicle entity.
@@ -607,72 +608,72 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the vehicle status of the managed player entity.
     */
-    Int32 GetVehicleStatus() const;
+    SQMOD_NODISCARD int32_t GetVehicleStatus() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the occupied vehicle slot by the managed player entity.
     */
-    Int32 GetVehicleSlot() const;
+    SQMOD_NODISCARD int32_t GetVehicleSlot() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the vehicle in which the managed player entity is embarked.
     */
-    LightObj & GetVehicle() const;
+    SQMOD_NODISCARD LightObj & GetVehicle() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the vehicle identifier in which the managed player entity is embarked.
     */
-    Int32 GetVehicleID() const;
+    SQMOD_NODISCARD int32_t GetVehicleID() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the weapon identifier of the managed player entity.
     */
-    Int32 GetWeapon() const;
+    SQMOD_NODISCARD int32_t GetWeapon() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the weapon of the managed player entity.
     */
-    void SetWeapon(Int32 wep) const;
+    void SetWeapon(int32_t wep) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the weapon of the managed player entity.
     */
-    void SetWeaponEx(Int32 wep, Int32 ammo) const;
+    void SetWeaponEx(int32_t wep, int32_t ammo) const;
 
     /* --------------------------------------------------------------------------------------------
      * Give a weapon of the managed player entity.
     */
-    void GiveWeapon(Int32 wep, Int32 ammo) const;
+    void GiveWeapon(int32_t wep, int32_t ammo) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the active weapon ammo of the managed player entity.
     */
-    Int32 GetAmmo() const;
+    SQMOD_NODISCARD int32_t GetAmmo() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the weapon slot of the managed player entity.
     */
-    Int32 GetWeaponSlot() const;
+    SQMOD_NODISCARD int32_t GetWeaponSlot() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the weapon slot of the managed player entity.
     */
-    void SetWeaponSlot(Int32 slot) const;
+    void SetWeaponSlot(int32_t slot) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the weapon identifier at the specified slot for the managed player entity.
     */
-    Int32 GetWeaponAtSlot(Int32 slot) const;
+    SQMOD_NODISCARD int32_t GetWeaponAtSlot(int32_t slot) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the ammo from the weapon at the specified slot for the managed player entity.
     */
-    Int32 GetAmmoAtSlot(Int32 slot) const;
+    SQMOD_NODISCARD int32_t GetAmmoAtSlot(int32_t slot) const;
 
     /* --------------------------------------------------------------------------------------------
      * Remove a certain weapon from the managed player entity.
     */
-    void RemoveWeapon(Int32 wep) const;
+    void RemoveWeapon(int32_t wep) const;
 
     /* --------------------------------------------------------------------------------------------
      * Strip the managed player entity of all weapons.
@@ -687,7 +688,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the camera position of the managed player entity.
     */
-    void SetCameraPosition(Float32 xp, Float32 yp, Float32 zp, Float32 xa, Float32 ya, Float32 za) const;
+    void SetCameraPositionEx(float xp, float yp, float zp, float xa, float ya, float za) const;
 
     /* --------------------------------------------------------------------------------------------
      * Restore the camera position of the managed player entity.
@@ -697,37 +698,37 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether the managed player entity has camera locked.
     */
-    bool IsCameraLocked() const;
+    SQMOD_NODISCARD bool IsCameraLocked() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the animation of the managed player entity.
     */
-    void SetAnimation(Int32 anim) const;
+    void SetAnimation(int32_t anim) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the animation of the managed player entity.
     */
-    void SetAnimation(Int32 anim, Int32 group) const;
+    void SetAnimationEx(int32_t anim, int32_t group) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the vehicle that the managed player entity is standing on.
     */
-    LightObj & StandingOnVehicle() const;
+    SQMOD_NODISCARD LightObj & StandingOnVehicle() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the object that the managed player entity is standing on.
     */
-    LightObj & StandingOnObject() const;
+    SQMOD_NODISCARD LightObj & StandingOnObject() const;
 
     /* --------------------------------------------------------------------------------------------
      * See whether the managed player entity is away.
     */
-    bool IsAway() const;
+    SQMOD_NODISCARD bool IsAway() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the player that the managed player entity is spectating.
     */
-    LightObj & GetSpectator() const;
+    SQMOD_NODISCARD LightObj & GetSpectator() const;
 
     /* --------------------------------------------------------------------------------------------
      * Set the managed player entity to spectate the specified player entity.
@@ -737,7 +738,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the identifier of the player that the managed player entity is spectating.
     */
-    SQInteger GetSpectatorID() const;
+    SQMOD_NODISCARD SQInteger GetSpectatorID() const;
 
     /* --------------------------------------------------------------------------------------------
      * Set the managed player entity to spectate the specified player entity.
@@ -757,7 +758,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether the target player sees an objective arrow over a player.
     */
-    bool GetPlayer3DArrow(CPlayer & target) const;
+    SQMOD_NODISCARD bool GetPlayer3DArrow(CPlayer & target) const;
 
     /* --------------------------------------------------------------------------------------------
      * Set whether the target player will see an objective arrow over a player.
@@ -767,23 +768,23 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether the target player sees an objective arrow over a player.
     */
-    bool GetPlayer3DArrowID(SQInteger id) const;
+    SQMOD_NODISCARD bool GetPlayer3DArrowID(SQInteger id) const;
 
     /* --------------------------------------------------------------------------------------------
      * Smoothly pivots the camera angle.
     */
-    bool InterpolateCameraLookAt(const Vector3 & pos, Uint32 ms) const;
+    SQMOD_NODISCARD bool InterpolateCameraLookAt(const Vector3 & pos, uint32_t ms) const;
 
     /* --------------------------------------------------------------------------------------------
      * Smoothly pivots the camera angle.
     */
-    bool InterpolateCameraLookAtEx(Float32 x, Float32 y, Float32 z, Uint32 ms) const;
+    SQMOD_NODISCARD bool InterpolateCameraLookAtEx(float x, float y, float z, uint32_t ms) const;
 #endif
     /* --------------------------------------------------------------------------------------------
      * Redirect the managed player entity to the specified server.
     */
-    void Redirect(StackStrF & ip, Uint32 port, StackStrF & nick,
-                    StackStrF & server_pass, StackStrF & user_pass);
+    void Redirect(StackStrF & ip, uint32_t port, StackStrF & nick,
+                    StackStrF & server_pass, StackStrF & user_pass) const;
 
     /* --------------------------------------------------------------------------------------------
      * Request a list of the modules loaded into the client session.
@@ -793,7 +794,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the authority level of the managed player entity.
     */
-    void PlaySound(Int32 sound_id) const;
+    void PlaySound(int32_t sound_id) const;
 #if SQMOD_SDK_LEAST(2, 1)
     /* --------------------------------------------------------------------------------------------
      * Set how delayed a player's turn handling is when in a vehicle.
@@ -803,7 +804,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve how delayed a player's turn handling is when in a vehicle.
     */
-    SQInteger GetDrunkHandling() const;
+    SQMOD_NODISCARD SQInteger GetDrunkHandling() const;
 
     /* --------------------------------------------------------------------------------------------
      * Set how intense the drunk blur overlay is for a player.
@@ -813,37 +814,37 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve how intense the drunk blur overlay is for a player.
     */
-    SQInteger GetDrunkVisuals() const;
+    SQMOD_NODISCARD SQInteger GetDrunkVisuals() const;
 #endif
     /* --------------------------------------------------------------------------------------------
      * Create a checkpoint or sphere for this player.
     */
-    LightObj & CreateCheckpointEx(Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
-                            Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius) const;
+    LightObj & CreateCheckpointEx1a(int32_t world, bool sphere, float x, float y, float z, // NOLINT(modernize-use-nodiscard)
+                            uint8_t r, uint8_t g, uint8_t b, uint8_t a, float radius) const;
 
     /* --------------------------------------------------------------------------------------------
      * Create a checkpoint or sphere for this player.
     */
-    LightObj & CreateCheckpointEx(Int32 world, bool sphere, Float32 x, Float32 y, Float32 z,
-                            Uint8 r, Uint8 g, Uint8 b, Uint8 a, Float32 radius,
-                            Int32 header, LightObj & payload) const;
+    LightObj & CreateCheckpointEx1b(int32_t world, bool sphere, float x, float y, float z, // NOLINT(modernize-use-nodiscard)
+                            uint8_t r, uint8_t g, uint8_t b, uint8_t a, float radius,
+                            int32_t header, LightObj & payload) const;
 
     /* --------------------------------------------------------------------------------------------
      * Create a checkpoint or sphere for this player.
     */
-    LightObj & CreateCheckpoint(Int32 world, bool sphere, const Vector3 & pos,
-                        const Color4 & color, Float32 radius) const;
+    LightObj & CreateCheckpoint1a(int32_t world, bool sphere, const Vector3 & pos, // NOLINT(modernize-use-nodiscard)
+                        const Color4 & color, float radius) const;
 
     /* --------------------------------------------------------------------------------------------
      * Create a checkpoint or sphere for this player.
     */
-    LightObj & CreateCheckpoint(Int32 world, bool sphere, const Vector3 & pos, const Color4 & color,
-                                    Float32 radius, Int32 header, LightObj & payload) const;
+    LightObj & CreateCheckpoint1b(int32_t world, bool sphere, const Vector3 & pos, const Color4 & color, // NOLINT(modernize-use-nodiscard)
+                                    float radius, int32_t header, LightObj & payload) const;
 
     /* --------------------------------------------------------------------------------------------
      * See whether the managed player entity collides with user defined areas.
     */
-    bool GetCollideAreas() const;
+    SQMOD_NODISCARD bool GetCollideAreas() const;
 
     /* --------------------------------------------------------------------------------------------
      * Set whether the managed player entity can collide with user defined areas.
@@ -858,27 +859,27 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the authority level of the managed player entity.
     */
-    Int32 GetAuthority() const;
+    SQMOD_NODISCARD int32_t GetAuthority() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the authority level of the managed player entity.
     */
-    void SetAuthority(Int32 level) const;
+    void SetAuthority(int32_t level) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the message prefix at the specified index for the managed player entity.
     */
-    const String & GetMessagePrefix(Uint32 index) const;
+    SQMOD_NODISCARD const String & GetMessagePrefix(uint32_t index) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the message prefix at the specified index for the managed player entity.
     */
-    void SetMessagePrefix(Uint32 index, StackStrF & prefix);
+    void SetMessagePrefix(uint32_t index, StackStrF & prefix);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the amount of tracked position changes for the managed player entity.
     */
-    SQInteger GetTrackPosition() const;
+    SQMOD_NODISCARD SQInteger GetTrackPosition() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the amount of tracked position changes for the managed player entity.
@@ -888,12 +889,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the amount of tracked position changes for the managed player entity.
     */
-    void SetTrackPositionEx(SQInteger num, Int32 header, const LightObj & payload) const;
+    void SetTrackPositionEx(SQInteger num, int32_t header, const LightObj & payload) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the amount of tracked heading changes for the managed player entity.
     */
-    SQInteger GetTrackHeading() const;
+    SQMOD_NODISCARD SQInteger GetTrackHeading() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the amount of tracked heading changes for the managed player entity.
@@ -903,32 +904,32 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the last known weapon for the managed player entity.
     */
-    Int32 GetLastWeapon() const;
+    SQMOD_NODISCARD int32_t GetLastWeapon() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the last known health for the managed player entity.
     */
-    Float32 GetLastHealth() const;
+    SQMOD_NODISCARD float GetLastHealth() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the last known armour for the managed player entity.
     */
-    Float32 GetLastArmour() const;
+    SQMOD_NODISCARD float GetLastArmour() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the last known heading for the managed player entity.
     */
-    Float32 GetLastHeading() const;
+    SQMOD_NODISCARD float GetLastHeading() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the last known position for the managed player entity.
     */
-    const Vector3 & GetLastPosition() const;
+    SQMOD_NODISCARD const Vector3 & GetLastPosition() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the distance traveled by the managed player entity while tracking was enabled.
     */
-    SQFloat GetDistance() const;
+    SQMOD_NODISCARD SQFloat GetDistance() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the distance traveled by the managed player entity.
@@ -938,7 +939,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Check whether distance tracking is enabled for the managed player entity.
     */
-    bool GetTrackDistance() const;
+    SQMOD_NODISCARD bool GetTrackDistance() const;
 
     /* --------------------------------------------------------------------------------------------
      * Set whether distance tracking is enabled for the managed player entity.
@@ -953,17 +954,17 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Start a new stream with a custom size.
     */
-    void StartStream(Uint32 size);
+    void StartStreamEx(uint32_t size);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the current cursor position of the stream buffer.
     */
-    Int32 GetBufferCursor() const;
+    SQMOD_NODISCARD int32_t GetBufferCursor() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the current cursor position of the stream buffer.
     */
-    void SetBufferCursor(Int32 pos);
+    void SetBufferCursor(int32_t pos);
 
     /* --------------------------------------------------------------------------------------------
      * Write a 8bit byte to the stream buffer.
@@ -1003,7 +1004,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the total capacity of the buffer stream in bytes.
     */
-    Uint32 GetBufferCapacity() const;
+    SQMOD_NODISCARD uint32_t GetBufferCapacity() const;
 
     /* --------------------------------------------------------------------------------------------
      * Send the specified buffer contents to the managed player entity.
@@ -1013,62 +1014,62 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the x axis of the managed player entity.
     */
-    Float32 GetPositionX() const;
+    SQMOD_NODISCARD float GetPositionX() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the y axis of the managed player entity.
     */
-    Float32 GetPositionY() const;
+    SQMOD_NODISCARD float GetPositionY() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the z axis of the managed player entity.
     */
-    Float32 GetPositionZ() const;
+    SQMOD_NODISCARD float GetPositionZ() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position on the x axis of the managed player entity.
     */
-    void SetPositionX(Float32 x) const;
+    void SetPositionX(float x) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position on the y axis of the managed player entity.
     */
-    void SetPositionY(Float32 y) const;
+    void SetPositionY(float y) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position on the z axis of the managed player entity.
     */
-    void SetPositionZ(Float32 z) const;
+    void SetPositionZ(float z) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the red color of the managed player entity.
     */
-    Int32 GetColorR() const;
+    SQMOD_NODISCARD int32_t GetColorR() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the green color of the managed player entity.
     */
-    Int32 GetColorG() const;
+    SQMOD_NODISCARD int32_t GetColorG() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the blue color of the managed player entity.
     */
-    Int32 GetColorB() const;
+    SQMOD_NODISCARD int32_t GetColorB() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the red color of the managed player entity.
     */
-    void SetColorR(Int32 r) const;
+    void SetColorR(int32_t r) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the green color of the managed player entity.
     */
-    void SetColorG(Int32 g) const;
+    void SetColorG(int32_t g) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the blue color of the managed player entity.
     */
-    void SetColorB(Int32 b) const;
+    void SetColorB(int32_t b) const;
 
     /* --------------------------------------------------------------------------------------------
      * Send a formatted colored message to the managed player entity.

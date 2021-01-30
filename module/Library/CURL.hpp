@@ -1,7 +1,7 @@
 #pragma once
 
 // ------------------------------------------------------------------------------------------------
-#include "Base/Shared.hpp"
+#include "Core/Common.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cpr/cpr.h>
@@ -48,7 +48,7 @@ struct CpSslOptions : public cpr::SslOptions
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::SslOptions::cert_file value.
     */
-    const std::string & GetCertFile() const { return Base::cert_file; }
+    SQMOD_NODISCARD const std::string & GetCertFile() const { return Base::cert_file; }
 
     /* --------------------------------------------------------------------------------------------
      * Assign cpr::SslOptions::cert_file and cpr::SslOptions::cert_type values.
@@ -80,7 +80,7 @@ struct CpSslOptions : public cpr::SslOptions
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::SslOptions::cert_type value.
     */
-    const std::string & GetCertType() const { return Base::cert_type; }
+    SQMOD_NODISCARD const std::string & GetCertType() const { return Base::cert_type; }
 
     /* --------------------------------------------------------------------------------------------
      * Assign cpr::SslOptions::cert_type values.
@@ -90,7 +90,7 @@ struct CpSslOptions : public cpr::SslOptions
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::SslOptions::key_file value.
     */
-    const std::string & GetKeyFile() const { return Base::key_file; }
+    SQMOD_NODISCARD const std::string & GetKeyFile() const { return Base::key_file; }
 
     /* --------------------------------------------------------------------------------------------
      * Assign cpr::SslOptions::cert_file, cpr::SslOptions::key_pass and cpr::SslOptions::cert_type values.
@@ -126,7 +126,7 @@ struct CpSslOptions : public cpr::SslOptions
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::SslOptions::key_type value.
     */
-    const std::string & GetKeyType() const { return Base::key_type; }
+    SQMOD_NODISCARD const std::string & GetKeyType() const { return Base::key_type; }
 
     /* --------------------------------------------------------------------------------------------
      * Assign cpr::SslOptions::key_type values.
@@ -136,7 +136,7 @@ struct CpSslOptions : public cpr::SslOptions
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::SslOptions::key_pass value.
     */
-    const std::string & GetKeyPass() const { return Base::key_pass; }
+    SQMOD_NODISCARD const std::string & GetKeyPass() const { return Base::key_pass; }
 
     /* --------------------------------------------------------------------------------------------
      * Assign cpr::SslOptions::key_pass values.
@@ -147,36 +147,36 @@ struct CpSslOptions : public cpr::SslOptions
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::SslOptions::enable_alpn value.
     */
-    bool GetALPN() const { return Base::enable_alpn; }
+    SQMOD_NODISCARD bool GetALPN() const { return Base::enable_alpn; }
 
     /* --------------------------------------------------------------------------------------------
      * Modify cpr::SslOptions::enable_alpn value.
     */
     void SetALPN(bool value) { Base::enable_alpn = value; }
 #else
-    void GetALPN() const { STHROWF("Unsupported"); }
-    void SetALPN(bool) { STHROWF("Unsupported"); }
+    void GetALPN() const { STHROWF("Unsupported"); } // NOLINT(readability-convert-member-functions-to-static)
+    void SetALPN(bool) { STHROWF("Unsupported"); } // NOLINT(readability-convert-member-functions-to-static)
 #endif // SUPPORT_ALPN
 
 #if SUPPORT_NPN
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::SslOptions::enable_npn value.
     */
-    bool GetNPM() const { return Base::enable_npn; }
+    SQMOD_NODISCARD bool GetNPM() const { return Base::enable_npn; }
 
     /* --------------------------------------------------------------------------------------------
      * Modify cpr::SslOptions::enable_npn value.
     */
     void SetNPM(bool value) { Base::enable_npn = value; }
 #else
-    void GetNPM() const { STHROWF("Unsupported"); }
-    void SetNPM(bool) { STHROWF("Unsupported"); }
+    void GetNPM() const { STHROWF("Unsupported"); } // NOLINT(readability-convert-member-functions-to-static)
+    void SetNPM(bool) { STHROWF("Unsupported"); } // NOLINT(readability-convert-member-functions-to-static)
 #endif // SUPPORT_NPN
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::SslOptions::verify_host value.
     */
-    bool GetVerifyHost() const { return Base::verify_host; }
+    SQMOD_NODISCARD bool GetVerifyHost() const { return Base::verify_host; }
 
     /* --------------------------------------------------------------------------------------------
      * Modify cpr::SslOptions::verify_host value.
@@ -186,7 +186,7 @@ struct CpSslOptions : public cpr::SslOptions
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::SslOptions::verify_peer value.
     */
-    bool GetVerifyPeer() const { return Base::verify_peer; }
+    SQMOD_NODISCARD bool GetVerifyPeer() const { return Base::verify_peer; }
 
     /* --------------------------------------------------------------------------------------------
      * Modify cpr::SslOptions::verify_peer value.
@@ -196,7 +196,7 @@ struct CpSslOptions : public cpr::SslOptions
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::SslOptions::verify_status value.
     */
-    bool GetVerifyStatus() const { return Base::verify_status; }
+    SQMOD_NODISCARD bool GetVerifyStatus() const { return Base::verify_status; }
 
     /* --------------------------------------------------------------------------------------------
      * Modify cpr::SslOptions::verify_status value.
@@ -206,21 +206,21 @@ struct CpSslOptions : public cpr::SslOptions
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::SslOptions::ssl_version value.
     */
-    int GetSslVersion() const { return Base::ssl_version; }
+    SQMOD_NODISCARD int GetSslVersion() const { return Base::ssl_version; }
 
 #if SUPPORT_MAX_TLS_VERSION
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::SslOptions::max_version value.
     */
-    int GetMaxVersion() const { return Base::max_version; }
+    SQMOD_NODISCARD int GetMaxVersion() const { return Base::max_version; }
 #else
-    void GetMaxVersion() const { STHROWF("Unsupported"); }
+    void GetMaxVersion() const { STHROWF("Unsupported"); } // NOLINT(readability-convert-member-functions-to-static)
 #endif // SUPPORT_MAX_TLS_VERSION
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::SslOptions::ca_info value.
     */
-    const std::string & GetCaInfo() const { return Base::ca_info; }
+    SQMOD_NODISCARD const std::string & GetCaInfo() const { return Base::ca_info; }
 
     /* --------------------------------------------------------------------------------------------
      * Assign cpr::SslOptions::ca_info values.
@@ -230,7 +230,7 @@ struct CpSslOptions : public cpr::SslOptions
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::SslOptions::ca_path value.
     */
-    const std::string & GetCaPath() const { return Base::ca_path; }
+    SQMOD_NODISCARD const std::string & GetCaPath() const { return Base::ca_path; }
 
     /* --------------------------------------------------------------------------------------------
      * Assign cpr::SslOptions::ca_path values.
@@ -240,7 +240,7 @@ struct CpSslOptions : public cpr::SslOptions
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::SslOptions::crl_file value.
     */
-    const std::string & GetCrlFile() const { return Base::crl_file; }
+    SQMOD_NODISCARD const std::string & GetCrlFile() const { return Base::crl_file; }
 
     /* --------------------------------------------------------------------------------------------
      * Assign cpr::SslOptions::crl_file values.
@@ -250,7 +250,7 @@ struct CpSslOptions : public cpr::SslOptions
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::SslOptions::ciphers value.
     */
-    const std::string & GetCiphers() const { return Base::ciphers; }
+    SQMOD_NODISCARD const std::string & GetCiphers() const { return Base::ciphers; }
 
     /* --------------------------------------------------------------------------------------------
      * Assign cpr::SslOptions::ciphers values.
@@ -261,30 +261,30 @@ struct CpSslOptions : public cpr::SslOptions
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::SslOptions::tls13_ciphers value.
     */
-    const std::string & GetTLS13Ciphers() const { return Base::tls13_ciphers; }
+    SQMOD_NODISCARD const std::string & GetTLS13Ciphers() const { return Base::tls13_ciphers; }
     /* --------------------------------------------------------------------------------------------
      * Assign cpr::SslOptions::tls13_ciphers values.
     */
     void SetTLS13Ciphers(StackStrF & cph) { tls13_ciphers.assign(cph.mPtr, cph.GetSize()); }
 
 #else
-    void GetTLS13Ciphers() const { STHROWF("Unsupported"); }
-    void SetTLS13Ciphers(StackStrF &) const { STHROWF("Unsupported"); }
+    void GetTLS13Ciphers() const { STHROWF("Unsupported"); } // NOLINT(readability-convert-member-functions-to-static)
+    void SetTLS13Ciphers(StackStrF &) const { STHROWF("Unsupported"); } // NOLINT(readability-convert-member-functions-to-static)
 #endif // SUPPORT_TLSv13_CIPHERS
 
 #if SUPPORT_SESSIONID_CACHE
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::SslOptions::session_id_cache value.
     */
-    bool GetSessionIdCache() const { return Base::session_id_cache; }
+    SQMOD_NODISCARD bool GetSessionIdCache() const { return Base::session_id_cache; }
 
     /* --------------------------------------------------------------------------------------------
      * Modify cpr::SslOptions::session_id_cache value.
     */
     void SetSessionIdCache(bool value) { Base::session_id_cache = value; }
 #else
-    void GetSessionIdCache() const { STHROWF("Unsupported"); }
-    void SetSessionIdCache(bool) const { STHROWF("Unsupported"); }
+    void GetSessionIdCache() const { STHROWF("Unsupported"); } // NOLINT(readability-convert-member-functions-to-static)
+    void SetSessionIdCache(bool) const { STHROWF("Unsupported"); } // NOLINT(readability-convert-member-functions-to-static)
 #endif // SUPPORT_SESSIONID_CACHE
 
     /* --------------------------------------------------------------------------------------------
@@ -298,7 +298,7 @@ struct CpSslOptions : public cpr::SslOptions
     */
     void SetSSLv2() { ssl_version = CURL_SSLVERSION_SSLv2; }
 #else
-    void SetSSLv2() const { STHROWF("Unsupported"); }
+    void SetSSLv2() const { STHROWF("Unsupported"); } // NOLINT(readability-convert-member-functions-to-static)
 #endif
     /* --------------------------------------------------------------------------------------------
      * Modify cpr::SslOptions::ssl_version value.
@@ -306,7 +306,7 @@ struct CpSslOptions : public cpr::SslOptions
 #if SUPPORT_SSLv3
     void SetSSLv3() { ssl_version = CURL_SSLVERSION_SSLv3; }
 #else
-    void SetSSLv3() const { STHROWF("Unsupported"); }
+    void SetSSLv3() const { STHROWF("Unsupported"); } // NOLINT(readability-convert-member-functions-to-static)
 #endif
 
     /* --------------------------------------------------------------------------------------------
@@ -315,7 +315,7 @@ struct CpSslOptions : public cpr::SslOptions
 #if SUPPORT_TLSv1_0
     void SetTLSv1_0() { ssl_version = CURL_SSLVERSION_TLSv1_0; }
 #else
-    void SetTLSv1_0() const { STHROWF("Unsupported"); }
+    void SetTLSv1_0() const { STHROWF("Unsupported"); } // NOLINT(readability-convert-member-functions-to-static)
 #endif
 
     /* --------------------------------------------------------------------------------------------
@@ -324,7 +324,7 @@ struct CpSslOptions : public cpr::SslOptions
 #if SUPPORT_TLSv1_1
     void SetTLSv1_1() { ssl_version = CURL_SSLVERSION_TLSv1_1; }
 #else
-    void SetTLSv1_1() const { STHROWF("Unsupported"); }
+    void SetTLSv1_1() const { STHROWF("Unsupported"); } // NOLINT(readability-convert-member-functions-to-static)
 #endif
 
     /* --------------------------------------------------------------------------------------------
@@ -333,7 +333,7 @@ struct CpSslOptions : public cpr::SslOptions
 #if SUPPORT_TLSv1_2
     void SetTLSv1_2() { ssl_version = CURL_SSLVERSION_TLSv1_2; }
 #else
-    void SetTLSv1_2() const { STHROWF("Unsupported"); }
+    void SetTLSv1_2() const { STHROWF("Unsupported"); } // NOLINT(readability-convert-member-functions-to-static)
 #endif
 
     /* --------------------------------------------------------------------------------------------
@@ -342,7 +342,7 @@ struct CpSslOptions : public cpr::SslOptions
 #if SUPPORT_TLSv1_3
     void SetTLSv1_3() { ssl_version = CURL_SSLVERSION_TLSv1_3; }
 #else
-    void SetTLSv1_3() const { STHROWF("Unsupported"); }
+    void SetTLSv1_3() const { STHROWF("Unsupported"); } // NOLINT(readability-convert-member-functions-to-static)
 #endif
 
     /* --------------------------------------------------------------------------------------------
@@ -351,7 +351,7 @@ struct CpSslOptions : public cpr::SslOptions
 #if SUPPORT_MAX_TLS_VERSION
     void SetMaxTLSVersion() { max_version = CURL_SSLVERSION_DEFAULT; }
 #else
-    void SetMaxTLSVersion() const { STHROWF("Unsupported"); }
+    void SetMaxTLSVersion() const { STHROWF("Unsupported"); } // NOLINT(readability-convert-member-functions-to-static)
 #endif
 
     /* --------------------------------------------------------------------------------------------
@@ -360,7 +360,7 @@ struct CpSslOptions : public cpr::SslOptions
 #if SUPPORT_MAX_TLSv1_0
     void SetMaxTLSv1_0() { max_version = CURL_SSLVERSION_MAX_TLSv1_0; }
 #else
-    void SetMaxTLSv1_0() const { STHROWF("Unsupported"); }
+    void SetMaxTLSv1_0() const { STHROWF("Unsupported"); } // NOLINT(readability-convert-member-functions-to-static)
 #endif
 
     /* --------------------------------------------------------------------------------------------
@@ -369,7 +369,7 @@ struct CpSslOptions : public cpr::SslOptions
 #if SUPPORT_MAX_TLSv1_1
     void SetMaxTLSv1_1() { max_version = CURL_SSLVERSION_MAX_TLSv1_1; }
 #else
-    void SetMaxTLSv1_1() const { STHROWF("Unsupported"); }
+    void SetMaxTLSv1_1() const { STHROWF("Unsupported"); } // NOLINT(readability-convert-member-functions-to-static)
 #endif
 
     /* --------------------------------------------------------------------------------------------
@@ -378,7 +378,7 @@ struct CpSslOptions : public cpr::SslOptions
 #if SUPPORT_MAX_TLSv1_2
     void SetMaxTLSv1_2() { max_version = CURL_SSLVERSION_MAX_TLSv1_2; }
 #else
-    void SetMaxTLSv1_2() const { STHROWF("Unsupported"); }
+    void SetMaxTLSv1_2() const { STHROWF("Unsupported"); } // NOLINT(readability-convert-member-functions-to-static)
 #endif
 
     /* --------------------------------------------------------------------------------------------
@@ -387,7 +387,7 @@ struct CpSslOptions : public cpr::SslOptions
 #if SUPPORT_MAX_TLSv1_3
     void SetMaxTLSv1_3() { max_version = CURL_SSLVERSION_MAX_TLSv1_3; }
 #else
-    void SetMaxTLSv1_3() const { STHROWF("Unsupported"); }
+    void SetMaxTLSv1_3() const { STHROWF("Unsupported"); } // NOLINT(readability-convert-member-functions-to-static)
 #endif
 };
 
@@ -448,7 +448,7 @@ struct CpError : public cpr::Error
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::Error::code.
     */
-    SQInteger GetCode() const
+    SQMOD_NODISCARD SQInteger GetCode() const
     {
         return static_cast< SQInteger >(cpr::Error::code);
     }
@@ -464,7 +464,7 @@ struct CpError : public cpr::Error
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::Error::text.
     */
-    const std::string & GetMessage() const
+    SQMOD_NODISCARD const std::string & GetMessage() const
     {
         return cpr::Error::message;
     }
@@ -532,7 +532,7 @@ struct CpCookies : public cpr::Cookies
     /* --------------------------------------------------------------------------------------------
      * Retrieve the number of values.
     */
-    SQInteger Size() const
+    SQMOD_NODISCARD SQInteger Size() const
     {
         return static_cast< SQInteger >(cpr::Cookies::map_.size());
     }
@@ -540,7 +540,7 @@ struct CpCookies : public cpr::Cookies
     /* --------------------------------------------------------------------------------------------
      * Check if no value is stored.
     */
-    bool Empty() const
+    SQMOD_NODISCARD bool Empty() const
     {
         return cpr::Cookies::map_.empty();
     }
@@ -556,7 +556,7 @@ struct CpCookies : public cpr::Cookies
     /* --------------------------------------------------------------------------------------------
      * Retrieve the number of matching values.
     */
-    SQInteger Count(StackStrF & key) const
+    SQMOD_NODISCARD SQInteger Count(StackStrF & key) const
     {
         return static_cast< SQInteger >(cpr::Cookies::map_.count(key.ToStr()));
     }
@@ -581,7 +581,7 @@ struct CpCookies : public cpr::Cookies
     /* --------------------------------------------------------------------------------------------
      * Check if value exists.
     */
-    bool Has(StackStrF & key) const
+    SQMOD_NODISCARD bool Has(StackStrF & key) const
     {
         return cpr::Cookies::map_.find(key.ToStr()) != cpr::Cookies::map_.end();
     }
@@ -589,7 +589,7 @@ struct CpCookies : public cpr::Cookies
     /* --------------------------------------------------------------------------------------------
      * Retrieve value.
     */
-    std::string & Get(StackStrF & key)
+    SQMOD_NODISCARD std::string & Get(StackStrF & key)
     {
         auto itr = cpr::Cookies::map_.find(key.ToStr());
         // Does it exist?
@@ -654,7 +654,7 @@ struct CpHeader
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    explicit CpHeader(const cpr::Header & e) : mMap(e) { }
+    explicit CpHeader(const cpr::Header & e) : mMap(e) { } // NOLINT(modernize-pass-by-value)
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
@@ -699,7 +699,7 @@ struct CpHeader
     /* --------------------------------------------------------------------------------------------
      * Retrieve the number of values.
     */
-    SQInteger Size() const
+    SQMOD_NODISCARD SQInteger Size() const
     {
         return static_cast< SQInteger >(mMap.size());
     }
@@ -707,7 +707,7 @@ struct CpHeader
     /* --------------------------------------------------------------------------------------------
      * Check if no value is stored.
     */
-    bool Empty() const
+    SQMOD_NODISCARD bool Empty() const
     {
         return mMap.empty();
     }
@@ -723,7 +723,7 @@ struct CpHeader
     /* --------------------------------------------------------------------------------------------
      * Retrieve the number of matching values.
     */
-    SQInteger Count(StackStrF & key) const
+    SQMOD_NODISCARD SQInteger Count(StackStrF & key) const
     {
         return static_cast< SQInteger >(mMap.count(key.ToStr()));
     }
@@ -748,7 +748,7 @@ struct CpHeader
     /* --------------------------------------------------------------------------------------------
      * Check if value exists.
     */
-    bool Has(StackStrF & key) const
+    SQMOD_NODISCARD bool Has(StackStrF & key) const
     {
         return mMap.find(key.ToStr()) != mMap.end();
     }
@@ -756,7 +756,7 @@ struct CpHeader
     /* --------------------------------------------------------------------------------------------
      * Retrieve value.
     */
-    std::string & Get(StackStrF & key)
+    SQMOD_NODISCARD std::string & Get(StackStrF & key)
     {
         auto itr = mMap.find(key.ToStr());
         // Does it exist?
@@ -852,7 +852,7 @@ struct CpResponse : public cpr::Response
     /* --------------------------------------------------------------------------------------------
      * Retrieve certificate information.
     */
-    Array GetCertInfoArray()
+    SQMOD_NODISCARD Array GetCertInfoArray()
     {
         if (!cpr::Response::curl_)
         {
@@ -874,7 +874,7 @@ struct CpResponse : public cpr::Response
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::Response::status_code.
     */
-    SQInteger GetStatusCode() const
+    SQMOD_NODISCARD SQInteger GetStatusCode() const
     {
         return cpr::Response::status_code;
     }
@@ -890,7 +890,7 @@ struct CpResponse : public cpr::Response
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::Response::text.
     */
-    const std::string & GetText() const
+    SQMOD_NODISCARD const std::string & GetText() const
     {
         return cpr::Response::text;
     }
@@ -906,7 +906,7 @@ struct CpResponse : public cpr::Response
     /* --------------------------------------------------------------------------------------------
      * Steal values from cpr::Response::header.
     */
-    CpHeader StealHeader()
+    SQMOD_NODISCARD CpHeader StealHeader()
     {
         return CpHeader(std::move(cpr::Response::header));
     }
@@ -914,7 +914,7 @@ struct CpResponse : public cpr::Response
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::Response::header.
     */
-    CpHeader GetHeader() const
+    SQMOD_NODISCARD CpHeader GetHeader() const
     {
         return CpHeader(cpr::Response::header);
     }
@@ -938,7 +938,7 @@ struct CpResponse : public cpr::Response
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::Response::url.
     */
-    const std::string & GetURL() const
+    SQMOD_NODISCARD const std::string & GetURL() const
     {
         return cpr::Response::url.str();
     }
@@ -954,7 +954,7 @@ struct CpResponse : public cpr::Response
     /* --------------------------------------------------------------------------------------------
      * Steal values from cpr::Response::cookies.
     */
-    CpCookies StealCookies()
+    SQMOD_NODISCARD CpCookies StealCookies()
     {
         return CpCookies(std::move(cpr::Response::cookies));
     }
@@ -962,7 +962,7 @@ struct CpResponse : public cpr::Response
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::Response::cookies.
     */
-    CpCookies GetCookies() const
+    SQMOD_NODISCARD CpCookies GetCookies() const
     {
         return CpCookies(cpr::Response::cookies);
     }
@@ -986,7 +986,7 @@ struct CpResponse : public cpr::Response
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::Response::url.
     */
-    CpError GetError() const
+    SQMOD_NODISCARD CpError GetError() const
     {
         return CpError(cpr::Response::error);
     }
@@ -1002,7 +1002,7 @@ struct CpResponse : public cpr::Response
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::Response::raw_header.
     */
-    const std::string & GetRawHeader() const
+    SQMOD_NODISCARD const std::string & GetRawHeader() const
     {
         return cpr::Response::raw_header;
     }
@@ -1018,7 +1018,7 @@ struct CpResponse : public cpr::Response
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::Response::status_line.
     */
-    const std::string & GetStatusLine() const
+    SQMOD_NODISCARD const std::string & GetStatusLine() const
     {
         return cpr::Response::status_line;
     }
@@ -1034,7 +1034,7 @@ struct CpResponse : public cpr::Response
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::Response::reason.
     */
-    const std::string & GetReason() const
+    SQMOD_NODISCARD const std::string & GetReason() const
     {
         return cpr::Response::reason;
     }
@@ -1050,7 +1050,7 @@ struct CpResponse : public cpr::Response
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::Response::uploaded_bytes.
     */
-    SQInteger GetUploadedBytes() const
+    SQMOD_NODISCARD SQInteger GetUploadedBytes() const
     {
         return static_cast< SQInteger >(cpr::Response::uploaded_bytes);  // possible precision loss!
     }
@@ -1066,7 +1066,7 @@ struct CpResponse : public cpr::Response
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::Response::downloaded_bytes.
     */
-    SQInteger GetDownloadedBytes() const
+    SQMOD_NODISCARD SQInteger GetDownloadedBytes() const
     {
         return static_cast< SQInteger >(cpr::Response::downloaded_bytes);  // possible precision loss!
     }
@@ -1082,7 +1082,7 @@ struct CpResponse : public cpr::Response
     /* --------------------------------------------------------------------------------------------
      * Retrieve cpr::Response::redirect_count.
     */
-    SQInteger GetRedirectCount() const
+    SQMOD_NODISCARD SQInteger GetRedirectCount() const
     {
         return cpr::Response::redirect_count;
     }
@@ -1145,7 +1145,7 @@ struct CpParameters : public cpr::Parameters
     /* --------------------------------------------------------------------------------------------
      * Retrieve the number of values.
     */
-    SQInteger Size() const
+    SQMOD_NODISCARD SQInteger Size() const
     {
         return static_cast< SQInteger >(cpr::Parameters::containerList_.size());
     }
@@ -1153,7 +1153,7 @@ struct CpParameters : public cpr::Parameters
     /* --------------------------------------------------------------------------------------------
      * Check if no value is stored.
     */
-    bool Empty() const
+    SQMOD_NODISCARD bool Empty() const
     {
         return cpr::Parameters::containerList_.empty();
     }
@@ -1316,7 +1316,7 @@ struct CpPayload : public cpr::Payload
     /* --------------------------------------------------------------------------------------------
      * Retrieve the number of values.
     */
-    SQInteger Size() const
+    SQMOD_NODISCARD SQInteger Size() const
     {
         return static_cast< SQInteger >(cpr::Payload::containerList_.size());
     }
@@ -1324,7 +1324,7 @@ struct CpPayload : public cpr::Payload
     /* --------------------------------------------------------------------------------------------
      * Check if no value is stored.
     */
-    bool Empty() const
+    SQMOD_NODISCARD bool Empty() const
     {
         return cpr::Payload::containerList_.empty();
     }
@@ -1340,7 +1340,7 @@ struct CpPayload : public cpr::Payload
     /* --------------------------------------------------------------------------------------------
      * Retrieve the number of matching values.
     */
-    SQInteger Count(StackStrF & key) const
+    SQMOD_NODISCARD SQInteger Count(StackStrF & key) const
     {
         return static_cast< SQInteger >(std::count_if(
             cpr::Payload::containerList_.begin(), cpr::Payload::containerList_.end(),
@@ -1364,7 +1364,7 @@ struct CpPayload : public cpr::Payload
     /* --------------------------------------------------------------------------------------------
      * Check if value exists.
     */
-    bool Has(StackStrF & key) const
+    SQMOD_NODISCARD bool Has(StackStrF & key) const
     {
         return std::find_if(
             cpr::Payload::containerList_.begin(), cpr::Payload::containerList_.end(),
@@ -1375,7 +1375,7 @@ struct CpPayload : public cpr::Payload
     /* --------------------------------------------------------------------------------------------
      * Retrieve value.
     */
-    std::string & Get(StackStrF & key)
+    SQMOD_NODISCARD std::string & Get(StackStrF & key)
     {
         auto itr = std::find_if(
             cpr::Payload::containerList_.begin(), cpr::Payload::containerList_.end(),
@@ -1495,7 +1495,7 @@ struct CpProxies : public cpr::Proxies
     /* --------------------------------------------------------------------------------------------
      * Retrieve the number of values.
     */
-    SQInteger Size() const
+    SQMOD_NODISCARD SQInteger Size() const
     {
         return static_cast< SQInteger >(cpr::Proxies::hosts_.size());
     }
@@ -1503,7 +1503,7 @@ struct CpProxies : public cpr::Proxies
     /* --------------------------------------------------------------------------------------------
      * Check if no value is stored.
     */
-    bool Empty() const
+    SQMOD_NODISCARD bool Empty() const
     {
         return cpr::Proxies::hosts_.empty();
     }
@@ -1519,7 +1519,7 @@ struct CpProxies : public cpr::Proxies
     /* --------------------------------------------------------------------------------------------
      * Retrieve the number of matching values.
     */
-    SQInteger Count(StackStrF & key) const
+    SQMOD_NODISCARD SQInteger Count(StackStrF & key) const
     {
         return static_cast< SQInteger >(cpr::Proxies::hosts_.count(key.ToStr()));
     }
@@ -1544,7 +1544,7 @@ struct CpProxies : public cpr::Proxies
     /* --------------------------------------------------------------------------------------------
      * Check if value exists.
     */
-    bool Has(StackStrF & key) const
+    SQMOD_NODISCARD bool Has(StackStrF & key) const
     {
         return cpr::Proxies::hosts_.find(key.ToStr()) != cpr::Proxies::hosts_.end();
     }
@@ -1552,7 +1552,7 @@ struct CpProxies : public cpr::Proxies
     /* --------------------------------------------------------------------------------------------
      * Retrieve value.
     */
-    std::string & Get(StackStrF & key)
+    SQMOD_NODISCARD std::string & Get(StackStrF & key)
     {
         auto itr = cpr::Proxies::hosts_.find(key.ToStr());
         // Does it exist?

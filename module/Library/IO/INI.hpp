@@ -1,7 +1,7 @@
 #pragma once
 
 // ------------------------------------------------------------------------------------------------
-#include "Base/Shared.hpp"
+#include "Core/Common.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <SimpleIni.h>
@@ -34,7 +34,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Construct with no specific result.
     */
-    explicit IniResult(CSStr action)
+    explicit IniResult(const SQChar * action)
         : m_Action(!action ? _SC("") : action), m_Result(SI_OK)
     {
         /* ... */
@@ -52,7 +52,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Construct with specific action and result.
     */
-    IniResult(CSStr action, SQInteger result)
+    IniResult(const SQChar * action, SQInteger result)
         : m_Action(!action ? _SC("") : action), m_Result(result)
     {
         /* ... */
@@ -61,30 +61,17 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    IniResult(const IniResult & o)
-        : m_Action(o.m_Action), m_Result(o.m_Result)
-
-    {
-        /* ... */
-    }
+    IniResult(const IniResult & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~IniResult()
-    {
-        /* ... */
-    }
+    ~IniResult() = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    IniResult & operator = (const IniResult & o)
-    {
-        m_Action = o.m_Action;
-        m_Result = o.m_Result;
-        return *this;
-    }
+    IniResult & operator = (const IniResult & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Perform an equality comparison between two results.
@@ -105,7 +92,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to boolean for use in boolean operations.
     */
-    operator bool () const
+    operator bool () const // NOLINT(google-explicit-constructor)
     {
         return (m_Result >= 0);
     }
@@ -113,7 +100,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    Int32 Cmp(const IniResult & o) const
+    SQMOD_NODISCARD int32_t Cmp(const IniResult & o) const
     {
         if (m_Result == o.m_Result)
         {
@@ -132,7 +119,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    CSStr ToString() const
+    SQMOD_NODISCARD const SQChar * ToString() const
     {
         return m_Action.c_str();
     }
@@ -140,7 +127,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether this instance references a valid INI result.
     */
-    bool IsValid() const
+    SQMOD_NODISCARD bool IsValid() const
     {
         return (m_Result >= 0);
     }
@@ -148,7 +135,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated action.
     */
-    CSStr GetAction() const
+    SQMOD_NODISCARD const SQChar * GetAction() const
     {
         return m_Action.c_str();
     }
@@ -156,7 +143,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the resulted code.
     */
-    SQInteger GetResult() const
+    SQMOD_NODISCARD SQInteger GetResult() const
     {
         return m_Result;
     }
@@ -222,8 +209,8 @@ private:
         {
             delete m_Ptr;
             delete m_Ref;
-            m_Ptr = NULL;
-            m_Ref = NULL;
+            m_Ptr = nullptr;
+            m_Ref = nullptr;
         }
     }
 
@@ -242,7 +229,7 @@ public:
      * Default constructor (null).
     */
     IniDocumentRef()
-        : m_Ptr(NULL), m_Ref(NULL)
+        : m_Ptr(nullptr), m_Ref(nullptr)
     {
         /* ... */
     }
@@ -260,12 +247,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    IniDocumentRef(IniDocumentRef && o)
+    IniDocumentRef(IniDocumentRef && o) noexcept
         : m_Ptr(o.m_Ptr), m_Ref(o.m_Ref)
 
     {
-        o.m_Ptr = NULL;
-        o.m_Ref = NULL;
+        o.m_Ptr = nullptr;
+        o.m_Ref = nullptr;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -279,7 +266,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    IniDocumentRef & operator = (const IniDocumentRef & o)
+    IniDocumentRef & operator = (const IniDocumentRef & o) noexcept // NOLINT(bugprone-unhandled-self-assignment)
     {
         if (m_Ptr != o.m_Ptr)
         {
@@ -294,14 +281,14 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator.
     */
-    IniDocumentRef & operator = (IniDocumentRef && o)
+    IniDocumentRef & operator = (IniDocumentRef && o) noexcept
     {
         if (m_Ptr != o.m_Ptr)
         {
             m_Ptr = o.m_Ptr;
             m_Ref = o.m_Ref;
-            o.m_Ptr = NULL;
-            o.m_Ref = NULL;
+            o.m_Ptr = nullptr;
+            o.m_Ref = nullptr;
         }
         return *this;
     }
@@ -325,7 +312,15 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to boolean for use in boolean operations.
     */
-    operator bool () const
+    operator bool () const // NOLINT(google-explicit-constructor)
+    {
+        return static_cast< bool >(m_Ptr);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Implicit conversion to the managed instance pointer.
+    */
+    operator Pointer () // NOLINT(google-explicit-constructor)
     {
         return m_Ptr;
     }
@@ -333,15 +328,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to the managed instance pointer.
     */
-    operator Pointer ()
-    {
-        return m_Ptr;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Implicit conversion to the managed instance pointer.
-    */
-    operator ConstPtr () const
+    operator ConstPtr () const // NOLINT(google-explicit-constructor)
     {
         return m_Ptr;
     }
@@ -349,7 +336,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to the managed instance reference.
     */
-    operator Reference ()
+    operator Reference () // NOLINT(google-explicit-constructor)
     {
         assert(m_Ptr);
         return *m_Ptr;
@@ -358,7 +345,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Implicit conversion to the managed instance reference.
     */
-    operator ConstRef () const
+    operator ConstRef () const // NOLINT(google-explicit-constructor)
     {
         assert(m_Ptr);
         return *m_Ptr;
@@ -385,7 +372,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the number of active references to the managed instance.
     */
-    Counter Count() const
+    SQMOD_NODISCARD Counter Count() const
     {
         return (m_Ptr && m_Ref) ? (*m_Ref) : 0;
     }
@@ -410,7 +397,7 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    IniEntries(const IniDocumentRef & ini, Container & list)
+    IniEntries(const IniDocumentRef & ini, Container & list) // NOLINT(modernize-pass-by-value)
         : m_Doc(ini), m_List(), m_Elem()
     {
         m_List.swap(list);
@@ -447,10 +434,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~IniEntries()
-    {
-        /* ... */
-    }
+    ~IniEntries() = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
@@ -466,12 +450,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    Int32 Cmp(const IniEntries & o) const;
+    SQMOD_NODISCARD int32_t Cmp(const IniEntries & o) const;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    CSStr ToString() const
+    SQMOD_NODISCARD const SQChar * ToString() const
     {
         return GetItem();
     }
@@ -479,7 +463,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Return whether the current element is valid and can be accessed.
     */
-    bool IsValid() const
+    SQMOD_NODISCARD bool IsValid() const
     {
         return !(m_List.empty() || m_Elem == m_List.end());
     }
@@ -487,7 +471,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Return whether the entry list is empty.
     */
-    bool IsEmpty() const
+    SQMOD_NODISCARD bool IsEmpty() const
     {
         return m_List.empty();
     }
@@ -495,7 +479,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Return the number of active references to this document instance.
     */
-    Uint32 GetRefCount() const
+    SQMOD_NODISCARD uint32_t GetRefCount() const
     {
         return m_Doc.Count();
     }
@@ -503,9 +487,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Return the total entries in the list.
     */
-    Int32 GetSize() const
+    SQMOD_NODISCARD int32_t GetSize() const
     {
-        return static_cast< Int32 >(m_List.size());
+        return static_cast< int32_t >(m_List.size());
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -536,12 +520,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Advance a certain number of elements.
     */
-    void Advance(Int32 n);
+    void Advance(int32_t n);
 
     /* --------------------------------------------------------------------------------------------
      * Retreat a certain number of elements.
     */
-    void Retreat(Int32 n);
+    void Retreat(int32_t n);
 
     /* --------------------------------------------------------------------------------------------
      * Sort the entries using the default options.
@@ -579,17 +563,17 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the string value of the current element item.
     */
-    CSStr GetItem() const;
+    SQMOD_NODISCARD const SQChar * GetItem() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the string value of the current element comment.
     */
-    CSStr GetComment() const;
+    SQMOD_NODISCARD const SQChar * GetComment() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the order of the current element.
     */
-    Int32 GetOrder() const;
+    SQMOD_NODISCARD int32_t GetOrder() const;
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -601,16 +585,6 @@ protected:
 
     // --------------------------------------------------------------------------------------------
     typedef IniDocumentRef::Type::TNamesDepend Container;
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy constructor. (disabled)
-    */
-    IniDocument(const IniDocument & o);
-
-    /* --------------------------------------------------------------------------------------------
-     * Copy assignment operator. (disabled)
-    */
-    IniDocument & operator = (const IniDocument & o);
 
 private:
 
@@ -631,7 +605,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
-    IniDocument(bool utf8)
+    explicit IniDocument(bool utf8)
         : m_Doc(utf8, false, true)
     {
         /* ... */
@@ -656,22 +630,29 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    IniDocument(const IniDocument & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~IniDocument()
-    {
-        /* ... */
-    }
+    ~IniDocument() = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator. (disabled)
+    */
+    IniDocument & operator = (const IniDocument & o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    Int32 Cmp(const IniDocument & o) const;
+    SQMOD_NODISCARD int32_t Cmp(const IniDocument & o) const;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    CSStr ToString() const
+    SQMOD_NODISCARD const SQChar * ToString() const // NOLINT(readability-convert-member-functions-to-static)
     {
         return _SC("");
     }
@@ -679,7 +660,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether this instance references a valid INI document.
     */
-    bool IsValid() const
+    SQMOD_NODISCARD bool IsValid() const
     {
         return m_Doc;
     }
@@ -687,7 +668,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Return the number of active references to this document instance.
     */
-    Uint32 GetRefCount() const
+    SQMOD_NODISCARD uint32_t GetRefCount() const
     {
         return m_Doc.Count();
     }
@@ -695,7 +676,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether any data has been loaded into this document.
     */
-    bool IsEmpty() const
+    SQMOD_NODISCARD bool IsEmpty() const
     {
         return m_Doc->IsEmpty();
     }
@@ -711,7 +692,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether the INI data is treated as unicode.
     */
-    bool GetUnicode() const
+    SQMOD_NODISCARD bool GetUnicode() const
     {
         return m_Doc->IsUnicode();
     }
@@ -727,7 +708,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether multiple identical keys be permitted in the file.
     */
-    bool GetMultiKey() const
+    SQMOD_NODISCARD bool GetMultiKey() const
     {
         return m_Doc->IsMultiKey();
     }
@@ -743,7 +724,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether data values are permitted to span multiple lines in the file.
     */
-    bool GetMultiLine() const
+    SQMOD_NODISCARD bool GetMultiLine() const
     {
         return m_Doc->IsMultiLine();
     }
@@ -759,7 +740,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether spaces are added around the equals sign when writing key/value pairs out.
     */
-    bool GetSpaces() const
+    SQMOD_NODISCARD bool GetSpaces() const
     {
         return m_Doc->UsingSpaces();
     }
@@ -775,12 +756,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Load an INI file from disk into memory.
     */
-    IniResult LoadFile(CSStr filepath);
+    IniResult LoadFile(const SQChar * filepath);
 
     /* --------------------------------------------------------------------------------------------
      * Load INI file data direct from a string. (LoadString collides with the windows api)
     */
-    IniResult LoadData(CSStr source)
+    IniResult LoadData(const SQChar * source)
     {
         return LoadData(source, -1);
     }
@@ -788,12 +769,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Load INI file data direct from a string. (LoadString collides with the windows api)
     */
-    IniResult LoadData(CSStr source, Int32 size);
+    IniResult LoadData(const SQChar * source, int32_t size);
 
     /* --------------------------------------------------------------------------------------------
      * Save an INI file from memory to disk.
     */
-    IniResult SaveFile(CSStr filepath)
+    IniResult SaveFile(const SQChar * filepath)
     {
         return SaveFile(filepath, true);
     }
@@ -801,7 +782,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Save an INI file from memory to disk.
     */
-    IniResult SaveFile(CSStr filepath, bool signature);
+    IniResult SaveFile(const SQChar * filepath, bool signature);
 
     /* --------------------------------------------------------------------------------------------
      * Save the INI data to a string.
@@ -811,52 +792,52 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve all section names.
     */
-    IniEntries GetAllSections() const;
+    SQMOD_NODISCARD IniEntries GetAllSections() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve all unique key names in a section.
     */
-    IniEntries GetAllKeys(CSStr section) const;
+    SQMOD_NODISCARD IniEntries GetAllKeys(const SQChar * section) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve all values for a specific key.
     */
-    IniEntries GetAllValues(CSStr section, CSStr key) const;
+    SQMOD_NODISCARD IniEntries GetAllValues(const SQChar * section, const SQChar * key) const;
 
     /* --------------------------------------------------------------------------------------------
      * Query the number of keys in a specific section.
     */
-    Int32 GetSectionSize(CSStr section) const;
+    SQMOD_NODISCARD int32_t GetSectionSize(const SQChar * section) const;
 
     /* --------------------------------------------------------------------------------------------
      * See whether a certain key has multiple instances.
     */
-    bool HasMultipleKeys(CSStr section, CSStr key) const;
+    SQMOD_NODISCARD bool HasMultipleKeys(const SQChar * section, const SQChar * key) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value for a specific key.
     */
-    CCStr GetValue(CSStr section, CSStr key, CSStr def) const;
+    SQMOD_NODISCARD const char * GetValue(const SQChar * section, const SQChar * key, const SQChar * def) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve a numeric value for a specific key.
     */
-    SQInteger GetInteger(CSStr section, CSStr key, SQInteger def) const;
+    SQMOD_NODISCARD SQInteger GetInteger(const SQChar * section, const SQChar * key, SQInteger def) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve a numeric value for a specific key.
     */
-    SQFloat GetFloat(CSStr section, CSStr key, SQFloat def) const;
+    SQMOD_NODISCARD SQFloat GetFloat(const SQChar * section, const SQChar * key, SQFloat def) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve a boolean value for a specific key.
     */
-    bool GetBoolean(CSStr section, CSStr key, bool def) const;
+    SQMOD_NODISCARD bool GetBoolean(const SQChar * section, const SQChar * key, bool def) const;
 
     /* --------------------------------------------------------------------------------------------
      * Add or update a section or value.
     */
-    IniResult SetValue(CSStr section, CSStr key, CSStr value)
+    IniResult SetValue(const SQChar * section, const SQChar * key, const SQChar * value)
     {
         return SetValue(section, key, value, false, nullptr);
     }
@@ -864,7 +845,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Add or update a section or value.
     */
-    IniResult SetValue(CSStr section, CSStr key, CSStr value, bool force)
+    IniResult SetValue(const SQChar * section, const SQChar * key, const SQChar * value, bool force)
     {
         return SetValue(section, key, value, force, nullptr);
     }
@@ -872,12 +853,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Add or update a section or value.
     */
-    IniResult SetValue(CSStr section, CSStr key, CSStr value, bool force, CSStr comment);
+    IniResult SetValue(const SQChar * section, const SQChar * key, const SQChar * value, bool force, const SQChar * comment);
 
     /* --------------------------------------------------------------------------------------------
      * Add or update a numeric value.
     */
-    IniResult SetInteger(CSStr section, CSStr key, SQInteger value)
+    IniResult SetInteger(const SQChar * section, const SQChar * key, SQInteger value)
     {
         return SetInteger(section, key, value, false, false, nullptr);
     }
@@ -885,7 +866,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Add or update a numeric value.
     */
-    IniResult SetInteger(CSStr section, CSStr key, SQInteger value, bool hex)
+    IniResult SetInteger(const SQChar * section, const SQChar * key, SQInteger value, bool hex)
     {
         return SetInteger(section, key, value, hex, false, nullptr);
     }
@@ -893,7 +874,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Add or update a numeric value.
     */
-    IniResult SetInteger(CSStr section, CSStr key, SQInteger value, bool hex, bool force)
+    IniResult SetInteger(const SQChar * section, const SQChar * key, SQInteger value, bool hex, bool force)
     {
         return SetInteger(section, key, value, hex, force, nullptr);
     }
@@ -901,12 +882,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Add or update a numeric value.
     */
-    IniResult SetInteger(CSStr section, CSStr key, SQInteger value, bool hex, bool force, CSStr comment);
+    IniResult SetInteger(const SQChar * section, const SQChar * key, SQInteger value, bool hex, bool force, const SQChar * comment);
 
     /* --------------------------------------------------------------------------------------------
      * Add or update a double value.
     */
-    IniResult SetFloat(CSStr section, CSStr key, SQFloat value)
+    IniResult SetFloat(const SQChar * section, const SQChar * key, SQFloat value)
     {
         return SetFloat(section, key, value, false, nullptr);
     }
@@ -914,7 +895,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Add or update a double value.
     */
-    IniResult SetFloat(CSStr section, CSStr key, SQFloat value, bool force)
+    IniResult SetFloat(const SQChar * section, const SQChar * key, SQFloat value, bool force)
     {
         return SetFloat(section, key, value, force, nullptr);
     }
@@ -922,12 +903,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Add or update a double value.
     */
-    IniResult SetFloat(CSStr section, CSStr key, SQFloat value, bool force, CSStr comment);
+    IniResult SetFloat(const SQChar * section, const SQChar * key, SQFloat value, bool force, const SQChar * comment);
 
     /* --------------------------------------------------------------------------------------------
      * Add or update a double value.
     */
-    IniResult SetBoolean(CSStr section, CSStr key, bool value)
+    IniResult SetBoolean(const SQChar * section, const SQChar * key, bool value)
     {
         return SetBoolean(section, key, value, false, nullptr);
     }
@@ -935,7 +916,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Add or update a double value.
     */
-    IniResult SetBoolean(CSStr section, CSStr key, bool value, bool force)
+    IniResult SetBoolean(const SQChar * section, const SQChar * key, bool value, bool force)
     {
         return SetBoolean(section, key, value, force, nullptr);
     }
@@ -943,12 +924,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Add or update a boolean value.
     */
-    IniResult SetBoolean(CSStr section, CSStr key, bool value, bool force, CSStr comment);
+    IniResult SetBoolean(const SQChar * section, const SQChar * key, bool value, bool force, const SQChar * comment);
 
     /* --------------------------------------------------------------------------------------------
      * Delete an entire section, or a key from a section.
     */
-    bool DeleteValue(CSStr section)
+    bool DeleteValue(const SQChar * section)
     {
         return DeleteValue(section, nullptr, nullptr, false);
     }
@@ -956,7 +937,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Delete an entire section, or a key from a section.
     */
-    bool DeleteValue(CSStr section, CSStr key)
+    bool DeleteValue(const SQChar * section, const SQChar * key)
     {
         return DeleteValue(section, key, nullptr, false);
     }
@@ -964,7 +945,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Delete an entire section, or a key from a section.
     */
-    bool DeleteValue(CSStr section, CSStr key, CSStr value)
+    bool DeleteValue(const SQChar * section, const SQChar * key, const SQChar * value)
     {
         return DeleteValue(section, key, value, false);
     }
@@ -972,7 +953,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Delete an entire section, or a key from a section.
     */
-    bool DeleteValue(CSStr section, CSStr key, CSStr value, bool empty);
+    bool DeleteValue(const SQChar * section, const SQChar * key, const SQChar * value, bool empty);
 };
 
 } // Namespace:: SqMod

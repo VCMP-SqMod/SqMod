@@ -1,15 +1,15 @@
 // ------------------------------------------------------------------------------------------------
 #include "Base/AABB.hpp"
 #include "Base/Sphere.hpp"
-#include "Base/Shared.hpp"
 #include "Base/DynArg.hpp"
-#include "Base/Buffer.hpp"
+#include "Core/Buffer.hpp"
+#include "Core/Utility.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQMODE_DECL_TYPENAME(Typename, _SC("AABB"))
+SQMOD_DECL_TYPENAME(Typename, _SC("AABB"))
 
 // ------------------------------------------------------------------------------------------------
 const AABB AABB::NIL = AABB(0, 0);
@@ -18,13 +18,6 @@ const AABB AABB::MAX = AABB(HUGE_VALF, -HUGE_VALF);
 
 // ------------------------------------------------------------------------------------------------
 SQChar AABB::Delim = ',';
-
-// ------------------------------------------------------------------------------------------------
-AABB::AABB() noexcept
-    : min(HUGE_VALF), max(-HUGE_VALF)
-{
-    /* ... */
-}
 
 // ------------------------------------------------------------------------------------------------
 AABB::AABB(Value mins, Value maxs) noexcept
@@ -285,7 +278,7 @@ bool AABB::operator >= (const AABB & b) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 AABB::Cmp(const AABB & o) const
+int32_t AABB::Cmp(const AABB & o) const
 {
     if (*this == o)
     {
@@ -302,9 +295,9 @@ Int32 AABB::Cmp(const AABB & o) const
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr AABB::ToString() const
+String AABB::ToString() const
 {
-    return ToStrF("%f,%f,%f,%f,%f,%f", min.x, min.y, min.z, max.x, max.y, max.z);
+    return fmt::format("{},{},{},{},{},{}", min.x, min.y, min.z, max.x, max.y, max.z);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -531,7 +524,7 @@ AABB::Value AABB::Area() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 AABB::IsVector3Inside(const Vector3 & point) const
+int32_t AABB::IsVector3Inside(const Vector3 & point) const
 {
     return (point.x < min.x || point.x > max.x ||
             point.y < min.y || point.y > max.y ||
@@ -539,7 +532,7 @@ Int32 AABB::IsVector3Inside(const Vector3 & point) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 AABB::IsVector3InsideEx(Value x, Value y, Value z) const
+int32_t AABB::IsVector3InsideEx(Value x, Value y, Value z) const
 {
     return (x < min.x || x > max.x ||
             y < min.y || y > max.y ||
@@ -547,7 +540,7 @@ Int32 AABB::IsVector3InsideEx(Value x, Value y, Value z) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 AABB::IsAABBInside(const AABB & box) const
+int32_t AABB::IsAABBInside(const AABB & box) const
 {
     if (box.max.x < min.x || box.min.x > max.x ||
         box.max.y < min.y || box.min.y > max.y ||
@@ -568,7 +561,7 @@ Int32 AABB::IsAABBInside(const AABB & box) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 AABB::IsAABBInsideEx(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax) const
+int32_t AABB::IsAABBInsideEx(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax) const
 {
     if (xmax < min.x || xmin > max.x ||
         ymax < min.y || ymin > max.y ||
@@ -589,7 +582,7 @@ Int32 AABB::IsAABBInsideEx(Value xmin, Value ymin, Value zmin, Value xmax, Value
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 AABB::IsAABBInsideFast(const AABB & box) const
+int32_t AABB::IsAABBInsideFast(const AABB & box) const
 {
     if (box.max.x < min.x || box.min.x > max.x ||
         box.max.y < min.y || box.min.y > max.y ||
@@ -604,7 +597,7 @@ Int32 AABB::IsAABBInsideFast(const AABB & box) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 AABB::IsAABBInsideFastEx(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax) const
+int32_t AABB::IsAABBInsideFastEx(Value xmin, Value ymin, Value zmin, Value xmax, Value ymax, Value zmax) const
 {
     if (xmax < min.x || xmin > max.x ||
         ymax < min.y || ymin > max.y ||
@@ -619,7 +612,7 @@ Int32 AABB::IsAABBInsideFastEx(Value xmin, Value ymin, Value zmin, Value xmax, V
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 AABB::IsSphereInside(const Sphere & sphere) const
+int32_t AABB::IsSphereInside(const Sphere & sphere) const
 {
     Value dist_squared = 0, temp;
     const Vector3 & center = sphere.pos;
@@ -673,14 +666,14 @@ Int32 AABB::IsSphereInside(const Sphere & sphere) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 AABB::IsSphereInsideEx(Value x, Value y, Value z, Value r) const
+int32_t AABB::IsSphereInsideEx(Value x, Value y, Value z, Value r) const
 {
     return IsSphereInside(Sphere(x, y, z, r));
 }
 
 
 // ------------------------------------------------------------------------------------------------
-Int32 AABB::IsSphereInsideFast(const Sphere & sphere) const
+int32_t AABB::IsSphereInsideFast(const Sphere & sphere) const
 {
     Value dist_squared = 0, temp;
     const Vector3& center = sphere.pos;
@@ -729,36 +722,22 @@ Int32 AABB::IsSphereInsideFast(const Sphere & sphere) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 AABB::IsSphereInsideFastEx(Value x, Value y, Value z, Value r) const
+int32_t AABB::IsSphereInsideFastEx(Value x, Value y, Value z, Value r) const
 {
     return IsSphereInsideFast(Sphere(x, y, z, r));
 }
 
 // ------------------------------------------------------------------------------------------------
-LightObj AABB::Format(const String & spec, StackStrF & fmt) const
+String AABB::Format(StackStrF & str) const
 {
-    String out;
-    // Attempt to build the format string
-    if (!BuildFormatString(out, fmt, 6, spec))
-    {
-        return LightObj{}; // Default to null
-    }
-    // Empty string is unacceptable
-    else if (out.empty())
-    {
-        STHROWF("Unable to build a valid format string.");
-    }
-    // Grab a temporary buffer
-    Buffer buff(out.size());
-    // Generate the string
-    Buffer::SzType n = buff.WriteF(0, out.c_str(), min.x, min.y, min.z, max.x, max.y, max.z);
-    // Did the format failed?
-    if (!n && !out.empty())
-    {
-        STHROWF("Format failed. Please check format specifier and parameter count.");
-    }
-    // Return the resulted string
-    return LightObj{buff.Begin< SQChar >(), static_cast< SQInteger >(n)};
+    return fmt::format(str.ToStr()
+        , fmt::arg("min_x", min.x)
+        , fmt::arg("min_y", min.y)
+        , fmt::arg("min_z", min.z)
+        , fmt::arg("max_x", max.x)
+        , fmt::arg("max_y", max.y)
+        , fmt::arg("max_z", max.z)
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -865,39 +844,6 @@ void Register_AABB(HSQUIRRELVM vm)
         .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< AABB >)
         .StaticFmtFunc(_SC("FromStr"), &AABB::Get)
         .StaticFmtFunc(_SC("FromStrEx"), &AABB::GetEx)
-        // Operator Exposure
-        .Func< AABB & (AABB::*)(const AABB &) >(_SC("opAddAssign"), &AABB::operator +=)
-        .Func< AABB & (AABB::*)(const AABB &) >(_SC("opSubAssign"), &AABB::operator -=)
-        .Func< AABB & (AABB::*)(const AABB &) >(_SC("opMulAssign"), &AABB::operator *=)
-        .Func< AABB & (AABB::*)(const AABB &) >(_SC("opDivAssign"), &AABB::operator /=)
-        .Func< AABB & (AABB::*)(const AABB &) >(_SC("opModAssign"), &AABB::operator %=)
-        .Func< AABB & (AABB::*)(AABB::Value) >(_SC("opAddAssignS"), &AABB::operator +=)
-        .Func< AABB & (AABB::*)(AABB::Value) >(_SC("opSubAssignS"), &AABB::operator -=)
-        .Func< AABB & (AABB::*)(AABB::Value) >(_SC("opMulAssignS"), &AABB::operator *=)
-        .Func< AABB & (AABB::*)(AABB::Value) >(_SC("opDivAssignS"), &AABB::operator /=)
-        .Func< AABB & (AABB::*)(AABB::Value) >(_SC("opModAssignS"), &AABB::operator %=)
-        .Func< AABB & (AABB::*)(void) >(_SC("opPreInc"), &AABB::operator ++)
-        .Func< AABB & (AABB::*)(void) >(_SC("opPreDec"), &AABB::operator --)
-        .Func< AABB (AABB::*)(int) >(_SC("opPostInc"), &AABB::operator ++)
-        .Func< AABB (AABB::*)(int) >(_SC("opPostDec"), &AABB::operator --)
-        .Func< AABB (AABB::*)(const AABB &) const >(_SC("opAdd"), &AABB::operator +)
-        .Func< AABB (AABB::*)(const AABB &) const >(_SC("opSub"), &AABB::operator -)
-        .Func< AABB (AABB::*)(const AABB &) const >(_SC("opMul"), &AABB::operator *)
-        .Func< AABB (AABB::*)(const AABB &) const >(_SC("opDiv"), &AABB::operator /)
-        .Func< AABB (AABB::*)(const AABB &) const >(_SC("opMod"), &AABB::operator %)
-        .Func< AABB (AABB::*)(AABB::Value) const >(_SC("opAddS"), &AABB::operator +)
-        .Func< AABB (AABB::*)(AABB::Value) const >(_SC("opSubS"), &AABB::operator -)
-        .Func< AABB (AABB::*)(AABB::Value) const >(_SC("opMulS"), &AABB::operator *)
-        .Func< AABB (AABB::*)(AABB::Value) const >(_SC("opDivS"), &AABB::operator /)
-        .Func< AABB (AABB::*)(AABB::Value) const >(_SC("opModS"), &AABB::operator %)
-        .Func< AABB (AABB::*)(void) const >(_SC("opUnPlus"), &AABB::operator +)
-        .Func< AABB (AABB::*)(void) const >(_SC("opUnMinus"), &AABB::operator -)
-        .Func< bool (AABB::*)(const AABB &) const >(_SC("opEqual"), &AABB::operator ==)
-        .Func< bool (AABB::*)(const AABB &) const >(_SC("opNotEqual"), &AABB::operator !=)
-        .Func< bool (AABB::*)(const AABB &) const >(_SC("opLessThan"), &AABB::operator <)
-        .Func< bool (AABB::*)(const AABB &) const >(_SC("opGreaterThan"), &AABB::operator >)
-        .Func< bool (AABB::*)(const AABB &) const >(_SC("opLessEqual"), &AABB::operator <=)
-        .Func< bool (AABB::*)(const AABB &) const >(_SC("opGreaterEqual"), &AABB::operator >=)
     );
 }
 

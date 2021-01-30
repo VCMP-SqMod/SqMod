@@ -1,9 +1,10 @@
 #pragma once
 
 // ------------------------------------------------------------------------------------------------
-#include "Base/Shared.hpp"
+#include "Core/Common.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <cwchar>
 #include <memory>
 
 // ------------------------------------------------------------------------------------------------
@@ -22,7 +23,7 @@ typedef std::unique_ptr< tinydir_file > TinyFile;
 class SysDir
 {
     // --------------------------------------------------------------------------------------------
-    TinyDir mHandle; /* Handle to the managed directory. */
+    TinyDir mHandle{}; /* Handle to the managed directory. */
 
 public:
 
@@ -40,7 +41,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Make sure a valid handle is being managed before attempting to use it.
     */
-    void Validate(CSStr action) const
+    void Validate(const SQChar * action) const
     {
         if (!mHandle)
         {
@@ -51,16 +52,11 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Defaults to a null handle.
     */
-    SysDir()
-        : mHandle()
-    {
-        /*...*/
-    }
-
+    SysDir() = default;
     /* --------------------------------------------------------------------------------------------
      * Opens the directory at the specified path.
     */
-    SysDir(StackStrF & path)
+    explicit SysDir(StackStrF & path)
         : SysDir(false, path)
     {
         /*...*/
@@ -100,11 +96,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    SysDir(SysDir && o)
-        : mHandle(std::forward< TinyDir >(o.mHandle))
-    {
-        /*...*/
-    }
+    SysDir(SysDir && o) noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
@@ -126,7 +118,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator.
     */
-    SysDir & operator = (SysDir && o)
+    SysDir & operator = (SysDir && o) noexcept
     {
         // Avoid self assignment
         if (this != &o)
@@ -145,7 +137,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the raw managed handle.
     */
-    tinydir_dir * Get() const
+    SQMOD_NODISCARD tinydir_dir * Get() const
     {
         return mHandle.get();
     }
@@ -153,7 +145,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the raw managed handle and make one if it doesn't exist already.
     */
-    tinydir_dir * GetOrMake()
+    SQMOD_NODISCARD tinydir_dir * GetOrMake()
     {
         // Do we have a handle already?
         if (!mHandle)
@@ -167,7 +159,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Take ownership of the managed handle.
     */
-    tinydir_dir * Release()
+    SQMOD_NODISCARD tinydir_dir * Release()
     {
         return mHandle.release();
     }
@@ -183,17 +175,21 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    CSStr ToString() const
+    SQMOD_NODISCARD String ToString() const
     {
-        return mHandle ? mHandle->path : _SC("");
+#if defined(UNICODE) || defined(_UNICODE)
+        return mHandle ? String(mHandle->path, mHandle->path + std::wcslen(mHandle->path)) : _SC("");
+#else
+        return mHandle ? String(mHandle->path) : String();
+#endif
     }
 
     /* --------------------------------------------------------------------------------------------
      * Check for the presence of a handle.
     */
-    bool IsValid() const
+    SQMOD_NODISCARD bool IsValid() const
     {
-        return !!mHandle;
+        return static_cast< bool >(mHandle);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -215,7 +211,11 @@ public:
         // If we just allocated one, we initialize it (win, either way)
         tinydir_close(mHandle.get());
         // Attempt to open the specified directory
+#if defined(UNICODE) || defined(_UNICODE)
+        if (tinydir_open(mHandle.get(), std::wstring(path.mPtr, path.mPtr + path.GetSize()).c_str()) == -1)
+#else
         if (tinydir_open(mHandle.get(), path.mPtr) == -1)
+#endif
         {
             // Don't keep a bad handle
             mHandle.reset();
@@ -243,7 +243,11 @@ public:
         // If we just allocated one, we initialize it (win, either way)
         tinydir_close(mHandle.get());
         // Attempt to open the specified directory
+#if defined(UNICODE) || defined(_UNICODE)
+        if (tinydir_open_sorted(mHandle.get(), std::wstring(path.mPtr, path.mPtr + path.GetSize()).c_str()) == -1)
+#else
         if (tinydir_open_sorted(mHandle.get(), path.mPtr) == -1)
+#endif
         {
             // Don't keep a bad handle
             mHandle.reset();
@@ -324,17 +328,21 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the opened path.
     */
-    CSStr GetPath() const
+    SQMOD_NODISCARD String GetPath() const
     {
         Validate("obtain path");
         // Return the requested information
-        return mHandle->path;
+#if defined(UNICODE) || defined(_UNICODE)
+        return String(mHandle->path, mHandle->path + std::wcslen(mHandle->path));
+#else
+        return String(mHandle->path);
+#endif
     }
 
     /* --------------------------------------------------------------------------------------------
      * See if there's a next element in the opened directory.
     */
-    bool HasNext() const
+    SQMOD_NODISCARD bool HasNext() const
     {
         Validate("check for next");
         // Return the requested information
@@ -344,7 +352,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the number of files in the opened directory (only when opened in sorted mode).
     */
-    SQInteger FileCount() const
+    SQMOD_NODISCARD SQInteger FileCount() const
     {
         Validate("obtain file count");
         // Return the requested information
@@ -354,11 +362,11 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Open current file from the specified directory.
     */
-    LightObj ReadFile() const;
+    SQMOD_NODISCARD LightObj ReadFile() const;
     /* --------------------------------------------------------------------------------------------
      * Open current file from the specified directory.
     */
-    LightObj ReadFileAt(SQInteger i) const;
+    SQMOD_NODISCARD LightObj ReadFileAt(SQInteger i) const;
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -367,7 +375,7 @@ public:
 class SysFile
 {
     // --------------------------------------------------------------------------------------------
-    TinyFile mHandle; /* Handle to the managed file. */
+    TinyFile mHandle{}; /* Handle to the managed file. */
 
 public:
     /* --------------------------------------------------------------------------------------------
@@ -384,7 +392,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Make sure a valid handle is being managed before attempting to use it.
     */
-    void Validate(CSStr action) const
+    void Validate(const SQChar * action) const
     {
         if (!mHandle)
         {
@@ -395,16 +403,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Defaults to a null handle.
     */
-    SysFile()
-        : mHandle()
-    {
-        /*...*/
-    }
+    SysFile() = default;
 
     /* --------------------------------------------------------------------------------------------
      * Opens the file at the specified path.
     */
-    SysFile(StackStrF & path)
+    explicit SysFile(StackStrF & path)
         : SysFile()
     {
         Open(path);
@@ -418,11 +422,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    SysFile(SysFile && o)
-        : mHandle(std::forward< TinyFile >(o.mHandle))
-    {
-        /*...*/
-    }
+    SysFile(SysFile && o) noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator (disabled).
@@ -432,7 +432,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator.
     */
-    SysFile & operator = (SysFile && o)
+    SysFile & operator = (SysFile && o) noexcept
     {
         // Avoid self assignment
         if (this != &o)
@@ -446,7 +446,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the raw managed handle.
     */
-    tinydir_file * Get() const
+    SQMOD_NODISCARD tinydir_file * Get() const
     {
         return mHandle.get();
     }
@@ -454,7 +454,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the raw managed handle and make one if it doesn't exist already.
     */
-    tinydir_file * GetOrMake()
+    SQMOD_NODISCARD tinydir_file * GetOrMake()
     {
         // Do we have a handle already?
         if (!mHandle)
@@ -468,7 +468,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Take ownership of the managed handle.
     */
-    tinydir_file * Release()
+    SQMOD_NODISCARD tinydir_file * Release()
     {
         return mHandle.release();
     }
@@ -484,17 +484,21 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    CSStr ToString() const
+    SQMOD_NODISCARD String ToString() const
     {
-        return mHandle ? mHandle->path : _SC("");
+#if defined(UNICODE) || defined(_UNICODE)
+        return mHandle ? String(mHandle->path, mHandle->path + std::wcslen(mHandle->path)) : _SC("");
+#else
+        return mHandle ? String(mHandle->path) : String();
+#endif
     }
 
     /* --------------------------------------------------------------------------------------------
      * Check for the presence of a handle.
     */
-    bool IsValid() const
+    SQMOD_NODISCARD bool IsValid() const
     {
-        return !!mHandle;
+        return static_cast< bool >(mHandle);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -512,7 +516,11 @@ public:
         // Discard current error number
         errno = 0;
         // Attempt to open the specified file
+#if defined(UNICODE) || defined(_UNICODE)
+        if (tinydir_file_open(mHandle.get(), std::wstring(path.mPtr, path.mPtr + path.GetSize()).c_str()) == -1)
+#else
         if (tinydir_file_open(mHandle.get(), path.mPtr) == -1)
+#endif
         {
             // Don't keep a bad handle
             mHandle.reset();
@@ -531,7 +539,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Check if the opened element is a directory.
     */
-    bool IsDir() const
+    SQMOD_NODISCARD bool IsDir() const
     {
         Validate("check type");
         // Return the requested information
@@ -541,7 +549,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Check if the opened element is a regular file.
     */
-    bool IsReg() const
+    SQMOD_NODISCARD bool IsReg() const
     {
         Validate("check type");
         // Return the requested information
@@ -551,31 +559,43 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the path of the opened file.
     */
-    CSStr GetPath() const
+    SQMOD_NODISCARD String GetPath() const
     {
         Validate("retrieve path");
         // Return the requested information
-        return mHandle->path;
+#if defined(UNICODE) || defined(_UNICODE)
+        return String(mHandle->path, mHandle->path + std::wcslen(mHandle->path));
+#else
+        return String(mHandle->path);
+#endif
     }
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the name of the opened file.
     */
-    CSStr GetName() const
+    SQMOD_NODISCARD String GetName() const
     {
         Validate("retrieve name");
         // Return the requested information
-        return mHandle->name;
+#if defined(UNICODE) || defined(_UNICODE)
+        return String(mHandle->name, mHandle->name + std::wcslen(mHandle->name));
+#else
+        return String(mHandle->name);
+#endif
     }
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the extension of the opened file.
     */
-    CSStr GetExtension() const
+    SQMOD_NODISCARD String GetExtension() const
     {
         Validate("retrieve extension");
         // Return the requested information
-        return mHandle->extension != nullptr ? mHandle->extension : _SC("");
+#if defined(UNICODE) || defined(_UNICODE)
+        return String(mHandle->extension, mHandle->extension + std::wcslen(mHandle->extension));
+#else
+        return String(mHandle->name);
+#endif
     }
 };
 

@@ -9,21 +9,21 @@ namespace SqMod {
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the name associated with a model identifier.
 */
-CSStr GetModelName(Int32 id);
+SQMOD_NODISCARD const SQChar * GetModelName(int32_t id);
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the name associated with a model identifier.
 */
-void SetModelName(Int32 id, StackStrF & name);
+void SetModelName(int32_t id, StackStrF & name);
 
 /* ------------------------------------------------------------------------------------------------
  * See whether the given model identifier is used a weapon model.
 */
-bool IsModelWeapon(Int32 id);
+SQMOD_NODISCARD bool IsModelWeapon(int32_t id);
 
 /* ------------------------------------------------------------------------------------------------
  * See whether the given model identifier is an actual weapon model.
 */
-bool IsModelActuallyWeapon(Int32 id);
+SQMOD_NODISCARD bool IsModelActuallyWeapon(int32_t id);
 
 } // Namespace:: SqMod

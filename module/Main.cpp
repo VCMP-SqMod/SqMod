@@ -6,11 +6,8 @@
 #include <cstdio>
 
 // ------------------------------------------------------------------------------------------------
-#include <sqmodapi.h>
-
-// ------------------------------------------------------------------------------------------------
 #ifdef SQMOD_OS_WINDOWS
-    #include <Winsock2.h>
+    #include <winsock2.h>
 #endif // SQMOD_OS_WINDOWS
 
 // ------------------------------------------------------------------------------------------------
@@ -20,7 +17,7 @@ namespace SqMod {
 static bool g_Reload = false;
 
 // ------------------------------------------------------------------------------------------------
-extern void InitExports();
+//extern void InitExports();
 extern void ProcessTasks();
 extern void ProcessRoutines();
 
@@ -61,7 +58,7 @@ void DoReload()
         return; // Don't even bother!
     }
     // Make sure reloading is disabled at the end of this function
-    const ReloadGuard rg();
+    const ReloadGuard rg;
     // Tell the central core to attempt to reload
     if (!Core::Get().Reload())
     {
@@ -71,7 +68,7 @@ void DoReload()
 
 // --------------------------------------------------------------------------------------------
 #define SQMOD_CATCH_EVENT_EXCEPTION(ev) /*
-*/ catch (const Sqrat::Exception & e) /*
+*/ catch (const std::exception & e) /*
 */ { /*
 */  LogErr("Squirrel exception caught (" #ev ") event"); /*
 */  LogSInf("Message: %s", e.what()); /*
@@ -91,7 +88,7 @@ static uint8_t OnServerInitialise()
     {
         SQMOD_SV_EV_TRACEBACK("[TRACE<] OnServerInitialise")
         // Signal outside plug-ins to do fetch our proxies
-        _Func->SendPluginCommand(SQMOD_INITIALIZE_CMD, "%d", SQMOD_API_VER);
+        _Func->SendPluginCommand(0xDABBAD00, "%d", 1);
         // Attempt to load the module core
         if (Core::Get().Execute())
         {
@@ -112,7 +109,7 @@ static uint8_t OnServerInitialise()
     // See if a reload was requested
     SQMOD_RELOAD_CHECK(false)
     // Return the last known plug-in state
-    return ConvTo< Uint8 >::From(Core::Get().GetState());
+    return ConvTo< uint8_t >::From(Core::Get().GetState());
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -130,7 +127,7 @@ struct CallbackUnbinder
 static void OnServerShutdown()
 {
     // The server still triggers callbacks and we deallocated everything!
-    const CallbackUnbinder cu();
+    const CallbackUnbinder cu;
     // Attempt to forward the event
     try
     {
@@ -167,7 +164,7 @@ static void OnServerFrame(float elapsed_time)
 }
 
 // ------------------------------------------------------------------------------------------------
-static uint8_t OnPluginCommand(uint32_t command_identifier, CCStr message)
+static uint8_t OnPluginCommand(uint32_t command_identifier, const char * message)
 {
     // Mark the initialization as successful by default
     const CoreState cs(SQMOD_SUCCESS);
@@ -182,12 +179,12 @@ static uint8_t OnPluginCommand(uint32_t command_identifier, CCStr message)
     // See if a reload was requested
     SQMOD_RELOAD_CHECK(g_Reload)
     // Return the last known plug-in state
-    return ConvTo< Uint8 >::From(Core::Get().GetState());
+    return ConvTo< uint8_t >::From(Core::Get().GetState());
 }
 
 // ------------------------------------------------------------------------------------------------
-static uint8_t OnIncomingConnection(CStr player_name, size_t name_buffer_size,
-                                    CCStr user_password, CCStr ip_address)
+static uint8_t OnIncomingConnection(char * player_name, size_t name_buffer_size,
+                                    const char * user_password, const char * ip_address)
 {
     // Mark the initialization as successful by default
     const CoreState cs(SQMOD_SUCCESS);
@@ -202,7 +199,7 @@ static uint8_t OnIncomingConnection(CStr player_name, size_t name_buffer_size,
     // See if a reload was requested
     SQMOD_RELOAD_CHECK(g_Reload)
     // Return the last known plug-in state
-    return ConvTo< Uint8 >::From(Core::Get().GetState());
+    return ConvTo< uint8_t >::From(Core::Get().GetState());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -274,7 +271,7 @@ static uint8_t OnPlayerRequestClass(int32_t player_id, int32_t offset)
     // See if a reload was requested
     SQMOD_RELOAD_CHECK(g_Reload)
     // Return the last known plug-in state
-    return ConvTo< Uint8 >::From(Core::Get().GetState());
+    return ConvTo< uint8_t >::From(Core::Get().GetState());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -293,7 +290,7 @@ static uint8_t OnPlayerRequestSpawn(int32_t player_id)
     // See if a reload was requested
     SQMOD_RELOAD_CHECK(g_Reload)
     // Return the last known plug-in state
-    return ConvTo< Uint8 >::From(Core::Get().GetState());
+    return ConvTo< uint8_t >::From(Core::Get().GetState());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -366,7 +363,7 @@ static uint8_t OnPlayerRequestEnterVehicle(int32_t player_id, int32_t vehicle_id
     // See if a reload was requested
     SQMOD_RELOAD_CHECK(g_Reload)
     // Return the last known plug-in state
-    return ConvTo< Uint8 >::From(Core::Get().GetState());
+    return ConvTo< uint8_t >::From(Core::Get().GetState());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -400,7 +397,7 @@ static void OnPlayerExitVehicle(int32_t player_id, int32_t vehicle_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-static void OnPlayerNameChange(int32_t player_id, CCStr old_name, CCStr new_name)
+static void OnPlayerNameChange(int32_t player_id, const char * old_name, const char * new_name)
 {
     // Attempt to forward the event
     try
@@ -452,7 +449,7 @@ static void OnPlayerStateChange(int32_t player_id, vcmpPlayerState old_state, vc
             case vcmpPlayerStateUnspawned:
                 Core::Get().EmitStateUnspawned(player_id, old_state);
             break;
-            default: LogErr("Unknown player state change: %d", static_cast< Int32 >(new_state));
+            default: LogErr("Unknown player state change: %d", static_cast< int32_t >(new_state));
         }
         SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerStateChange")
     }
@@ -611,7 +608,7 @@ static void OnPlayerAwayChange(int32_t player_id, uint8_t is_away)
 }
 
 // ------------------------------------------------------------------------------------------------
-static uint8_t OnPlayerMessage(int32_t player_id, CCStr message)
+static uint8_t OnPlayerMessage(int32_t player_id, const char * message)
 {
     // Mark the initialization as successful by default
     const CoreState cs(SQMOD_SUCCESS);
@@ -626,11 +623,11 @@ static uint8_t OnPlayerMessage(int32_t player_id, CCStr message)
     // See if a reload was requested
     SQMOD_RELOAD_CHECK(g_Reload)
     // Return the last known plug-in state
-    return ConvTo< Uint8 >::From(Core::Get().GetState());
+    return ConvTo< uint8_t >::From(Core::Get().GetState());
 }
 
 // ------------------------------------------------------------------------------------------------
-static uint8_t OnPlayerCommand(int32_t player_id, CCStr message)
+static uint8_t OnPlayerCommand(int32_t player_id, const char * message)
 {
     // Mark the initialization as successful by default
     const CoreState cs(SQMOD_SUCCESS);
@@ -645,11 +642,11 @@ static uint8_t OnPlayerCommand(int32_t player_id, CCStr message)
     // See if a reload was requested
     SQMOD_RELOAD_CHECK(g_Reload)
     // Return the last known plug-in state
-    return ConvTo< Uint8 >::From(Core::Get().GetState());
+    return ConvTo< uint8_t >::From(Core::Get().GetState());
 }
 
 // ------------------------------------------------------------------------------------------------
-static uint8_t OnPlayerPrivateMessage(int32_t player_id, int32_t target_player_id, CCStr message)
+static uint8_t OnPlayerPrivateMessage(int32_t player_id, int32_t target_player_id, const char * message)
 {
     // Mark the initialization as successful by default
     const CoreState cs(SQMOD_SUCCESS);
@@ -664,7 +661,7 @@ static uint8_t OnPlayerPrivateMessage(int32_t player_id, int32_t target_player_i
     // See if a reload was requested
     SQMOD_RELOAD_CHECK(g_Reload)
     // Return the last known plug-in state
-    return ConvTo< Uint8 >::From(Core::Get().GetState());
+    return ConvTo< uint8_t >::From(Core::Get().GetState());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -720,13 +717,13 @@ static void OnPlayerSpectate(int32_t player_id, int32_t target_player_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-static void OnPlayerCrashReport(int32_t player_id, CCStr report)
+static void OnPlayerCrashReport(int32_t player_id, const char * report)
 {
     // Attempt to forward the event
     try
     {
         SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerCrashReport")
-        Core::Get().EmitPlayerCrashreport(player_id, report);
+        Core::Get().EmitPlayerCrashReport(player_id, report);
         SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerCrashReport")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerCrashReport)
@@ -839,7 +836,7 @@ static uint8_t OnPickupPickAttempt(int32_t pickup_id, int32_t player_id)
     // See if a reload was requested
     SQMOD_RELOAD_CHECK(false)
     // Return the last known plug-in state
-    return ConvTo< Uint8 >::From(Core::Get().GetState());
+    return ConvTo< uint8_t >::From(Core::Get().GetState());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -934,7 +931,7 @@ static void OnEntityStreamingChange(int32_t player_id, int32_t entity_id, vcmpEn
 }
 #endif
 // ------------------------------------------------------------------------------------------------
-static void OnServerPerformanceReport(size_t /*entry_count*/, CCStr * /*descriptions*/, uint64_t * /*times*/)
+static void OnServerPerformanceReport(size_t /*entry_count*/, const char * * /*descriptions*/, uint64_t * /*times*/)
 {
     //SQMOD_SV_EV_TRACEBACK("[TRACE<] OnServerPerformanceReport")
     // Ignored for now...
@@ -1045,7 +1042,7 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
     _Clbk->OnEntityStreamingChange      = OnEntityStreamingChange;
 #endif
     // Attempt to initialize the plug-in exports
-    InitExports();
+    //InitExports();
     // Dummy spacing
     puts("");
     // Initialization was successful

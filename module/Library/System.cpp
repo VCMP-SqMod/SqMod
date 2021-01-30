@@ -1,13 +1,9 @@
 // ------------------------------------------------------------------------------------------------
 #include "Library/System.hpp"
-#include "Base/Shared.hpp"
-#include "Base/Buffer.hpp"
+#include "Core/Buffer.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cstdio>
-#include <iostream>
-#include <memory>
-#include <stdexcept>
 #include <string>
 
 // ------------------------------------------------------------------------------------------------
@@ -34,18 +30,18 @@ static SQInteger SqSysExec(HSQUIRRELVM vm)
     // Attempt to open the specified process
     FILE * pipe = popen(val.mPtr, "r");
     // The process return status
-    Int32 status = -1;
+    int32_t status;
     // Did we fail to open the process?
     if (!pipe)
     {
-        return sq_throwerror(vm, ToStrF("Unable to open process [%s]", val.mPtr));
+        return sq_throwerrorf(vm, "Unable to open process [%s]", val.mPtr);
     }
     // Attempt to read process output
     try
     {
         while (!std::feof(pipe))
         {
-            if (std::fgets(buffer, 128, pipe) != NULL)
+            if (std::fgets(buffer, 128, pipe) != nullptr)
             {
                 b.AppendS(buffer);
             }
@@ -56,12 +52,12 @@ static SQInteger SqSysExec(HSQUIRRELVM vm)
         // Close the process
         status = pclose(pipe);
         // Now throw the error
-        return sq_throwerror(vm, ToStrF("Unable read process output [%d]", status));
+        return sq_throwerrorf(vm, "Unable read process output [%d]", status);
     }
     // Close the process and obtain the exit status
     status = pclose(pipe);
     // Remember the top of the stack
-    const Int32 top = sq_gettop(vm);
+    const int32_t top = sq_gettop(vm);
     // Create a new table on the stack
     sq_newtable(vm);
     // Push the element name

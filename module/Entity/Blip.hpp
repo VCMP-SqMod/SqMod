@@ -1,7 +1,7 @@
 #pragma once
 
 // ------------------------------------------------------------------------------------------------
-#include "Base/Shared.hpp"
+#include "Core/Common.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -13,13 +13,14 @@ class CBlip
 {
     // --------------------------------------------------------------------------------------------
     friend class Core;
+    friend class BlipInst;
 
 private:
 
     /* --------------------------------------------------------------------------------------------
      * Identifier of the managed entity.
     */
-    Int32       m_ID;
+    int32_t       m_ID;
 
     /* --------------------------------------------------------------------------------------------
      * User tag associated with this instance.
@@ -34,14 +35,14 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    explicit CBlip(Int32 id);
+    explicit CBlip(int32_t id);
 
 public:
 
     /* --------------------------------------------------------------------------------------------
      * Maximum possible number that could represent an identifier for this entity type.
     */
-    static const Int32 Max;
+    static const int32_t Max;
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
@@ -77,7 +78,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    const String & ToString() const;
+    SQMOD_NODISCARD const String & ToString() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated null entity instance.
@@ -87,12 +88,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated null entity instance.
     */
-    static LightObj & GetNull();
+    SQMOD_NODISCARD static LightObj & GetNull();
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the identifier of the entity managed by this instance.
     */
-    Int32 GetID() const
+    SQMOD_NODISCARD int32_t GetID() const
     {
         return m_ID;
     }
@@ -100,7 +101,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Check whether this instance manages a valid entity.
     */
-    bool IsActive() const
+    SQMOD_NODISCARD bool IsActive() const
     {
         return VALID_ENTITY(m_ID);
     }
@@ -108,7 +109,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated user tag.
     */
-    const String & GetTag() const;
+    SQMOD_NODISCARD const String & GetTag() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user tag.
@@ -123,7 +124,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated user data.
     */
-    LightObj & GetData();
+    SQMOD_NODISCARD LightObj & GetData();
 
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user data.
@@ -133,7 +134,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Destroy the managed blip entity.
     */
-    bool Destroy()
+    bool Destroy0() const // NOLINT(modernize-use-nodiscard)
     {
         return Destroy(0, NullLightObj());
     }
@@ -141,7 +142,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Destroy the managed blip entity.
     */
-    bool Destroy(Int32 header)
+    bool Destroy1(int32_t header) const // NOLINT(modernize-use-nodiscard)
     {
         return Destroy(header, NullLightObj());
     }
@@ -149,77 +150,77 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Destroy the managed blip entity.
     */
-    bool Destroy(Int32 header, LightObj & payload);
+    bool Destroy(int32_t header, LightObj & payload) const;  // NOLINT(modernize-use-nodiscard)
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the events table of this entity.
     */
-    LightObj & GetEvents() const;
+    SQMOD_NODISCARD LightObj & GetEvents() const;
 
     /* --------------------------------------------------------------------------------------------
      * Emit a custom event for the managed entity
     */
-    void CustomEvent(Int32 header, LightObj & payload) const;
+    void CustomEvent(int32_t header, LightObj & payload) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the world in which the referenced blip entity exists.
     */
-    Int32 GetWorld() const;
+    SQMOD_NODISCARD int32_t GetWorld() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the scale of the managed blip entity.
     */
-    Int32 GetScale() const;
+    SQMOD_NODISCARD int32_t GetScale() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position of the managed blip entity.
     */
-    const Vector3 & GetPosition() const;
+    SQMOD_NODISCARD const Vector3 & GetPosition() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the color of the managed blip entity.
     */
-    const Color4 & GetColor() const;
+    SQMOD_NODISCARD const Color4 & GetColor() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the identifier of the sprite used by the managed blip entity.
     */
-    Int32 GetSprID() const;
+    SQMOD_NODISCARD int32_t GetSprID() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the x axis of the managed blip entity.
     */
-    Float32 GetPositionX() const;
+    SQMOD_NODISCARD float GetPositionX() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the y axis of the managed blip entity.
     */
-    Float32 GetPositionY() const;
+    SQMOD_NODISCARD float GetPositionY() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the z axis of the managed blip entity.
     */
-    Float32 GetPositionZ() const;
+    SQMOD_NODISCARD float GetPositionZ() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the red color of the managed blip entity.
     */
-    Int32 GetColorR() const;
+    SQMOD_NODISCARD int32_t GetColorR() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the green color of the managed blip entity.
     */
-    Int32 GetColorG() const;
+    SQMOD_NODISCARD int32_t GetColorG() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the blue color of the managed blip entity.
     */
-    Int32 GetColorB() const;
+    SQMOD_NODISCARD int32_t GetColorB() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the alpha transparency of the managed blip entity.
     */
-    Int32 GetColorA() const;
+    SQMOD_NODISCARD int32_t GetColorA() const;
 };
 
 } // Namespace:: SqMod

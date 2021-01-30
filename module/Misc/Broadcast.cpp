@@ -7,7 +7,7 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-static inline bool SqCanBeInteger(HSQUIRRELVM vm, Int32 idx)
+static inline bool SqCanBeInteger(HSQUIRRELVM vm, int32_t idx)
 {
     switch (sq_gettype(vm, idx))
     {
@@ -22,9 +22,9 @@ static inline bool SqCanBeInteger(HSQUIRRELVM vm, Int32 idx)
 }
 
 // ------------------------------------------------------------------------------------------------
-SQRESULT SqGrabPlayerMessageColor(HSQUIRRELVM vm, Int32 idx, Uint32 & color, Int32 & msgidx)
+SQRESULT SqGrabPlayerMessageColor(HSQUIRRELVM vm, int32_t idx, uint32_t & color, int32_t & msg_idx)
 {
-    const auto top = static_cast< Int32 >(sq_gettop(vm));
+    const auto top = static_cast< int32_t >(sq_gettop(vm));
     // Is the color argument a Color3/Color4 instance?
     if (sq_gettype(vm, idx) == OT_INSTANCE)
     {
@@ -47,50 +47,50 @@ SQRESULT SqGrabPlayerMessageColor(HSQUIRRELVM vm, Int32 idx, Uint32 & color, Int
             {
                 color = Var< Color4 >(vm, idx).value.GetRGBA();
             }
-            catch (const Sqrat::Exception & e)
+            catch (const std::exception & e)
             {
                 return sq_throwerror(vm, e.what());
             }
         }
         // The message starts right after the color
-        msgidx += 1;
+        msg_idx += 1;
     }
     // Is the color argument an unpacked RGBA color?
-    else if ((top - msgidx) >= 4 && SqCanBeInteger(vm, idx)
+    else if ((top - msg_idx) >= 4 && SqCanBeInteger(vm, idx)
                         && SqCanBeInteger(vm, idx+1)
                         && SqCanBeInteger(vm, idx+2)
                         && SqCanBeInteger(vm, idx+3))
     {
-        color = SQMOD_PACK_RGBA(ConvTo< Uint8 >::From(PopStackInteger(vm, idx)), // NOLINT(hicpp-signed-bitwise)
-                                ConvTo< Uint8 >::From(PopStackInteger(vm, idx+1)),
-                                ConvTo< Uint8 >::From(PopStackInteger(vm, idx+2)),
-                                ConvTo< Uint8 >::From(PopStackInteger(vm, idx+3)));
+        color = SQMOD_PACK_RGBA(ConvTo< uint8_t >::From(PopStackInteger(vm, idx)), // NOLINT(hicpp-signed-bitwise)
+                                ConvTo< uint8_t >::From(PopStackInteger(vm, idx+1)),
+                                ConvTo< uint8_t >::From(PopStackInteger(vm, idx+2)),
+                                ConvTo< uint8_t >::From(PopStackInteger(vm, idx+3)));
         // The message starts right after the color
-        msgidx += 4;
+        msg_idx += 4;
     }
     // Is the color argument an unpacked RGB color?
-    else if ((top - msgidx) >= 3 && SqCanBeInteger(vm, idx)
+    else if ((top - msg_idx) >= 3 && SqCanBeInteger(vm, idx)
                         && SqCanBeInteger(vm, idx+1)
                         && SqCanBeInteger(vm, idx+2))
     {
-        color = SQMOD_PACK_RGBA(ConvTo< Uint8 >::From(PopStackInteger(vm, idx)), // NOLINT(hicpp-signed-bitwise)
-                                ConvTo< Uint8 >::From(PopStackInteger(vm, idx+1)),
-                                ConvTo< Uint8 >::From(PopStackInteger(vm, idx+2)),
+        color = SQMOD_PACK_RGBA(ConvTo< uint8_t >::From(PopStackInteger(vm, idx)), // NOLINT(hicpp-signed-bitwise)
+                                ConvTo< uint8_t >::From(PopStackInteger(vm, idx+1)),
+                                ConvTo< uint8_t >::From(PopStackInteger(vm, idx+2)),
                                 0xFFu);
         // The message starts right after the color
-        msgidx += 3;
+        msg_idx += 3;
     }
     // Is the color argument an packed RGBA color?
     else if (SqCanBeInteger(vm, idx))
     {
-        color = static_cast< Uint32 >(PopStackInteger(vm, idx));
+        color = static_cast< uint32_t >(PopStackInteger(vm, idx));
         // The message starts right after the color
-        msgidx += 1;
+        msg_idx += 1;
     }
     // Is the first argument a string which can be interpreted as a color?
     else if (sq_gettype(vm, idx) == OT_STRING)
     {
-        CSStr str = nullptr;
+        const SQChar * str = nullptr;
         SQInteger len = 0;
         // Attempt to retrieve the color argument as a string
         if (SQ_FAILED(sq_getstringandsize(vm, idx, &str, &len)))
@@ -111,7 +111,7 @@ SQRESULT SqGrabPlayerMessageColor(HSQUIRRELVM vm, Int32 idx, Uint32 & color, Int
         if (*str == '#')
         {
             // Attempt to treat the value as a hex color
-            color = ConvTo< Uint32 >::From(std::strtoull(++str, nullptr, 16));
+            color = ConvTo< uint32_t >::From(std::strtoull(++str, nullptr, 16));
             // Adjust the color if necessary
             switch (ClampMin(--len, static_cast< SQInteger >(0)))
             {
@@ -161,7 +161,7 @@ SQRESULT SqGrabPlayerMessageColor(HSQUIRRELVM vm, Int32 idx, Uint32 & color, Int
         else if (*str == '0' && (*(str+1) == 'x' || *(str+1) == 'X'))
         {
             // Attempt to treat the value as a hex color
-            color = ConvTo< Uint32 >::From(std::strtoull(str, nullptr, 16));
+            color = ConvTo< uint32_t >::From(std::strtoull(str, nullptr, 16));
             // Adjust the color if necessary
             switch (ClampMin(len-2, static_cast< SQInteger >(0)))
             {
@@ -220,7 +220,7 @@ SQRESULT SqGrabPlayerMessageColor(HSQUIRRELVM vm, Int32 idx, Uint32 & color, Int
             }
         }
         // The message starts right after the color
-        msgidx += 1;
+        msg_idx += 1;
     }
     else
     {
@@ -234,7 +234,7 @@ SQRESULT SqGrabPlayerMessageColor(HSQUIRRELVM vm, Int32 idx, Uint32 & color, Int
 static SQInteger SqBroadcastMsg(HSQUIRRELVM vm)
 {
     // The function needs at least 2 arguments
-    const auto top = static_cast< Int32 >(sq_gettop(vm));
+    const auto top = static_cast< int32_t >(sq_gettop(vm));
     // Was the message color specified?
     if (top <= 1)
     {
@@ -247,11 +247,11 @@ static SQInteger SqBroadcastMsg(HSQUIRRELVM vm)
     }
 
     // The index where the message should start
-    Int32 msgidx = 2;
+    int32_t msg_idx = 2;
     // The message color
-    Uint32 color = 0;
+    uint32_t color = 0;
     // Attempt to identify and extract the color
-    const SQRESULT res = SqGrabPlayerMessageColor(vm, 2, color, msgidx);
+    const SQRESULT res = SqGrabPlayerMessageColor(vm, 2, color, msg_idx);
     // Did we fail to identify a color?
     if (SQ_FAILED(res))
     {
@@ -259,7 +259,7 @@ static SQInteger SqBroadcastMsg(HSQUIRRELVM vm)
     }
 
     // Attempt to generate the string value
-    StackStrF val(vm, msgidx);
+    StackStrF val(vm, msg_idx);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.Proc(true)))
     {
@@ -270,9 +270,9 @@ static SQInteger SqBroadcastMsg(HSQUIRRELVM vm)
     auto itr = Core::Get().GetPlayers().cbegin();
     auto end = Core::Get().GetPlayers().cend();
     // The number of players that the message was sent to
-    Uint32 count = 0;
+    uint32_t count = 0;
     // Currently processed player
-    CPlayer * player = nullptr;
+    CPlayer * player;
 
     // Process each entity in the pool
     for (; itr != end; ++itr)
@@ -291,7 +291,7 @@ static SQInteger SqBroadcastMsg(HSQUIRRELVM vm)
             // Check the result
             if (result == vcmpErrorTooLargeInput)
             {
-                return sq_throwerror(vm, ToStrF("Client message too big [%s]", player->GetTag().c_str()));
+                return sq_throwerrorf(vm, "Client message too big [%s]", player->GetTag().c_str());
             }
             // Add this player to the count
             ++count;
@@ -307,7 +307,7 @@ static SQInteger SqBroadcastMsg(HSQUIRRELVM vm)
 // ------------------------------------------------------------------------------------------------
 static SQInteger SqBroadcastMsgP(HSQUIRRELVM vm)
 {
-    const auto top = static_cast< Int32 >(sq_gettop(vm));
+    const auto top = static_cast< int32_t >(sq_gettop(vm));
     // Was the index of the message prefix specified?
     if (top <= 1)
     {
@@ -320,13 +320,13 @@ static SQInteger SqBroadcastMsgP(HSQUIRRELVM vm)
     }
 
     // The prefix index
-    Uint32 index = 0;
+    uint32_t index;
     // Attempt to extract the argument values
     try
     {
-        index = ConvTo< Uint32 >::From(Var< SQInteger >(vm, 2).value);
+        index = ConvTo< uint32_t >::From(Var< SQInteger >(vm, 2).value);
     }
-    catch (const Sqrat::Exception & e)
+    catch (const std::exception & e)
     {
         return sq_throwerror(vm, e.what());
     }
@@ -334,8 +334,8 @@ static SQInteger SqBroadcastMsgP(HSQUIRRELVM vm)
     // Perform a range check on the specified prefix index
     if (index >= SQMOD_PLAYER_MSG_PREFIXES)
     {
-        return sq_throwerror(vm, ToStrF("Prefix index is out of range: %u >= %u",
-                                        index, SQMOD_PLAYER_MSG_PREFIXES));
+        return sq_throwerrorf(vm, "Prefix index is out of range: %u >= %u",
+                                        index, SQMOD_PLAYER_MSG_PREFIXES);
     }
 
     // Attempt to generate the string value
@@ -351,9 +351,9 @@ static SQInteger SqBroadcastMsgP(HSQUIRRELVM vm)
     auto itr = Core::Get().GetPlayers().cbegin();
     auto end = Core::Get().GetPlayers().cend();
     // The number of players that the message was sent to
-    Uint32 count = 0;
+    uint32_t count = 0;
     // Currently processed player
-    CPlayer * player = nullptr;
+    CPlayer * player;
 
     // Process each entity in the pool
     for (; itr != end; ++itr)
@@ -379,7 +379,7 @@ static SQInteger SqBroadcastMsgP(HSQUIRRELVM vm)
             // Check the result
             if (result == vcmpErrorTooLargeInput)
             {
-                return sq_throwerror(vm, ToStrF("Client message too big [%s]", player->GetTag().c_str()));
+                return sq_throwerrorf(vm, "Client message too big [%s]", player->GetTag().c_str());
             }
             // Add this player to the count
             ++count;
@@ -395,7 +395,7 @@ static SQInteger SqBroadcastMsgP(HSQUIRRELVM vm)
 // ------------------------------------------------------------------------------------------------
 static SQInteger SqBroadcastMsgEx(HSQUIRRELVM vm)
 {
-    const auto top = static_cast< Int32 >(sq_gettop(vm));
+    const auto top = static_cast< int32_t >(sq_gettop(vm));
     // Was the index of the message prefix specified?
     if (top <= 1)
     {
@@ -413,13 +413,13 @@ static SQInteger SqBroadcastMsgEx(HSQUIRRELVM vm)
     }
 
     // The prefix index
-    Uint32 index = 0;
+    uint32_t index;
     // Attempt to extract the argument values
     try
     {
-        index = ConvTo< Uint32 >::From(Var< SQInteger >(vm, 2).value);
+        index = ConvTo< uint32_t >::From(Var< SQInteger >(vm, 2).value);
     }
-    catch (const Sqrat::Exception & e)
+    catch (const std::exception & e)
     {
         return sq_throwerror(vm, e.what());
     }
@@ -427,16 +427,16 @@ static SQInteger SqBroadcastMsgEx(HSQUIRRELVM vm)
     // Perform a range check on the specified prefix index
     if (index >= SQMOD_PLAYER_MSG_PREFIXES)
     {
-        return sq_throwerror(vm, ToStrF("Prefix index is out of range: %u >= %u",
-                                        index, SQMOD_PLAYER_MSG_PREFIXES));
+        return sq_throwerrorf(vm, "Prefix index is out of range: %u >= %u",
+                                        index, SQMOD_PLAYER_MSG_PREFIXES);
     }
 
     // The index where the message should start
-    Int32 msgidx = 3;
+    int32_t msg_idx = 3;
     // The message color
-    Uint32 color = 0;
+    uint32_t color = 0;
     // Attempt to identify and extract the color
-    const SQRESULT res = SqGrabPlayerMessageColor(vm, 3, color, msgidx);
+    const SQRESULT res = SqGrabPlayerMessageColor(vm, 3, color, msg_idx);
     // Did we fail to identify a color?
     if (SQ_FAILED(res))
     {
@@ -444,7 +444,7 @@ static SQInteger SqBroadcastMsgEx(HSQUIRRELVM vm)
     }
 
     // Attempt to generate the string value
-    StackStrF val(vm, msgidx);
+    StackStrF val(vm, msg_idx);
     // Have we failed to retrieve the string?
     if (SQ_FAILED(val.Proc(true)))
     {
@@ -456,9 +456,9 @@ static SQInteger SqBroadcastMsgEx(HSQUIRRELVM vm)
     auto itr = Core::Get().GetPlayers().cbegin();
     auto end = Core::Get().GetPlayers().cend();
     // The number of players that the message was sent to
-    Uint32 count = 0;
+    uint32_t count = 0;
     // Currently processed player
-    CPlayer * player = nullptr;
+    CPlayer * player;
 
     // Process each entity in the pool
     for (; itr != end; ++itr)
@@ -484,7 +484,7 @@ static SQInteger SqBroadcastMsgEx(HSQUIRRELVM vm)
             // Check the result
             if (result == vcmpErrorTooLargeInput)
             {
-                return sq_throwerror(vm, ToStrF("Client message too big [%s]", player->GetTag().c_str()));
+                return sq_throwerrorf(vm, "Client message too big [%s]", player->GetTag().c_str());
             }
             // Add this player to the count
             ++count;
@@ -500,7 +500,7 @@ static SQInteger SqBroadcastMsgEx(HSQUIRRELVM vm)
 // ------------------------------------------------------------------------------------------------
 static SQInteger SqBroadcastMessage(HSQUIRRELVM vm)
 {
-    const auto top = static_cast< Int32 >(sq_gettop(vm));
+    const auto top = static_cast< int32_t >(sq_gettop(vm));
     // Was the message value specified?
     if (top <= 1)
     {
@@ -519,9 +519,9 @@ static SQInteger SqBroadcastMessage(HSQUIRRELVM vm)
     auto itr = Core::Get().GetPlayers().cbegin();
     auto end = Core::Get().GetPlayers().cend();
     // The number of players that the message was sent to
-    Uint32 count = 0;
+    uint32_t count = 0;
     // Currently processed player
-    CPlayer * player = nullptr;
+    CPlayer * player;
 
     // Process each entity in the pool
     for (; itr != end; ++itr)
@@ -540,7 +540,7 @@ static SQInteger SqBroadcastMessage(HSQUIRRELVM vm)
             // Check the result
             if (result == vcmpErrorTooLargeInput)
             {
-                return sq_throwerror(vm, ToStrF("Client message too big [%s]", player->GetTag().c_str()));
+                return sq_throwerrorf(vm, "Client message too big [%s]", player->GetTag().c_str());
             }
             // Add this player to the count
             ++count;
@@ -556,7 +556,7 @@ static SQInteger SqBroadcastMessage(HSQUIRRELVM vm)
 // ------------------------------------------------------------------------------------------------
 static SQInteger SqBroadcastAnnounce(HSQUIRRELVM vm)
 {
-    const auto top = static_cast< Int32 >(sq_gettop(vm));
+    const auto top = static_cast< int32_t >(sq_gettop(vm));
     // Was the announcement value specified?
     if (top <= 1)
     {
@@ -575,9 +575,9 @@ static SQInteger SqBroadcastAnnounce(HSQUIRRELVM vm)
     auto itr = Core::Get().GetPlayers().cbegin();
     auto end = Core::Get().GetPlayers().cend();
     // The number of players that the message was sent to
-    Uint32 count = 0;
+    uint32_t count = 0;
     // Currently processed player
-    CPlayer * player = nullptr;
+    CPlayer * player;
 
     // Process each entity in the pool
     for (; itr != end; ++itr)
@@ -596,12 +596,12 @@ static SQInteger SqBroadcastAnnounce(HSQUIRRELVM vm)
             // Validate the result
             if (result == vcmpErrorArgumentOutOfBounds)
             {
-                return sq_throwerror(vm, ToStrF("Invalid announcement style %d [%s]",
-                                                player->mAnnounceStyle, player->GetTag().c_str()));
+                return sq_throwerrorf(vm, "Invalid announcement style %d [%s]",
+                                                player->mAnnounceStyle, player->GetTag().c_str());
             }
             else if (result == vcmpErrorTooLargeInput)
             {
-                return sq_throwerror(vm, ToStrF("Game message too big [%s]", player->GetTag().c_str()));
+                return sq_throwerrorf(vm, "Game message too big [%s]", player->GetTag().c_str());
             }
             // Add this player to the count
             ++count;
@@ -617,7 +617,7 @@ static SQInteger SqBroadcastAnnounce(HSQUIRRELVM vm)
 // ------------------------------------------------------------------------------------------------
 static SQInteger SqBroadcastAnnounceEx(HSQUIRRELVM vm)
 {
-    const auto top = static_cast< Int32 >(sq_gettop(vm));
+    const auto top = static_cast< int32_t >(sq_gettop(vm));
     // Was the announcement style specified?
     if (top <= 1)
     {
@@ -629,13 +629,13 @@ static SQInteger SqBroadcastAnnounceEx(HSQUIRRELVM vm)
         return sq_throwerror(vm, "Missing announcement value");
     }
 
-    Int32 style;
+    int32_t style;
     // style to extract the argument values
     try
     {
-        style = Var< Int32 >(vm, 2).value;
+        style = Var< int32_t >(vm, 2).value;
     }
-    catch (const Sqrat::Exception & e)
+    catch (const std::exception & e)
     {
         return sq_throwerror(vm, e.what());
     }
@@ -652,9 +652,9 @@ static SQInteger SqBroadcastAnnounceEx(HSQUIRRELVM vm)
     auto itr = Core::Get().GetPlayers().cbegin();
     auto end = Core::Get().GetPlayers().cend();
     // The number of players that the message was sent to
-    Uint32 count = 0;
+    uint32_t count = 0;
     // Currently processed player
-    CPlayer * player = nullptr;
+    CPlayer * player;
 
     // Process each entity in the pool
     for (; itr != end; ++itr)
@@ -673,12 +673,12 @@ static SQInteger SqBroadcastAnnounceEx(HSQUIRRELVM vm)
             // Validate the result
             if (result == vcmpErrorArgumentOutOfBounds)
             {
-                return sq_throwerror(vm, ToStrF("Invalid announcement style %d [%s]",
-                                                style, player->GetTag().c_str()));
+                return sq_throwerrorf(vm, "Invalid announcement style %d [%s]",
+                                                style, player->GetTag().c_str());
             }
             else if (result == vcmpErrorTooLargeInput)
             {
-                return sq_throwerror(vm, ToStrF("Game message too big [%s]", player->GetTag().c_str()));
+                return sq_throwerrorf(vm, "Game message too big [%s]", player->GetTag().c_str());
             }
             // Add this player to the count
             ++count;

@@ -2,13 +2,10 @@
 #include "Base/Vector3.hpp"
 #include "Base/Vector4.hpp"
 #include "Base/Quaternion.hpp"
-#include "Base/Shared.hpp"
 #include "Base/DynArg.hpp"
-#include "Base/Buffer.hpp"
+#include "Core/Buffer.hpp"
+#include "Core/Utility.hpp"
 #include "Library/Numeric/Random.hpp"
-
-// ------------------------------------------------------------------------------------------------
-#include <limits>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -17,7 +14,7 @@ namespace SqMod {
 #define STOVAL(v) static_cast< Vector3::Value >(v)
 
 // ------------------------------------------------------------------------------------------------
-SQMODE_DECL_TYPENAME(Typename, _SC("Vector3"))
+SQMOD_DECL_TYPENAME(Typename, _SC("Vector3"))
 
 // ------------------------------------------------------------------------------------------------
 const Vector3 Vector3::NIL(STOVAL(0.0));
@@ -33,13 +30,6 @@ const Vector3 Vector3::ONE(STOVAL(1.0),     STOVAL(1.0),    STOVAL(1.0));
 
 // ------------------------------------------------------------------------------------------------
 SQChar Vector3::Delim = ',';
-
-// ------------------------------------------------------------------------------------------------
-Vector3::Vector3() noexcept
-    : x(0.0), y(0.0), z(0.0)
-{
-    /* ... */
-}
 
 // ------------------------------------------------------------------------------------------------
 Vector3::Vector3(Value sv) noexcept
@@ -121,9 +111,9 @@ Vector3 & Vector3::operator /= (const Vector3 & v)
 // ------------------------------------------------------------------------------------------------
 Vector3 & Vector3::operator %= (const Vector3 & v)
 {
-    x = std::fmod(x, v.x);
-    y = std::fmod(y, v.y);
-    z = std::fmod(z, v.z);
+    x = fmodf(x, v.x);
+    y = fmodf(y, v.y);
+    z = fmodf(z, v.z);
     return *this;
 }
 
@@ -166,9 +156,9 @@ Vector3 & Vector3::operator /= (Value s)
 // ------------------------------------------------------------------------------------------------
 Vector3 & Vector3::operator %= (Value s)
 {
-    x = std::fmod(x, s);
-    y = std::fmod(y, s);
-    z = std::fmod(z, s);
+    x = fmodf(x, s);
+    y = fmodf(y, s);
+    z = fmodf(z, s);
     return *this;
 }
 
@@ -237,7 +227,7 @@ Vector3 Vector3::operator / (const Vector3 & v) const
 // ------------------------------------------------------------------------------------------------
 Vector3 Vector3::operator % (const Vector3 & v) const
 {
-    return {std::fmod(x, v.x), std::fmod(y, v.y), std::fmod(z, v.z)};
+    return {fmodf(x, v.x), fmodf(y, v.y), fmodf(z, v.z)};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -267,13 +257,13 @@ Vector3 Vector3::operator / (Value s) const
 // ------------------------------------------------------------------------------------------------
 Vector3 Vector3::operator % (Value s) const
 {
-    return {std::fmod(x, s), std::fmod(y, s), std::fmod(z, s)};
+    return {fmodf(x, s), fmodf(y, s), fmodf(z, s)};
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector3 Vector3::operator + () const
 {
-    return {std::fabs(x), std::fabs(y), std::fabs(z)};
+    return {fabsf(x), fabsf(y), fabsf(z)};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -319,7 +309,7 @@ bool Vector3::operator >= (const Vector3 & v) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 Vector3::Cmp(const Vector3 & o) const
+int32_t Vector3::Cmp(const Vector3 & o) const
 {
     if (*this == o)
     {
@@ -336,9 +326,9 @@ Int32 Vector3::Cmp(const Vector3 & o) const
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr Vector3::ToString() const
+String Vector3::ToString() const
 {
-    return ToStrF("%f,%f,%f", x, y, z);
+    return fmt::format("{},{},{}", x, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -393,17 +383,17 @@ void Vector3::SetQuaternionEx(Value qx, Value qy, Value qz, Value qw)
     // Quick conversion to Euler angles to give tilt to user
     const Value sqx = (qx * qx), sqy = (qy * qy), sqz = (qz * qz), sqw = (qw * qw);
 
-    y = std::asin(STOVAL(2.0) * ((qw * qy) - (qx * qz)));
+    y = asinf(STOVAL(2.0) * ((qw * qy) - (qx * qz)));
 
     if (EpsGt((SQMOD_PI * STOVAL(0.5)) - std::abs(y), STOVAL(1e-10)))
     {
-        z = std::atan2(STOVAL(2.0) * ((qx * qy) + (qw * qz)), sqx - sqy - sqz + sqw);
-        x = std::atan2(STOVAL(2.0) * ((qw * qx) + (qy * qz)), sqw - sqx - sqy + sqz);
+        z = atan2f(STOVAL(2.0) * ((qx * qy) + (qw * qz)), sqx - sqy - sqz + sqw);
+        x = atan2f(STOVAL(2.0) * ((qw * qx) + (qy * qz)), sqw - sqx - sqy + sqz);
     }
     else
     {
         // Compute heading from local 'down' vector
-        z = std::atan2((STOVAL(2.0) * qy * qz) - (STOVAL(2.0) * qx * qw),
+        z = atan2f((STOVAL(2.0) * qy * qz) - (STOVAL(2.0) * qx * qw),
                        (STOVAL(2.0) * qx * qz) + (STOVAL(2.0) * qy * qw));
         x = STOVAL(0.0);
 
@@ -458,19 +448,19 @@ void Vector3::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmi
 // ------------------------------------------------------------------------------------------------
 Vector3 Vector3::Abs() const
 {
-    return {std::fabs(x), std::fabs(y), std::fabs(z)};
+    return {fabsf(x), fabsf(y), fabsf(z)};
 }
 
 // ------------------------------------------------------------------------------------------------
 bool Vector3::IsNaN() const
 {
-    return std::isnan(x) || std::isnan(y) || std::isnan(z);
+    return isnanf(x) || isnanf(y) || isnanf(z);
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector3::Value Vector3::GetLength() const
 {
-    return std::sqrt((x * x) + (y * y) + (z * z));
+    return sqrtf((x * x) + (y * y) + (z * z));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -492,7 +482,7 @@ void Vector3::SetLengthSquared(Value length)
 {
     Normalize();
     // Assign the specified length
-    *this *= std::sqrt(length);
+    *this *= sqrtf(length);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -502,7 +492,7 @@ Vector3 Vector3::Normalized() const
 
     if (!EpsEq(len_squared, STOVAL(1.0)) && EpsLt(len_squared, STOVAL(0.0)))
     {
-        return (*this * (STOVAL(1.0) / std::sqrt(len_squared)));
+        return (*this * (STOVAL(1.0) / sqrtf(len_squared)));
     }
     else
     {
@@ -517,7 +507,7 @@ void Vector3::Normalize()
 
     if (!EpsEq(len_squared, STOVAL(1.0)) && EpsGt(len_squared, STOVAL(0.0)))
     {
-        const Value inv_len = STOVAL(1.0) / std::sqrt(len_squared);
+        const Value inv_len = STOVAL(1.0) / sqrtf(len_squared);
         x *= inv_len;
         y *= inv_len;
         z *= inv_len;
@@ -545,19 +535,19 @@ Vector3 Vector3::CrossProduct(const Vector3 & vec) const
 // ------------------------------------------------------------------------------------------------
 Vector3::Value Vector3::Angle(const Vector3 & vec) const
 {
-    return std::acos(DotProduct(vec) / (GetLength() * vec.GetLength()));
+    return acosf(DotProduct(vec) / (GetLength() * vec.GetLength()));
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector3::Value Vector3::GetDistanceTo(const Vector3 & vec) const
 {
-    return std::sqrt(std::pow(x - vec.x, 2) + std::pow(y - vec.y, 2) + std::pow(z - vec.z, 2));
+    return sqrtf(powf(x - vec.x, 2) + powf(y - vec.y, 2) + powf(z - vec.z, 2));
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector3::Value Vector3::GetSquaredDistanceTo(const Vector3 & vec) const
 {
-    return (std::pow(x - vec.x, 2) + std::pow(y - vec.y, 2) + std::pow(z - vec.z, 2));
+    return (powf(x - vec.x, 2) + powf(y - vec.y, 2) + powf(z - vec.z, 2));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -570,15 +560,15 @@ bool Vector3::IsBetweenPoints(const Vector3 & begin, const Vector3 & end) const
 // ------------------------------------------------------------------------------------------------
 void Vector3::Interpolate(const Vector3 & a, const Vector3 & b, Value d)
 {
-    x = STOVAL(static_cast< Float64 >(b.x) + ((a.x - b.x) * d));
-    y = STOVAL(static_cast< Float64 >(b.y) + ((a.y - b.y) * d));
-    z = STOVAL(static_cast< Float64 >(b.z) + ((a.z - b.z) * d));
+    x = STOVAL(static_cast< double >(b.x) + ((a.x - b.x) * d));
+    y = STOVAL(static_cast< double >(b.y) + ((a.y - b.y) * d));
+    z = STOVAL(static_cast< double >(b.z) + ((a.z - b.z) * d));
 }
 
 // ------------------------------------------------------------------------------------------------
 Vector3 Vector3::Interpolated(const Vector3 & vec, Value d) const
 {
-    const Float64 inv = 1.0 - d;
+    const double inv = 1.0 - d;
     return {
         STOVAL((vec.x * inv) + (x * d)),
         STOVAL((vec.y * inv) + (y * d)),
@@ -590,15 +580,15 @@ Vector3 Vector3::Interpolated(const Vector3 & vec, Value d) const
 Vector3 Vector3::Rotated(const Vector3 & axis, Value angle) const
 {
     const Vector3 o(axis * axis.DotProduct(*this));
-    return (o + ((*this - o) * std::cos(angle)) + (axis.CrossProduct(*this) * std::sin(angle)));
+    return (o + ((*this - o) * cosf(angle)) + (axis.CrossProduct(*this) * sinf(angle)));
 }
 
 // ------------------------------------------------------------------------------------------------
 void Vector3::CenterRotateXZBy(Value degrees, const Vector3 & center)
 {
     degrees *= SQMOD_DEGTORAD;
-    const Value cs = std::cos(degrees);
-    const Value sn = std::sin(degrees);
+    const Value cs = cosf(degrees);
+    const Value sn = sinf(degrees);
     x -= center.x;
     z -= center.z;
     x = static_cast< Value >((x * cs) - (z * sn)) + center.x;
@@ -609,8 +599,8 @@ void Vector3::CenterRotateXZBy(Value degrees, const Vector3 & center)
 void Vector3::CenterRotateXYBy(Value degrees, const Vector3 & center)
 {
     degrees *= SQMOD_DEGTORAD;
-    const Value cs = std::cos(degrees);
-    const Value sn = std::sin(degrees);
+    const Value cs = cosf(degrees);
+    const Value sn = sinf(degrees);
     x -= center.x;
     y -= center.y;
     x = static_cast< Value >((x * cs) - (y * sn)) + center.x;
@@ -621,8 +611,8 @@ void Vector3::CenterRotateXYBy(Value degrees, const Vector3 & center)
 void Vector3::CenterRotateYZBy(Value degrees, const Vector3 & center)
 {
     degrees *= SQMOD_DEGTORAD;
-    const Value cs = std::cos(degrees);
-    const Value sn = std::sin(degrees);
+    const Value cs = cosf(degrees);
+    const Value sn = sinf(degrees);
     z -= center.z;
     y -= center.y;
     y = static_cast< Value >((y * cs) - (z * sn)) + center.z;
@@ -630,30 +620,13 @@ void Vector3::CenterRotateYZBy(Value degrees, const Vector3 & center)
 }
 
 // ------------------------------------------------------------------------------------------------
-LightObj Vector3::Format(const String & spec, StackStrF & fmt) const
+String Vector3::Format(StackStrF & str) const
 {
-    String out;
-    // Attempt to build the format string
-    if (!BuildFormatString(out, fmt, 3, spec))
-    {
-        return LightObj{}; // Default to null
-    }
-    // Empty string is unacceptable
-    else if (out.empty())
-    {
-        STHROWF("Unable to build a valid format string.");
-    }
-    // Grab a temporary buffer
-    Buffer buff(out.size());
-    // Generate the string
-    Buffer::SzType n = buff.WriteF(0, out.c_str(), x, y, z);
-    // Did the format failed?
-    if (!n && !out.empty())
-    {
-        STHROWF("Format failed. Please check format specifier and parameter count.");
-    }
-    // Return the resulted string
-    return LightObj{buff.Begin< SQChar >(), static_cast< SQInteger >(n)};
+    return fmt::format(str.ToStr()
+        , fmt::arg("x", x)
+        , fmt::arg("y", y)
+        , fmt::arg("z", z)
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -767,39 +740,6 @@ void Register_Vector3(HSQUIRRELVM vm)
         .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< Vector3 >)
         .StaticFmtFunc(_SC("FromStr"), &Vector3::Get)
         .StaticFmtFunc(_SC("FromStrEx"), &Vector3::GetEx)
-        // Operator Exposure
-        .Func< Vector3 & (Vector3::*)(const Vector3 &) >(_SC("opAddAssign"), &Vector3::operator +=)
-        .Func< Vector3 & (Vector3::*)(const Vector3 &) >(_SC("opSubAssign"), &Vector3::operator -=)
-        .Func< Vector3 & (Vector3::*)(const Vector3 &) >(_SC("opMulAssign"), &Vector3::operator *=)
-        .Func< Vector3 & (Vector3::*)(const Vector3 &) >(_SC("opDivAssign"), &Vector3::operator /=)
-        .Func< Vector3 & (Vector3::*)(const Vector3 &) >(_SC("opModAssign"), &Vector3::operator %=)
-        .Func< Vector3 & (Vector3::*)(Vector3::Value) >(_SC("opAddAssignS"), &Vector3::operator +=)
-        .Func< Vector3 & (Vector3::*)(Vector3::Value) >(_SC("opSubAssignS"), &Vector3::operator -=)
-        .Func< Vector3 & (Vector3::*)(Vector3::Value) >(_SC("opMulAssignS"), &Vector3::operator *=)
-        .Func< Vector3 & (Vector3::*)(Vector3::Value) >(_SC("opDivAssignS"), &Vector3::operator /=)
-        .Func< Vector3 & (Vector3::*)(Vector3::Value) >(_SC("opModAssignS"), &Vector3::operator %=)
-        .Func< Vector3 & (Vector3::*)(void) >(_SC("opPreInc"), &Vector3::operator ++)
-        .Func< Vector3 & (Vector3::*)(void) >(_SC("opPreDec"), &Vector3::operator --)
-        .Func< Vector3 (Vector3::*)(int) >(_SC("opPostInc"), &Vector3::operator ++)
-        .Func< Vector3 (Vector3::*)(int) >(_SC("opPostDec"), &Vector3::operator --)
-        .Func< Vector3 (Vector3::*)(const Vector3 &) const >(_SC("opAdd"), &Vector3::operator +)
-        .Func< Vector3 (Vector3::*)(const Vector3 &) const >(_SC("opSub"), &Vector3::operator -)
-        .Func< Vector3 (Vector3::*)(const Vector3 &) const >(_SC("opMul"), &Vector3::operator *)
-        .Func< Vector3 (Vector3::*)(const Vector3 &) const >(_SC("opDiv"), &Vector3::operator /)
-        .Func< Vector3 (Vector3::*)(const Vector3 &) const >(_SC("opMod"), &Vector3::operator %)
-        .Func< Vector3 (Vector3::*)(Vector3::Value) const >(_SC("opAddS"), &Vector3::operator +)
-        .Func< Vector3 (Vector3::*)(Vector3::Value) const >(_SC("opSubS"), &Vector3::operator -)
-        .Func< Vector3 (Vector3::*)(Vector3::Value) const >(_SC("opMulS"), &Vector3::operator *)
-        .Func< Vector3 (Vector3::*)(Vector3::Value) const >(_SC("opDivS"), &Vector3::operator /)
-        .Func< Vector3 (Vector3::*)(Vector3::Value) const >(_SC("opModS"), &Vector3::operator %)
-        .Func< Vector3 (Vector3::*)(void) const >(_SC("opUnPlus"), &Vector3::operator +)
-        .Func< Vector3 (Vector3::*)(void) const >(_SC("opUnMinus"), &Vector3::operator -)
-        .Func< bool (Vector3::*)(const Vector3 &) const >(_SC("opEqual"), &Vector3::operator ==)
-        .Func< bool (Vector3::*)(const Vector3 &) const >(_SC("opNotEqual"), &Vector3::operator !=)
-        .Func< bool (Vector3::*)(const Vector3 &) const >(_SC("opLessThan"), &Vector3::operator <)
-        .Func< bool (Vector3::*)(const Vector3 &) const >(_SC("opGreaterThan"), &Vector3::operator >)
-        .Func< bool (Vector3::*)(const Vector3 &) const >(_SC("opLessEqual"), &Vector3::operator <=)
-        .Func< bool (Vector3::*)(const Vector3 &) const >(_SC("opGreaterEqual"), &Vector3::operator >=)
     );
 }
 

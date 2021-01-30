@@ -5,7 +5,7 @@ namespace SqMod {
 #define NULL_SQOBJ_(o) (o.IsNull() ? "NULL" : "OBJ")
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitCustomEvent(Int32 group, Int32 header, LightObj & payload)
+void Core::EmitCustomEvent(int32_t group, int32_t header, LightObj & payload) const
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::CustomEvent(%d, %d, %s)", group, header, NULL_SQOBJ_(payload))
     (*mOnCustomEvent.first)(group, header, payload);
@@ -13,7 +13,7 @@ void Core::EmitCustomEvent(Int32 group, Int32 header, LightObj & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitBlipCreated(Int32 blip, Int32 header, LightObj & payload)
+void Core::EmitBlipCreated(int32_t blip, int32_t header, LightObj & payload)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::BlipCreated(%d, %d, %s)", blip, header, NULL_SQOBJ_(payload))
     (*mOnBlipCreated.first)(m_Blips.at(static_cast< size_t >(blip)).mObj, header, payload);
@@ -21,7 +21,7 @@ void Core::EmitBlipCreated(Int32 blip, Int32 header, LightObj & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitCheckpointCreated(Int32 checkpoint, Int32 header, LightObj & payload)
+void Core::EmitCheckpointCreated(int32_t checkpoint, int32_t header, LightObj & payload)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::CheckpointCreated(%d, %d, %s)", checkpoint, header, NULL_SQOBJ_(payload))
     (*mOnCheckpointCreated.first)(m_Checkpoints.at(static_cast< size_t >(checkpoint)).mObj, header, payload);
@@ -29,15 +29,15 @@ void Core::EmitCheckpointCreated(Int32 checkpoint, Int32 header, LightObj & payl
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitKeybindCreated(Int32 keybind, Int32 header, LightObj & payload)
+void Core::EmitKeyBindCreated(int32_t keybind, int32_t header, LightObj & payload)
 {
-    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::KeybindCreated(%d, %d, %s)", keybind, header, NULL_SQOBJ_(payload))
-    (*mOnKeybindCreated.first)(m_Keybinds.at(static_cast< size_t >(keybind)).mObj, header, payload);
-    SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::KeybindCreated")
+    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::KeyBindCreated(%d, %d, %s)", keybind, header, NULL_SQOBJ_(payload))
+    (*mOnKeyBindCreated.first)(m_KeyBinds.at(static_cast< size_t >(keybind)).mObj, header, payload);
+    SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::KeyBindCreated")
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitObjectCreated(Int32 object, Int32 header, LightObj & payload)
+void Core::EmitObjectCreated(int32_t object, int32_t header, LightObj & payload)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ObjectCreated(%d, %d, %s)", object, header, NULL_SQOBJ_(payload))
     (*mOnObjectCreated.first)(m_Objects.at(static_cast< size_t >(object)).mObj, header, payload);
@@ -45,7 +45,7 @@ void Core::EmitObjectCreated(Int32 object, Int32 header, LightObj & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPickupCreated(Int32 pickup, Int32 header, LightObj & payload)
+void Core::EmitPickupCreated(int32_t pickup, int32_t header, LightObj & payload)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PickupCreated(%d, %d, %s)", pickup, header, NULL_SQOBJ_(payload))
     (*mOnPickupCreated.first)(m_Pickups.at(static_cast< size_t >(pickup)).mObj, header, payload);
@@ -53,7 +53,7 @@ void Core::EmitPickupCreated(Int32 pickup, Int32 header, LightObj & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerCreated(Int32 player, Int32 header, LightObj & payload)
+void Core::EmitPlayerCreated(int32_t player, int32_t header, LightObj & payload)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerCreated(%d, %d, %s)", player, header, NULL_SQOBJ_(payload))
     (*mOnPlayerCreated.first)(m_Players.at(static_cast< size_t >(player)).mObj, header, payload);
@@ -61,7 +61,7 @@ void Core::EmitPlayerCreated(Int32 player, Int32 header, LightObj & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehicleCreated(Int32 vehicle, Int32 header, LightObj & payload)
+void Core::EmitVehicleCreated(int32_t vehicle, int32_t header, LightObj & payload)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::VehicleCreated(%d, %d, %s)", vehicle, header, NULL_SQOBJ_(payload))
     (*mOnVehicleCreated.first)(m_Vehicles.at(static_cast< size_t >(vehicle)).mObj, header, payload);
@@ -69,7 +69,7 @@ void Core::EmitVehicleCreated(Int32 vehicle, Int32 header, LightObj & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitBlipDestroyed(Int32 blip, Int32 header, LightObj & payload)
+void Core::EmitBlipDestroyed(int32_t blip, int32_t header, LightObj & payload)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::BlipDestroyed(%d, %d, %s)", blip, header, NULL_SQOBJ_(payload))
     BlipInst & _blip = m_Blips.at(static_cast< size_t >(blip));
@@ -79,7 +79,7 @@ void Core::EmitBlipDestroyed(Int32 blip, Int32 header, LightObj & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitCheckpointDestroyed(Int32 checkpoint, Int32 header, LightObj & payload)
+void Core::EmitCheckpointDestroyed(int32_t checkpoint, int32_t header, LightObj & payload)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::CheckpointDestroyed(%d, %d, %s)", checkpoint, header, NULL_SQOBJ_(payload))
     CheckpointInst & _checkpoint = m_Checkpoints.at(static_cast< size_t >(checkpoint));
@@ -89,17 +89,17 @@ void Core::EmitCheckpointDestroyed(Int32 checkpoint, Int32 header, LightObj & pa
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitKeybindDestroyed(Int32 keybind, Int32 header, LightObj & payload)
+void Core::EmitKeyBindDestroyed(int32_t keybind, int32_t header, LightObj & payload)
 {
-    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::KeybindDestroyed(%d, %d, %s)", keybind, header, NULL_SQOBJ_(payload))
-    KeybindInst & _keybind = m_Keybinds.at(static_cast< size_t >(keybind));
+    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::KeyBindDestroyed(%d, %d, %s)", keybind, header, NULL_SQOBJ_(payload))
+    KeyBindInst & _keybind = m_KeyBinds.at(static_cast< size_t >(keybind));
     (*_keybind.mOnDestroyed.first)(header, payload);
-    (*mOnKeybindDestroyed.first)(_keybind.mObj, header, payload);
-    SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::KeybindDestroyed")
+    (*mOnKeyBindDestroyed.first)(_keybind.mObj, header, payload);
+    SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::KeyBindDestroyed")
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitObjectDestroyed(Int32 object, Int32 header, LightObj & payload)
+void Core::EmitObjectDestroyed(int32_t object, int32_t header, LightObj & payload)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ObjectDestroyed(%d, %d, %s)", object, header, NULL_SQOBJ_(payload))
     ObjectInst & _object = m_Objects.at(static_cast< size_t >(object));
@@ -109,7 +109,7 @@ void Core::EmitObjectDestroyed(Int32 object, Int32 header, LightObj & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPickupDestroyed(Int32 pickup, Int32 header, LightObj & payload)
+void Core::EmitPickupDestroyed(int32_t pickup, int32_t header, LightObj & payload)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PickupDestroyed(%d, %d, %s)", pickup, header, NULL_SQOBJ_(payload))
     PickupInst & _pickup = m_Pickups.at(static_cast< size_t >(pickup));
@@ -119,7 +119,7 @@ void Core::EmitPickupDestroyed(Int32 pickup, Int32 header, LightObj & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerDestroyed(Int32 player, Int32 header, LightObj & payload)
+void Core::EmitPlayerDestroyed(int32_t player, int32_t header, LightObj & payload)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerDestroyed(%d, %d, %s)", player, header, NULL_SQOBJ_(payload))
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player));
@@ -129,7 +129,7 @@ void Core::EmitPlayerDestroyed(Int32 player, Int32 header, LightObj & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehicleDestroyed(Int32 vehicle, Int32 header, LightObj & payload)
+void Core::EmitVehicleDestroyed(int32_t vehicle, int32_t header, LightObj & payload)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::VehicleDestroyed(%d, %d, %s)", vehicle, header, NULL_SQOBJ_(payload))
     VehicleInst & _vehicle = m_Vehicles.at(static_cast< size_t >(vehicle));
@@ -139,7 +139,7 @@ void Core::EmitVehicleDestroyed(Int32 vehicle, Int32 header, LightObj & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitBlipCustom(Int32 blip, Int32 header, LightObj & payload)
+void Core::EmitBlipCustom(int32_t blip, int32_t header, LightObj & payload)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::BlipCustom(%d, %d, %s)", blip, header, NULL_SQOBJ_(payload))
     BlipInst & _blip = m_Blips.at(static_cast< size_t >(blip));
@@ -149,7 +149,7 @@ void Core::EmitBlipCustom(Int32 blip, Int32 header, LightObj & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitCheckpointCustom(Int32 checkpoint, Int32 header, LightObj & payload)
+void Core::EmitCheckpointCustom(int32_t checkpoint, int32_t header, LightObj & payload)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::CheckpointCustom(%d, %d, %s)", checkpoint, header, NULL_SQOBJ_(payload))
     CheckpointInst & _checkpoint = m_Checkpoints.at(static_cast< size_t >(checkpoint));
@@ -159,17 +159,17 @@ void Core::EmitCheckpointCustom(Int32 checkpoint, Int32 header, LightObj & paylo
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitKeybindCustom(Int32 keybind, Int32 header, LightObj & payload)
+void Core::EmitKeyBindCustom(int32_t keybind, int32_t header, LightObj & payload)
 {
-    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::KeybindCustom(%d, %d, %s)", keybind, header, NULL_SQOBJ_(payload))
-    KeybindInst & _keybind = m_Keybinds.at(static_cast< size_t >(keybind));
+    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::KeyBindCustom(%d, %d, %s)", keybind, header, NULL_SQOBJ_(payload))
+    KeyBindInst & _keybind = m_KeyBinds.at(static_cast< size_t >(keybind));
     (*_keybind.mOnCustom.first)(header, payload);
-    (*mOnKeybindCustom.first)(_keybind.mObj, header, payload);
-    SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::KeybindCustom")
+    (*mOnKeyBindCustom.first)(_keybind.mObj, header, payload);
+    SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::KeyBindCustom")
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitObjectCustom(Int32 object, Int32 header, LightObj & payload)
+void Core::EmitObjectCustom(int32_t object, int32_t header, LightObj & payload)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ObjectCustom(%d, %d, %s)", object, header, NULL_SQOBJ_(payload))
     ObjectInst & _object = m_Objects.at(static_cast< size_t >(object));
@@ -179,7 +179,7 @@ void Core::EmitObjectCustom(Int32 object, Int32 header, LightObj & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPickupCustom(Int32 pickup, Int32 header, LightObj & payload)
+void Core::EmitPickupCustom(int32_t pickup, int32_t header, LightObj & payload)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PickupCustom(%d, %d, %s)", pickup, header, NULL_SQOBJ_(payload))
     PickupInst & _pickup = m_Pickups.at(static_cast< size_t >(pickup));
@@ -189,7 +189,7 @@ void Core::EmitPickupCustom(Int32 pickup, Int32 header, LightObj & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerCustom(Int32 player, Int32 header, LightObj & payload)
+void Core::EmitPlayerCustom(int32_t player, int32_t header, LightObj & payload)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerCustom(%d, %d, %s)", player, header, NULL_SQOBJ_(payload))
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player));
@@ -199,7 +199,7 @@ void Core::EmitPlayerCustom(Int32 player, Int32 header, LightObj & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehicleCustom(Int32 vehicle, Int32 header, LightObj & payload)
+void Core::EmitVehicleCustom(int32_t vehicle, int32_t header, LightObj & payload)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::VehicleCustom(%d, %d, %s)", vehicle, header, NULL_SQOBJ_(payload))
     VehicleInst & _vehicle = m_Vehicles.at(static_cast< size_t >(vehicle));
@@ -209,7 +209,7 @@ void Core::EmitVehicleCustom(Int32 vehicle, Int32 header, LightObj & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitServerStartup()
+void Core::EmitServerStartup() const
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ServerStartup()")
     (*mOnServerStartup.first)();
@@ -217,7 +217,7 @@ void Core::EmitServerStartup()
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitServerShutdown()
+void Core::EmitServerShutdown() const
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ServerShutdown()")
     (*mOnServerShutdown.first)();
@@ -225,7 +225,7 @@ void Core::EmitServerShutdown()
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitServerFrame(Float32 elapsed_time)
+void Core::EmitServerFrame(float elapsed_time) const
 {
     //SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ServerFrame(%f)", elapsed_time)
     (*mOnServerFrame.first)(elapsed_time);
@@ -233,7 +233,7 @@ void Core::EmitServerFrame(Float32 elapsed_time)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPluginCommand(Uint32 command_identifier, CCStr message)
+void Core::EmitPluginCommand(uint32_t command_identifier, const char * message) // NOLINT(readability-convert-member-functions-to-static)
 {
 #if defined(_DEBUG) || defined(SQMOD_ENABLE_SV_EV_TRACEBACK)
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PluginCommand(0x%08X, '%s')", command_identifier, message)
@@ -247,7 +247,7 @@ void Core::EmitPluginCommand(Uint32 command_identifier, CCStr message)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitIncomingConnection(CStr player_name, size_t name_buffer_size, CCStr user_password, CCStr ip_address)
+void Core::EmitIncomingConnection(char * player_name, size_t name_buffer_size, const char * user_password, const char * ip_address)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::IncomingConnection(%s, %" PRINT_SZ_FMT ", %s, %s)", player_name, name_buffer_size, user_password, ip_address)
     // Save the buffer information so that we can write to it from the string
@@ -274,7 +274,7 @@ void Core::EmitIncomingConnection(CStr player_name, size_t name_buffer_size, CCS
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerRequestClass(Int32 player_id, Int32 offset)
+void Core::EmitPlayerRequestClass(int32_t player_id, int32_t offset)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerRequestClass(%d, %d)", player_id, offset)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -284,7 +284,7 @@ void Core::EmitPlayerRequestClass(Int32 player_id, Int32 offset)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerRequestSpawn(Int32 player_id)
+void Core::EmitPlayerRequestSpawn(int32_t player_id)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerRequestSpawn(%d)", player_id)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -294,7 +294,7 @@ void Core::EmitPlayerRequestSpawn(Int32 player_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerSpawn(Int32 player_id)
+void Core::EmitPlayerSpawn(int32_t player_id)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerSpawn(%d)", player_id)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -304,7 +304,7 @@ void Core::EmitPlayerSpawn(Int32 player_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerWasted(Int32 player_id, Int32 reason)
+void Core::EmitPlayerWasted(int32_t player_id, int32_t reason)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerWasted(%d, %d)", player_id, reason)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -314,18 +314,18 @@ void Core::EmitPlayerWasted(Int32 player_id, Int32 reason)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerKilled(Int32 player_id, Int32 killer_id, Int32 reason, vcmpBodyPart body_part, bool team_kill)
+void Core::EmitPlayerKilled(int32_t player_id, int32_t killer_id, int32_t reason, vcmpBodyPart body_part, bool team_kill)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerKilled(%d, %d, %d, %d, %d)", player_id, killer_id, reason, body_part, team_kill)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
     PlayerInst & _killer = m_Players.at(static_cast< size_t >(killer_id));
-    (*_player.mOnKilled.first)(_killer.mObj, reason, static_cast< Int32 >(body_part), team_kill);
-    (*mOnPlayerKilled.first)(_player.mObj, _killer.mObj, reason, static_cast< Int32 >(body_part), team_kill);
+    (*_player.mOnKilled.first)(_killer.mObj, reason, static_cast< int32_t >(body_part), team_kill);
+    (*mOnPlayerKilled.first)(_player.mObj, _killer.mObj, reason, static_cast< int32_t >(body_part), team_kill);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerKilled")
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerEmbarking(Int32 player_id, Int32 vehicle_id, Int32 slot_index)
+void Core::EmitPlayerEmbarking(int32_t player_id, int32_t vehicle_id, int32_t slot_index)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerEmbarking(%d, %d, %d)", player_id, vehicle_id, slot_index)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -337,7 +337,7 @@ void Core::EmitPlayerEmbarking(Int32 player_id, Int32 vehicle_id, Int32 slot_ind
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerEmbarked(Int32 player_id, Int32 vehicle_id, Int32 slot_index)
+void Core::EmitPlayerEmbarked(int32_t player_id, int32_t vehicle_id, int32_t slot_index)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerEmbarked(%d, %d, %d)", player_id, vehicle_id, slot_index)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -349,7 +349,7 @@ void Core::EmitPlayerEmbarked(Int32 player_id, Int32 vehicle_id, Int32 slot_inde
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerDisembark(Int32 player_id, Int32 vehicle_id)
+void Core::EmitPlayerDisembark(int32_t player_id, int32_t vehicle_id)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerDisembark(%d, %d)", player_id, vehicle_id)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -361,7 +361,7 @@ void Core::EmitPlayerDisembark(Int32 player_id, Int32 vehicle_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerRename(Int32 player_id, CCStr old_name, CCStr new_name)
+void Core::EmitPlayerRename(int32_t player_id, const char * old_name, const char * new_name)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerRename(%d, %s, %s)", player_id, old_name, new_name)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -372,7 +372,7 @@ void Core::EmitPlayerRename(Int32 player_id, CCStr old_name, CCStr new_name)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerState(Int32 player_id, Int32 old_state, Int32 new_state)
+void Core::EmitPlayerState(int32_t player_id, int32_t old_state, int32_t new_state)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerState(%d, %d, %d)", player_id, old_state, new_state)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -382,7 +382,7 @@ void Core::EmitPlayerState(Int32 player_id, Int32 old_state, Int32 new_state)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitStateNone(Int32 player_id, Int32 old_state)
+void Core::EmitStateNone(int32_t player_id, int32_t old_state)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::StateNone(%d, %d)", player_id, old_state)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -392,7 +392,7 @@ void Core::EmitStateNone(Int32 player_id, Int32 old_state)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitStateNormal(Int32 player_id, Int32 old_state)
+void Core::EmitStateNormal(int32_t player_id, int32_t old_state)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::StateNormal(%d, %d)", player_id, old_state)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -402,7 +402,7 @@ void Core::EmitStateNormal(Int32 player_id, Int32 old_state)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitStateAim(Int32 player_id, Int32 old_state)
+void Core::EmitStateAim(int32_t player_id, int32_t old_state)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::StateAim(%d, %d)", player_id, old_state)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -412,7 +412,7 @@ void Core::EmitStateAim(Int32 player_id, Int32 old_state)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitStateDriver(Int32 player_id, Int32 old_state)
+void Core::EmitStateDriver(int32_t player_id, int32_t old_state)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::StateDriver(%d, %d)", player_id, old_state)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -422,7 +422,7 @@ void Core::EmitStateDriver(Int32 player_id, Int32 old_state)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitStatePassenger(Int32 player_id, Int32 old_state)
+void Core::EmitStatePassenger(int32_t player_id, int32_t old_state)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::StatePassenger(%d, %d)", player_id, old_state)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -432,7 +432,7 @@ void Core::EmitStatePassenger(Int32 player_id, Int32 old_state)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitStateEnterDriver(Int32 player_id, Int32 old_state)
+void Core::EmitStateEnterDriver(int32_t player_id, int32_t old_state)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::StateEnterDriver(%d, %d)", player_id, old_state)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -442,7 +442,7 @@ void Core::EmitStateEnterDriver(Int32 player_id, Int32 old_state)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitStateEnterPassenger(Int32 player_id, Int32 old_state)
+void Core::EmitStateEnterPassenger(int32_t player_id, int32_t old_state)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::StateEnterPassenger(%d, %d)", player_id, old_state)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -452,7 +452,7 @@ void Core::EmitStateEnterPassenger(Int32 player_id, Int32 old_state)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitStateExit(Int32 player_id, Int32 old_state)
+void Core::EmitStateExit(int32_t player_id, int32_t old_state)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::StateExit(%d, %d)", player_id, old_state)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -462,7 +462,7 @@ void Core::EmitStateExit(Int32 player_id, Int32 old_state)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitStateUnspawned(Int32 player_id, Int32 old_state)
+void Core::EmitStateUnspawned(int32_t player_id, int32_t old_state)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::StateUnspawned(%d, %d)", player_id, old_state)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -472,7 +472,7 @@ void Core::EmitStateUnspawned(Int32 player_id, Int32 old_state)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerAction(Int32 player_id, Int32 old_action, Int32 new_action)
+void Core::EmitPlayerAction(int32_t player_id, int32_t old_action, int32_t new_action)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerAction(%d, %d, %d)", player_id, old_action, new_action)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -482,7 +482,7 @@ void Core::EmitPlayerAction(Int32 player_id, Int32 old_action, Int32 new_action)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitActionNone(Int32 player_id, Int32 old_action)
+void Core::EmitActionNone(int32_t player_id, int32_t old_action)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ActionNone(%d, %d)", player_id, old_action)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -492,7 +492,7 @@ void Core::EmitActionNone(Int32 player_id, Int32 old_action)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitActionNormal(Int32 player_id, Int32 old_action)
+void Core::EmitActionNormal(int32_t player_id, int32_t old_action)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ActionNormal(%d, %d)", player_id, old_action)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -502,7 +502,7 @@ void Core::EmitActionNormal(Int32 player_id, Int32 old_action)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitActionAiming(Int32 player_id, Int32 old_action)
+void Core::EmitActionAiming(int32_t player_id, int32_t old_action)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ActionAiming(%d, %d)", player_id, old_action)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -512,7 +512,7 @@ void Core::EmitActionAiming(Int32 player_id, Int32 old_action)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitActionShooting(Int32 player_id, Int32 old_action)
+void Core::EmitActionShooting(int32_t player_id, int32_t old_action)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ActionShooting(%d, %d)", player_id, old_action)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -522,7 +522,7 @@ void Core::EmitActionShooting(Int32 player_id, Int32 old_action)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitActionJumping(Int32 player_id, Int32 old_action)
+void Core::EmitActionJumping(int32_t player_id, int32_t old_action)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ActionJumping(%d, %d)", player_id, old_action)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -532,7 +532,7 @@ void Core::EmitActionJumping(Int32 player_id, Int32 old_action)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitActionLieDown(Int32 player_id, Int32 old_action)
+void Core::EmitActionLieDown(int32_t player_id, int32_t old_action)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ActionLieDown(%d, %d)", player_id, old_action)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -542,7 +542,7 @@ void Core::EmitActionLieDown(Int32 player_id, Int32 old_action)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitActionGettingUp(Int32 player_id, Int32 old_action)
+void Core::EmitActionGettingUp(int32_t player_id, int32_t old_action)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ActionGettingUp(%d, %d)", player_id, old_action)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -552,7 +552,7 @@ void Core::EmitActionGettingUp(Int32 player_id, Int32 old_action)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitActionJumpVehicle(Int32 player_id, Int32 old_action)
+void Core::EmitActionJumpVehicle(int32_t player_id, int32_t old_action)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ActionJumpVehicle(%d, %d)", player_id, old_action)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -562,7 +562,7 @@ void Core::EmitActionJumpVehicle(Int32 player_id, Int32 old_action)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitActionDriving(Int32 player_id, Int32 old_action)
+void Core::EmitActionDriving(int32_t player_id, int32_t old_action)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ActionDriving(%d, %d)", player_id, old_action)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -572,7 +572,7 @@ void Core::EmitActionDriving(Int32 player_id, Int32 old_action)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitActionDying(Int32 player_id, Int32 old_action)
+void Core::EmitActionDying(int32_t player_id, int32_t old_action)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ActionDying(%d, %d)", player_id, old_action)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -582,7 +582,7 @@ void Core::EmitActionDying(Int32 player_id, Int32 old_action)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitActionWasted(Int32 player_id, Int32 old_action)
+void Core::EmitActionWasted(int32_t player_id, int32_t old_action)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ActionWasted(%d, %d)", player_id, old_action)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -592,7 +592,7 @@ void Core::EmitActionWasted(Int32 player_id, Int32 old_action)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitActionEmbarking(Int32 player_id, Int32 old_action)
+void Core::EmitActionEmbarking(int32_t player_id, int32_t old_action)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ActionEmbarking(%d, %d)", player_id, old_action)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -602,7 +602,7 @@ void Core::EmitActionEmbarking(Int32 player_id, Int32 old_action)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitActionDisembarking(Int32 player_id, Int32 old_action)
+void Core::EmitActionDisembarking(int32_t player_id, int32_t old_action)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ActionDisembarking(%d, %d)", player_id, old_action)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -612,7 +612,7 @@ void Core::EmitActionDisembarking(Int32 player_id, Int32 old_action)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerBurning(Int32 player_id, bool is_on_fire)
+void Core::EmitPlayerBurning(int32_t player_id, bool is_on_fire)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerBurning(%d, %d)", player_id, is_on_fire)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -622,7 +622,7 @@ void Core::EmitPlayerBurning(Int32 player_id, bool is_on_fire)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerCrouching(Int32 player_id, bool is_crouching)
+void Core::EmitPlayerCrouching(int32_t player_id, bool is_crouching)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerCrouching(%d, %d)", player_id, is_crouching)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -632,7 +632,7 @@ void Core::EmitPlayerCrouching(Int32 player_id, bool is_crouching)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerGameKeys(Int32 player_id, Uint32 old_keys, Uint32 new_keys)
+void Core::EmitPlayerGameKeys(int32_t player_id, uint32_t old_keys, uint32_t new_keys)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerGameKeys(%d, %u, %u)", player_id, old_keys, new_keys)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -642,7 +642,7 @@ void Core::EmitPlayerGameKeys(Int32 player_id, Uint32 old_keys, Uint32 new_keys)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerStartTyping(Int32 player_id)
+void Core::EmitPlayerStartTyping(int32_t player_id)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerStartTyping(%d)", player_id)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -652,7 +652,7 @@ void Core::EmitPlayerStartTyping(Int32 player_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerStopTyping(Int32 player_id)
+void Core::EmitPlayerStopTyping(int32_t player_id)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerStopTyping(%d)", player_id)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -662,7 +662,7 @@ void Core::EmitPlayerStopTyping(Int32 player_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerAway(Int32 player_id, bool is_away)
+void Core::EmitPlayerAway(int32_t player_id, bool is_away)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerAway(%d, %d)", player_id, is_away)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -672,7 +672,7 @@ void Core::EmitPlayerAway(Int32 player_id, bool is_away)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerMessage(Int32 player_id, CCStr message)
+void Core::EmitPlayerMessage(int32_t player_id, const char * message)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerMessage(%d, %s)", player_id, message)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -683,7 +683,7 @@ void Core::EmitPlayerMessage(Int32 player_id, CCStr message)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerCommand(Int32 player_id, CCStr message)
+void Core::EmitPlayerCommand(int32_t player_id, const char * message)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerCommand(%d, %s)", player_id, message)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -694,7 +694,7 @@ void Core::EmitPlayerCommand(Int32 player_id, CCStr message)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerPrivateMessage(Int32 player_id, Int32 target_player_id, CCStr message)
+void Core::EmitPlayerPrivateMessage(int32_t player_id, int32_t target_player_id, const char * message)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerPrivateMessage(%d, %d, %s)", player_id, target_player_id, message)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -706,11 +706,11 @@ void Core::EmitPlayerPrivateMessage(Int32 player_id, Int32 target_player_id, CCS
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerKeyPress(Int32 player_id, Int32 bind_id)
+void Core::EmitPlayerKeyPress(int32_t player_id, int32_t bind_id)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerKeyPress(%d, %d)", player_id, bind_id)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
-    KeybindInst & _keybind = m_Keybinds.at(static_cast< size_t >(bind_id));
+    KeyBindInst & _keybind = m_KeyBinds.at(static_cast< size_t >(bind_id));
     (*_player.mOnKeyPress.first)(_keybind.mObj);
     (*_keybind.mOnKeyPress.first)(_player.mObj);
     (*mOnPlayerKeyPress.first)(_player.mObj, _keybind.mObj);
@@ -718,11 +718,11 @@ void Core::EmitPlayerKeyPress(Int32 player_id, Int32 bind_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerKeyRelease(Int32 player_id, Int32 bind_id)
+void Core::EmitPlayerKeyRelease(int32_t player_id, int32_t bind_id)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerKeyRelease(%d, %d)", player_id, bind_id)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
-    KeybindInst & _keybind = m_Keybinds.at(static_cast< size_t >(bind_id));
+    KeyBindInst & _keybind = m_KeyBinds.at(static_cast< size_t >(bind_id));
     (*_keybind.mOnKeyRelease.first)(_player.mObj);
     (*_player.mOnKeyRelease.first)(_keybind.mObj);
     (*mOnPlayerKeyRelease.first)(_player.mObj, _keybind.mObj);
@@ -730,7 +730,7 @@ void Core::EmitPlayerKeyRelease(Int32 player_id, Int32 bind_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerSpectate(Int32 player_id, Int32 target_player_id)
+void Core::EmitPlayerSpectate(int32_t player_id, int32_t target_player_id)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerSpectate(%d, %d)", player_id, target_player_id)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -741,7 +741,7 @@ void Core::EmitPlayerSpectate(Int32 player_id, Int32 target_player_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerUnspectate(Int32 player_id)
+void Core::EmitPlayerUnspectate(int32_t player_id)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerUnspectate(%d)", player_id)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -751,18 +751,18 @@ void Core::EmitPlayerUnspectate(Int32 player_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerCrashreport(Int32 player_id, CCStr report)
+void Core::EmitPlayerCrashReport(int32_t player_id, const char * report)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerCrashreport(%d, %s)", player_id, report)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
     LightObj rep(report, -1);
-    (*_player.mOnCrashreport.first)(rep);
-    (*mOnPlayerCrashreport.first)(_player.mObj, rep);
+    (*_player.mOnCrashReport.first)(rep);
+    (*mOnPlayerCrashReport.first)(_player.mObj, rep);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerCrashreport")
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerModuleList(Int32 player_id, CCStr list)
+void Core::EmitPlayerModuleList(int32_t player_id, const char * list)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerModuleList(%d, %s)", player_id, list)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -773,7 +773,7 @@ void Core::EmitPlayerModuleList(Int32 player_id, CCStr list)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehicleExplode(Int32 vehicle_id)
+void Core::EmitVehicleExplode(int32_t vehicle_id)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::VehicleExplode(%d)", vehicle_id)
     VehicleInst & _vehicle = m_Vehicles.at(static_cast< size_t >(vehicle_id));
@@ -783,7 +783,7 @@ void Core::EmitVehicleExplode(Int32 vehicle_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehicleRespawn(Int32 vehicle_id)
+void Core::EmitVehicleRespawn(int32_t vehicle_id)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::VehicleRespawn(%d)", vehicle_id)
     VehicleInst & _vehicle = m_Vehicles.at(static_cast< size_t >(vehicle_id));
@@ -793,7 +793,7 @@ void Core::EmitVehicleRespawn(Int32 vehicle_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitObjectShot(Int32 object_id, Int32 player_id, Int32 weapon_id)
+void Core::EmitObjectShot(int32_t object_id, int32_t player_id, int32_t weapon_id)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ObjectShot(%d, %d, %d)", object_id, player_id, weapon_id)
     ObjectInst & _object = m_Objects.at(static_cast< size_t >(object_id));
@@ -805,7 +805,7 @@ void Core::EmitObjectShot(Int32 object_id, Int32 player_id, Int32 weapon_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitObjectTouched(Int32 object_id, Int32 player_id)
+void Core::EmitObjectTouched(int32_t object_id, int32_t player_id)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ObjectTouched(%d, %d)", object_id, player_id)
     ObjectInst & _object = m_Objects.at(static_cast< size_t >(object_id));
@@ -817,7 +817,7 @@ void Core::EmitObjectTouched(Int32 object_id, Int32 player_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPickupClaimed(Int32 pickup_id, Int32 player_id)
+void Core::EmitPickupClaimed(int32_t pickup_id, int32_t player_id)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PickupClaimed(%d, %d)", pickup_id, player_id)
     PickupInst & _pickup = m_Pickups.at(static_cast< size_t >(pickup_id));
@@ -829,7 +829,7 @@ void Core::EmitPickupClaimed(Int32 pickup_id, Int32 player_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPickupCollected(Int32 pickup_id, Int32 player_id)
+void Core::EmitPickupCollected(int32_t pickup_id, int32_t player_id)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PickupCollected(%d, %d)", pickup_id, player_id)
     PickupInst & _pickup = m_Pickups.at(static_cast< size_t >(pickup_id));
@@ -841,7 +841,7 @@ void Core::EmitPickupCollected(Int32 pickup_id, Int32 player_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPickupRespawn(Int32 pickup_id)
+void Core::EmitPickupRespawn(int32_t pickup_id)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PickupRespawn(%d)", pickup_id)
     PickupInst & _pickup = m_Pickups.at(static_cast< size_t >(pickup_id));
@@ -851,7 +851,7 @@ void Core::EmitPickupRespawn(Int32 pickup_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitCheckpointEntered(Int32 checkpoint_id, Int32 player_id)
+void Core::EmitCheckpointEntered(int32_t checkpoint_id, int32_t player_id)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::CheckpointEntered(%d, %d)", checkpoint_id, player_id)
     CheckpointInst & _checkpoint = m_Checkpoints.at(static_cast< size_t >(checkpoint_id));
@@ -863,7 +863,7 @@ void Core::EmitCheckpointEntered(Int32 checkpoint_id, Int32 player_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitCheckpointExited(Int32 checkpoint_id, Int32 player_id)
+void Core::EmitCheckpointExited(int32_t checkpoint_id, int32_t player_id)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::CheckpointExited(%d, %d)", checkpoint_id, player_id)
     CheckpointInst & _checkpoint = m_Checkpoints.at(static_cast< size_t >(checkpoint_id));
@@ -875,7 +875,7 @@ void Core::EmitCheckpointExited(Int32 checkpoint_id, Int32 player_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitCheckpointWorld(Int32 checkpoint_id, Int32 old_world, Int32 new_world)
+void Core::EmitCheckpointWorld(int32_t checkpoint_id, int32_t old_world, int32_t new_world)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::CheckpointWorld(%d, %d, %d)", checkpoint_id, old_world, new_world)
     CheckpointInst & _checkpoint = m_Checkpoints.at(static_cast< size_t >(checkpoint_id));
@@ -885,7 +885,7 @@ void Core::EmitCheckpointWorld(Int32 checkpoint_id, Int32 old_world, Int32 new_w
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitCheckpointRadius(Int32 checkpoint_id, Float32 old_radius, Float32 new_radius)
+void Core::EmitCheckpointRadius(int32_t checkpoint_id, float old_radius, float new_radius)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::CheckpointRadius(%d, %f, %f)", checkpoint_id, old_radius, new_radius)
     CheckpointInst & _checkpoint = m_Checkpoints.at(static_cast< size_t >(checkpoint_id));
@@ -895,7 +895,7 @@ void Core::EmitCheckpointRadius(Int32 checkpoint_id, Float32 old_radius, Float32
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitObjectWorld(Int32 object_id, Int32 old_world, Int32 new_world)
+void Core::EmitObjectWorld(int32_t object_id, int32_t old_world, int32_t new_world)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ObjectWorld(%d, %d, %d)", object_id, old_world, new_world)
     ObjectInst & _object = m_Objects.at(static_cast< size_t >(object_id));
@@ -905,7 +905,7 @@ void Core::EmitObjectWorld(Int32 object_id, Int32 old_world, Int32 new_world)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitObjectAlpha(Int32 object_id, Int32 old_alpha, Int32 new_alpha, Int32 time)
+void Core::EmitObjectAlpha(int32_t object_id, int32_t old_alpha, int32_t new_alpha, int32_t time)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ObjectAlpha(%d, %d, %d, %d)", object_id, old_alpha, new_alpha, time)
     ObjectInst & _object = m_Objects.at(static_cast< size_t >(object_id));
@@ -915,7 +915,7 @@ void Core::EmitObjectAlpha(Int32 object_id, Int32 old_alpha, Int32 new_alpha, In
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPickupWorld(Int32 pickup_id, Int32 old_world, Int32 new_world)
+void Core::EmitPickupWorld(int32_t pickup_id, int32_t old_world, int32_t new_world)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PickupWorld(%d, %d, %d)", pickup_id, old_world, new_world)
     PickupInst & _pickup = m_Pickups.at(static_cast< size_t >(pickup_id));
@@ -925,7 +925,7 @@ void Core::EmitPickupWorld(Int32 pickup_id, Int32 old_world, Int32 new_world)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPickupAlpha(Int32 pickup_id, Int32 old_alpha, Int32 new_alpha)
+void Core::EmitPickupAlpha(int32_t pickup_id, int32_t old_alpha, int32_t new_alpha)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PickupAlpha(%d, %d, %d)", pickup_id, old_alpha, new_alpha)
     PickupInst & _pickup = m_Pickups.at(static_cast< size_t >(pickup_id));
@@ -935,7 +935,7 @@ void Core::EmitPickupAlpha(Int32 pickup_id, Int32 old_alpha, Int32 new_alpha)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPickupAutomatic(Int32 pickup_id, bool old_status, bool new_status)
+void Core::EmitPickupAutomatic(int32_t pickup_id, bool old_status, bool new_status)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PickupAutomatic(%d, %d, %d)", pickup_id, old_status, new_status)
     PickupInst & _pickup = m_Pickups.at(static_cast< size_t >(pickup_id));
@@ -945,7 +945,7 @@ void Core::EmitPickupAutomatic(Int32 pickup_id, bool old_status, bool new_status
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPickupAutoTimer(Int32 pickup_id, Int32 old_timer, Int32 new_timer)
+void Core::EmitPickupAutoTimer(int32_t pickup_id, int32_t old_timer, int32_t new_timer)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PickupAutoTimer(%d, %d, %d)", pickup_id, old_timer, new_timer)
     PickupInst & _pickup = m_Pickups.at(static_cast< size_t >(pickup_id));
@@ -955,8 +955,8 @@ void Core::EmitPickupAutoTimer(Int32 pickup_id, Int32 old_timer, Int32 new_timer
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPickupOption(Int32 pickup_id, Int32 option_id, bool value,
-                                Int32 header, LightObj & payload)
+void Core::EmitPickupOption(int32_t pickup_id, int32_t option_id, bool value,
+                                int32_t header, LightObj & payload)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PickupOption(%d, %d, %d, %d, %s)", pickup_id, option_id, value, header, NULL_SQOBJ_(payload))
     PickupInst & _pickup = m_Pickups.at(static_cast< size_t >(pickup_id));
@@ -966,7 +966,7 @@ void Core::EmitPickupOption(Int32 pickup_id, Int32 option_id, bool value,
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitObjectReport(Int32 object_id, bool old_status, bool new_status, bool touched)
+void Core::EmitObjectReport(int32_t object_id, bool old_status, bool new_status, bool touched)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ObjectReport(%d, %d, %d)", object_id, new_status, touched)
     ObjectInst & _object = m_Objects.at(static_cast< size_t >(object_id));
@@ -976,7 +976,7 @@ void Core::EmitObjectReport(Int32 object_id, bool old_status, bool new_status, b
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerHealth(Int32 player_id, Float32 old_health, Float32 new_health)
+void Core::EmitPlayerHealth(int32_t player_id, float old_health, float new_health)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerHealth(%d, %f, %f)", player_id, old_health, new_health)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -986,7 +986,7 @@ void Core::EmitPlayerHealth(Int32 player_id, Float32 old_health, Float32 new_hea
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerArmour(Int32 player_id, Float32 old_armour, Float32 new_armour)
+void Core::EmitPlayerArmour(int32_t player_id, float old_armour, float new_armour)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerArmour(%d, %f, %f)", player_id, old_armour, new_armour)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -996,7 +996,7 @@ void Core::EmitPlayerArmour(Int32 player_id, Float32 old_armour, Float32 new_arm
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerWeapon(Int32 player_id, Int32 old_weapon, Int32 new_weapon)
+void Core::EmitPlayerWeapon(int32_t player_id, int32_t old_weapon, int32_t new_weapon)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerWeapon(%d, %d, %d)", player_id, old_weapon, new_weapon)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -1006,7 +1006,7 @@ void Core::EmitPlayerWeapon(Int32 player_id, Int32 old_weapon, Int32 new_weapon)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerHeading(Int32 player_id, Float32 old_heading, Float32 new_heading)
+void Core::EmitPlayerHeading(int32_t player_id, float old_heading, float new_heading)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerHeading(%d, %f, %f)", player_id, old_heading, new_heading)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -1016,7 +1016,7 @@ void Core::EmitPlayerHeading(Int32 player_id, Float32 old_heading, Float32 new_h
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerPosition(Int32 player_id)
+void Core::EmitPlayerPosition(int32_t player_id)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerPosition(%d)", player_id)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -1026,8 +1026,8 @@ void Core::EmitPlayerPosition(Int32 player_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerOption(Int32 player_id, Int32 option_id, bool value,
-                                Int32 header, LightObj & payload)
+void Core::EmitPlayerOption(int32_t player_id, int32_t option_id, bool value,
+                                int32_t header, LightObj & payload)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerOption(%d, %d, %d, %d, %s)", player_id, option_id, value, header, NULL_SQOBJ_(payload))
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -1037,7 +1037,7 @@ void Core::EmitPlayerOption(Int32 player_id, Int32 option_id, bool value,
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerAdmin(Int32 player_id, bool old_status, bool new_status)
+void Core::EmitPlayerAdmin(int32_t player_id, bool old_status, bool new_status)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerAdmin(%d, %d, %d)", player_id, old_status, new_status)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -1047,7 +1047,7 @@ void Core::EmitPlayerAdmin(Int32 player_id, bool old_status, bool new_status)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerWorld(Int32 player_id, Int32 old_world, Int32 new_world, bool secondary)
+void Core::EmitPlayerWorld(int32_t player_id, int32_t old_world, int32_t new_world, bool secondary)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerWorld(%d, %d, %d, %d)", player_id, old_world, new_world, secondary)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -1057,7 +1057,7 @@ void Core::EmitPlayerWorld(Int32 player_id, Int32 old_world, Int32 new_world, bo
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerTeam(Int32 player_id, Int32 old_team, Int32 new_team)
+void Core::EmitPlayerTeam(int32_t player_id, int32_t old_team, int32_t new_team)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerTeam(%d, %d, %d)", player_id, old_team, new_team)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -1067,7 +1067,7 @@ void Core::EmitPlayerTeam(Int32 player_id, Int32 old_team, Int32 new_team)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerSkin(Int32 player_id, Int32 old_skin, Int32 new_skin)
+void Core::EmitPlayerSkin(int32_t player_id, int32_t old_skin, int32_t new_skin)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerSkin(%d, %d, %d)", player_id, old_skin, new_skin)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -1077,7 +1077,7 @@ void Core::EmitPlayerSkin(Int32 player_id, Int32 old_skin, Int32 new_skin)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerMoney(Int32 player_id, Int32 old_money, Int32 new_money)
+void Core::EmitPlayerMoney(int32_t player_id, int32_t old_money, int32_t new_money)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerMoney(%d, %d, %d)", player_id, old_money, new_money)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -1087,7 +1087,7 @@ void Core::EmitPlayerMoney(Int32 player_id, Int32 old_money, Int32 new_money)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerScore(Int32 player_id, Int32 old_score, Int32 new_score)
+void Core::EmitPlayerScore(int32_t player_id, int32_t old_score, int32_t new_score)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerScore(%d, %d, %d)", player_id, old_score, new_score)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -1097,7 +1097,7 @@ void Core::EmitPlayerScore(Int32 player_id, Int32 old_score, Int32 new_score)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerWantedLevel(Int32 player_id, Int32 old_level, Int32 new_level)
+void Core::EmitPlayerWantedLevel(int32_t player_id, int32_t old_level, int32_t new_level)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerWantedLevel(%d, %d, %d)", player_id, old_level, new_level)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -1107,7 +1107,7 @@ void Core::EmitPlayerWantedLevel(Int32 player_id, Int32 old_level, Int32 new_lev
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerImmunity(Int32 player_id, Int32 old_immunity, Int32 new_immunity)
+void Core::EmitPlayerImmunity(int32_t player_id, int32_t old_immunity, int32_t new_immunity)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerImmunity(%d, %d, %d)", player_id, old_immunity, new_immunity)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -1117,7 +1117,7 @@ void Core::EmitPlayerImmunity(Int32 player_id, Int32 old_immunity, Int32 new_imm
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerAlpha(Int32 player_id, Int32 old_alpha, Int32 new_alpha, Int32 fade)
+void Core::EmitPlayerAlpha(int32_t player_id, int32_t old_alpha, int32_t new_alpha, int32_t fade)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerAlpha(%d, %d, %d, %d)", player_id, old_alpha, new_alpha, fade)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -1127,7 +1127,7 @@ void Core::EmitPlayerAlpha(Int32 player_id, Int32 old_alpha, Int32 new_alpha, In
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerEnterArea(Int32 player_id, LightObj & area_obj)
+void Core::EmitPlayerEnterArea(int32_t player_id, LightObj & area_obj)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerEnterArea(%d, %s)", player_id, NULL_SQOBJ_(area_obj))
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -1137,7 +1137,7 @@ void Core::EmitPlayerEnterArea(Int32 player_id, LightObj & area_obj)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerLeaveArea(Int32 player_id, LightObj & area_obj)
+void Core::EmitPlayerLeaveArea(int32_t player_id, LightObj & area_obj)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerLeaveArea(%d, %s)", player_id, NULL_SQOBJ_(area_obj))
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
@@ -1147,7 +1147,7 @@ void Core::EmitPlayerLeaveArea(Int32 player_id, LightObj & area_obj)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehicleColor(Int32 vehicle_id, Int32 changed)
+void Core::EmitVehicleColor(int32_t vehicle_id, int32_t changed)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::VehicleColor(%d, %d)", vehicle_id, changed)
     VehicleInst & _vehicle = m_Vehicles.at(static_cast< size_t >(vehicle_id));
@@ -1157,7 +1157,7 @@ void Core::EmitVehicleColor(Int32 vehicle_id, Int32 changed)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehicleHealth(Int32 vehicle_id, Float32 old_health, Float32 new_health)
+void Core::EmitVehicleHealth(int32_t vehicle_id, float old_health, float new_health)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::VehicleHealth(%d, %f, %f)", vehicle_id, old_health, new_health)
     VehicleInst & _vehicle = m_Vehicles.at(static_cast< size_t >(vehicle_id));
@@ -1167,7 +1167,7 @@ void Core::EmitVehicleHealth(Int32 vehicle_id, Float32 old_health, Float32 new_h
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehiclePosition(Int32 vehicle_id)
+void Core::EmitVehiclePosition(int32_t vehicle_id)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::VehiclePosition(%d)", vehicle_id)
     VehicleInst & _vehicle = m_Vehicles.at(static_cast< size_t >(vehicle_id));
@@ -1177,7 +1177,7 @@ void Core::EmitVehiclePosition(Int32 vehicle_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehicleRotation(Int32 vehicle_id)
+void Core::EmitVehicleRotation(int32_t vehicle_id)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::VehicleRotation(%d)", vehicle_id)
     VehicleInst & _vehicle = m_Vehicles.at(static_cast< size_t >(vehicle_id));
@@ -1187,8 +1187,8 @@ void Core::EmitVehicleRotation(Int32 vehicle_id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehicleOption(Int32 vehicle_id, Int32 option_id, bool value,
-                                Int32 header, LightObj & payload)
+void Core::EmitVehicleOption(int32_t vehicle_id, int32_t option_id, bool value,
+                                int32_t header, LightObj & payload)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::VehicleOption(%d, %d, %d, %d, %s)", vehicle_id, option_id, value, header, NULL_SQOBJ_(payload))
     VehicleInst & _vehicle = m_Vehicles.at(static_cast< size_t >(vehicle_id));
@@ -1198,7 +1198,7 @@ void Core::EmitVehicleOption(Int32 vehicle_id, Int32 option_id, bool value,
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehicleWorld(Int32 vehicle_id, Int32 old_world, Int32 new_world)
+void Core::EmitVehicleWorld(int32_t vehicle_id, int32_t old_world, int32_t new_world)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::VehicleWorld(%d, %d, %d)", vehicle_id, old_world, new_world)
     VehicleInst & _vehicle = m_Vehicles.at(static_cast< size_t >(vehicle_id));
@@ -1208,7 +1208,7 @@ void Core::EmitVehicleWorld(Int32 vehicle_id, Int32 old_world, Int32 new_world)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehicleImmunity(Int32 vehicle_id, Int32 old_immunity, Int32 new_immunity)
+void Core::EmitVehicleImmunity(int32_t vehicle_id, int32_t old_immunity, int32_t new_immunity)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::VehicleImmunity(%d, %d, %d)", vehicle_id, old_immunity, new_immunity)
     VehicleInst & _vehicle = m_Vehicles.at(static_cast< size_t >(vehicle_id));
@@ -1218,7 +1218,7 @@ void Core::EmitVehicleImmunity(Int32 vehicle_id, Int32 old_immunity, Int32 new_i
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehiclePartStatus(Int32 vehicle_id, Int32 part, Int32 old_status, Int32 new_status)
+void Core::EmitVehiclePartStatus(int32_t vehicle_id, int32_t part, int32_t old_status, int32_t new_status)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::VehiclePartStatus(%d, %d, %d, %d)", vehicle_id, part, old_status, new_status)
     VehicleInst & _vehicle = m_Vehicles.at(static_cast< size_t >(vehicle_id));
@@ -1228,7 +1228,7 @@ void Core::EmitVehiclePartStatus(Int32 vehicle_id, Int32 part, Int32 old_status,
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehicleTyreStatus(Int32 vehicle_id, Int32 tyre, Int32 old_status, Int32 new_status)
+void Core::EmitVehicleTyreStatus(int32_t vehicle_id, int32_t tyre, int32_t old_status, int32_t new_status)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::VehicleTyreStatus(%d, %d, %d, %d)", vehicle_id, tyre, old_status, new_status)
     VehicleInst & _vehicle = m_Vehicles.at(static_cast< size_t >(vehicle_id));
@@ -1238,7 +1238,7 @@ void Core::EmitVehicleTyreStatus(Int32 vehicle_id, Int32 tyre, Int32 old_status,
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehicleDamageData(Int32 vehicle_id, Uint32 old_data, Uint32 new_data)
+void Core::EmitVehicleDamageData(int32_t vehicle_id, uint32_t old_data, uint32_t new_data)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::VehicleDamageData(%d, %u, %u)", vehicle_id, old_data, new_data)
     VehicleInst & _vehicle = m_Vehicles.at(static_cast< size_t >(vehicle_id));
@@ -1248,7 +1248,7 @@ void Core::EmitVehicleDamageData(Int32 vehicle_id, Uint32 old_data, Uint32 new_d
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehicleRadio(Int32 vehicle_id, Int32 old_radio, Int32 new_radio)
+void Core::EmitVehicleRadio(int32_t vehicle_id, int32_t old_radio, int32_t new_radio)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::VehicleRadio(%d, %d, %d)", vehicle_id, old_radio, new_radio)
     VehicleInst & _vehicle = m_Vehicles.at(static_cast< size_t >(vehicle_id));
@@ -1258,7 +1258,7 @@ void Core::EmitVehicleRadio(Int32 vehicle_id, Int32 old_radio, Int32 new_radio)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehicleHandlingRule(Int32 vehicle_id, Int32 rule, SQFloat old_data, SQFloat new_data)
+void Core::EmitVehicleHandlingRule(int32_t vehicle_id, int32_t rule, SQFloat old_data, SQFloat new_data)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::VehicleHandlingRule(%d, %d, %f, %f)", vehicle_id, rule, old_data, new_data)
     VehicleInst & _vehicle = m_Vehicles.at(static_cast< size_t >(vehicle_id));
@@ -1268,7 +1268,7 @@ void Core::EmitVehicleHandlingRule(Int32 vehicle_id, Int32 rule, SQFloat old_dat
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehicleEnterArea(Int32 vehicle_id, LightObj & area_obj)
+void Core::EmitVehicleEnterArea(int32_t vehicle_id, LightObj & area_obj)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::VehicleEnterArea(%d, %s)", vehicle_id, NULL_SQOBJ_(area_obj))
     VehicleInst & _vehicle = m_Vehicles.at(static_cast< size_t >(vehicle_id));
@@ -1278,7 +1278,7 @@ void Core::EmitVehicleEnterArea(Int32 vehicle_id, LightObj & area_obj)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehicleLeaveArea(Int32 vehicle_id, LightObj & area_obj)
+void Core::EmitVehicleLeaveArea(int32_t vehicle_id, LightObj & area_obj)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::VehicleLeaveArea(%d, %s)", vehicle_id, NULL_SQOBJ_(area_obj))
     VehicleInst & _vehicle = m_Vehicles.at(static_cast< size_t >(vehicle_id));
@@ -1288,7 +1288,7 @@ void Core::EmitVehicleLeaveArea(Int32 vehicle_id, LightObj & area_obj)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitServerOption(Int32 option, bool value, Int32 header, LightObj & payload)
+void Core::EmitServerOption(int32_t option, bool value, int32_t header, LightObj & payload)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ServerOption(%d, %d, %d, %s)", option, value, header, NULL_SQOBJ_(payload))
     if (m_CircularLocks & CCL_EMIT_SERVER_OPTION)
@@ -1303,7 +1303,7 @@ void Core::EmitServerOption(Int32 option, bool value, Int32 header, LightObj & p
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitScriptReload(Int32 header, LightObj & payload)
+void Core::EmitScriptReload(int32_t header, LightObj & payload) const
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ScriptReload(%d, %s)", header, NULL_SQOBJ_(payload))
     (*mOnScriptReload.first)(header, payload);
@@ -1311,7 +1311,7 @@ void Core::EmitScriptReload(Int32 header, LightObj & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitScriptLoaded()
+void Core::EmitScriptLoaded() const
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ScriptLoaded()")
     (*mOnScriptLoaded.first)();
@@ -1319,9 +1319,9 @@ void Core::EmitScriptLoaded()
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitEntityPool(vcmpEntityPool entity_type, Int32 entity_id, bool is_deleted)
+void Core::EmitEntityPool(vcmpEntityPool entity_type, int32_t entity_id, bool is_deleted)
 {
-    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::EntityPool(%d, %d, %d)", static_cast<Int32>(entity_type), entity_id, is_deleted)
+    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::EntityPool(%d, %d, %d)", static_cast<int32_t>(entity_type), entity_id, is_deleted)
     // See what type of change happened in the entity pool
     switch (entity_type)
     {
@@ -1394,9 +1394,9 @@ void Core::EmitEntityPool(vcmpEntityPool entity_type, Int32 entity_id, bool is_d
                     STHROWF("Cannot allocate blip that already exists: %d", entity_id);
                 }
                 // Information about the blip entity
-                Int32 world, scale, sprid;
-                Uint32 color;
-                Float32 x, y, z;
+                int32_t world, scale, sprid;
+                uint32_t color;
+                float x, y, z;
                 // Get the blip information from the server
                 _Func->GetCoordBlipInfo(entity_id, &world, &x, &y, &z, &scale, &color, &sprid);
                 // Assign the obtain information
@@ -1422,17 +1422,17 @@ void Core::EmitEntityPool(vcmpEntityPool entity_type, Int32 entity_id, bool is_d
             }
         break;
         default:
-            LogErr("Unknown change in the entity pool: type %d > entity %d", static_cast<Int32>(entity_type), entity_id);
+            LogErr("Unknown change in the entity pool: type %d > entity %d", static_cast<int32_t>(entity_type), entity_id);
     }
     // Finally, forward the event to the script
-    (*mOnEntityPool.first)(static_cast< Int32 >(entity_type), entity_id, is_deleted);
+    (*mOnEntityPool.first)(static_cast< int32_t >(entity_type), entity_id, is_deleted);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::EntityPool")
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerUpdate(Int32 player_id, vcmpPlayerUpdate update_type)
+void Core::EmitPlayerUpdate(int32_t player_id, vcmpPlayerUpdate update_type)
 {
-    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerUpdate(%d, %d)", player_id, static_cast<Int32>(update_type))
+    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerUpdate(%d, %d)", player_id, static_cast<int32_t>(update_type))
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(player_id, SQMOD_PLAYER_POOL))
     {
@@ -1442,7 +1442,7 @@ void Core::EmitPlayerUpdate(Int32 player_id, vcmpPlayerUpdate update_type)
     PlayerInst & inst = m_Players[player_id];
 
     // Obtain the current heading of this instance
-    Float32 heading = _Func->GetPlayerHeading(player_id);
+    float heading = _Func->GetPlayerHeading(player_id);
     // Did the heading change since the last tracked value?
     if (!EpsEq(heading, inst.mLastHeading))
     {
@@ -1521,7 +1521,7 @@ void Core::EmitPlayerUpdate(Int32 player_id, vcmpPlayerUpdate update_type)
     }
 
     // Obtain the current health of this instance
-    Float32 health = _Func->GetPlayerHealth(player_id);
+    float health = _Func->GetPlayerHealth(player_id);
     // Did the health change since the last tracked value?
     if (!EpsEq(health, inst.mLastHealth))
     {
@@ -1532,7 +1532,7 @@ void Core::EmitPlayerUpdate(Int32 player_id, vcmpPlayerUpdate update_type)
     }
 
     // Obtain the current armor of this instance
-    Float32 armour = _Func->GetPlayerArmour(player_id);
+    float armour = _Func->GetPlayerArmour(player_id);
     // Did the armor change since the last tracked value?
     if (!EpsEq(armour, inst.mLastArmour))
     {
@@ -1543,7 +1543,7 @@ void Core::EmitPlayerUpdate(Int32 player_id, vcmpPlayerUpdate update_type)
     }
 
     // Obtain the current weapon of this instance
-    Int32 wep = _Func->GetPlayerWeapon(player_id);
+    int32_t wep = _Func->GetPlayerWeapon(player_id);
     // Did the weapon change since the last tracked value?
     if (wep != inst.mLastWeapon)
     {
@@ -1554,8 +1554,8 @@ void Core::EmitPlayerUpdate(Int32 player_id, vcmpPlayerUpdate update_type)
     }
 
     // Finally, forward the call to the update callback
-    (*inst.mOnUpdate.first)(static_cast< Int32 >(update_type));
-    (*mOnPlayerUpdate.first)(inst.mObj, static_cast< Int32 >(update_type));
+    (*inst.mOnUpdate.first)(static_cast< int32_t >(update_type));
+    (*mOnPlayerUpdate.first)(inst.mObj, static_cast< int32_t >(update_type));
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerUpdate")
 }
 #if SQMOD_SDK_LEAST(2, 1)
@@ -1567,9 +1567,9 @@ void Core::EmitCheckpointStream(int32_t player_id, int32_t entity_id, bool is_de
     if (_checkpoint.mObj.IsNull()) return; // At fisrt call, the entity does not exist!
     PlayerInst & _client = m_Players.at(player_id);
     (*_checkpoint.mOnStream.first)(_client.mObj, is_deleted);
-    (*_client.mOnEntityStream.first)(_checkpoint.mObj, static_cast< Int32 >(vcmpEntityPoolCheckPoint), is_deleted);
+    (*_client.mOnEntityStream.first)(_checkpoint.mObj, static_cast< int32_t >(vcmpEntityPoolCheckPoint), is_deleted);
     (*mOnCheckpointStream.first)(_client.mObj, _checkpoint.mObj, is_deleted);
-    (*mOnEntityStream.first)(_client.mObj, _checkpoint.mObj, static_cast< Int32 >(vcmpEntityPoolCheckPoint), is_deleted);
+    (*mOnEntityStream.first)(_client.mObj, _checkpoint.mObj, static_cast< int32_t >(vcmpEntityPoolCheckPoint), is_deleted);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::CheckpointStream")
 }
 // ------------------------------------------------------------------------------------------------
@@ -1580,9 +1580,9 @@ void Core::EmitObjectStream(int32_t player_id, int32_t entity_id, bool is_delete
     if (_object.mObj.IsNull()) return; // At fisrt call, the entity does not exist!
     PlayerInst & _client = m_Players.at(player_id);
     (*_object.mOnStream.first)(_client.mObj, is_deleted);
-    (*_client.mOnEntityStream.first)(_object.mObj, static_cast< Int32 >(vcmpEntityPoolObject), is_deleted);
+    (*_client.mOnEntityStream.first)(_object.mObj, static_cast< int32_t >(vcmpEntityPoolObject), is_deleted);
     (*mOnObjectStream.first)(_client.mObj, _object.mObj, is_deleted);
-    (*mOnEntityStream.first)(_client.mObj, _object.mObj, static_cast< Int32 >(vcmpEntityPoolObject), is_deleted);
+    (*mOnEntityStream.first)(_client.mObj, _object.mObj, static_cast< int32_t >(vcmpEntityPoolObject), is_deleted);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::ObjectStream")
 }
 // ------------------------------------------------------------------------------------------------
@@ -1593,9 +1593,9 @@ void Core::EmitPickupStream(int32_t player_id, int32_t entity_id, bool is_delete
     if (_pickup.mObj.IsNull()) return; // At fisrt call, the entity does not exist!
     PlayerInst & _client = m_Players.at(player_id);
     (*_pickup.mOnStream.first)(_client.mObj, is_deleted);
-    (*_client.mOnEntityStream.first)(_pickup.mObj, static_cast< Int32 >(vcmpEntityPoolPickup), is_deleted);
+    (*_client.mOnEntityStream.first)(_pickup.mObj, static_cast< int32_t >(vcmpEntityPoolPickup), is_deleted);
     (*mOnPickupStream.first)(_client.mObj, _pickup.mObj, is_deleted);
-    (*mOnEntityStream.first)(_client.mObj, _pickup.mObj, static_cast< Int32 >(vcmpEntityPoolPickup), is_deleted);
+    (*mOnEntityStream.first)(_client.mObj, _pickup.mObj, static_cast< int32_t >(vcmpEntityPoolPickup), is_deleted);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PickupStream")
 }
 // ------------------------------------------------------------------------------------------------
@@ -1606,9 +1606,9 @@ void Core::EmitPlayerStream(int32_t player_id, int32_t entity_id, bool is_delete
     if (_player.mObj.IsNull()) return; // At fisrt call, the entity does not exist!
     PlayerInst & _client = m_Players.at(player_id);
     (*_player.mOnStream.first)(_client.mObj, is_deleted);
-    (*_client.mOnEntityStream.first)(_player.mObj, static_cast< Int32 >(vcmpEntityPoolPlayer), is_deleted);
+    (*_client.mOnEntityStream.first)(_player.mObj, static_cast< int32_t >(vcmpEntityPoolPlayer), is_deleted);
     (*mOnPlayerStream.first)(_client.mObj, _player.mObj, is_deleted);
-    (*mOnEntityStream.first)(_client.mObj, _player.mObj, static_cast< Int32 >(vcmpEntityPoolPlayer), is_deleted);
+    (*mOnEntityStream.first)(_client.mObj, _player.mObj, static_cast< int32_t >(vcmpEntityPoolPlayer), is_deleted);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerStream")
 }
 // ------------------------------------------------------------------------------------------------
@@ -1619,15 +1619,15 @@ void Core::EmitVehicleStream(int32_t player_id, int32_t entity_id, bool is_delet
     if (_vehicle.mObj.IsNull()) return; // At fisrt call, the entity does not exist!
     PlayerInst & _client = m_Players.at(player_id);
     (*_vehicle.mOnStream.first)(_client.mObj, is_deleted);
-    (*_client.mOnEntityStream.first)(_vehicle.mObj, static_cast< Int32 >(vcmpEntityPoolVehicle), is_deleted);
+    (*_client.mOnEntityStream.first)(_vehicle.mObj, static_cast< int32_t >(vcmpEntityPoolVehicle), is_deleted);
     (*mOnVehicleStream.first)(_client.mObj, _vehicle.mObj, is_deleted);
-    (*mOnEntityStream.first)(_client.mObj, _vehicle.mObj, static_cast< Int32 >(vcmpEntityPoolVehicle), is_deleted);
+    (*mOnEntityStream.first)(_client.mObj, _vehicle.mObj, static_cast< int32_t >(vcmpEntityPoolVehicle), is_deleted);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::VehicleStream")
 }
 // ------------------------------------------------------------------------------------------------
 void Core::EmitEntityStreaming(int32_t player_id, int32_t entity_id, vcmpEntityPool entity_type, bool is_deleted)
 {
-    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::EntityStreaming(%d, %d, %d, %d)", player_id, entity_id, static_cast<Int32>(entity_type), is_deleted)
+    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::EntityStreaming(%d, %d, %d, %d)", player_id, entity_id, static_cast<int32_t>(entity_type), is_deleted)
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(player_id, SQMOD_PLAYER_POOL))
     {
@@ -1688,9 +1688,9 @@ void Core::EmitEntityStreaming(int32_t player_id, int32_t entity_id, vcmpEntityP
 }
 #endif
 // ------------------------------------------------------------------------------------------------
-void Core::EmitVehicleUpdate(Int32 vehicle_id, vcmpVehicleUpdate update_type)
+void Core::EmitVehicleUpdate(int32_t vehicle_id, vcmpVehicleUpdate update_type)
 {
-    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::VehicleUpdate(%d, %d)", vehicle_id, static_cast<Int32>(update_type))
+    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::VehicleUpdate(%d, %d)", vehicle_id, static_cast<int32_t>(update_type))
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(vehicle_id, SQMOD_VEHICLE_POOL))
     {
@@ -1762,7 +1762,7 @@ void Core::EmitVehicleUpdate(Int32 vehicle_id, vcmpVehicleUpdate update_type)
         case vcmpVehicleUpdateHealth:
         {
             // Obtain the current health of this instance
-            Float32 health = _Func->GetVehicleHealth(vehicle_id);
+            float health = _Func->GetVehicleHealth(vehicle_id);
             // Trigger the event specific to this change
             EmitVehicleHealth(vehicle_id, inst.mLastHealth, health);
             // Update the tracked value
@@ -1770,11 +1770,11 @@ void Core::EmitVehicleUpdate(Int32 vehicle_id, vcmpVehicleUpdate update_type)
         } break;
         case vcmpVehicleUpdateColour:
         {
-            Int32 primary, secondary;
+            int32_t primary, secondary;
             // Obtain the current colors of this instance
             _Func->GetVehicleColour(vehicle_id, &primary, &secondary);
             // Which colors changed
-            Int32 changed = 0;
+            int32_t changed = 0;
             // Did the primary color changed?
             if (primary != inst.mLastPrimaryColor)
             {
@@ -1811,15 +1811,15 @@ void Core::EmitVehicleUpdate(Int32 vehicle_id, vcmpVehicleUpdate update_type)
         default:
         {
             // Finally, forward the call to the update callback
-            (*inst.mOnUpdate.first)(static_cast< Int32 >(update_type));
-            (*mOnVehicleUpdate.first)(inst.mObj, static_cast< Int32 >(update_type));
+            (*inst.mOnUpdate.first)(static_cast< int32_t >(update_type));
+            (*mOnVehicleUpdate.first)(inst.mObj, static_cast< int32_t >(update_type));
         }
     }
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::VehicleUpdate")
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitClientScriptData(Int32 player_id, const uint8_t * data, size_t size)
+void Core::EmitClientScriptData(int32_t player_id, const uint8_t * data, size_t size)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ClientScriptData(%d, [byte stream], %" PRINT_SZ_FMT ")", player_id, size)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));

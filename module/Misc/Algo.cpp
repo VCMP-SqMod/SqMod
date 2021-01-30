@@ -4,7 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 #include "Entity/Blip.hpp"
 #include "Entity/Checkpoint.hpp"
-#include "Entity/Keybind.hpp"
+#include "Entity/KeyBind.hpp"
 #include "Entity/Object.hpp"
 #include "Entity/Pickup.hpp"
 #include "Entity/Player.hpp"
@@ -53,7 +53,7 @@ struct FakeString
     /* --------------------------------------------------------------------------------------------
      * Retrieve the size of the name.
     */
-    std::size_t size() const
+    SQMOD_NODISCARD std::size_t size() const
     {
         return mSize;
     }
@@ -61,7 +61,7 @@ struct FakeString
     /* --------------------------------------------------------------------------------------------
      * Retrieve the string buffer.
     */
-    CSStr c_str() const
+    SQMOD_NODISCARD const SQChar * c_str() const
     {
         return mBuffer;
     }
@@ -69,16 +69,16 @@ struct FakeString
     /* --------------------------------------------------------------------------------------------
      * Find in buffer contents of another string.
     */
-    std::size_t find(CSStr s) const
+    std::size_t find(const SQChar * s) const
     {
-        CCStr r = std::strstr(mBuffer, s);
+        const char * r = std::strstr(mBuffer, s);
         return (r == nullptr) ? String::npos : (r - mBuffer);
     }
 
     /* --------------------------------------------------------------------------------------------
      * Compare the buffer contents with another string.
     */
-    int compare(CSStr s) const
+    int compare(const SQChar * s) const
     {
         return std::strcmp(mBuffer, s);
     }
@@ -86,7 +86,7 @@ struct FakeString
     /* --------------------------------------------------------------------------------------------
      * Compare the buffer contents with another string.
     */
-    int compare(std::size_t pos, std::size_t len, CSStr s) const
+    int compare(std::size_t pos, std::size_t len, const SQChar * s) const
     {
         return std::strncmp(mBuffer + pos, s, len);
     }
@@ -111,12 +111,12 @@ struct PlayerName
 };
 
 // ------------------------------------------------------------------------------------------------
-static const LightObj & Blip_FindBySprID(Int32 sprid)
+static const LightObj & Blip_FindBySprID(int32_t spr_id)
 {
     // Perform a range check on the specified identifier
-    if (sprid < 0)
+    if (spr_id < 0)
     {
-        STHROWF("The specified sprite identifier is invalid: %d", sprid);
+        STHROWF("The specified sprite identifier is invalid: %d", spr_id);
     }
     // Obtain the ends of the entity pool
     auto itr = Core::Get().GetBlips().cbegin();
@@ -125,7 +125,7 @@ static const LightObj & Blip_FindBySprID(Int32 sprid)
     for (; itr != end; ++itr)
     {
         // Does the identifier match the specified one?
-        if (itr->mSprID == sprid)
+        if (itr->mSprID == spr_id)
         {
             return itr->mObj; // Stop searching and return this entity
         }
@@ -137,7 +137,7 @@ static const LightObj & Blip_FindBySprID(Int32 sprid)
 /* ------------------------------------------------------------------------------------------------
  * Collect all players where the name matches or not the specified one.
 */
-static inline Array Player_AllWhereNameEquals(bool neg, bool cs, CSStr name)
+static inline Array Player_AllWhereNameEquals(bool neg, bool cs, const SQChar * name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Remember the current stack size
@@ -155,7 +155,7 @@ static inline Array Player_AllWhereNameEquals(bool neg, bool cs, CSStr name)
 /* ------------------------------------------------------------------------------------------------
  * Collect all players where the name begins or not with the specified string.
 */
-static inline Array Player_AllWhereNameBegins(bool neg, bool cs, CSStr name)
+static inline Array Player_AllWhereNameBegins(bool neg, bool cs, const SQChar * name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Remember the current stack size
@@ -173,7 +173,7 @@ static inline Array Player_AllWhereNameBegins(bool neg, bool cs, CSStr name)
 /* ------------------------------------------------------------------------------------------------
  * Collect all players where the name ends or not with the specified string.
 */
-static inline Array Player_AllWhereNameEnds(bool neg, bool cs, CSStr name)
+static inline Array Player_AllWhereNameEnds(bool neg, bool cs, const SQChar * name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Remember the current stack size
@@ -191,7 +191,7 @@ static inline Array Player_AllWhereNameEnds(bool neg, bool cs, CSStr name)
 /* ------------------------------------------------------------------------------------------------
  * Collect all players where the name contains or not the specified string.
 */
-static inline Array Player_AllWhereNameContains(bool neg, bool cs, CSStr name)
+static inline Array Player_AllWhereNameContains(bool neg, bool cs, const SQChar * name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Remember the current stack size
@@ -209,7 +209,7 @@ static inline Array Player_AllWhereNameContains(bool neg, bool cs, CSStr name)
 /* ------------------------------------------------------------------------------------------------
  * Collect all players where the name matches or not the specified filter.
 */
-static inline Array Player_AllWhereNameMatches(bool neg, bool cs, CSStr name)
+static inline Array Player_AllWhereNameMatches(bool neg, bool cs, const SQChar * name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Remember the current stack size
@@ -227,7 +227,7 @@ static inline Array Player_AllWhereNameMatches(bool neg, bool cs, CSStr name)
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the first player where the name matches or not the specified one.
 */
-static inline LightObj Player_FirstWhereNameEquals(bool neg, bool cs, CSStr name)
+static inline LightObj Player_FirstWhereNameEquals(bool neg, bool cs, const SQChar * name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element receiver
@@ -243,7 +243,7 @@ static inline LightObj Player_FirstWhereNameEquals(bool neg, bool cs, CSStr name
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the first player where the name begins or not with the specified string.
 */
-static inline LightObj Player_FirstWhereNameBegins(bool neg, bool cs, CSStr name)
+static inline LightObj Player_FirstWhereNameBegins(bool neg, bool cs, const SQChar * name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element receiver
@@ -259,7 +259,7 @@ static inline LightObj Player_FirstWhereNameBegins(bool neg, bool cs, CSStr name
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the first player where the name ends or not with the specified string.
 */
-static inline LightObj Player_FirstWhereNameEnds(bool neg, bool cs, CSStr name)
+static inline LightObj Player_FirstWhereNameEnds(bool neg, bool cs, const SQChar * name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element receiver
@@ -275,7 +275,7 @@ static inline LightObj Player_FirstWhereNameEnds(bool neg, bool cs, CSStr name)
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the first player where the name contains or not the specified string.
 */
-static inline LightObj Player_FirstWhereNameContains(bool neg, bool cs, CSStr name)
+static inline LightObj Player_FirstWhereNameContains(bool neg, bool cs, const SQChar * name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element receiver
@@ -291,7 +291,7 @@ static inline LightObj Player_FirstWhereNameContains(bool neg, bool cs, CSStr na
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the first player where the name matches or not the specified filter.
 */
-static inline LightObj Player_FirstWhereNameMatches(bool neg, bool cs, CSStr name)
+static inline LightObj Player_FirstWhereNameMatches(bool neg, bool cs, const SQChar * name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element receiver
@@ -307,7 +307,7 @@ static inline LightObj Player_FirstWhereNameMatches(bool neg, bool cs, CSStr nam
 /* --------------------------------------------------------------------------------------------
  * Process all entities of this type where the name matches or not the specified one.
 */
-static inline Uint32 Player_EachWhereNameEquals(bool neg, bool cs, CSStr name, Function & func)
+static inline uint32_t Player_EachWhereNameEquals(bool neg, bool cs, const SQChar * name, Function & func)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element forwarder
@@ -323,7 +323,7 @@ static inline Uint32 Player_EachWhereNameEquals(bool neg, bool cs, CSStr name, F
 /* --------------------------------------------------------------------------------------------
  * Process all entities of this type where the name matches or not the specified one.
 */
-static inline Uint32 Player_EachWhereNameEqualsData(bool neg, bool cs, CSStr name, LightObj & data, Function & func)
+static inline uint32_t Player_EachWhereNameEqualsData(bool neg, bool cs, const SQChar * name, LightObj & data, Function & func)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element forwarder
@@ -339,7 +339,7 @@ static inline Uint32 Player_EachWhereNameEqualsData(bool neg, bool cs, CSStr nam
 /* --------------------------------------------------------------------------------------------
  * Process all entities of this type where the name begins with the specified string.
 */
-static inline Uint32 Player_EachWhereNameBegins(bool neg, bool cs, CSStr name, Function & func)
+static inline uint32_t Player_EachWhereNameBegins(bool neg, bool cs, const SQChar * name, Function & func)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element forwarder
@@ -355,7 +355,7 @@ static inline Uint32 Player_EachWhereNameBegins(bool neg, bool cs, CSStr name, F
 /* --------------------------------------------------------------------------------------------
  * Process all entities of this type where the name begins with the specified string.
 */
-static inline Uint32 Player_EachWhereNameBeginsData(bool neg, bool cs, CSStr name, LightObj & data, Function & func)
+static inline uint32_t Player_EachWhereNameBeginsData(bool neg, bool cs, const SQChar * name, LightObj & data, Function & func)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element forwarder
@@ -371,7 +371,7 @@ static inline Uint32 Player_EachWhereNameBeginsData(bool neg, bool cs, CSStr nam
 /* --------------------------------------------------------------------------------------------
  * Process all entities of this type where the name ends or not with the specified string.
 */
-static inline Uint32 Player_EachWhereNameEnds(bool neg, bool cs, CSStr name, Function & func)
+static inline uint32_t Player_EachWhereNameEnds(bool neg, bool cs, const SQChar * name, Function & func)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element forwarder
@@ -387,7 +387,7 @@ static inline Uint32 Player_EachWhereNameEnds(bool neg, bool cs, CSStr name, Fun
 /* --------------------------------------------------------------------------------------------
  * Process all entities of this type where the name ends or not with the specified string.
 */
-static inline Uint32 Player_EachWhereNameEndsData(bool neg, bool cs, CSStr name, LightObj & data, Function & func)
+static inline uint32_t Player_EachWhereNameEndsData(bool neg, bool cs, const SQChar * name, LightObj & data, Function & func)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element forwarder
@@ -403,7 +403,7 @@ static inline Uint32 Player_EachWhereNameEndsData(bool neg, bool cs, CSStr name,
 /* --------------------------------------------------------------------------------------------
  * Process all entities of this type where the name contains the specified string.
 */
-static inline Uint32 Player_EachWhereNameContains(bool neg, bool cs, CSStr name, Function & func)
+static inline uint32_t Player_EachWhereNameContains(bool neg, bool cs, const SQChar * name, Function & func)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element forwarder
@@ -419,7 +419,7 @@ static inline Uint32 Player_EachWhereNameContains(bool neg, bool cs, CSStr name,
 /* --------------------------------------------------------------------------------------------
  * Process all entities of this type where the name contains the specified string.
 */
-static inline Uint32 Player_EachWhereNameContainsData(bool neg, bool cs, CSStr name, LightObj & data, Function & func)
+static inline uint32_t Player_EachWhereNameContainsData(bool neg, bool cs, const SQChar * name, LightObj & data, Function & func)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element forwarder
@@ -435,7 +435,7 @@ static inline Uint32 Player_EachWhereNameContainsData(bool neg, bool cs, CSStr n
 /* --------------------------------------------------------------------------------------------
  * Process all entities of this type where the name matches the specified filter.
 */
-static inline Uint32 Player_EachWhereNameMatches(bool neg, bool cs, CSStr name, Function & func)
+static inline uint32_t Player_EachWhereNameMatches(bool neg, bool cs, const SQChar * name, Function & func)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element forwarder
@@ -451,7 +451,7 @@ static inline Uint32 Player_EachWhereNameMatches(bool neg, bool cs, CSStr name, 
 /* --------------------------------------------------------------------------------------------
  * Process all entities of this type where the name matches the specified filter.
 */
-static inline Uint32 Player_EachWhereNameMatchesData(bool neg, bool cs, CSStr name, LightObj & data, Function & func)
+static inline uint32_t Player_EachWhereNameMatchesData(bool neg, bool cs, const SQChar * name, LightObj & data, Function & func)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element forwarder
@@ -467,7 +467,7 @@ static inline Uint32 Player_EachWhereNameMatchesData(bool neg, bool cs, CSStr na
 /* --------------------------------------------------------------------------------------------
  * Count all entities of this type where the name matches or not the specified one.
 */
-static inline CountElemFunc <CPlayer> Player_CountWhereNameEquals(bool neg, bool cs, CSStr name)
+static inline CountElemFunc <CPlayer> Player_CountWhereNameEquals(bool neg, bool cs, const SQChar * name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element counter
@@ -483,7 +483,7 @@ static inline CountElemFunc <CPlayer> Player_CountWhereNameEquals(bool neg, bool
 /* --------------------------------------------------------------------------------------------
  * Count all entities of this type where the name begins with the specified string.
 */
-static inline Uint32 Player_CountWhereNameBegins(bool neg, bool cs, CSStr name)
+static inline uint32_t Player_CountWhereNameBegins(bool neg, bool cs, const SQChar * name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element counter
@@ -499,7 +499,7 @@ static inline Uint32 Player_CountWhereNameBegins(bool neg, bool cs, CSStr name)
 /* --------------------------------------------------------------------------------------------
  * Count all entities of this type where the name ends or not with the specified string.
 */
-static inline Uint32 Player_CountWhereNameEnds(bool neg, bool cs, CSStr name)
+static inline uint32_t Player_CountWhereNameEnds(bool neg, bool cs, const SQChar * name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element counter
@@ -515,7 +515,7 @@ static inline Uint32 Player_CountWhereNameEnds(bool neg, bool cs, CSStr name)
 /* --------------------------------------------------------------------------------------------
  * Count all entities of this type where the name contains the specified string.
 */
-static inline Uint32 Player_CountWhereNameContains(bool neg, bool cs, CSStr name)
+static inline uint32_t Player_CountWhereNameContains(bool neg, bool cs, const SQChar * name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element counter
@@ -531,7 +531,7 @@ static inline Uint32 Player_CountWhereNameContains(bool neg, bool cs, CSStr name
 /* --------------------------------------------------------------------------------------------
  * Count all entities of this type where the name matches the specified filter.
 */
-static inline Uint32 Player_CountWhereNameMatches(bool neg, bool cs, CSStr name)
+static inline uint32_t Player_CountWhereNameMatches(bool neg, bool cs, const SQChar * name)
 {
     SQMOD_VALID_NAME_STR(name)
     // Create a new element counter
@@ -567,13 +567,13 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("TagMatches"), &Entity< CCheckpoint >::AllWhereTagMatches)
     );
 
-    collect_ns.Bind(_SC("Keybind"), Table(vm)
-        .Func(_SC("Active"), &Entity< CKeybind >::AllActive)
-        .Func(_SC("TagEquals"), &Entity< CKeybind >::AllWhereTagEquals)
-        .Func(_SC("TagBegins"), &Entity< CKeybind >::AllWhereTagBegins)
-        .Func(_SC("TagEnds"), &Entity< CKeybind >::AllWhereTagEnds)
-        .Func(_SC("TagContains"), &Entity< CKeybind >::AllWhereTagContains)
-        .Func(_SC("TagMatches"), &Entity< CKeybind >::AllWhereTagMatches)
+    collect_ns.Bind(_SC("KeyBind"), Table(vm)
+        .Func(_SC("Active"), &Entity< CKeyBind >::AllActive)
+        .Func(_SC("TagEquals"), &Entity< CKeyBind >::AllWhereTagEquals)
+        .Func(_SC("TagBegins"), &Entity< CKeyBind >::AllWhereTagBegins)
+        .Func(_SC("TagEnds"), &Entity< CKeyBind >::AllWhereTagEnds)
+        .Func(_SC("TagContains"), &Entity< CKeyBind >::AllWhereTagContains)
+        .Func(_SC("TagMatches"), &Entity< CKeyBind >::AllWhereTagMatches)
     );
 
     collect_ns.Bind(_SC("Object"), Table(vm)
@@ -640,13 +640,13 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("TagMatches"), &Entity< CCheckpoint >::FirstWhereTagMatches)
     );
 
-    find_ns.Bind(_SC("Keybind"), Table(vm)
-        .Func(_SC("WithID"), &Entity< CKeybind >::FindByID)
-        .Func(_SC("TagEquals"), &Entity< CKeybind >::FirstWhereTagEquals)
-        .Func(_SC("TagBegins"), &Entity< CKeybind >::FirstWhereTagBegins)
-        .Func(_SC("TagEnds"), &Entity< CKeybind >::FirstWhereTagEnds)
-        .Func(_SC("TagContains"), &Entity< CKeybind >::FirstWhereTagContains)
-        .Func(_SC("TagMatches"), &Entity< CKeybind >::FirstWhereTagMatches)
+    find_ns.Bind(_SC("KeyBind"), Table(vm)
+        .Func(_SC("WithID"), &Entity< CKeyBind >::FindByID)
+        .Func(_SC("TagEquals"), &Entity< CKeyBind >::FirstWhereTagEquals)
+        .Func(_SC("TagBegins"), &Entity< CKeyBind >::FirstWhereTagBegins)
+        .Func(_SC("TagEnds"), &Entity< CKeyBind >::FirstWhereTagEnds)
+        .Func(_SC("TagContains"), &Entity< CKeyBind >::FirstWhereTagContains)
+        .Func(_SC("TagMatches"), &Entity< CKeyBind >::FirstWhereTagMatches)
     );
 
     find_ns.Bind(_SC("Object"), Table(vm)
@@ -712,13 +712,13 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("TagMatches"), &Entity< CCheckpoint >::EachWhereTagMatches)
     );
 
-    each_ns.Bind(_SC("Keybind"), Table(vm)
-        .Func(_SC("Active"), &Entity< CKeybind >::EachActive)
-        .Func(_SC("TagEquals"), &Entity< CKeybind >::EachWhereTagEquals)
-        .Func(_SC("TagBegins"), &Entity< CKeybind >::EachWhereTagBegins)
-        .Func(_SC("TagEnds"), &Entity< CKeybind >::EachWhereTagEnds)
-        .Func(_SC("TagContains"), &Entity< CKeybind >::EachWhereTagContains)
-        .Func(_SC("TagMatches"), &Entity< CKeybind >::EachWhereTagMatches)
+    each_ns.Bind(_SC("KeyBind"), Table(vm)
+        .Func(_SC("Active"), &Entity< CKeyBind >::EachActive)
+        .Func(_SC("TagEquals"), &Entity< CKeyBind >::EachWhereTagEquals)
+        .Func(_SC("TagBegins"), &Entity< CKeyBind >::EachWhereTagBegins)
+        .Func(_SC("TagEnds"), &Entity< CKeyBind >::EachWhereTagEnds)
+        .Func(_SC("TagContains"), &Entity< CKeyBind >::EachWhereTagContains)
+        .Func(_SC("TagMatches"), &Entity< CKeyBind >::EachWhereTagMatches)
     );
 
     each_ns.Bind(_SC("Object"), Table(vm)
@@ -784,13 +784,13 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("TagMatches"), &Entity< CCheckpoint >::EachWhereTagMatchesData)
     );
 
-    exeach_ns.Bind(_SC("Keybind"), Table(vm)
-        .Func(_SC("Active"), &Entity< CKeybind >::EachActiveData)
-        .Func(_SC("TagEquals"), &Entity< CKeybind >::EachWhereTagEqualsData)
-        .Func(_SC("TagBegins"), &Entity< CKeybind >::EachWhereTagBeginsData)
-        .Func(_SC("TagEnds"), &Entity< CKeybind >::EachWhereTagEndsData)
-        .Func(_SC("TagContains"), &Entity< CKeybind >::EachWhereTagContainsData)
-        .Func(_SC("TagMatches"), &Entity< CKeybind >::EachWhereTagMatchesData)
+    exeach_ns.Bind(_SC("KeyBind"), Table(vm)
+        .Func(_SC("Active"), &Entity< CKeyBind >::EachActiveData)
+        .Func(_SC("TagEquals"), &Entity< CKeyBind >::EachWhereTagEqualsData)
+        .Func(_SC("TagBegins"), &Entity< CKeyBind >::EachWhereTagBeginsData)
+        .Func(_SC("TagEnds"), &Entity< CKeyBind >::EachWhereTagEndsData)
+        .Func(_SC("TagContains"), &Entity< CKeyBind >::EachWhereTagContainsData)
+        .Func(_SC("TagMatches"), &Entity< CKeyBind >::EachWhereTagMatchesData)
     );
 
     exeach_ns.Bind(_SC("Object"), Table(vm)
@@ -856,13 +856,13 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("TagMatches"), &Entity< CCheckpoint >::CountWhereTagMatches)
     );
 
-    count_ns.Bind(_SC("Keybind"), Table(vm)
-        .Func(_SC("Active"), &Entity< CKeybind >::CountActive)
-        .Func(_SC("TagEquals"), &Entity< CKeybind >::CountWhereTagEquals)
-        .Func(_SC("TagBegins"), &Entity< CKeybind >::CountWhereTagBegins)
-        .Func(_SC("TagEnds"), &Entity< CKeybind >::CountWhereTagEnds)
-        .Func(_SC("TagContains"), &Entity< CKeybind >::CountWhereTagContains)
-        .Func(_SC("TagMatches"), &Entity< CKeybind >::CountWhereTagMatches)
+    count_ns.Bind(_SC("KeyBind"), Table(vm)
+        .Func(_SC("Active"), &Entity< CKeyBind >::CountActive)
+        .Func(_SC("TagEquals"), &Entity< CKeyBind >::CountWhereTagEquals)
+        .Func(_SC("TagBegins"), &Entity< CKeyBind >::CountWhereTagBegins)
+        .Func(_SC("TagEnds"), &Entity< CKeyBind >::CountWhereTagEnds)
+        .Func(_SC("TagContains"), &Entity< CKeyBind >::CountWhereTagContains)
+        .Func(_SC("TagMatches"), &Entity< CKeyBind >::CountWhereTagMatches)
     );
 
     count_ns.Bind(_SC("Object"), Table(vm)

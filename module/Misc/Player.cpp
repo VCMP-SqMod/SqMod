@@ -1,11 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Misc/Player.hpp"
-#include "Base/Color3.hpp"
 #include "Core.hpp"
-
-// ------------------------------------------------------------------------------------------------
-#include <cstring>
-#include <algorithm>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -96,13 +91,13 @@ static String CS_Skin_Names[] = { // NOLINT(cert-err58-cpp)
 };
 
 // ------------------------------------------------------------------------------------------------
-CCStr GetSkinName(Uint32 id)
+const char * GetSkinName(uint32_t id)
 {
     return (id > 159) ? _SC("") : CS_Skin_Names[id].c_str();
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetSkinName(Uint32 id, StackStrF & name)
+void SetSkinName(uint32_t id, StackStrF & name)
 {
     if (id <= 159)
     {
@@ -111,7 +106,7 @@ void SetSkinName(Uint32 id, StackStrF & name)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetSkinID(StackStrF & name)
+int32_t GetSkinID(StackStrF & name)
 {
     // Clone the string into an editable version
     String str(name.mPtr, static_cast< size_t >(name.mLen));
@@ -125,7 +120,7 @@ Int32 GetSkinID(StackStrF & name)
         return SQMOD_UNKNOWN;
     }
     // Grab the actual length of the string
-    const Uint32 len = ConvTo< Uint32 >::From(str.length());
+    const uint32_t len = ConvTo< uint32_t >::From(str.length());
     // Get the most significant characters used to identify a skin
     CharT a = str[0], b = 0, c = 0, d = str[len-1];
     // Look for deeper specifiers
@@ -781,9 +776,9 @@ Int32 GetSkinID(StackStrF & name)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool IsSkinValid(Int32 id)
+bool IsSkinValid(int32_t id)
 {
-    CSStr name = GetSkinName(static_cast<Uint32>(id));
+    const SQChar * name = GetSkinName(static_cast<uint32_t>(id));
     return (name && *name != '\0');
 }
 

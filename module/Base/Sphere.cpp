@@ -1,18 +1,15 @@
 // ------------------------------------------------------------------------------------------------
 #include "Base/Sphere.hpp"
-#include "Base/Shared.hpp"
 #include "Base/DynArg.hpp"
-#include "Base/Buffer.hpp"
+#include "Core/Buffer.hpp"
+#include "Core/Utility.hpp"
 #include "Library/Numeric/Random.hpp"
-
-// ------------------------------------------------------------------------------------------------
-#include <limits>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQMODE_DECL_TYPENAME(Typename, _SC("Sphere"))
+SQMOD_DECL_TYPENAME(Typename, _SC("Sphere"))
 
 // ------------------------------------------------------------------------------------------------
 const Sphere Sphere::NIL = Sphere();
@@ -21,13 +18,6 @@ const Sphere Sphere::MAX = Sphere(std::numeric_limits< Sphere::Value >::max());
 
 // ------------------------------------------------------------------------------------------------
 SQChar Sphere::Delim = ',';
-
-// ------------------------------------------------------------------------------------------------
-Sphere::Sphere() noexcept
-    : pos(0.0), rad(0.0)
-{
-    /* ... */
-}
 
 // ------------------------------------------------------------------------------------------------
 Sphere::Sphere(Value rv) noexcept
@@ -100,7 +90,7 @@ Sphere & Sphere::operator /= (const Sphere & s)
 Sphere & Sphere::operator %= (const Sphere & s)
 {
     pos %= s.pos;
-    rad = std::fmod(rad, s.rad);
+    rad = fmodf(rad, s.rad);
 
     return *this;
 }
@@ -136,7 +126,7 @@ Sphere & Sphere::operator /= (Value r)
 // ------------------------------------------------------------------------------------------------
 Sphere & Sphere::operator %= (Value r)
 {
-    rad = std::fmod(rad, r);
+    rad = fmodf(rad, r);
     return *this;
 }
 
@@ -236,7 +226,7 @@ Sphere Sphere::operator / (const Sphere & s) const
 // ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator % (const Sphere & s) const
 {
-    return {pos % s.pos, std::fmod(rad, s.rad)};
+    return {pos % s.pos, fmodf(rad, s.rad)};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -266,7 +256,7 @@ Sphere Sphere::operator / (Value r) const
 // ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator % (Value r) const
 {
-    return {std::fmod(rad, r)};
+    return {fmodf(rad, r)};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -302,7 +292,7 @@ Sphere Sphere::operator % (const Vector3 & p) const
 // ------------------------------------------------------------------------------------------------
 Sphere Sphere::operator + () const
 {
-    return {pos.Abs(), std::fabs(rad)};
+    return {pos.Abs(), fabsf(rad)};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -348,7 +338,7 @@ bool Sphere::operator >= (const Sphere & s) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 Sphere::Cmp(const Sphere & o) const
+int32_t Sphere::Cmp(const Sphere & o) const
 {
     if (*this == o)
     {
@@ -365,9 +355,9 @@ Int32 Sphere::Cmp(const Sphere & o) const
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr Sphere::ToString() const
+String Sphere::ToString() const
 {
-    return ToStrF("%f,%f,%f,%f", pos.x, pos.y, pos.z, rad);
+    return fmt::format("{},{},{},{}", pos.x, pos.y, pos.z, rad);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -465,34 +455,18 @@ void Sphere::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin
 // ------------------------------------------------------------------------------------------------
 Sphere Sphere::Abs() const
 {
-    return {pos.Abs(), std::fabs(rad)};
+    return {pos.Abs(), fabsf(rad)};
 }
 
 // ------------------------------------------------------------------------------------------------
-LightObj Sphere::Format(const String & spec, StackStrF & fmt) const
+String Sphere::Format(StackStrF & str) const
 {
-    String out;
-    // Attempt to build the format string
-    if (!BuildFormatString(out, fmt, 4, spec))
-    {
-        return LightObj{}; // Default to null
-    }
-    // Empty string is unacceptable
-    else if (out.empty())
-    {
-        STHROWF("Unable to build a valid format string.");
-    }
-    // Grab a temporary buffer
-    Buffer buff(out.size());
-    // Generate the string
-    Buffer::SzType n = buff.WriteF(0, out.c_str(), pos.x, pos.y, pos.z, rad);
-    // Did the format failed?
-    if (!n && !out.empty())
-    {
-        STHROWF("Format failed. Please check format specifier and parameter count.");
-    }
-    // Return the resulted string
-    return LightObj{buff.Begin< SQChar >(), static_cast< SQInteger >(n)};
+    return fmt::format(str.ToStr()
+        , fmt::arg("x", pos.x)
+        , fmt::arg("y", pos.y)
+        , fmt::arg("z", pos.z)
+        , fmt::arg("r", rad)
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -574,49 +548,6 @@ void Register_Sphere(HSQUIRRELVM vm)
         .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< Sphere >)
         .StaticFmtFunc(_SC("FromStr"), &Sphere::Get)
         .StaticFmtFunc(_SC("FromStrEx"), &Sphere::GetEx)
-        // Operator Exposure
-        .Func< Sphere & (Sphere::*)(const Sphere &) >(_SC("opAddAssign"), &Sphere::operator +=)
-        .Func< Sphere & (Sphere::*)(const Sphere &) >(_SC("opSubAssign"), &Sphere::operator -=)
-        .Func< Sphere & (Sphere::*)(const Sphere &) >(_SC("opMulAssign"), &Sphere::operator *=)
-        .Func< Sphere & (Sphere::*)(const Sphere &) >(_SC("opDivAssign"), &Sphere::operator /=)
-        .Func< Sphere & (Sphere::*)(const Sphere &) >(_SC("opModAssign"), &Sphere::operator %=)
-        .Func< Sphere & (Sphere::*)(Sphere::Value) >(_SC("opAddAssignR"), &Sphere::operator +=)
-        .Func< Sphere & (Sphere::*)(Sphere::Value) >(_SC("opSubAssignR"), &Sphere::operator -=)
-        .Func< Sphere & (Sphere::*)(Sphere::Value) >(_SC("opMulAssignR"), &Sphere::operator *=)
-        .Func< Sphere & (Sphere::*)(Sphere::Value) >(_SC("opDivAssignR"), &Sphere::operator /=)
-        .Func< Sphere & (Sphere::*)(Sphere::Value) >(_SC("opModAssignR"), &Sphere::operator %=)
-        .Func< Sphere & (Sphere::*)(const Vector3 &) >(_SC("opAddAssignP"), &Sphere::operator +=)
-        .Func< Sphere & (Sphere::*)(const Vector3 &) >(_SC("opSubAssignP"), &Sphere::operator -=)
-        .Func< Sphere & (Sphere::*)(const Vector3 &) >(_SC("opMulAssignP"), &Sphere::operator *=)
-        .Func< Sphere & (Sphere::*)(const Vector3 &) >(_SC("opDivAssignP"), &Sphere::operator /=)
-        .Func< Sphere & (Sphere::*)(const Vector3 &) >(_SC("opModAssignP"), &Sphere::operator %=)
-        .Func< Sphere & (Sphere::*)(void) >(_SC("opPreInc"), &Sphere::operator ++)
-        .Func< Sphere & (Sphere::*)(void) >(_SC("opPreDec"), &Sphere::operator --)
-        .Func< Sphere (Sphere::*)(int) >(_SC("opPostInc"), &Sphere::operator ++)
-        .Func< Sphere (Sphere::*)(int) >(_SC("opPostDec"), &Sphere::operator --)
-        .Func< Sphere (Sphere::*)(const Sphere &) const >(_SC("opAdd"), &Sphere::operator +)
-        .Func< Sphere (Sphere::*)(const Sphere &) const >(_SC("opSub"), &Sphere::operator -)
-        .Func< Sphere (Sphere::*)(const Sphere &) const >(_SC("opMul"), &Sphere::operator *)
-        .Func< Sphere (Sphere::*)(const Sphere &) const >(_SC("opDiv"), &Sphere::operator /)
-        .Func< Sphere (Sphere::*)(const Sphere &) const >(_SC("opMod"), &Sphere::operator %)
-        .Func< Sphere (Sphere::*)(Sphere::Value) const >(_SC("opAddR"), &Sphere::operator +)
-        .Func< Sphere (Sphere::*)(Sphere::Value) const >(_SC("opSubR"), &Sphere::operator -)
-        .Func< Sphere (Sphere::*)(Sphere::Value) const >(_SC("opMulR"), &Sphere::operator *)
-        .Func< Sphere (Sphere::*)(Sphere::Value) const >(_SC("opDivR"), &Sphere::operator /)
-        .Func< Sphere (Sphere::*)(Sphere::Value) const >(_SC("opModR"), &Sphere::operator %)
-        .Func< Sphere (Sphere::*)(const Vector3 &) const >(_SC("opAddP"), &Sphere::operator +)
-        .Func< Sphere (Sphere::*)(const Vector3 &) const >(_SC("opSubP"), &Sphere::operator -)
-        .Func< Sphere (Sphere::*)(const Vector3 &) const >(_SC("opMulP"), &Sphere::operator *)
-        .Func< Sphere (Sphere::*)(const Vector3 &) const >(_SC("opDivP"), &Sphere::operator /)
-        .Func< Sphere (Sphere::*)(const Vector3 &) const >(_SC("opModP"), &Sphere::operator %)
-        .Func< Sphere (Sphere::*)(void) const >(_SC("opUnPlus"), &Sphere::operator +)
-        .Func< Sphere (Sphere::*)(void) const >(_SC("opUnMinus"), &Sphere::operator -)
-        .Func< bool (Sphere::*)(const Sphere &) const >(_SC("opEqual"), &Sphere::operator ==)
-        .Func< bool (Sphere::*)(const Sphere &) const >(_SC("opNotEqual"), &Sphere::operator !=)
-        .Func< bool (Sphere::*)(const Sphere &) const >(_SC("opLessThan"), &Sphere::operator <)
-        .Func< bool (Sphere::*)(const Sphere &) const >(_SC("opGreaterThan"), &Sphere::operator >)
-        .Func< bool (Sphere::*)(const Sphere &) const >(_SC("opLessEqual"), &Sphere::operator <=)
-        .Func< bool (Sphere::*)(const Sphere &) const >(_SC("opGreaterEqual"), &Sphere::operator >=)
     );
 }
 

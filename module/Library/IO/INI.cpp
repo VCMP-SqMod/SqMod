@@ -2,15 +2,15 @@
 #include "Library/IO/INI.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include <cerrno>
+#include <sqratConst.h>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQMODE_DECL_TYPENAME(ResultTypename, _SC("SqIniResult"))
-SQMODE_DECL_TYPENAME(EntriesTypename, _SC("SqIniEntries"))
-SQMODE_DECL_TYPENAME(DocumentTypename, _SC("SqIniDocument"))
+SQMOD_DECL_TYPENAME(ResultTypename, _SC("SqIniResult"))
+SQMOD_DECL_TYPENAME(EntriesTypename, _SC("SqIniEntries"))
+SQMOD_DECL_TYPENAME(DocumentTypename, _SC("SqIniDocument"))
 
 // ------------------------------------------------------------------------------------------------
 void IniResult::Check() const
@@ -30,7 +30,7 @@ void IniResult::Check() const
         case SI_OK:
         case SI_UPDATED:
         case SI_INSERTED:
-            break; /* These are not error messahes. */
+            break; /* These are not error messages. */
         default:
             STHROWF("Unable to %s for some unforeseen reason", m_Action.c_str());
     }
@@ -47,7 +47,7 @@ void IniDocumentRef::Validate() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 IniEntries::Cmp(const IniEntries & o) const
+int32_t IniEntries::Cmp(const IniEntries & o) const
 {
     if (m_Elem == o.m_Elem)
     {
@@ -84,7 +84,7 @@ void IniEntries::Prev()
 }
 
 // ------------------------------------------------------------------------------------------------
-void IniEntries::Advance(Int32 n)
+void IniEntries::Advance(int32_t n)
 {
     // Are there any other elements ahead?
     if (m_List.empty() || m_Elem == m_List.end())
@@ -99,7 +99,7 @@ void IniEntries::Advance(Int32 n)
 }
 
 // ------------------------------------------------------------------------------------------------
-void IniEntries::Retreat(Int32 n)
+void IniEntries::Retreat(int32_t n)
 {
     // Are there any other elements behind?
     if (m_List.empty() || m_Elem == m_List.begin())
@@ -114,7 +114,7 @@ void IniEntries::Retreat(Int32 n)
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr IniEntries::GetItem() const
+const SQChar * IniEntries::GetItem() const
 {
     // is the current element valid?
     if (m_List.empty() || m_Elem == m_List.end())
@@ -126,7 +126,7 @@ CSStr IniEntries::GetItem() const
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr IniEntries::GetComment() const
+const SQChar * IniEntries::GetComment() const
 {
     // is the current element valid?
     if (m_List.empty() || m_Elem == m_List.end())
@@ -138,7 +138,7 @@ CSStr IniEntries::GetComment() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 IniEntries::GetOrder() const
+int32_t IniEntries::GetOrder() const
 {
     // is the current element valid?
     if (m_List.empty() || m_Elem == m_List.end())
@@ -150,7 +150,7 @@ Int32 IniEntries::GetOrder() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 IniDocument::Cmp(const IniDocument & o) const
+int32_t IniDocument::Cmp(const IniDocument & o) const
 {
     if (m_Doc == o.m_Doc)
     {
@@ -167,7 +167,7 @@ Int32 IniDocument::Cmp(const IniDocument & o) const
 }
 
 // ------------------------------------------------------------------------------------------------
-IniResult IniDocument::LoadFile(CSStr filepath)
+IniResult IniDocument::LoadFile(const SQChar * filepath)
 {
     // Validate the handle
     m_Doc.Validate();
@@ -176,7 +176,7 @@ IniResult IniDocument::LoadFile(CSStr filepath)
 }
 
 // ------------------------------------------------------------------------------------------------
-IniResult IniDocument::LoadData(CSStr source, Int32 size)
+IniResult IniDocument::LoadData(const SQChar * source, int32_t size)
 {
     // Validate the handle
     m_Doc.Validate();
@@ -185,7 +185,7 @@ IniResult IniDocument::LoadData(CSStr source, Int32 size)
 }
 
 // ------------------------------------------------------------------------------------------------
-IniResult IniDocument::SaveFile(CSStr filepath, bool signature)
+IniResult IniDocument::SaveFile(const SQChar * filepath, bool signature)
 {
     // Validate the handle
     m_Doc.Validate();
@@ -227,7 +227,7 @@ IniEntries IniDocument::GetAllSections() const
 }
 
 // ------------------------------------------------------------------------------------------------
-IniEntries IniDocument::GetAllKeys(CSStr section) const
+IniEntries IniDocument::GetAllKeys(const SQChar * section) const
 {
     // Validate the handle
     m_Doc.Validate();
@@ -240,7 +240,7 @@ IniEntries IniDocument::GetAllKeys(CSStr section) const
 }
 
 // ------------------------------------------------------------------------------------------------
-IniEntries IniDocument::GetAllValues(CSStr section, CSStr key) const
+IniEntries IniDocument::GetAllValues(const SQChar * section, const SQChar * key) const
 {
     // Validate the handle
     m_Doc.Validate();
@@ -253,7 +253,7 @@ IniEntries IniDocument::GetAllValues(CSStr section, CSStr key) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 IniDocument::GetSectionSize(CSStr section) const
+int32_t IniDocument::GetSectionSize(const SQChar * section) const
 {
     // Validate the handle
     m_Doc.Validate();
@@ -262,11 +262,11 @@ Int32 IniDocument::GetSectionSize(CSStr section) const
 }
 
 // ------------------------------------------------------------------------------------------------
-bool IniDocument::HasMultipleKeys(CSStr section, CSStr key) const
+bool IniDocument::HasMultipleKeys(const SQChar * section, const SQChar * key) const
 {
     // Validate the handle
     m_Doc.Validate();
-    // Where to retrive whether the key has multiple instances
+    // Where to retrieve whether the key has multiple instances
     bool multiple = false;
     // Attempt to query the information
     if (m_Doc->GetValue(section, key, nullptr, &multiple) == nullptr)
@@ -278,7 +278,7 @@ bool IniDocument::HasMultipleKeys(CSStr section, CSStr key) const
 }
 
 // ------------------------------------------------------------------------------------------------
-CCStr IniDocument::GetValue(CSStr section, CSStr key, CSStr def) const
+const char * IniDocument::GetValue(const SQChar * section, const SQChar * key, const SQChar * def) const
 {
     // Validate the handle
     m_Doc.Validate();
@@ -287,16 +287,16 @@ CCStr IniDocument::GetValue(CSStr section, CSStr key, CSStr def) const
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger IniDocument::GetInteger(CSStr section, CSStr key, SQInteger def) const
+SQInteger IniDocument::GetInteger(const SQChar * section, const SQChar * key, SQInteger def) const
 {
     // Validate the handle
     m_Doc.Validate();
     // Attempt to query the information and return it
-    return static_cast< SQInteger >(m_Doc->GetLongValue(section, key, def, nullptr));
+    return static_cast< SQInteger >(m_Doc->GetLongValue(section, key, static_cast< long >(def), nullptr));
 }
 
 // ------------------------------------------------------------------------------------------------
-SQFloat IniDocument::GetFloat(CSStr section, CSStr key, SQFloat def) const
+SQFloat IniDocument::GetFloat(const SQChar * section, const SQChar * key, SQFloat def) const
 {
     // Validate the handle
     m_Doc.Validate();
@@ -305,7 +305,7 @@ SQFloat IniDocument::GetFloat(CSStr section, CSStr key, SQFloat def) const
 }
 
 // ------------------------------------------------------------------------------------------------
-bool IniDocument::GetBoolean(CSStr section, CSStr key, bool def) const
+bool IniDocument::GetBoolean(const SQChar * section, const SQChar * key, bool def) const
 {
     // Validate the handle
     m_Doc.Validate();
@@ -314,7 +314,7 @@ bool IniDocument::GetBoolean(CSStr section, CSStr key, bool def) const
 }
 
 // ------------------------------------------------------------------------------------------------
-IniResult IniDocument::SetValue(CSStr section, CSStr key, CSStr value, bool force, CSStr comment)
+IniResult IniDocument::SetValue(const SQChar * section, const SQChar * key, const SQChar * value, bool force, const SQChar * comment)
 {
     // Validate the handle
     m_Doc.Validate();
@@ -323,16 +323,16 @@ IniResult IniDocument::SetValue(CSStr section, CSStr key, CSStr value, bool forc
 }
 
 // ------------------------------------------------------------------------------------------------
-IniResult IniDocument::SetInteger(CSStr section, CSStr key, SQInteger value, bool hex, bool force, CSStr comment)
+IniResult IniDocument::SetInteger(const SQChar * section, const SQChar * key, SQInteger value, bool hex, bool force, const SQChar * comment)
 {
     // Validate the handle
     m_Doc.Validate();
     // Attempt to apply the specified information and return the result
-    return IniResult("set INI integer", m_Doc->SetLongValue(section, key, value, comment, hex, force));
+    return IniResult("set INI integer", m_Doc->SetLongValue(section, key, static_cast< long >(value), comment, hex, force));
 }
 
 // ------------------------------------------------------------------------------------------------
-IniResult IniDocument::SetFloat(CSStr section, CSStr key, SQFloat value, bool force, CSStr comment)
+IniResult IniDocument::SetFloat(const SQChar * section, const SQChar * key, SQFloat value, bool force, const SQChar * comment)
 {
     // Validate the handle
     m_Doc.Validate();
@@ -341,7 +341,7 @@ IniResult IniDocument::SetFloat(CSStr section, CSStr key, SQFloat value, bool fo
 }
 
 // ------------------------------------------------------------------------------------------------
-IniResult IniDocument::SetBoolean(CSStr section, CSStr key, bool value, bool force, CSStr comment)
+IniResult IniDocument::SetBoolean(const SQChar * section, const SQChar * key, bool value, bool force, const SQChar * comment)
 {
     // Validate the handle
     m_Doc.Validate();
@@ -350,7 +350,7 @@ IniResult IniDocument::SetBoolean(CSStr section, CSStr key, bool value, bool for
 }
 
 // ------------------------------------------------------------------------------------------------
-bool IniDocument::DeleteValue(CSStr section, CSStr key, CSStr value, bool empty)
+bool IniDocument::DeleteValue(const SQChar * section, const SQChar * key, const SQChar * value, bool empty)
 {
     // Validate the handle
     m_Doc.Validate();
@@ -367,7 +367,7 @@ void Register_INI(HSQUIRRELVM vm)
         Class< IniResult >(vm, ResultTypename::Str)
         // Constructors
         .Ctor()
-        .Ctor< CSStr, SQInteger >()
+        .Ctor< const SQChar *, SQInteger >()
         .Ctor< const IniResult & >()
         // Core Meta-methods
         .SquirrelFunc(_SC("_typename"), &ResultTypename::Fn)
@@ -431,10 +431,10 @@ void Register_INI(HSQUIRRELVM vm)
         // Member Methods
         .Func(_SC("Reset"), &IniDocument::Reset)
         .Func(_SC("LoadFile"), &IniDocument::LoadFile)
-        .Overload< IniResult (IniDocument::*)(CSStr) >(_SC("LoadString"), &IniDocument::LoadData)
-        .Overload< IniResult (IniDocument::*)(CSStr, Int32) >(_SC("LoadString"), &IniDocument::LoadData)
-        .Overload< IniResult (IniDocument::*)(CSStr) >(_SC("SaveFile"), &IniDocument::SaveFile)
-        .Overload< IniResult (IniDocument::*)(CSStr, bool) >(_SC("SaveFile"), &IniDocument::SaveFile)
+        .Overload< IniResult (IniDocument::*)(const SQChar *) >(_SC("LoadString"), &IniDocument::LoadData)
+        .Overload< IniResult (IniDocument::*)(const SQChar *, int32_t) >(_SC("LoadString"), &IniDocument::LoadData)
+        .Overload< IniResult (IniDocument::*)(const SQChar *) >(_SC("SaveFile"), &IniDocument::SaveFile)
+        .Overload< IniResult (IniDocument::*)(const SQChar *, bool) >(_SC("SaveFile"), &IniDocument::SaveFile)
         .Func(_SC("SaveData"), &IniDocument::SaveData)
         .Func(_SC("GetSections"), &IniDocument::GetAllSections)
         .Func(_SC("GetKeys"), &IniDocument::GetAllKeys)
@@ -445,34 +445,34 @@ void Register_INI(HSQUIRRELVM vm)
         .Func(_SC("GetInteger"), &IniDocument::GetInteger)
         .Func(_SC("GetFloat"), &IniDocument::GetFloat)
         .Func(_SC("GetBoolean"), &IniDocument::GetBoolean)
-        .Overload< IniResult (IniDocument::*)(CSStr, CSStr, CSStr) >(_SC("SetValue"), &IniDocument::SetValue)
-        .Overload< IniResult (IniDocument::*)(CSStr, CSStr, CSStr, bool) >(_SC("SetValue"), &IniDocument::SetValue)
-        .Overload< IniResult (IniDocument::*)(CSStr, CSStr, CSStr, bool, CSStr) >(_SC("SetValue"), &IniDocument::SetValue)
-        .Overload< IniResult (IniDocument::*)(CSStr, CSStr, SQInteger) >(_SC("SetInteger"), &IniDocument::SetInteger)
-        .Overload< IniResult (IniDocument::*)(CSStr, CSStr, SQInteger, bool) >(_SC("SetInteger"), &IniDocument::SetInteger)
-        .Overload< IniResult (IniDocument::*)(CSStr, CSStr, SQInteger, bool, bool) >(_SC("SetInteger"), &IniDocument::SetInteger)
-        .Overload< IniResult (IniDocument::*)(CSStr, CSStr, SQInteger, bool, bool, CSStr) >(_SC("SetInteger"), &IniDocument::SetInteger)
-        .Overload< IniResult (IniDocument::*)(CSStr, CSStr, SQFloat) >(_SC("SetFloat"), &IniDocument::SetFloat)
-        .Overload< IniResult (IniDocument::*)(CSStr, CSStr, SQFloat, bool) >(_SC("SetFloat"), &IniDocument::SetFloat)
-        .Overload< IniResult (IniDocument::*)(CSStr, CSStr, SQFloat, bool, CSStr) >(_SC("SetFloat"), &IniDocument::SetFloat)
-        .Overload< IniResult (IniDocument::*)(CSStr, CSStr, bool) >(_SC("SetBoolean"), &IniDocument::SetBoolean)
-        .Overload< IniResult (IniDocument::*)(CSStr, CSStr, bool, bool) >(_SC("SetBoolean"), &IniDocument::SetBoolean)
-        .Overload< IniResult (IniDocument::*)(CSStr, CSStr, bool, bool, CSStr) >(_SC("SetBoolean"), &IniDocument::SetBoolean)
-        .Overload< bool (IniDocument::*)(CSStr) >(_SC("DeleteValue"), &IniDocument::DeleteValue)
-        .Overload< bool (IniDocument::*)(CSStr, CSStr) >(_SC("DeleteValue"), &IniDocument::DeleteValue)
-        .Overload< bool (IniDocument::*)(CSStr, CSStr, CSStr) >(_SC("DeleteValue"), &IniDocument::DeleteValue)
-        .Overload< bool (IniDocument::*)(CSStr, CSStr, CSStr, bool) >(_SC("DeleteValue"), &IniDocument::DeleteValue)
+        .Overload< IniResult (IniDocument::*)(const SQChar *, const SQChar *, const SQChar *) >(_SC("SetValue"), &IniDocument::SetValue)
+        .Overload< IniResult (IniDocument::*)(const SQChar *, const SQChar *, const SQChar *, bool) >(_SC("SetValue"), &IniDocument::SetValue)
+        .Overload< IniResult (IniDocument::*)(const SQChar *, const SQChar *, const SQChar *, bool, const SQChar *) >(_SC("SetValue"), &IniDocument::SetValue)
+        .Overload< IniResult (IniDocument::*)(const SQChar *, const SQChar *, SQInteger) >(_SC("SetInteger"), &IniDocument::SetInteger)
+        .Overload< IniResult (IniDocument::*)(const SQChar *, const SQChar *, SQInteger, bool) >(_SC("SetInteger"), &IniDocument::SetInteger)
+        .Overload< IniResult (IniDocument::*)(const SQChar *, const SQChar *, SQInteger, bool, bool) >(_SC("SetInteger"), &IniDocument::SetInteger)
+        .Overload< IniResult (IniDocument::*)(const SQChar *, const SQChar *, SQInteger, bool, bool, const SQChar *) >(_SC("SetInteger"), &IniDocument::SetInteger)
+        .Overload< IniResult (IniDocument::*)(const SQChar *, const SQChar *, SQFloat) >(_SC("SetFloat"), &IniDocument::SetFloat)
+        .Overload< IniResult (IniDocument::*)(const SQChar *, const SQChar *, SQFloat, bool) >(_SC("SetFloat"), &IniDocument::SetFloat)
+        .Overload< IniResult (IniDocument::*)(const SQChar *, const SQChar *, SQFloat, bool, const SQChar *) >(_SC("SetFloat"), &IniDocument::SetFloat)
+        .Overload< IniResult (IniDocument::*)(const SQChar *, const SQChar *, bool) >(_SC("SetBoolean"), &IniDocument::SetBoolean)
+        .Overload< IniResult (IniDocument::*)(const SQChar *, const SQChar *, bool, bool) >(_SC("SetBoolean"), &IniDocument::SetBoolean)
+        .Overload< IniResult (IniDocument::*)(const SQChar *, const SQChar *, bool, bool, const SQChar *) >(_SC("SetBoolean"), &IniDocument::SetBoolean)
+        .Overload< bool (IniDocument::*)(const SQChar *) >(_SC("DeleteValue"), &IniDocument::DeleteValue)
+        .Overload< bool (IniDocument::*)(const SQChar *, const SQChar *) >(_SC("DeleteValue"), &IniDocument::DeleteValue)
+        .Overload< bool (IniDocument::*)(const SQChar *, const SQChar *, const SQChar *) >(_SC("DeleteValue"), &IniDocument::DeleteValue)
+        .Overload< bool (IniDocument::*)(const SQChar *, const SQChar *, const SQChar *, bool) >(_SC("DeleteValue"), &IniDocument::DeleteValue)
     );
 
     RootTable(vm).Bind(_SC("SqIni"), inins);
 
     ConstTable(vm).Enum(_SC("SqIniError"), Enumeration(vm)
-        .Const(_SC("Ok"),                       Int32(SI_OK))
-        .Const(_SC("Updated"),                  Int32(SI_UPDATED))
-        .Const(_SC("Inserted"),                 Int32(SI_INSERTED))
-        .Const(_SC("Fail"),                     Int32(SI_FAIL))
-        .Const(_SC("NoMem"),                    Int32(SI_NOMEM))
-        .Const(_SC("File"),                     Int32(SI_FILE))
+        .Const(_SC("Ok"),                       int32_t(SI_OK))
+        .Const(_SC("Updated"),                  int32_t(SI_UPDATED))
+        .Const(_SC("Inserted"),                 int32_t(SI_INSERTED))
+        .Const(_SC("Fail"),                     int32_t(SI_FAIL))
+        .Const(_SC("NoMem"),                    int32_t(SI_NOMEM))
+        .Const(_SC("File"),                     int32_t(SI_FILE))
     );
 }
 

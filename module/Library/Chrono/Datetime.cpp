@@ -3,13 +3,13 @@
 #include "Library/Chrono/Date.hpp"
 #include "Library/Chrono/Time.hpp"
 #include "Library/Chrono/Timestamp.hpp"
-#include "Base/Shared.hpp"
+#include "Core/Utility.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQMODE_DECL_TYPENAME(Typename, _SC("SqDatetime"))
+SQMOD_DECL_TYPENAME(Typename, _SC("SqDatetime"))
 
 // ------------------------------------------------------------------------------------------------
 SQChar Datetime::Delimiter = ' ';
@@ -17,14 +17,14 @@ SQChar Datetime::DateDelim = '-';
 SQChar Datetime::TimeDelim = ':';
 
 // ------------------------------------------------------------------------------------------------
-Int32 Datetime::Compare(const Datetime & o) const
+int32_t Datetime::Compare(const Datetime & o) const
 {
     if (m_Year < o.m_Year)
-    {
+    { // NOLINT(bugprone-branch-clone)
         return -1;
     }
     else if (m_Year > o.m_Year)
-    {
+    { // NOLINT(bugprone-branch-clone)
         return 1;
     }
     else if (m_Month < o.m_Month)
@@ -107,9 +107,9 @@ Datetime Datetime::operator / (const Datetime & o) const
 }
 
 // ------------------------------------------------------------------------------------------------
-CSStr Datetime::ToString() const
+String Datetime::ToString() const
 {
-    return ToStrF("%04u%c%02u%c%02u%c%02u%c%02u%c%02u%c%u"
+    return fmt::format("{:04}{}{:02}{}{:02}{}{:02}{}{:02}{}{:02}{}{}"
         , m_Year, m_DateDelim, m_Month, m_DateDelim, m_Day
         , m_Delimiter
         , m_Hour, m_TimeDelim, m_Minute, m_TimeDelim, m_Second , m_TimeDelim, m_Millisecond
@@ -117,7 +117,7 @@ CSStr Datetime::ToString() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Datetime::Set(Uint16 year, Uint8 month, Uint8 day, Uint8 hour, Uint8 minute, Uint8 second, Uint16 millisecond)
+void Datetime::Set(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint16_t millisecond)
 {
     // Validate the specified date
     if (!Chrono::ValidDate(year, month, day))
@@ -159,7 +159,7 @@ void Datetime::Set(Uint16 year, Uint8 month, Uint8 day, Uint8 hour, Uint8 minute
 }
 
 // ------------------------------------------------------------------------------------------------
-void Datetime::SetStr(CSStr str)
+void Datetime::SetStr(const SQChar * str)
 {
     // The format specifications that will be used to scan the string
     static SQChar fs[] = _SC(" %u - %u - %u   %u : %u : %u : %u ");
@@ -185,25 +185,25 @@ void Datetime::SetStr(CSStr str)
     fs[24] = m_TimeDelim;
     fs[29] = m_TimeDelim;
     // The sscanf function requires at least 32 bit integers
-    Uint32 year = 0, month = 0, day = 0, hour = 0, minute = 0, second = 0, milli = 0;
+    uint32_t year = 0, month = 0, day = 0, hour = 0, minute = 0, second = 0, milli = 0;
     // Attempt to extract the component values from the specified string
     sscanf(str, fs, &year, &month, &day, &hour, &minute, &second, &milli);
     // Clamp the extracted values to the boundaries of associated type and assign them
-    Set(ClampL< Uint32, Uint8 >(year),
-        ClampL< Uint32, Uint8 >(month),
-        ClampL< Uint32, Uint8 >(day),
-        ClampL< Uint32, Uint8 >(hour),
-        ClampL< Uint32, Uint8 >(minute),
-        ClampL< Uint32, Uint8 >(second),
-        ClampL< Uint32, Uint16 >(milli)
+    Set(ClampL< uint32_t, uint8_t >(year),
+        ClampL< uint32_t, uint8_t >(month),
+        ClampL< uint32_t, uint8_t >(day),
+        ClampL< uint32_t, uint8_t >(hour),
+        ClampL< uint32_t, uint8_t >(minute),
+        ClampL< uint32_t, uint8_t >(second),
+        ClampL< uint32_t, uint16_t >(milli)
     );
 }
 
 // ------------------------------------------------------------------------------------------------
-void Datetime::SetDayOfYear(Uint16 doy)
+void Datetime::SetDayOfYear(uint16_t doy)
 {
     // Reverse the given day of year to a full date
-    Date d = Chrono::ReverseDayOfyear(m_Year, doy);
+    Date d = Chrono::ReverseDayOfYear(m_Year, doy);
     // Set the obtained month
     SetMonth(d.GetMonth());
     // Set the obtained day
@@ -211,7 +211,7 @@ void Datetime::SetDayOfYear(Uint16 doy)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Datetime::SetYear(Uint16 year)
+void Datetime::SetYear(uint16_t year)
 {
     // Make sure the year is valid
     if (!year)
@@ -229,7 +229,7 @@ void Datetime::SetYear(Uint16 year)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Datetime::SetMonth(Uint8 month)
+void Datetime::SetMonth(uint8_t month)
 {
     // Make sure the month is valid
     if (month == 0 || month > 12)
@@ -246,10 +246,10 @@ void Datetime::SetMonth(Uint8 month)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Datetime::SetDay(Uint8 day)
+void Datetime::SetDay(uint8_t day)
 {
     // Grab the amount of days in the current month
-    const Uint8 dim = Chrono::DaysInMonth(m_Year, m_Month);
+    const uint8_t dim = Chrono::DaysInMonth(m_Year, m_Month);
     // Make sure the day is valid
     if (day == 0)
     {
@@ -264,7 +264,7 @@ void Datetime::SetDay(Uint8 day)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Datetime::SetHour(Uint8 hour)
+void Datetime::SetHour(uint8_t hour)
 {
     // Is the specified hour within range?
     if (hour >= 24)
@@ -276,7 +276,7 @@ void Datetime::SetHour(Uint8 hour)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Datetime::SetMinute(Uint8 minute)
+void Datetime::SetMinute(uint8_t minute)
 {
     // Is the specified minute within range?
     if (minute >= 60)
@@ -288,7 +288,7 @@ void Datetime::SetMinute(Uint8 minute)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Datetime::SetSecond(Uint8 second)
+void Datetime::SetSecond(uint8_t second)
 {
     // Is the specified second within range?
     if (second >= 60)
@@ -300,7 +300,7 @@ void Datetime::SetSecond(Uint8 second)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Datetime::SetMillisecond(Uint16 millisecond)
+void Datetime::SetMillisecond(uint16_t millisecond)
 {
     // Is the specified millisecond within range?
     if (millisecond >= 1000)
@@ -312,26 +312,26 @@ void Datetime::SetMillisecond(Uint16 millisecond)
 }
 
 // ------------------------------------------------------------------------------------------------
-Datetime & Datetime::AddYears(Int32 years)
+Datetime & Datetime::AddYears(int32_t years)
 {
     // Do we have a valid amount of years?
     if (years)
     {
         // Add the specified amount of years
-        SetYear(ConvTo< Uint16 >::From(static_cast< Int32 >(m_Year) + years));
+        SetYear(ConvTo< uint16_t >::From(static_cast< int32_t >(m_Year) + years));
     }
     // Allow chaining operations
     return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-Datetime & Datetime::AddMonths(Int32 months)
+Datetime & Datetime::AddMonths(int32_t months)
 {
     // Do we have a valid amount of months?
     if (months)
     {
         // Extract the number of years
-        Int32 years = static_cast< Int32 >(months / 12);
+        auto years = static_cast< int32_t >(months / 12);
         // Extract the number of months
         months = (months % 12) + m_Month;
         // Do we have extra months?
@@ -352,53 +352,53 @@ Datetime & Datetime::AddMonths(Int32 months)
         // Are there any years to add?
         if (years)
         {
-            SetYear(ConvTo< Uint16 >::From(static_cast< Int32 >(m_Year) + years));
+            SetYear(ConvTo< uint16_t >::From(static_cast< int32_t >(m_Year) + years));
         }
         // Add the months
-        SetMonth(months);
+        SetMonth(static_cast< uint8_t >(months));
     }
     // Allow chaining operations
     return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-Datetime & Datetime::AddDays(Int32 days)
+Datetime & Datetime::AddDays(int32_t days)
 {
     // Do we have a valid amount of days?
     if (days)
     {
         // Whether the number of days is positive or negative
-        const Int32 dir = days > 0 ? 1 : -1;
+        const int32_t dir = days > 0 ? 1 : -1;
         // Grab current year
-        Int32 year = m_Year;
+        int32_t year = m_Year;
         // Calculate the days in the current year
-        Int32 diy = Chrono::DaysInYear(year);
+        int32_t diy = Chrono::DaysInYear(static_cast< uint16_t >(year));
         // Calculate the day of year
-        Int32 doy = GetDayOfYear() + days;
+        int32_t doy = GetDayOfYear() + days;
         // Calculate the resulting years
         while (doy > diy || doy < 0)
         {
             doy -= diy * dir;
             year += dir;
-            diy = Chrono::DaysInYear(year);
+            diy = Chrono::DaysInYear(static_cast< uint16_t >(year));
         }
         // Set the obtained year
-        SetYear(year);
+        SetYear(static_cast< uint16_t >(year));
         // Set the obtained day of year
-        SetDayOfYear(doy);
+        SetDayOfYear(static_cast< uint16_t >(doy));
     }
     // Allow chaining operations
     return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-Datetime & Datetime::AddHours(Int32 hours)
+Datetime & Datetime::AddHours(int32_t hours)
 {
     // Did we even add any hours?
     if (hours)
     {
         // Extract the number of days
-        Int32 days = static_cast< Int32 >(hours / 24);
+        auto days = static_cast< int32_t >(hours / 24);
         // Extract the number of hours
         m_Hour += (hours % 24);
         // Are the hours overlapping with the next day?
@@ -420,13 +420,13 @@ Datetime & Datetime::AddHours(Int32 hours)
 }
 
 // ------------------------------------------------------------------------------------------------
-Datetime & Datetime::AddMinutes(Int32 minutes)
+Datetime & Datetime::AddMinutes(int32_t minutes)
 {
     // Did we even add any minutes?
     if (minutes)
     {
         // Extract the number of hours
-        Int32 hours = static_cast< Int32 >(minutes / 60);
+        auto hours = static_cast< int32_t >(minutes / 60);
         // Extract the number of minutes
         m_Minute += (minutes % 60);
         // Are the minutes overlapping with the next hour?
@@ -448,13 +448,13 @@ Datetime & Datetime::AddMinutes(Int32 minutes)
 }
 
 // ------------------------------------------------------------------------------------------------
-Datetime & Datetime::AddSeconds(Int32 seconds)
+Datetime & Datetime::AddSeconds(int32_t seconds)
 {
     // Did we even add any seconds?
     if (seconds)
     {
         // Extract the number of minutes
-        Int32 minutes = static_cast< Int32 >(seconds / 60);
+        auto minutes = static_cast< int32_t >(seconds / 60);
         // Extract the number of seconds
         m_Second += (seconds % 60);
         // Are the seconds overlapping with the next minute?
@@ -476,13 +476,13 @@ Datetime & Datetime::AddSeconds(Int32 seconds)
 }
 
 // ------------------------------------------------------------------------------------------------
-Datetime & Datetime::AddMilliseconds(Int32 milliseconds)
+Datetime & Datetime::AddMilliseconds(int32_t milliseconds)
 {
     // Did we even add any milliseconds?
     if (milliseconds)
     {
         // Extract the number of seconds
-        Int32 seconds = static_cast< Int32 >(milliseconds / 1000);
+        auto seconds = static_cast< int32_t >(milliseconds / 1000);
         // Extract the number of milliseconds
         m_Millisecond += (milliseconds / 1000);
         // Are the milliseconds overlapping with the next second?
@@ -504,7 +504,7 @@ Datetime & Datetime::AddMilliseconds(Int32 milliseconds)
 }
 
 // ------------------------------------------------------------------------------------------------
-Datetime Datetime::AndYears(Int32 years)
+Datetime Datetime::AndYears(int32_t years)
 {
     // Do we have a valid amount of years?
     if (!years)
@@ -514,13 +514,13 @@ Datetime Datetime::AndYears(Int32 years)
     // Replicate the current date
     Datetime dt(*this);
     // Add the specified amount of years
-    dt.SetYear(ConvTo< Uint16 >::From(static_cast< Int32 >(m_Year) + years));
+    dt.SetYear(ConvTo< uint16_t >::From(static_cast< int32_t >(m_Year) + years));
     // Return the resulted date
     return dt;
 }
 
 // ------------------------------------------------------------------------------------------------
-Datetime Datetime::AndMonths(Int32 months)
+Datetime Datetime::AndMonths(int32_t months)
 {
     // Do we have a valid amount of months?
     if (!months)
@@ -528,7 +528,7 @@ Datetime Datetime::AndMonths(Int32 months)
         return Datetime(*this); // Return the date-time as is
     }
     // Extract the number of years
-    Int32 years = static_cast< Int32 >(months / 12);
+    auto years = static_cast< int32_t >(months / 12);
     // Extract the number of months
     months = (months % 12) + m_Month;
     // Do we have extra months?
@@ -551,16 +551,16 @@ Datetime Datetime::AndMonths(Int32 months)
     // Are there any years to add?
     if (years)
     {
-        dt.SetYear(ConvTo< Uint16 >::From(static_cast< Int32 >(m_Year) + years));
+        dt.SetYear(ConvTo< uint16_t >::From(static_cast< int32_t >(m_Year) + years));
     }
     // Add the months
-    dt.SetMonth(months);
+    dt.SetMonth(static_cast< uint8_t >(months));
     // Return the resulted date
     return dt;
 }
 
 // ------------------------------------------------------------------------------------------------
-Datetime Datetime::AndDays(Int32 days)
+Datetime Datetime::AndDays(int32_t days)
 {
     // Do we have a valid amount of days?
     if (!days)
@@ -568,32 +568,32 @@ Datetime Datetime::AndDays(Int32 days)
         return Datetime(*this); // Return the date-time as is
     }
     // Whether the number of days is positive or negative
-    const Int32 dir = days > 0 ? 1 : -1;
+    const int32_t dir = days > 0 ? 1 : -1;
     // Grab current year
-    Int32 year = m_Year;
+    int32_t year = m_Year;
     // Calculate the days in the current year
-    Int32 diy = Chrono::DaysInYear(year);
+    int32_t diy = Chrono::DaysInYear(static_cast< uint16_t >(year));
     // Calculate the day of year
-    Int32 doy = GetDayOfYear() + days;
+    int32_t doy = GetDayOfYear() + days;
     // Calculate the resulting years
     while (doy > diy || doy < 0)
     {
         doy -= diy * dir;
         year += dir;
-        diy = Chrono::DaysInYear(year);
+        diy = Chrono::DaysInYear(static_cast< uint16_t >(year));
     }
     // Replicate the current date
     Datetime dt(*this);
     // Set the obtained year
-    dt.SetYear(year);
+    dt.SetYear(static_cast< uint16_t >(year));
     // Set the obtained day of year
-    dt.SetDayOfYear(doy);
+    dt.SetDayOfYear(static_cast< uint16_t >(doy));
     // Return the resulted date
     return dt;
 }
 
 // ------------------------------------------------------------------------------------------------
-Datetime Datetime::AndHours(Int32 hours)
+Datetime Datetime::AndHours(int32_t hours)
 {
     // Did we even add any hours?
     if (!hours)
@@ -601,7 +601,7 @@ Datetime Datetime::AndHours(Int32 hours)
         return Datetime(*this); // Return the date-time as is
     }
     // Extract the number of days
-    Int32 days = static_cast< Int32 >(hours / 24);
+    auto days = static_cast< int32_t >(hours / 24);
     // Extract the number of hours
     hours = m_Hour + (hours % 24);
     // Are the hours overlapping with the next day?
@@ -617,13 +617,13 @@ Datetime Datetime::AndHours(Int32 hours)
         dt.AddDays(days);
     }
     // Assign the resulted hours
-    dt.m_Hour = (hours % 24);
+    dt.m_Hour = static_cast< uint8_t >(hours % 24);
     // Return the result
     return dt;
 }
 
 // ------------------------------------------------------------------------------------------------
-Datetime Datetime::AndMinutes(Int32 minutes)
+Datetime Datetime::AndMinutes(int32_t minutes)
 {
     // Did we even added any minutes?
     if (!minutes)
@@ -631,7 +631,7 @@ Datetime Datetime::AndMinutes(Int32 minutes)
         return Datetime(*this); // Return the date-time as is
     }
     // Extract the number of hours
-    Int32 hours =  static_cast< Int32 >(minutes / 60);
+    auto hours =  static_cast< int32_t >(minutes / 60);
     // Extract the number of minutes
     minutes = m_Minute + (minutes % 60);
     // Are the minutes overlapping with the next hour?
@@ -647,13 +647,13 @@ Datetime Datetime::AndMinutes(Int32 minutes)
         dt.AddHours(hours);
     }
     // Assign the resulted minutes
-    dt.m_Minute = (minutes % 60);
+    dt.m_Minute = static_cast< uint8_t >(minutes % 60);
     // Return the result
     return dt;
 }
 
 // ------------------------------------------------------------------------------------------------
-Datetime Datetime::AndSeconds(Int32 seconds)
+Datetime Datetime::AndSeconds(int32_t seconds)
 {
     // Did we even added any seconds?
     if (!seconds)
@@ -661,7 +661,7 @@ Datetime Datetime::AndSeconds(Int32 seconds)
         return Datetime(*this); // Return the date-time as is
     }
     // Extract the number of minutes
-    Int32 minutes = static_cast< Int32 >(seconds / 60);
+    auto minutes = static_cast< int32_t >(seconds / 60);
     // Extract the number of seconds
     seconds = m_Second + (seconds % 60);
     // Are the seconds overlapping with the next minute?
@@ -677,13 +677,13 @@ Datetime Datetime::AndSeconds(Int32 seconds)
         dt.AddMinutes(minutes);
     }
     // Assign the resulted seconds
-    dt.m_Second = (seconds % 60);
+    dt.m_Second = static_cast< uint8_t >(seconds % 60);
     // Return the result
     return dt;
 }
 
 // ------------------------------------------------------------------------------------------------
-Datetime Datetime::AndMilliseconds(Int32 milliseconds)
+Datetime Datetime::AndMilliseconds(int32_t milliseconds)
 {
     // Did we even added any milliseconds?
     if (!milliseconds)
@@ -691,7 +691,7 @@ Datetime Datetime::AndMilliseconds(Int32 milliseconds)
         return Datetime(*this); // Return the date-time as is
     }
     // Extract the number of seconds
-    Int32 seconds = static_cast< Int32 >(milliseconds / 1000);
+    auto seconds = static_cast< int32_t >(milliseconds / 1000);
     // Extract the number of milliseconds
     milliseconds = m_Millisecond + (milliseconds % 1000);
     // Are the milliseconds overlapping with the next second?
@@ -707,7 +707,7 @@ Datetime Datetime::AndMilliseconds(Int32 milliseconds)
         dt.AddSeconds(seconds);
     }
     // Assign the resulted milliseconds
-    dt.m_Millisecond = (milliseconds % 1000);
+    dt.m_Millisecond = static_cast< uint16_t >(milliseconds % 1000);
     // Return the result
     return dt;
 }
@@ -728,19 +728,19 @@ Time Datetime::GetTime() const
 Timestamp Datetime::GetTimestamp() const
 {
     // Calculate the current day of the year
-    Int32 days = Chrono::DayOfYear(m_Year, m_Month, m_Day);
+    int32_t days = Chrono::DayOfYear(m_Year, m_Month, m_Day);
     // Calculate all days till the current year
-    for (Int32 year = 0; year < m_Year; --year)
+    for (int32_t year = 0; year < m_Year; --year)
     {
-        days += Chrono::DaysInYear(year);
+        days += Chrono::DaysInYear(static_cast< uint16_t >(year));
     }
     // Calculate the microseconds in the resulted days
-    Int64 ms = static_cast< Int64 >(days * 86400000000LL);
+    auto ms = static_cast< int64_t >(days * 86400000000LL);
     // Calculate the microseconds in the current time
-    ms += static_cast< Int64 >(m_Hour * 3600000000LL);
-    ms += static_cast< Int64 >(m_Minute * 60000000L);
-    ms += static_cast< Int64 >(m_Second * 1000000L);
-    ms += static_cast< Int64 >(m_Millisecond * 1000L);
+    ms += static_cast< int64_t >(m_Hour * 3600000000LL);
+    ms += static_cast< int64_t >(m_Minute * 60000000L);
+    ms += static_cast< int64_t >(m_Second * 1000000L);
+    ms += static_cast< int64_t >(m_Millisecond * 1000L);
     // Return the resulted timestamp
     return Timestamp(ms);
 }
@@ -752,13 +752,13 @@ void Register_ChronoDatetime(HSQUIRRELVM vm, Table & /*cns*/)
         Class< Datetime >(vm, Typename::Str)
         // Constructors
         .Ctor()
-        .Ctor< Uint16 >()
-        .Ctor< Uint16, Uint8 >()
-        .Ctor< Uint16, Uint8, Uint8 >()
-        .Ctor< Uint16, Uint8, Uint8, Uint8 >()
-        .Ctor< Uint16, Uint8, Uint8, Uint8, Uint8 >()
-        .Ctor< Uint16, Uint8, Uint8, Uint8, Uint8, Uint8 >()
-        .Ctor< Uint16, Uint8, Uint8, Uint8, Uint8, Uint8, Uint16 >()
+        .Ctor< uint16_t >()
+        .Ctor< uint16_t, uint8_t >()
+        .Ctor< uint16_t, uint8_t, uint8_t >()
+        .Ctor< uint16_t, uint8_t, uint8_t, uint8_t >()
+        .Ctor< uint16_t, uint8_t, uint8_t, uint8_t, uint8_t >()
+        .Ctor< uint16_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t >()
+        .Ctor< uint16_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint16_t >()
         // Static Properties
         .SetStaticValue(_SC("GlobalDelimiter"), &Datetime::Delimiter)
         .SetStaticValue(_SC("GlobalDateDelim"), &Datetime::DateDelim)
@@ -809,13 +809,13 @@ void Register_ChronoDatetime(HSQUIRRELVM vm, Table & /*cns*/)
         .Func(_SC("AndMillis"), &Datetime::AndMilliseconds)
         .Func(_SC("AndMilliseconds"), &Datetime::AndMilliseconds)
         // Overloaded Methods
-        .Overload< void (Datetime::*)(Uint16) >(_SC("Set"), &Datetime::Set)
-        .Overload< void (Datetime::*)(Uint16, Uint8) >(_SC("Set"), &Datetime::Set)
-        .Overload< void (Datetime::*)(Uint16, Uint8, Uint8) >(_SC("Set"), &Datetime::Set)
-        .Overload< void (Datetime::*)(Uint16, Uint8, Uint8, Uint8) >(_SC("Set"), &Datetime::Set)
-        .Overload< void (Datetime::*)(Uint16, Uint8, Uint8, Uint8, Uint8) >(_SC("Set"), &Datetime::Set)
-        .Overload< void (Datetime::*)(Uint16, Uint8, Uint8, Uint8, Uint8, Uint8) >(_SC("Set"), &Datetime::Set)
-        .Overload< void (Datetime::*)(Uint16, Uint8, Uint8, Uint8, Uint8, Uint8, Uint16) >(_SC("Set"), &Datetime::Set)
+        .Overload< void (Datetime::*)(uint16_t) >(_SC("Set"), &Datetime::Set)
+        .Overload< void (Datetime::*)(uint16_t, uint8_t) >(_SC("Set"), &Datetime::Set)
+        .Overload< void (Datetime::*)(uint16_t, uint8_t, uint8_t) >(_SC("Set"), &Datetime::Set)
+        .Overload< void (Datetime::*)(uint16_t, uint8_t, uint8_t, uint8_t) >(_SC("Set"), &Datetime::Set)
+        .Overload< void (Datetime::*)(uint16_t, uint8_t, uint8_t, uint8_t, uint8_t) >(_SC("Set"), &Datetime::Set)
+        .Overload< void (Datetime::*)(uint16_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t) >(_SC("Set"), &Datetime::Set)
+        .Overload< void (Datetime::*)(uint16_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint16_t) >(_SC("Set"), &Datetime::Set)
     );
 }
 

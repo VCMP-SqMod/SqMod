@@ -1,7 +1,7 @@
 #pragma once
 
 // ------------------------------------------------------------------------------------------------
-#include "Base/Shared.hpp"
+#include "Core/Common.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -28,13 +28,14 @@ class CVehicle
 {
     // --------------------------------------------------------------------------------------------
     friend class Core;
+    friend class VehicleInst;
 
 private:
 
     /* --------------------------------------------------------------------------------------------
      * Identifier of the managed entity.
     */
-    Int32       m_ID;
+    int32_t       m_ID;
 
     /* --------------------------------------------------------------------------------------------
      * User tag associated with this instance.
@@ -49,19 +50,19 @@ private:
     /* --------------------------------------------------------------------------------------------
      * Prevent events from triggering themselves.
     */
-    Uint32      m_CircularLocks;
+    uint32_t      m_CircularLocks;
 
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    explicit CVehicle(Int32 id);
+    explicit CVehicle(int32_t id);
 
 public:
 
     /* --------------------------------------------------------------------------------------------
      * Maximum possible number that could represent an identifier for this entity type.
     */
-    static const Int32 Max;
+    static const int32_t Max;
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
@@ -97,7 +98,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
     */
-    const String & ToString() const;
+    SQMOD_NODISCARD const String & ToString() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated null entity instance.
@@ -107,12 +108,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated null entity instance.
     */
-    static LightObj & GetNull();
+    SQMOD_NODISCARD static LightObj & GetNull();
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the identifier of the entity managed by this instance.
     */
-    Int32 GetID() const
+    SQMOD_NODISCARD int32_t GetID() const
     {
         return m_ID;
     }
@@ -120,7 +121,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Check whether this instance manages a valid entity.
     */
-    bool IsActive() const
+    SQMOD_NODISCARD bool IsActive() const
     {
         return VALID_ENTITY(m_ID);
     }
@@ -128,7 +129,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated user tag.
     */
-    const String & GetTag() const;
+    SQMOD_NODISCARD const String & GetTag() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user tag.
@@ -143,7 +144,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated user data.
     */
-    LightObj & GetData();
+    SQMOD_NODISCARD LightObj & GetData();
 
     /* --------------------------------------------------------------------------------------------
      * Modify the associated user data.
@@ -153,7 +154,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Destroy the managed vehicle entity.
     */
-    bool Destroy()
+    bool Destroy0() const // NOLINT(modernize-use-nodiscard)
     {
         return Destroy(0, NullLightObj());
     }
@@ -161,7 +162,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Destroy the managed vehicle entity.
     */
-    bool Destroy(Int32 header)
+    bool Destroy1(int32_t header) const // NOLINT(modernize-use-nodiscard)
     {
         return Destroy(header, NullLightObj());
     }
@@ -169,17 +170,17 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Destroy the managed vehicle entity.
     */
-    bool Destroy(Int32 header, LightObj & payload);
+    bool Destroy(int32_t header, LightObj & payload) const; // NOLINT(modernize-use-nodiscard)
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the events table of this entity.
     */
-    LightObj & GetEvents() const;
+    SQMOD_NODISCARD LightObj & GetEvents() const;
 
     /* --------------------------------------------------------------------------------------------
      * Emit a custom event for the managed entity
     */
-    void CustomEvent(Int32 header, LightObj & payload) const;
+    void CustomEvent(int32_t header, LightObj & payload) const;
 
     /* --------------------------------------------------------------------------------------------
      * See if the managed vehicle entity is streamed for the specified player.
@@ -189,57 +190,57 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the current option value of the managed vehicle entity.
     */
-    bool GetOption(Int32 option_id) const;
+    SQMOD_NODISCARD bool GetOption(int32_t option_id) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the current option value of the managed vehicle entity.
     */
-    void SetOption(Int32 option_id, bool toggle);
+    void SetOption(int32_t option_id, bool toggle);
 
     /* --------------------------------------------------------------------------------------------
      * Modify the current option value of the managed vehicle entity.
     */
-    void SetOptionEx(Int32 option_id, bool toggle, Int32 header, LightObj & payload);
+    void SetOptionEx(int32_t option_id, bool toggle, int32_t header, LightObj & payload);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the synchronization source of the managed vehicle entity.
     */
-    Int32 GetSyncSource() const;
+    SQMOD_NODISCARD int32_t GetSyncSource() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the synchronization type of the managed vehicle entity.
     */
-    Int32 GetSyncType() const;
+    SQMOD_NODISCARD int32_t GetSyncType() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the world in which the managed vehicle entity exists.
     */
-    Int32 GetWorld() const;
+    SQMOD_NODISCARD int32_t GetWorld() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the world in which the managed vehicle entity exists.
     */
-    void SetWorld(Int32 world);
+    void SetWorld(int32_t world);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the vehicle model of the managed vehicle entity.
     */
-    Int32 GetModel() const;
+    SQMOD_NODISCARD int32_t GetModel() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the slot occupant from the managed vehicle entity.
     */
-    LightObj & GetOccupant(Int32 slot) const;
+    SQMOD_NODISCARD LightObj & GetOccupant(int32_t slot) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the slot occupant identifier from the managed vehicle entity.
     */
-    Int32 GetOccupantID(Int32 slot) const;
+    SQMOD_NODISCARD int32_t GetOccupantID(int32_t slot) const;
 
     /* --------------------------------------------------------------------------------------------
      * See whether the managed vehicle entity has an occupant in a certain slot.
     */
-    bool HasOccupant(Int32 slot) const;
+    SQMOD_NODISCARD bool HasOccupant(int32_t slot) const;
 
     /* --------------------------------------------------------------------------------------------
      * Respawn the managed vehicle entity.
@@ -249,12 +250,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the immunity flags of the managed vehicle entity.
     */
-    Int32 GetImmunity() const;
+    SQMOD_NODISCARD int32_t GetImmunity() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the immunity flags of the managed vehicle entity.
     */
-    void SetImmunity(Int32 flags);
+    void SetImmunity(int32_t flags);
 
     /* --------------------------------------------------------------------------------------------
      * Explode the managed vehicle entity.
@@ -264,12 +265,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether the managed vehicle entity is wrecked.
     */
-    bool IsWrecked() const;
+    SQMOD_NODISCARD bool IsWrecked() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position of the managed vehicle entity.
     */
-    Vector3 GetPosition() const;
+    SQMOD_NODISCARD Vector3 GetPosition() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position of the managed vehicle entity.
@@ -279,22 +280,22 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the position of the managed vehicle entity.
     */
-    void SetPositionEx(const Vector3 & pos, bool empty) const;
+    void SetPositionB(const Vector3 & pos, bool empty) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position of the managed vehicle entity.
     */
-    void SetPositionEx(Float32 x, Float32 y, Float32 z) const;
+    void SetPositionEx(float x, float y, float z) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position of the managed vehicle entity.
     */
-    void SetPositionEx(Float32 x, Float32 y, Float32 z, bool empty) const;
+    void SetPositionExB(float x, float y, float z, bool empty) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the rotation of the managed vehicle entity.
     */
-    Quaternion GetRotation() const;
+    SQMOD_NODISCARD Quaternion GetRotation() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the rotation of the managed vehicle entity.
@@ -304,12 +305,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the rotation of the managed vehicle entity.
     */
-    void SetRotationEx(Float32 x, Float32 y, Float32 z, Float32 w) const;
+    void SetRotationEx(float x, float y, float z, float w) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the euler rotation of the managed vehicle entity.
     */
-    Vector3 GetRotationEuler() const;
+    SQMOD_NODISCARD Vector3 GetRotationEuler() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the euler rotation of the managed vehicle entity.
@@ -319,12 +320,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the euler rotation of the managed vehicle entity.
     */
-    void SetRotationEulerEx(Float32 x, Float32 y, Float32 z) const;
+    void SetRotationEulerEx(float x, float y, float z) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the speed of the managed vehicle entity.
     */
-    Vector3 GetSpeed() const;
+    SQMOD_NODISCARD Vector3 GetSpeed() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the speed of the managed vehicle entity.
@@ -334,7 +335,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the speed of the managed vehicle entity.
     */
-    void SetSpeedEx(Float32 x, Float32 y, Float32 z) const;
+    void SetSpeedEx(float x, float y, float z) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the speed of the managed vehicle entity.
@@ -344,12 +345,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the speed of the managed vehicle entity.
     */
-    void AddSpeedEx(Float32 x, Float32 y, Float32 z) const;
+    void AddSpeedEx(float x, float y, float z) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the relative speed of the managed vehicle entity.
     */
-    Vector3 GetRelativeSpeed() const;
+    SQMOD_NODISCARD Vector3 GetRelativeSpeed() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the relative speed of the managed vehicle entity.
@@ -359,7 +360,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the relative speed of the managed vehicle entity.
     */
-    void SetRelativeSpeedEx(Float32 x, Float32 y, Float32 z) const;
+    void SetRelativeSpeedEx(float x, float y, float z) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the relative speed of the managed vehicle entity.
@@ -369,12 +370,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the relative speed of the managed vehicle entity.
     */
-    void AddRelativeSpeedEx(Float32 x, Float32 y, Float32 z) const;
+    void AddRelativeSpeedEx(float x, float y, float z) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the turn speed of the managed vehicle entity.
     */
-    Vector3 GetTurnSpeed() const;
+    SQMOD_NODISCARD Vector3 GetTurnSpeed() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the turn speed of the managed vehicle entity.
@@ -384,7 +385,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the turn speed of the managed vehicle entity.
     */
-    void SetTurnSpeedEx(Float32 x, Float32 y, Float32 z) const;
+    void SetTurnSpeedEx(float x, float y, float z) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the turn speed of the managed vehicle entity.
@@ -394,12 +395,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the turn speed of the managed vehicle entity.
     */
-    void AddTurnSpeedEx(Float32 x, Float32 y, Float32 z) const;
+    void AddTurnSpeedEx(float x, float y, float z) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the relative turn speed of the managed vehicle entity.
     */
-    Vector3 GetRelativeTurnSpeed() const;
+    SQMOD_NODISCARD Vector3 GetRelativeTurnSpeed() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the relative turn speed of the managed vehicle entity.
@@ -409,7 +410,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the relative turn speed of the managed vehicle entity.
     */
-    void SetRelativeTurnSpeedEx(Float32 x, Float32 y, Float32 z) const;
+    void SetRelativeTurnSpeedEx(float x, float y, float z) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the relative turn speed of the managed vehicle entity.
@@ -419,12 +420,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the relative turn speed of the managed vehicle entity.
     */
-    void AddRelativeTurnSpeedEx(Float32 x, Float32 y, Float32 z) const;
+    void AddRelativeTurnSpeedEx(float x, float y, float z) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the spawn position of the managed vehicle entity.
     */
-    Vector3 GetSpawnPosition() const;
+    SQMOD_NODISCARD Vector3 GetSpawnPosition() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the spawn position of the managed vehicle entity.
@@ -434,12 +435,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the spawn position of the managed vehicle entity.
     */
-    void SetSpawnPositionEx(Float32 x, Float32 y, Float32 z) const;
+    void SetSpawnPositionEx(float x, float y, float z) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the spawn rotation of the managed vehicle entity.
     */
-    Quaternion GetSpawnRotation() const;
+    SQMOD_NODISCARD Quaternion GetSpawnRotation() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the spawn rotation of the managed vehicle entity.
@@ -449,12 +450,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the spawn rotation of the managed vehicle entity.
     */
-    void SetSpawnRotationEx(Float32 x, Float32 y, Float32 z, Float32 w) const;
+    void SetSpawnRotationEx(float x, float y, float z, float w) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the euler spawn rotation of the managed vehicle entity.
     */
-    Vector3 GetSpawnRotationEuler() const;
+    SQMOD_NODISCARD Vector3 GetSpawnRotationEuler() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the euler spawn rotation of the managed vehicle entity.
@@ -464,27 +465,27 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the euler spawn rotation of the managed vehicle entity.
     */
-    void SetSpawnRotationEulerEx(Float32 x, Float32 y, Float32 z) const;
+    void SetSpawnRotationEulerEx(float x, float y, float z) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the respawn timer of the managed vehicle entity.
     */
-    Uint32 GetIdleRespawnTimer() const;
+    SQMOD_NODISCARD uint32_t GetIdleRespawnTimer() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the respawn timer of the managed vehicle entity.
     */
-    void SetIdleRespawnTimer(Uint32 millis) const;
+    void SetIdleRespawnTimer(uint32_t millis) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the health of the managed vehicle entity.
     */
-    Float32 GetHealth() const;
+    SQMOD_NODISCARD float GetHealth() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the health of the managed vehicle entity.
     */
-    void SetHealth(Float32 amount) const;
+    void SetHealth(float amount) const;
 
     /* --------------------------------------------------------------------------------------------
      * Fix the damage and restore health for the managed vehicle entity.
@@ -494,102 +495,102 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the primary color of the managed vehicle entity.
     */
-    Int32 GetPrimaryColor() const;
+    SQMOD_NODISCARD int32_t GetPrimaryColor() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the primary color of the managed vehicle entity.
     */
-    void SetPrimaryColor(Int32 col) const;
+    void SetPrimaryColor(int32_t col) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the secondary color of the managed vehicle entity.
     */
-    Int32 GetSecondaryColor() const;
+    SQMOD_NODISCARD int32_t GetSecondaryColor() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the secondary color of the managed vehicle entity.
     */
-    void SetSecondaryColor(Int32 col) const;
+    void SetSecondaryColor(int32_t col) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the primary and secondary colors of the managed vehicle entity.
     */
-    void SetColors(Int32 primary, Int32 secondary) const;
+    void SetColors(int32_t primary, int32_t secondary) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the part status of the managed vehicle entity.
     */
-    Int32 GetPartStatus(Int32 part) const;
+    SQMOD_NODISCARD int32_t GetPartStatus(int32_t part) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the part status of the managed vehicle entity.
     */
-    void SetPartStatus(Int32 part, Int32 status);
+    void SetPartStatus(int32_t part, int32_t status);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the tyre status of the managed vehicle entity.
     */
-    Int32 GetTyreStatus(Int32 tyre) const;
+    SQMOD_NODISCARD int32_t GetTyreStatus(int32_t tyre) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the tyre status of the managed vehicle entity.
     */
-    void SetTyreStatus(Int32 tyre, Int32 status);
+    void SetTyreStatus(int32_t tyre, int32_t status);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the damage data of the managed vehicle entity.
     */
-    Uint32 GetDamageData() const;
+    SQMOD_NODISCARD uint32_t GetDamageData() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the damage data of the managed vehicle entity.
     */
-    void SetDamageData(Uint32 data);
+    void SetDamageData(uint32_t data);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the radio of the managed vehicle entity.
     */
-    Int32 GetRadio() const;
+    SQMOD_NODISCARD int32_t GetRadio() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the radio of the managed vehicle entity.
     */
-    void SetRadio(Int32 radio);
+    void SetRadio(int32_t radio);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the turret rotation of the managed vehicle entity.
     */
-    Vector2 GetTurretRotation() const;
+    SQMOD_NODISCARD Vector2 GetTurretRotation() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the horizontal turret rotation of the managed vehicle entity.
     */
-    Float32 GetHorizontalTurretRotation() const;
+    SQMOD_NODISCARD float GetHorizontalTurretRotation() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the vertical turret rotation of the managed vehicle entity.
     */
-    Float32 GetVerticalTurretRotation() const;
+    SQMOD_NODISCARD float GetVerticalTurretRotation() const;
 
     /* --------------------------------------------------------------------------------------------
-     * See whether the specified handling ruleexists in the managed vehicle entity.
+     * See whether the specified handling rule exists in the managed vehicle entity.
     */
-    bool ExistsHandlingRule(Int32 rule) const;
+    SQMOD_NODISCARD bool ExistsHandlingRule(int32_t rule) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the handling data of the managed vehicle entity.
     */
-    SQFloat GetHandlingRule(Int32 rule) const;
+    SQMOD_NODISCARD SQFloat GetHandlingRule(int32_t rule) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the handling data of the managed vehicle entity.
     */
-    void SetHandlingRule(Int32 rule, Float32 data);
+    void SetHandlingRule(int32_t rule, float data);
 
     /* --------------------------------------------------------------------------------------------
      * Reset the specified handling rule for the managed vehicle entity.
     */
-    void ResetHandlingRule(Int32 rule);
+    void ResetHandlingRule(int32_t rule);
 
     /* --------------------------------------------------------------------------------------------
      * Reset all the handling rules for the managed vehicle entity.
@@ -599,12 +600,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the lights data for the managed vehicle entity.
     */
-    Int32 GetLightsData() const;
+    SQMOD_NODISCARD int32_t GetLightsData() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the lights data for the managed vehicle entity.
     */
-    void SetLightsData(Int32 data) const;
+    void SetLightsData(int32_t data) const;
 
     /* --------------------------------------------------------------------------------------------
      * Embark the specified player entity into the managed vehicle entity.
@@ -614,7 +615,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Embark the specified player entity into the managed vehicle entity.
     */
-    bool Embark(CPlayer & player, Int32 slot, bool allocate, bool warp) const;
+    bool EmbarkEx(CPlayer & player, int32_t slot, bool allocate, bool warp) const;
 #if SQMOD_SDK_LEAST(2, 1)
     /* --------------------------------------------------------------------------------------------
      * Set whether the target player will see an objective arrow over a vehicle.
@@ -624,7 +625,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether the target player sees an objective arrow over a vehicle.
     */
-    bool GetPlayer3DArrow(CPlayer & target) const;
+    SQMOD_NODISCARD bool GetPlayer3DArrow(CPlayer & target) const;
 
     /* --------------------------------------------------------------------------------------------
      * Set whether the target player will see an objective arrow over a vehicle.
@@ -634,12 +635,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * See whether the target player sees an objective arrow over a vehicle.
     */
-    bool GetPlayer3DArrowID(SQInteger id) const;
+    SQMOD_NODISCARD bool GetPlayer3DArrowID(SQInteger id) const;
 #endif
     /* --------------------------------------------------------------------------------------------
      * See whether the managed vehicle entity collides with user defined areas.
     */
-    bool GetCollideAreas() const;
+    SQMOD_NODISCARD bool GetCollideAreas() const;
 
     /* --------------------------------------------------------------------------------------------
      * Set whether the managed vehicle entity can collide with user defined areas.
@@ -654,7 +655,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the amount of tracked position changes for the managed vehicle entity.
     */
-    SQInteger GetTrackPosition() const;
+    SQMOD_NODISCARD SQInteger GetTrackPosition() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the amount of tracked position changes for the managed vehicle entity.
@@ -664,7 +665,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the amount of tracked rotation changes for the managed vehicle entity.
     */
-    SQInteger GetTrackRotation() const;
+    SQMOD_NODISCARD SQInteger GetTrackRotation() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the amount of tracked rotation changes for the managed vehicle entity.
@@ -674,32 +675,32 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the last known primary color for the managed vehicle entity.
     */
-    Int32 GetLastPrimaryColor() const;
+    SQMOD_NODISCARD int32_t GetLastPrimaryColor() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the last known secondary color for the managed vehicle entity.
     */
-    Int32 GetLastSecondaryColor() const;
+    SQMOD_NODISCARD int32_t GetLastSecondaryColor() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the last known health for the managed vehicle entity.
     */
-    Float32 GetLastHealth() const;
+    SQMOD_NODISCARD float GetLastHealth() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the last known position for the managed vehicle entity.
     */
-    const Vector3 & GetLastPosition() const;
+    SQMOD_NODISCARD const Vector3 & GetLastPosition() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the last known rotation for the managed vehicle entity.
     */
-    const Quaternion & GetLastRotation() const;
+    SQMOD_NODISCARD const Quaternion & GetLastRotation() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the distance traveled by the managed vehicle entity while tracking was enabled.
     */
-    SQFloat GetDistance() const;
+    SQMOD_NODISCARD SQFloat GetDistance() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the distance traveled by the managed vehicle entity.
@@ -709,7 +710,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Check whether distance tracking is enabled for the managed vehicle entity.
     */
-    bool GetTrackDistance() const;
+    SQMOD_NODISCARD bool GetTrackDistance() const;
 
     /* --------------------------------------------------------------------------------------------
      * Set whether distance tracking is enabled for the managed vehicle entity.
@@ -719,222 +720,222 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the x axis of the managed vehicle entity.
     */
-    Float32 GetPositionX() const;
+    SQMOD_NODISCARD float GetPositionX() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the y axis of the managed vehicle entity.
     */
-    Float32 GetPositionY() const;
+    SQMOD_NODISCARD float GetPositionY() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position on the z axis of the managed vehicle entity.
     */
-    Float32 GetPositionZ() const;
+    SQMOD_NODISCARD float GetPositionZ() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position on the x axis of the managed vehicle entity.
     */
-    void SetPositionX(Float32 x) const;
+    void SetPositionX(float x) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position on the y axis of the managed vehicle entity.
     */
-    void SetPositionY(Float32 y) const;
+    void SetPositionY(float y) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the position on the z axis of the managed vehicle entity.
     */
-    void SetPositionZ(Float32 z) const;
+    void SetPositionZ(float z) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the rotation on the x axis of the managed vehicle entity.
     */
-    Float32 GetRotationX() const;
+    SQMOD_NODISCARD float GetRotationX() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the rotation on the y axis of the managed vehicle entity.
     */
-    Float32 GetRotationY() const;
+    SQMOD_NODISCARD float GetRotationY() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the rotation on the z axis of the managed vehicle entity.
     */
-    Float32 GetRotationZ() const;
+    SQMOD_NODISCARD float GetRotationZ() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the rotation amount of the managed vehicle entity.
     */
-    Float32 GetRotationW() const;
+    SQMOD_NODISCARD float GetRotationW() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the rotation on the x axis of the managed vehicle entity.
     */
-    void SetRotationX(Float32 x) const;
+    void SetRotationX(float x) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the rotation on the y axis of the managed vehicle entity.
     */
-    void SetRotationY(Float32 y) const;
+    void SetRotationY(float y) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the rotation on the z axis of the managed vehicle entity.
     */
-    void SetRotationZ(Float32 z) const;
+    void SetRotationZ(float z) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the rotation amount of the managed vehicle entity.
     */
-    void SetRotationW(Float32 w) const;
+    void SetRotationW(float w) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the euler rotation on the x axis of the managed vehicle entity.
     */
-    Float32 GetEulerRotationX() const;
+    SQMOD_NODISCARD float GetEulerRotationX() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the euler rotation on the y axis of the managed vehicle entity.
     */
-    Float32 GetEulerRotationY() const;
+    SQMOD_NODISCARD float GetEulerRotationY() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the euler rotation on the z axis of the managed vehicle entity.
     */
-    Float32 GetEulerRotationZ() const;
+    SQMOD_NODISCARD float GetEulerRotationZ() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the euler rotation on the x axis of the managed vehicle entity.
     */
-    void SetEulerRotationX(Float32 x) const;
+    void SetEulerRotationX(float x) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the euler rotation on the y axis of the managed vehicle entity.
     */
-    void SetEulerRotationY(Float32 y) const;
+    void SetEulerRotationY(float y) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the euler rotation on the z axis of the managed vehicle entity.
     */
-    void SetEulerRotationZ(Float32 z) const;
+    void SetEulerRotationZ(float z) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the velocity on the x axis of the managed vehicle entity.
     */
-    Float32 GetSpeedX() const;
+    SQMOD_NODISCARD float GetSpeedX() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the velocity on the y axis of the managed vehicle entity.
     */
-    Float32 GetSpeedY() const;
+    SQMOD_NODISCARD float GetSpeedY() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the velocity on the z axis of the managed vehicle entity.
     */
-    Float32 GetSpeedZ() const;
+    SQMOD_NODISCARD float GetSpeedZ() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the velocity on the x axis of the managed vehicle entity.
     */
-    void SetSpeedX(Float32 x) const;
+    void SetSpeedX(float x) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the velocity on the y axis of the managed vehicle entity.
     */
-    void SetSpeedY(Float32 y) const;
+    void SetSpeedY(float y) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the velocity on the z axis of the managed vehicle entity.
     */
-    void SetSpeedZ(Float32 z) const;
+    void SetSpeedZ(float z) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the relative velocity on the x axis of the managed vehicle entity.
     */
-    Float32 GetRelativeSpeedX() const;
+    SQMOD_NODISCARD float GetRelativeSpeedX() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the relative velocity on the y axis of the managed vehicle entity.
     */
-    Float32 GetRelativeSpeedY() const;
+    SQMOD_NODISCARD float GetRelativeSpeedY() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the relative velocity on the z axis of the managed vehicle entity.
     */
-    Float32 GetRelativeSpeedZ() const;
+    SQMOD_NODISCARD float GetRelativeSpeedZ() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the relative velocity on the x axis of the managed vehicle entity.
     */
-    void SetRelativeSpeedX(Float32 x) const;
+    void SetRelativeSpeedX(float x) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the relative velocity on the y axis of the managed vehicle entity.
     */
-    void SetRelativeSpeedY(Float32 y) const;
+    void SetRelativeSpeedY(float y) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the relative velocity on the z axis of the managed vehicle entity.
     */
-    void SetRelativeSpeedZ(Float32 z) const;
+    void SetRelativeSpeedZ(float z) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the turn velocity on the x axis of the managed vehicle entity.
     */
-    Float32 GetTurnSpeedX() const;
+    SQMOD_NODISCARD float GetTurnSpeedX() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the turn velocity on the y axis of the managed vehicle entity.
     */
-    Float32 GetTurnSpeedY() const;
+    SQMOD_NODISCARD float GetTurnSpeedY() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the turn velocity on the z axis of the managed vehicle entity.
     */
-    Float32 GetTurnSpeedZ() const;
+    SQMOD_NODISCARD float GetTurnSpeedZ() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the turn velocity on the x axis of the managed vehicle entity.
     */
-    void SetTurnSpeedX(Float32 x) const;
+    void SetTurnSpeedX(float x) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the turn velocity on the y axis of the managed vehicle entity.
     */
-    void SetTurnSpeedY(Float32 y) const;
+    void SetTurnSpeedY(float y) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the turn velocity on the z axis of the managed vehicle entity.
     */
-    void SetTurnSpeedZ(Float32 z) const;
+    void SetTurnSpeedZ(float z) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the relative turn velocity on the x axis of the managed vehicle entity.
     */
-    Float32 GetRelativeTurnSpeedX() const;
+    SQMOD_NODISCARD float GetRelativeTurnSpeedX() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the relative turn velocity on the y axis of the managed vehicle entity.
     */
-    Float32 GetRelativeTurnSpeedY() const;
+    SQMOD_NODISCARD float GetRelativeTurnSpeedY() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the relative turn velocity on the z axis of the managed vehicle entity.
     */
-    Float32 GetRelativeTurnSpeedZ() const;
+    SQMOD_NODISCARD float GetRelativeTurnSpeedZ() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the relative turn velocity on the x axis of the managed vehicle entity.
     */
-    void SetRelativeTurnSpeedX(Float32 x) const;
+    void SetRelativeTurnSpeedX(float x) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the relative turn velocity on the y axis of the managed vehicle entity.
     */
-    void SetRelativeTurnSpeedY(Float32 y) const;
+    void SetRelativeTurnSpeedY(float y) const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the relative turn velocity on the z axis of the managed vehicle entity.
     */
-    void SetRelativeTurnSpeedZ(Float32 z) const;
+    void SetRelativeTurnSpeedZ(float z) const;
 };
 
 } // Namespace:: SqMod

@@ -1,10 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Misc/Vehicle.hpp"
-#include "Base/Shared.hpp"
-
-// ------------------------------------------------------------------------------------------------
-#include <cstring>
-#include <algorithm>
+#include "Core/Utility.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -83,7 +79,7 @@ struct InitCustomVehicleNames
 } g_InitCustomVehicleNames{};
 
 // ------------------------------------------------------------------------------------------------
-String GetAutomobileName(Uint32 id)
+String GetAutomobileName(uint32_t id)
 {
     if (id > 129 && id < 237)
     {
@@ -102,7 +98,7 @@ String GetAutomobileName(Uint32 id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetAutomobileName(Uint32 id, StackStrF & name)
+void SetAutomobileName(uint32_t id, StackStrF & name)
 {
     if (id > 129 && id < 237)
     {
@@ -119,7 +115,7 @@ void SetAutomobileName(Uint32 id, StackStrF & name)
 }
 
 // ------------------------------------------------------------------------------------------------
-Int32 GetAutomobileID(StackStrF & name)
+int32_t GetAutomobileID(StackStrF & name)
 {
     // Clone the string into an editable version
     String str(name.mPtr, static_cast< size_t >(name.mLen));
@@ -133,7 +129,7 @@ Int32 GetAutomobileID(StackStrF & name)
         return SQMOD_UNKNOWN;
     }
     // Grab the actual length of the string
-    const Uint32 len = ConvTo< Uint32 >::From(str.length());
+    const uint32_t len = ConvTo< uint32_t >::From(str.length());
     // Get the most significant characters used to identify a vehicle
     CharT a = str[0], b = 0, c = 0, d = str[len-1];
     // Look for deeper specifiers
@@ -691,11 +687,11 @@ Int32 GetAutomobileID(StackStrF & name)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool IsAutomobileValid(Int32 id)
+bool IsAutomobileValid(int32_t id)
 {
     try
     {
-        return !GetAutomobileName(static_cast< Uint32 >(id)).empty();
+        return !GetAutomobileName(static_cast< uint32_t >(id)).empty();
     }
     catch (...)
     {
