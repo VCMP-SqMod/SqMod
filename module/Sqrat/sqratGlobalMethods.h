@@ -122,7 +122,7 @@ template <class R> struct SqGlobal {
 #endif
             try {
                 return SqGlobalProxy<R>::template Run<A...>(vm, startIdx);
-            } catch (const Exception& e) {
+            } catch (const std::exception& e) {
                 return sq_throwerror(vm, e.what());
             } catch (...) {
                 return sq_throwerror(vm, _SC("unknown exception occured"));
@@ -148,7 +148,7 @@ template <class R> struct SqGlobal<R&> {
 #endif
             try {
                 return SqGlobalProxy<R&>::template Run<A...>(vm, startIdx);
-            } catch (const Exception& e) {
+            } catch (const std::exception& e) {
                 return sq_throwerror(vm, e.what());
             } catch (...) {
                 return sq_throwerror(vm, _SC("unknown exception occured"));
@@ -174,7 +174,7 @@ template <> struct SqGlobal<void> {
 #endif
             try {
                 return SqGlobalProxy<void>::Run<A...>(vm, startIdx);
-            } catch (const Exception& e) {
+            } catch (const std::exception& e) {
                 return sq_throwerror(vm, e.what());
             } catch (...) {
                 return sq_throwerror(vm, _SC("unknown exception occured"));

@@ -152,7 +152,7 @@ template <class C,class R> struct SqMember {
 #endif
             try {
                 return SqMemberProxy<C, R>:: template Run<A...>(vm);
-            } catch (const Exception& e) {
+            } catch (const std::exception& e) {
                 return sq_throwerror(vm, e.what());
             } catch (...) {
                 return sq_throwerror(vm, _SC("unknown exception occured"));
@@ -171,7 +171,7 @@ template <class C,class R> struct SqMember {
 #endif
             try {
                 return SqMemberProxy<C,R>::template RunC<A...>(vm);
-            } catch (const Exception& e) {
+            } catch (const std::exception& e) {
                 return sq_throwerror(vm, e.what());
             } catch (...) {
                 return sq_throwerror(vm, _SC("unknown exception occured"));
@@ -197,7 +197,7 @@ template <class C, class R> struct SqMember<C,R&> {
 #endif
             try {
                 return SqMemberProxy<C,R&>::template Run<A...>(vm);
-            } catch (const Exception& e) {
+            } catch (const std::exception& e) {
                 return sq_throwerror(vm, e.what());
             } catch (...) {
                 return sq_throwerror(vm, _SC("unknown exception occured"));
@@ -216,7 +216,7 @@ template <class C, class R> struct SqMember<C,R&> {
 #endif
             try {
                 return SqMemberProxy<C,R&>::template RunC<A...>(vm);
-            } catch (const Exception& e) {
+            } catch (const std::exception& e) {
                 return sq_throwerror(vm, e.what());
             } catch (...) {
                 return sq_throwerror(vm, _SC("unknown exception occured"));
@@ -243,7 +243,7 @@ template <class C> struct SqMember<C, void> {
 #endif
             try {
                 return SqMemberProxy<C, void>::template Run<A...>(vm);
-            } catch (const Exception& e) {
+            } catch (const std::exception& e) {
                 return sq_throwerror(vm, e.what());
             } catch (...) {
                 return sq_throwerror(vm, _SC("unknown exception occured"));
@@ -262,7 +262,7 @@ template <class C> struct SqMember<C, void> {
 #endif
             try {
                 return SqMemberProxy<C,void>::template RunC<A...>(vm);
-            } catch (const Exception& e) {
+            } catch (const std::exception& e) {
                 return sq_throwerror(vm, e.what());
             } catch (...) {
                 return sq_throwerror(vm, _SC("unknown exception occured"));

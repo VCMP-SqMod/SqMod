@@ -125,7 +125,7 @@ public:
             SetInstance(vm, 1, ArgFwd<A...>{}.Call(vm, 2, [](HSQUIRRELVM /*vm*/, A... a) -> C * {
                 return new C(a...);
             }));
-        } catch (const Exception& e) {
+        } catch (const std::exception& e) {
             return sq_throwerror(vm, e.what());
         } catch (...) {
             return sq_throwerror(vm, _SC("unknown exception occured"));
@@ -497,7 +497,7 @@ public:
             SetInstance(vm, 1, ArgFwd<A...>{}.Call(vm, 2, [](HSQUIRRELVM /*vm*/, A... a) -> C * {
                 return new C(a...);
             }));
-        } catch (const Exception& e) {
+        } catch (const std::exception& e) {
             return sq_throwerror(vm, e.what());
         } catch (...) {
             return sq_throwerror(vm, _SC("unknown exception occured"));
