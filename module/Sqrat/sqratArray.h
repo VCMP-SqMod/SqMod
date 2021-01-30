@@ -505,6 +505,22 @@ public:
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Reallocates the Array
+    ///
+    /// \param newcap Desired capacity of the Array in number of elements
+    ///
+    /// \return The Array itself so the call can be chained
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ArrayBase& Reserve(const SQInteger newcap) {
+        HSQUIRRELVM vm = SqVM();
+        sq_pushobject(vm, GetObj());
+        sq_arrayreserve(vm, -1, newcap);
+        sq_pop(vm,1); // pop array
+        return *this;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Reverses the elements of the array in place
     ///
     /// \return The Array itself so the call can be chained
