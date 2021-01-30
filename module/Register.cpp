@@ -48,6 +48,9 @@ extern void Register_Worker(HSQUIRRELVM vm);
 extern void Register_Web(HSQUIRRELVM vm);
 
 // ------------------------------------------------------------------------------------------------
+extern void Register_POCO_Data(HSQUIRRELVM vm);
+
+// ------------------------------------------------------------------------------------------------
 extern void Register_Constants(HSQUIRRELVM vm);
 extern void Register_Log(HSQUIRRELVM vm);
 extern void Register_Core(HSQUIRRELVM vm);
@@ -100,6 +103,8 @@ bool RegisterAPI(HSQUIRRELVM vm)
     Register_Utils(vm);
     //Register_Worker(vm);
     //Register_Web(vm);
+
+    Register_POCO_Data(vm);
 
     Register_Constants(vm);
     Register_Log(vm);

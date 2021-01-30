@@ -37,6 +37,7 @@ namespace SqMod {
 extern bool RegisterAPI(HSQUIRRELVM vm);
 
 // ------------------------------------------------------------------------------------------------
+extern void PocoStartup();
 extern void InitializeTasks();
 extern void InitializeRoutines();
 extern void TerminateAreas();

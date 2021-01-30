@@ -46,7 +46,7 @@ add_library(SqModule MODULE SqBase.hpp Main.cpp
 	# Entity
 	Entity/Blip.cpp Entity/Blip.hpp
 	Entity/Checkpoint.cpp Entity/Checkpoint.hpp
-        Entity/KeyBind.cpp Entity/KeyBind.hpp
+    Entity/KeyBind.cpp Entity/KeyBind.hpp
 	Entity/Object.cpp Entity/Object.hpp
 	Entity/Pickup.cpp Entity/Pickup.hpp
 	Entity/Player.cpp Entity/Player.hpp
@@ -64,8 +64,6 @@ add_library(SqModule MODULE SqBase.hpp Main.cpp
 	Library/IO/Buffer.cpp Library/IO/Buffer.hpp
 	Library/IO/File.cpp Library/IO/File.hpp
 	Library/IO/INI.cpp Library/IO/INI.hpp
-	Library/IO/JSON.cpp Library/IO/JSON.hpp
-	Library/IO/XML.cpp Library/IO/XML.hpp
 	Library/Numeric.cpp Library/Numeric.hpp
 	Library/Numeric/Long.cpp Library/Numeric/Long.hpp
 	Library/Numeric/Math.cpp Library/Numeric/Math.hpp
@@ -76,6 +74,7 @@ add_library(SqModule MODULE SqBase.hpp Main.cpp
 	Library/System/Env.cpp Library/System/Env.hpp
 	Library/System/Path.cpp Library/System/Path.hpp
 	Library/Utils.cpp Library/Utils.hpp
+	Library/Utils/Vector.cpp Library/Utils/Vector.hpp
 	# Misc
 	Misc/Broadcast.cpp
 	Misc/Constants.cpp
@@ -86,6 +85,14 @@ add_library(SqModule MODULE SqBase.hpp Main.cpp
 	Misc/Player.cpp Misc/Player.hpp
 	Misc/Vehicle.cpp Misc/Vehicle.hpp
 	Misc/Weapon.cpp Misc/Weapon.hpp
+	# POCO
+	PocoLib/Crypto.cpp PocoLib/Crypto.hpp
+	PocoLib/Data.cpp PocoLib/Data.hpp
+	PocoLib/Foundation.cpp PocoLib/Foundation.hpp
+	PocoLib/JSON.cpp PocoLib/JSON.hpp
+	PocoLib/Net.cpp PocoLib/Net.hpp
+	PocoLib/Util.cpp PocoLib/Util.hpp
+	PocoLib/XML.cpp PocoLib/XML.hpp
 	# 
 	Core.cpp Core.hpp
 	Logger.cpp Logger.hpp
@@ -99,7 +106,30 @@ endif()
 # Link to base libraries
 target_link_libraries(SqModule Squirrel FmtLib SimpleINI TinyDir ConcurrentQueue cpr::cpr)
 # Link to POCO libraries
-target_link_libraries(SqModule Poco::Foundation Poco::Encodings Poco::Crypto Poco::Util Poco::Data Poco::Net Poco::JSON Poco::XML Poco::Zip Poco::JWT Poco::Redis)
+target_link_libraries(SqModule Poco::Foundation Poco::Encodings Poco::Crypto Poco::Util Poco::Data Poco::Net Poco::JSON Poco::XML Poco::Zip Poco::JWT Poco::Redis Poco::MongoDB)
+# Does POCO have SQLite support?
+if(ENABLE_DATA_SQLITE)
+	# Link the libraries
+	target_link_libraries(SqModule Poco::DataSQLite)
+	# Inform the plugin that it can make use of this library
+	target_compile_definitions(SqModule PRIVATE SQMOD_POCO_HAS_SQLITE=1)
+endif()
+# Does POCO have MySLQ support?
+find_package(MySQL)
+if(MYSQL_FOUND)
+	# Link the libraries
+	target_link_libraries(SqModule Poco::DataMySQL)
+	# Inform the plugin that it can make use of this library
+	target_compile_definitions(SqModule PRIVATE SQMOD_POCO_HAS_MYSQL=1)
+endif()
+# Does POCO have PostgreSQL support?
+find_package(PostgreSQL)
+if(POSTGRESQL_FOUND)
+	# Link the libraries
+	target_link_libraries(SqModule Poco::DataPostgreSQL)
+	# Inform the plugin that it can make use of this library
+	target_compile_definitions(SqModule PRIVATE SQMOD_POCO_HAS_POSTGRESQL=1)
+endif()
 # Determine if build mode
 if(CMAKE_BUILD_TYPE MATCHES "(Release)+")
 	target_compile_definitions(SqModule PRIVATE NDEBUG=1)

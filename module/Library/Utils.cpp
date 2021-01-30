@@ -81,12 +81,19 @@ static SQInteger SqExtractIPv4(HSQUIRRELVM vm)
     return 1;
 }
 
+// ------------------------------------------------------------------------------------------------
+extern void Register_Vector(HSQUIRRELVM vm, Table & ns);
+
 // ================================================================================================
 void Register_Utils(HSQUIRRELVM vm)
 {
-    RootTable(vm).Bind(_SC("SqUtils"), Table(vm)
-        .SquirrelFunc(_SC("ExtractIPv4"), &SqExtractIPv4)
-    );
+    Table ns(vm);
+
+    Register_Vector(vm, ns);
+
+    ns.SquirrelFunc(_SC("ExtractIPv4"), &SqExtractIPv4);
+
+    RootTable(vm).Bind(_SC("SqUtils"), ns);
 }
 
 } // Namespace:: SqMod

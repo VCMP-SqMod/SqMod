@@ -18,6 +18,7 @@ static bool g_Reload = false;
 
 // ------------------------------------------------------------------------------------------------
 //extern void InitExports();
+extern void InitializePocoDataConnectors();
 extern void ProcessTasks();
 extern void ProcessRoutines();
 
@@ -969,6 +970,9 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
     // Attempt to initialize the plug-in core
     try
     {
+        // External plugs that need to happen (once) before initialization
+        InitializePocoDataConnectors();
+        // Proceed with plug-in initialization
         if (!Core::Get().Initialize())
         {
             LogFtl("Unable to initialize the plug-in central core");
