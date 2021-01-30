@@ -90,7 +90,7 @@ public:
                 sq_push(v, -2);
                 sq_rawset(v, -4);
             }
-            sq_pushstring(v, className.c_str(), -1);
+            sq_pushstring(v, className.c_str(), static_cast<SQInteger>(className.size()));
             auto** ud = reinterpret_cast<ClassData<C>**>(sq_newuserdata(v, sizeof(ClassData<C>*)));
             *ud = new ClassData<C>;
             sq_setreleasehook(v, -1, &cleanup_hook);

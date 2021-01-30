@@ -237,16 +237,17 @@ public:
     }
 
     static C* GetInstance(HSQUIRRELVM vm, SQInteger idx, bool nullAllowed = false) {
-        AbstractStaticClassData* classType = nullptr;
+        //AbstractStaticClassData* classType = nullptr;
+        AbstractStaticClassData* classType = StaticClassTypeTag<C>::Get();
         std::pair<C*, SharedPtr<std::unordered_map<C*, HSQOBJECT>> >* instance = nullptr;
-        if (hasClassData(vm)) /* type checking only done if the value has type data else it may be enum */
+        //if (hasClassData(vm)) /* type checking only done if the value has type data else it may be enum */
+        if (classType!=nullptr) /* type checking only done if the value has type data else it may be enum */
         {
             if (nullAllowed && sq_gettype(vm, idx) == OT_NULL) {
                 return nullptr;
             }
 
             //classType = getStaticClassData().Lock().Get();
-            classType = StaticClassTypeTag<C>::Get();
 
 #if !defined (SCRAT_NO_ERROR_CHECKING)
             if (SQ_FAILED(sq_getinstanceup(vm, idx, (SQUserPointer*)&instance, classType))) {
