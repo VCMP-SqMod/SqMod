@@ -372,10 +372,10 @@ public:
     /// Retrieves the type-tag of the managed object
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    AbstractStaticClassData * GetTypeTag() const {
-        AbstractStaticClassData* typeTag;
+    SQUserPointer GetTypeTag() {
+        SQUserPointer typeTag;
         sq_pushobject(SqVM(), GetObj());
-        sq_gettypetag(SqVM(), -1, (SQUserPointer*)&typeTag);
+        sq_gettypetag(SqVM(), -1, &typeTag);
         sq_pop(SqVM(), 1);
         return typeTag;
     }
