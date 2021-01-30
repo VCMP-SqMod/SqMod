@@ -15,6 +15,7 @@ SQUIRREL_API SQRESULT sq_throwerrorf(HSQUIRRELVM v,const SQChar *err,...);
 SQUIRREL_API SQRESULT sq_pushstringf(HSQUIRRELVM v,const SQChar *s,...);
 SQUIRREL_API SQRESULT sq_vpushstringf(HSQUIRRELVM v,const SQChar *s,va_list l);
 SQUIRREL_API SQRESULT sq_getnativeclosurepointer(HSQUIRRELVM v,SQInteger idx,SQFUNCTION *f);
+SQUIRREL_API SQRESULT sq_arrayreserve(HSQUIRRELVM v,SQInteger idx,SQInteger newcap);
 
 #ifdef __cplusplus
 } /*extern "C"*/

@@ -16,6 +16,24 @@
 #include <squirrelex.h>
 #include <stdarg.h>
 
+#define _GETSAFE_OBJ(v,idx,type,o) { if(!sq_aux_gettypedarg(v,idx,type,&o)) return SQ_ERROR; }
+
+#define sq_aux_paramscheck(v,count) \
+{ \
+    if(sq_gettop(v) < count){ v->Raise_Error(_SC("not enough params in the stack")); return SQ_ERROR; }\
+}
+
+static bool sq_aux_gettypedarg(HSQUIRRELVM v,SQInteger idx,SQObjectType type,SQObjectPtr **o)
+{
+    *o = &stack_get(v,idx);
+    if(sq_type(**o) != type){
+        SQObjectPtr oval = v->PrintObjVal(**o);
+        v->Raise_Error(_SC("wrong argument type, expected '%s' got '%.50s'"),IdType2Name(type),_stringval(oval));
+        return false;
+    }
+    return true;
+}
+
 SQRESULT sq_throwerrorf(HSQUIRRELVM v,const SQChar *err,...)
 {
     SQInteger n=256;
@@ -88,4 +106,16 @@ SQRESULT sq_getnativeclosurepointer(HSQUIRRELVM v,SQInteger idx,SQFUNCTION *f)
         return SQ_OK;
     }
     return sq_throwerror(v,_SC("the object is not a native closure"));
+}
+
+SQRESULT sq_arrayreserve(HSQUIRRELVM v,SQInteger idx,SQInteger newcap)
+{
+    sq_aux_paramscheck(v,1);
+    SQObjectPtr *arr;
+    _GETSAFE_OBJ(v, idx, OT_ARRAY,arr);
+    if(newcap >= 0) {
+        _array(*arr)->Reserve(newcap);
+        return SQ_OK;
+    }
+    return sq_throwerror(v,_SC("negative capacity"));
 }
