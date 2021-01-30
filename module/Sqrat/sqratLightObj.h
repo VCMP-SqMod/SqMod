@@ -181,6 +181,30 @@ struct LightObj {
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Constructs a LightObj from a C++ type
+    ///
+    /// \param t        Identity of the type to create.
+    /// \param v        VM that the object will exist in.
+    /// \param a        Arguments to forward to the type constructor.
+    ///
+    /// \tparam T Type of instance
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template<class T>
+    LightObj(SqInPlace SQ_UNUSED_ARG(t), HSQUIRRELVM vm, T value) {
+        // Push the value on the stack
+        Var<T>::PushInstance(vm, std::forward< T >(value));
+        // Attempt to retrieve it
+        if (SQ_FAILED(sq_getstackobj(vm, -1, &mObj))) {
+            sq_resetobject(&mObj);
+        } else {
+            sq_addref(vm, &mObj);
+        }
+        // Pop the value from the stack
+        sq_poptop(vm);
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Constructs an LightObj from a C++ instance wrapped inside a DeleteGuard
     ///
     /// \param instance Pointer to a C++ class instance that has been bound already
