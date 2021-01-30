@@ -99,15 +99,17 @@ public:
 
             ClassData<C>* cd = *ud;
 
-            if (ClassType<C>::getStaticClassData().Expired()) {
+            //if (ClassType<C>::getStaticClassData().Expired()) {
+            if (!ClassType<C>::getStaticClassData()) {
                 cd->staticData.Init(new StaticClassData<C, void>);
                 cd->staticData->copyFunc  = &A::Copy;
                 cd->staticData->className = string(className);
                 cd->staticData->baseClass = nullptr;
 
-                ClassType<C>::getStaticClassData() = cd->staticData;
+                //ClassType<C>::getStaticClassData() = cd->staticData;
             } else {
-                cd->staticData = ClassType<C>::getStaticClassData().Lock();
+                //cd->staticData = ClassType<C>::getStaticClassData().Lock();
+                throw Exception("investigate me!");
             }
 
             HSQOBJECT& classObj = cd->classObj;
