@@ -80,14 +80,10 @@ message(STATUS "SqMod: Using C++${CPP_STD_NUMBER} standard.")
 
 # Default to the identified standard
 if(CMAKE_VERSION VERSION_LESS "3.1")
-    if(${CMAKE_CXX_COMPILER_ID} MATCHES "(GNU)+")
-        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CPP_STD_COMPILER_FLAG}")
-    endif()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CPP_STD_COMPILER_FLAG}")
 else()
     # Apparently the above does not work with cmake from on debian 8
-    if(${CMAKE_CXX_COMPILER_ID} MATCHES "(GNU)+")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CPP_STD_COMPILER_FLAG}")
-    endif()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CPP_STD_COMPILER_FLAG}")
     # F* you too Debian. What can I say.
     if(CMAKE_VERSION VERSION_LESS "3.8.0" AND CPP_STD_NUMBER LESS 17)
         # Try the standard method as well
