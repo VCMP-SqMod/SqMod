@@ -399,7 +399,7 @@ struct LightObj {
         sq_pushobject(vm, mObj);
         Var<T> v(vm, -1);
         sq_pop(vm, 1);
-        return v.value;
+        return std::move(v.value);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
