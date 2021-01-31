@@ -386,7 +386,7 @@ enum EntityType
 
 #ifdef _SQ64
     // Chances are (u)int64_t is defined as long and not long long
-    #ifdef SQMOD_OS_LINUX && (LONG_MAX == LLONG_MAX)
+    #if defined(SQMOD_OS_LINUX) && (LONG_MAX == LLONG_MAX)
         #define PRINT_SZ_FMT "lu"
         #define PRINT_INT_FMT "ld"
         #define PRINT_UINT_FMT "lu"
