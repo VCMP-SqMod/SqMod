@@ -10,6 +10,8 @@
 #include <Poco/Base32Decoder.h>
 #include <Poco/Base64Encoder.h>
 #include <Poco/Base64Decoder.h>
+// ------------------------------------------------------------------------------------------------
+#include <Poco/Checksum.h>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -157,6 +159,7 @@ static SQInteger SqDecodeBase64(HSQUIRRELVM vm)
     {
         return val.mRes; // Propagate the error!
     }
+    // Prevent any exceptions from reach the VM
     try
     {
         // Create a string receiver
@@ -180,6 +183,62 @@ static SQInteger SqDecodeBase64(HSQUIRRELVM vm)
     return 1;
 }
 
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqGetCRC32(HSQUIRRELVM vm)
+{
+    // Attempt to retrieve the value from the stack as a string
+    StackStrF val(vm, 2);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.Proc(true)))
+    {
+        return val.mRes; // Propagate the error!
+    }
+    // Prevent any exceptions from reach the VM
+    try
+    {
+        // Create the checksum computer
+        Poco::Checksum c(Poco::Checksum::TYPE_CRC32);
+        // Give it the data to process
+        c.update(val.mPtr, static_cast< uint32_t >(val.mLen));
+        // Push the result on the stack
+        sq_pushinteger(vm, static_cast< SQInteger >(c.checksum()));
+    }
+    catch (const std::exception & e)
+    {
+        return sq_throwerrorf(vm, _SC("Failed to compute checksum: %s"), e.what());
+    }
+    // At this point we have a valid string on the stack
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqGetADLER32(HSQUIRRELVM vm)
+{
+    // Attempt to retrieve the value from the stack as a string
+    StackStrF val(vm, 2);
+    // Have we failed to retrieve the string?
+    if (SQ_FAILED(val.Proc(true)))
+    {
+        return val.mRes; // Propagate the error!
+    }
+    // Prevent any exceptions from reach the VM
+    try
+    {
+        // Create the checksum computer
+        Poco::Checksum c(Poco::Checksum::TYPE_ADLER32);
+        // Give it the data to process
+        c.update(val.mPtr, static_cast< uint32_t >(val.mLen));
+        // Push the result on the stack
+        sq_pushinteger(vm, static_cast< SQInteger >(c.checksum()));
+    }
+    catch (const std::exception & e)
+    {
+        return sq_throwerrorf(vm, _SC("Failed to compute checksum: %s"), e.what());
+    }
+    // At this point we have a valid string on the stack
+    return 1;
+}
+
 // ================================================================================================
 void Register_POCO_Crypto(HSQUIRRELVM vm)
 {
@@ -190,6 +249,8 @@ void Register_POCO_Crypto(HSQUIRRELVM vm)
     ns.SquirrelFunc(_SC("DecodeBase32"), &SqDecodeBase32);
     ns.SquirrelFunc(_SC("EncodeBase64"), &SqEncodeBase64);
     ns.SquirrelFunc(_SC("DecodeBase64"), &SqDecodeBase64);
+    ns.SquirrelFunc(_SC("CRC32"), &SqGetCRC32);
+    ns.SquirrelFunc(_SC("ADLER32"), &SqGetADLER32);
 
     RootTable(vm).Bind(_SC("SqCrypto"), ns);
 }

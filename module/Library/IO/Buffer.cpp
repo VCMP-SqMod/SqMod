@@ -11,6 +11,9 @@
 #include "Base/Vector4.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <Poco/Checksum.h>
+
+// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
@@ -390,6 +393,33 @@ Vector4 SqBuffer::ReadVector4()
     return Vector4(value);
 }
 
+// ------------------------------------------------------------------------------------------------
+SQInteger SqBuffer::GetCRC32(SQInteger n)
+{
+    // Validate the managed buffer reference
+    ValidateDeeper();
+    // Create the checksum computer
+    Poco::Checksum c(Poco::Checksum::TYPE_CRC32);
+    // Give it the data to process
+    c.update(&m_Buffer->Cursor< char >(), n >= 0 ? static_cast< uint32_t >(n) : m_Buffer->Remaining());
+    // return the result
+    return static_cast< SQInteger >(c.checksum());
+}
+
+// ------------------------------------------------------------------------------------------------
+SQInteger SqBuffer::GetADLER32(SQInteger n)
+{
+    // Validate the managed buffer reference
+    ValidateDeeper();
+    // Create the checksum computer
+    Poco::Checksum c(Poco::Checksum::TYPE_ADLER32);
+    // Give it the data to process
+    c.update(&m_Buffer->Cursor< char >(), n >= 0 ? static_cast< uint32_t >(n) : m_Buffer->Remaining());
+    // return the result
+    return static_cast< SQInteger >(c.checksum());
+
+}
+
 // ================================================================================================
 void Register_Buffer(HSQUIRRELVM vm)
 {
@@ -474,6 +504,8 @@ void Register_Buffer(HSQUIRRELVM vm)
         .Func(_SC("ReadVector2i"), &SqBuffer::ReadVector2i)
         .Func(_SC("ReadVector3"), &SqBuffer::ReadVector3)
         .Func(_SC("ReadVector4"), &SqBuffer::ReadVector4)
+        .Func(_SC("CRC32"), &SqBuffer::GetCRC32)
+        .Func(_SC("ADLER32"), &SqBuffer::GetADLER32)
     );
 }
 

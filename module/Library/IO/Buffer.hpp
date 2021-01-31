@@ -824,6 +824,16 @@ public:
      * Read a Vector4 from the buffer.
     */
     Vector4 ReadVector4();
+
+    /* --------------------------------------------------------------------------------------------
+     * Compute the CRC-32 checksums on the data in the buffer.
+    */
+    SQInteger GetCRC32(SQInteger n);
+
+    /* --------------------------------------------------------------------------------------------
+     * Compute the Adler-32 checksums on the data in the buffer.
+    */
+    SQInteger GetADLER32(SQInteger n);
 };
 
 } // Namespace:: SqMod
