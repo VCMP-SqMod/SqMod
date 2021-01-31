@@ -625,7 +625,7 @@ public:
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template<class F>
-    SQRESULT Foreach(F&& func) const
+    SQRESULT Foreach(F func) const
     {
         HSQUIRRELVM vm = SqVM();
         const StackGuard sg(vm);
