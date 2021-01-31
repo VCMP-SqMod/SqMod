@@ -49,12 +49,12 @@ else()
 endif()
 
 # Determine if build mode
-if(CMAKE_BUILD_TYPE MATCHES "(Debug)+")
+if(${CMAKE_BUILD_TYPE} MATCHES "(Debug)+")
 	add_compile_options(-g)
 endif()
 
 # Enable position independent code
-if(UNIX)
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
 

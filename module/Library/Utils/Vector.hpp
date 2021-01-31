@@ -222,7 +222,7 @@ template < class T > struct SqVector
     {
         if (static_cast< size_t >(i) >= mC->size())
         {
-            STHROWF("Invalid vector container index(" PRINT_INT_FMT ")", i);
+            STHROWF("Invalid vector container index(%d" PRINT_INT_FMT ")", i);
         }
         return *mC;
     }
@@ -234,7 +234,7 @@ template < class T > struct SqVector
     {
         if (static_cast< size_t >(i) >= mC->size())
         {
-            STHROWF("Invalid vector container index(" PRINT_INT_FMT ")", i);
+            STHROWF("Invalid vector container index(%d" PRINT_INT_FMT ")", i);
         }
         return *mC;
     }
@@ -623,7 +623,7 @@ template < class T > struct SqVector
         Validate();
         if (static_cast< size_t >(p) >= mC->size())
         {
-            STHROWF("Invalid container index (" PRINT_INT_FMT ")", p);
+            STHROWF("Invalid container index (%d" PRINT_INT_FMT ")", p);
         }
         for (auto i = static_cast< size_t >(p); n--; ++i)
         {
@@ -646,7 +646,7 @@ template < class T > struct SqVector
         }
         else if (static_cast< size_t >(p + n) >= mC->size())
         {
-            STHROWF("Invalid container index (" PRINT_INT_FMT ")", p + n);
+            STHROWF("Invalid container index (%d" PRINT_INT_FMT ")", p + n);
         }
         for (n = (p + n); p <= n; ++p)
         {

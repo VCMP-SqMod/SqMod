@@ -64,6 +64,7 @@ add_library(SqModule MODULE SqBase.hpp Main.cpp
 	Library/IO/Buffer.cpp Library/IO/Buffer.hpp
 	Library/IO/File.cpp Library/IO/File.hpp
 	Library/IO/INI.cpp Library/IO/INI.hpp
+	Library/MMDB.cpp Library/MMDB.hpp
 	Library/Numeric.cpp Library/Numeric.hpp
 	Library/Numeric/Long.cpp Library/Numeric/Long.hpp
 	Library/Numeric/Math.cpp Library/Numeric/Math.hpp
@@ -105,7 +106,7 @@ if(WIN32 OR MINGW)
 	target_link_libraries(SqModule wsock32 ws2_32 shlwapi)
 endif()
 # Link to base libraries
-target_link_libraries(SqModule Squirrel FmtLib SimpleINI TinyDir ConcurrentQueue cpr::cpr)
+target_link_libraries(SqModule Squirrel FmtLib SimpleINI TinyDir ConcurrentQueue cpr::cpr maxminddb::maxminddb)
 # Link to POCO libraries
 target_link_libraries(SqModule Poco::Foundation Poco::Encodings Poco::Crypto Poco::Util Poco::Data Poco::Net Poco::JSON Poco::XML Poco::Zip Poco::JWT Poco::Redis Poco::MongoDB)
 # Does POCO have SQLite support?
@@ -132,7 +133,7 @@ if(POSTGRESQL_FOUND)
 	target_compile_definitions(SqModule PRIVATE SQMOD_POCO_HAS_POSTGRESQL=1)
 endif()
 # Determine if build mode
-if(CMAKE_BUILD_TYPE MATCHES "(Release)+")
+if(${CMAKE_BUILD_TYPE} MATCHES "(Release)+")
 	target_compile_definitions(SqModule PRIVATE NDEBUG=1)
 else()
 	target_compile_definitions(SqModule PRIVATE _DEBUG=1 SQMOD_EXCEPTLOC=1)
