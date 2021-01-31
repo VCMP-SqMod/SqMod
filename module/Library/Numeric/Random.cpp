@@ -352,6 +352,39 @@ bool GetRandomBool(SQFloat p)
 }
 
 // ------------------------------------------------------------------------------------------------
+#ifdef _SQ64
+SQMOD_NODISCARD SQInteger RandomInt() { return GetRandomInt64(); }
+SQMOD_NODISCARD SQInteger RandomIntUpto(SQInteger n) { return GetRandomInt64(n); }
+SQMOD_NODISCARD SQInteger RandomIntBetween(SQInteger m, SQInteger n) { return GetRandomInt64(m, n); }
+#else
+SQMOD_NODISCARD SQInteger RandomInt() { return GetRandomInt32(); }
+SQMOD_NODISCARD SQInteger RandomIntUpto(SQInteger n) { return GetRandomInt32(n); }
+SQMOD_NODISCARD SQInteger RandomIntBetween(SQInteger m, SQInteger n) { return GetRandomInt32(m, n); }
+#endif // _SQ64
+
+// ------------------------------------------------------------------------------------------------
+#ifdef SQUSEDOUBLE
+SQMOD_NODISCARD SQFloat RandomFloat() { return GetRandomFloat32(); }
+SQMOD_NODISCARD SQFloat RandomFloatUpto(float n) { return GetRandomFloat32(n); }
+SQMOD_NODISCARD SQFloat RandomFloatBetween(float m, float n) { return GetRandomFloat32(m, n); }
+#else
+SQMOD_NODISCARD SQFloat RandomFloat() { return GetRandomFloat64(); }
+SQMOD_NODISCARD SQFloat RandomFloatUpto(double n) { return GetRandomFloat64(n); }
+SQMOD_NODISCARD SQFloat RandomFloatBetween(double m, double n) { return GetRandomFloat64(m, n); }
+#endif // SQUSEDOUBLE
+
+// ------------------------------------------------------------------------------------------------
+bool RandomBool()
+{
+    return std::bernoulli_distribution()(*RG32_MT19937);
+}
+
+bool RandomBoolProb(SQFloat p)
+{
+    return std::bernoulli_distribution(p)(*RG32_MT19937);
+}
+
+// ------------------------------------------------------------------------------------------------
 static String RandomString(int32_t len)
 {
     // Is there anything to generate?
@@ -366,7 +399,7 @@ static String RandomString(int32_t len)
 }
 
 // ------------------------------------------------------------------------------------------------
-static String RandomString(int32_t len, SQChar n)
+static String RandomStringUpto(int32_t len, SQChar n)
 {
     // Is there anything to generate?
     if (len <= 0)
@@ -380,7 +413,7 @@ static String RandomString(int32_t len, SQChar n)
 }
 
 // ------------------------------------------------------------------------------------------------
-static String RandomString(int32_t len, SQChar m, SQChar n)
+static String RandomStringBetween(int32_t len, SQChar m, SQChar n)
 {
     // Is there anything to generate?
     if (len <= 0)
@@ -405,32 +438,17 @@ void Register_Random(HSQUIRRELVM vm)
         .Overload< void (*)(uint32_t) >(_SC("Reseed32"), &ReseedRandom32)
         .Overload< void (*)(void) >(_SC("Reseed64"), &ReseedRandom64)
         .Overload< void (*)(uint32_t) >(_SC("Reseed64"), &ReseedRandom64)
-
-#ifdef _SQ64
-        .Overload< SQInteger (*)(void) >(_SC("Integer"), &GetRandomInt64)
-        .Overload< SQInteger (*)(SQInteger) >(_SC("Integer"), &GetRandomInt64)
-        .Overload< SQInteger (*)(SQInteger, SQInteger) >(_SC("Integer"), &GetRandomInt64)
-#else
-        .Overload< SQInteger (*)(void) >(_SC("Integer"), &GetRandomInt32)
-        .Overload< SQInteger (*)(SQInteger) >(_SC("Integer"), &GetRandomInt32)
-        .Overload< SQInteger (*)(SQInteger, SQInteger) >(_SC("Integer"), &GetRandomInt32)
-#endif // _SQ64
-
-#ifdef SQUSEDOUBLE
-        .Overload< SQFloat (*)(void) >(_SC("Float"), &GetRandomFloat64)
-        .Overload< SQFloat (*)(SQFloat) >(_SC("Float"), &GetRandomFloat64)
-        .Overload< SQFloat (*)(SQFloat, SQFloat) >(_SC("Float"), &GetRandomFloat64)
-#else
-        .Overload< SQFloat (*)(void) >(_SC("Float"), &GetRandomFloat32)
-        .Overload< SQFloat (*)(SQFloat) >(_SC("Float"), &GetRandomFloat32)
-        .Overload< SQFloat (*)(SQFloat, SQFloat) >(_SC("Float"), &GetRandomFloat32)
-#endif // SQUSEDOUBLE
-
-        .Overload< String (*)(int32_t) >(_SC("String"), &RandomString)
-        .Overload< String (*)(int32_t, SQChar) >(_SC("String"), &RandomString)
-        .Overload< String (*)(int32_t, SQChar, SQChar) >(_SC("String"), &RandomString)
-        .Overload< bool (*)(void) >(_SC("Bool"), &GetRandomBool)
-        .Overload< bool (*)(SQFloat) >(_SC("Bool"), &GetRandomBool)
+        .Overload(_SC("Integer"), &RandomInt)
+        .Overload(_SC("Integer"), &RandomIntUpto)
+        .Overload(_SC("Integer"), &RandomIntBetween)
+        .Overload(_SC("Float"), &RandomFloat)
+        .Overload(_SC("Float"), &RandomFloatUpto)
+        .Overload(_SC("Float"), &RandomFloatBetween)
+        .Overload(_SC("String"), &RandomString)
+        .Overload(_SC("String"), &RandomStringUpto)
+        .Overload(_SC("String"), &RandomStringBetween)
+        .Overload(_SC("Bool"), &RandomBool)
+        .Overload(_SC("Bool"), &RandomBoolProb)
     );
 }
 
