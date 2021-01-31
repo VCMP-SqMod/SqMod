@@ -4,6 +4,9 @@
 #include "Core/Utility.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include "Poco/SharedPtr.h"
+
+// ------------------------------------------------------------------------------------------------
 #include <vector>
 #include <random>
 #include <iterator>
@@ -92,7 +95,7 @@ template < class T > struct SqVector
     /* --------------------------------------------------------------------------------------------
      * Reference to the container.
     */
-    using Reference = std::shared_ptr< Container >;
+    using Reference = Poco::SharedPtr< Container >;
 
     /* --------------------------------------------------------------------------------------------
      * Type given used to interact with specialized value cases.
@@ -123,7 +126,7 @@ template < class T > struct SqVector
      * Default constructor.
     */
     SqVector()
-        : mC(std::make_shared< Container >())
+        : mC(Poco::makeShared< Container >())
     {
     }
 
@@ -195,12 +198,39 @@ template < class T > struct SqVector
     /* --------------------------------------------------------------------------------------------
      * Make sure a container instance is referenced and return it.
     */
-    Container & Valid() const { Validate(); return *mC; }
+    Container & Valid() { Validate(); return *mC; }
+
+    /* --------------------------------------------------------------------------------------------
+     * Make sure a container instance is referenced and return it.
+    */
+    const Container & Valid() const { Validate(); return *mC; }
+
+    /* --------------------------------------------------------------------------------------------
+     * Make sure a container instance is referenced and return its reference.
+    */
+    Reference & ValidRef() { Validate(); return mC; }
+
+    /* --------------------------------------------------------------------------------------------
+     * Make sure a container instance is referenced and return its reference.
+    */
+    const Reference & ValidRef() const { Validate(); return mC; }
 
     /* --------------------------------------------------------------------------------------------
      * Make sure an index is within rance and return the container it. Container must exist.
     */
-    Container & ValidIdx(SQInteger i) const
+    Container & ValidIdx(SQInteger i)
+    {
+        if (static_cast< size_t >(i) >= mC->size())
+        {
+            STHROWF("Invalid vector container index(" PRINT_INT_FMT ")", i);
+        }
+        return *mC;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Make sure an index is within rance and return the container it. Container must exist.
+    */
+    const Container & ValidIdx(SQInteger i) const
     {
         if (static_cast< size_t >(i) >= mC->size())
         {
@@ -212,7 +242,20 @@ template < class T > struct SqVector
     /* --------------------------------------------------------------------------------------------
      * Make sure a container instance is referenced and is populated, then return it.
     */
-    Container & ValidPop() const
+    Container & ValidPop()
+    {
+        Validate();
+        if (mC->empty())
+        {
+            STHROWF("Vector container is empty");
+        }
+        return *mC;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Make sure a container instance is referenced and is populated, then return it.
+    */
+    const Container & ValidPop() const
     {
         Validate();
         if (mC->empty())
@@ -233,7 +276,7 @@ template < class T > struct SqVector
     /* --------------------------------------------------------------------------------------------
      * Retrieve a value from the container.
     */
-    SQMOD_NODISCARD typename std::add_const< ReturnType >::type Get(SQInteger i) const
+    SQMOD_NODISCARD typename std::add_const< ReturnType >::type Get(SQInteger i)
     {
         return ValidIdx(i).at(ClampL< SQInteger, size_t >(i));
     }
@@ -249,7 +292,7 @@ template < class T > struct SqVector
     /* --------------------------------------------------------------------------------------------
      * Retrieve the first element in the container.
     */
-    SQMOD_NODISCARD typename std::add_const< ReturnType >::type  Front() const
+    SQMOD_NODISCARD typename std::add_const< ReturnType >::type  Front()
     {
         return ValidPop().front();
     }
@@ -257,7 +300,7 @@ template < class T > struct SqVector
     /* --------------------------------------------------------------------------------------------
      * Retrieve the last element in the container.
     */
-    SQMOD_NODISCARD typename std::add_const< ReturnType >::type  Back() const
+    SQMOD_NODISCARD typename std::add_const< ReturnType >::type  Back()
     {
         return ValidPop().back();
     }
@@ -403,7 +446,7 @@ template < class T > struct SqVector
     /* --------------------------------------------------------------------------------------------
      * Locate the position of a value.
     */
-    SQMOD_NODISCARD SQInteger Locate(OptimalArg v) const
+    SQMOD_NODISCARD SQInteger Locate(OptimalArg v)
     {
         auto itr = std::find(Valid().begin(), Valid().end(), Opt::Get(v));
         return itr == mC->end() ? -1 : static_cast< SQInteger >(std::distance(mC->begin(), itr));
@@ -412,7 +455,7 @@ template < class T > struct SqVector
     /* --------------------------------------------------------------------------------------------
      * Locate the position of a value starting from an offset.
     */
-    SQMOD_NODISCARD SQInteger LocateFrom(SQInteger p, OptimalArg v) const
+    SQMOD_NODISCARD SQInteger LocateFrom(SQInteger p, OptimalArg v)
     {
         Validate();
         auto itr = std::find(ValidIdx(p).begin() + static_cast< size_t >(p),
@@ -438,7 +481,7 @@ template < class T > struct SqVector
     */
     SqVector Slice(SQInteger p, SQInteger n) const
     {
-        return SqVector(std::make_shared< Container >(ValidIdx(p).begin() + static_cast< size_t >(p),
+        return SqVector(Poco::makeShared< Container >(ValidIdx(p).begin() + static_cast< size_t >(p),
                                              ValidIdx(p + n).begin() + static_cast< size_t >(p + n)));
     }
 
