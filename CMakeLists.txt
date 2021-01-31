@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.7)
 project(SqMod)
 
 # Tell CMake where to find our scripts
@@ -17,17 +17,53 @@ include(CheckCXXCompilerFlag)
 # C++ standard availability check
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	check_cxx_compiler_flag(-std=c++20 HAVE_FLAG_STD_CXX20)
-	if(HAVE_FLAG_STD_CXX20)
+	check_cxx_compiler_flag(-std=c++2a HAVE_FLAG_STD_CXX2A)
+	if(HAVE_FLAG_STD_CXX20 OR HAVE_FLAG_STD_CXX2A)
 		# We can use C++20
 	    set(CPP_STD_NUMBER 20)
+	    # Specific flags
+	    if (HAVE_FLAG_STD_CXX2A AND NOT HAVE_FLAG_STD_CXX20)
+		    set(CPP_STD_COMPILER_FLAG "-std=c++20")
+	    else()
+		    set(CPP_STD_COMPILER_FLAG "-std=c++2a")
+	    endif()
+		# Need these workarounds for older CMake
+		if(${CMAKE_VERSION} VERSION_LESS "3.8.0")
+			if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 10.0)
+				set(CMAKE_CXX20_STANDARD_COMPILE_OPTION "-std=c++20")
+				set(CMAKE_CXX20_EXTENSION_COMPILE_OPTION "-std=gnu++20")
+			elseif (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
+				set(CMAKE_CXX20_STANDARD_COMPILE_OPTION "-std=c++2a")
+				set(CMAKE_CXX20_EXTENSION_COMPILE_OPTION "-std=gnu++2a")
+			endif()
+		endif()
 	else()
 		check_cxx_compiler_flag(-std=c++17 HAVE_FLAG_STD_CXX17)
-	    if(HAVE_FLAG_STD_CXX17)
+		check_cxx_compiler_flag(-std=c++1z HAVE_FLAG_STD_CXX1Z)
+	    if(HAVE_FLAG_STD_CXX17 OR HAVE_FLAG_STD_CXX1Z)
 			# We can use C++17
 			set(CPP_STD_NUMBER 17)
+		    # Specific flags
+		    if (HAVE_FLAG_STD_CXX17 AND NOT HAVE_FLAG_STD_CXX1Z)
+			    set(CPP_STD_COMPILER_FLAG "-std=c++17")
+		    else()
+			    set(CPP_STD_COMPILER_FLAG "-std=c++1z")
+		    endif()
+			# Need these workarounds for older CMake
+			if(${CMAKE_VERSION} VERSION_LESS "3.8.0")
+				if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
+					set(CMAKE_CXX17_STANDARD_COMPILE_OPTION "-std=c++17")
+					set(CMAKE_CXX17_EXTENSION_COMPILE_OPTION "-std=gnu++17")
+				elseif (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.1)
+					set(CMAKE_CXX17_STANDARD_COMPILE_OPTION "-std=c++1z")
+					set(CMAKE_CXX17_EXTENSION_COMPILE_OPTION "-std=gnu++1z")
+				endif()
+			endif()
 	    else()
 			# C++14 is mandatory
 			set(CPP_STD_NUMBER 14)
+		    # Specific flags
+			set(CPP_STD_COMPILER_FLAG "-std=c++14")
 	    endif()
 	endif()
 else()
@@ -39,13 +75,13 @@ message(STATUS "SqMod: Using C++${CPP_STD_NUMBER} standard.")
 
 # Default to the identified standard
 if(CMAKE_VERSION VERSION_LESS "3.1")
-	if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-		set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++${CPP_STD_NUMBER}")
+	if(${CMAKE_CXX_COMPILER_ID} MATCHES "(GNU)+")
+		set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CPP_STD_COMPILER_FLAG}")
 	endif()
 else()
 	# Apparently the above does not work with cmake from on debian 8
-	if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++${CPP_STD_NUMBER}")
+	if(${CMAKE_CXX_COMPILER_ID} MATCHES "(GNU)+")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CPP_STD_COMPILER_FLAG}")
 	endif()
 	# Try the standard method as well
 	set(CMAKE_CXX_STANDARD ${CPP_STD_NUMBER})
