@@ -2,6 +2,7 @@
 
 // ------------------------------------------------------------------------------------------------
 #include "Core/Utility.hpp"
+#include "Library/Utils/Vector.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <Poco/Data/Session.h>
@@ -102,7 +103,7 @@ template <class T> struct ReferenceBinding : public AbstractBinding
     /* --------------------------------------------------------------------------------------------
      * Reset the binding.
     */
-    void reset () override
+    void reset() override
     {
         m_Bound = false;
         AbstractBinder::Ptr pBinder = getBinder();
@@ -114,6 +115,337 @@ private:
 
     ValPtr m_Value;
     bool   m_Bound;
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Implementation of AbstractBinding for shared ownership binding of values.
+ * Because we cannot take references to script variables, we use this as a proxy.
+*/
+template <class T> struct ReferenceBinding<std::vector<T>> : public AbstractBinding
+{
+    using ValType = std::vector<T>;
+    using ValPtr = SharedPtr<ValType>;
+    using Ptr = SharedPtr<Binding<ValType>>;
+    using Iterator = typename ValType::const_iterator;
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    explicit ReferenceBinding(const ValPtr& val,  const std::string& name = "", Direction direction = PD_IN)
+        : AbstractBinding(name, direction), m_Value(val), m_Begin(), m_End()
+    {
+        if (PD_IN == direction && m_Value->size() == 0)
+        {
+            throw BindingException("It is illegal to bind to an empty data collection");
+        }
+        m_Begin = m_Value->begin();
+        m_End   = m_Value->end();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Destructor.
+    */
+    ~ReferenceBinding() override = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve columns occupied.
+    */
+    SQMOD_NODISCARD std::size_t numOfColumnsHandled() const override
+    {
+        return TypeHandler<T>::size();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve rows occupied.
+    */
+    SQMOD_NODISCARD std::size_t numOfRowsHandled() const override
+    {
+        return m_Value->size();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Check if binding is available.
+    */
+    SQMOD_NODISCARD bool canBind() const override
+    {
+        return (m_Begin != m_End);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Bind the value.
+    */
+    void bind(std::size_t pos) override
+    {
+        poco_assert_dbg(!getBinder().isNull());
+        poco_assert_dbg(canBind());
+        TypeHandler<T>::bind(pos, *m_Begin, getBinder(), getDirection());
+        ++m_Begin;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Reset the binding.
+    */
+    void reset() override
+    {
+        m_Begin = m_Value->begin();
+        m_End   = m_Value->end();
+    }
+
+private:
+
+    ValPtr      m_Value;
+    Iterator    m_Begin;
+    Iterator    m_End;
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Implementation of AbstractExtraction for shared ownership binding of values.
+ * Because we cannot take references to script variables, we use this as a proxy.
+*/
+template <class T>
+class ReferenceExtraction: public AbstractExtraction
+{
+public:
+    using ValType = T;
+    using Result = SharedPtr<T>;
+    using ValPtr = SharedPtr<ValType>;
+    using Type = Extraction<ValType>;
+    using Ptr = SharedPtr<Type>;
+
+    /* --------------------------------------------------------------------------------------------
+     * Creates an Extraction object at specified position. Uses an empty object T as default value.
+    */
+    explicit ReferenceExtraction(const Result& result, const Position& pos = Position(0))
+        : AbstractExtraction(Limit::LIMIT_UNLIMITED, pos.value())
+        , m_Result(result),m_Default(),m_Extracted(false),m_Null(false)
+    {
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Creates an Extraction object at specified position. Uses the provided def object as default value.
+    */
+    ReferenceExtraction(const Result& result, const T& def, const Position& pos = Position(0))
+        : AbstractExtraction(Limit::LIMIT_UNLIMITED, pos.value())
+        , m_Result(result), m_Default(def), m_Extracted(false), m_Null(false)
+    {
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Creates an Extraction object at specified position. Uses the provided def object as default value.
+    */
+    ReferenceExtraction(const Result& result, T&& def, const Position& pos = Position(0))
+        : AbstractExtraction(Limit::LIMIT_UNLIMITED, pos.value())
+        , m_Result(result), m_Default(std::move(def)), m_Extracted(false), m_Null(false)
+    {
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Destroys the Extraction object.
+    */
+    ~ReferenceExtraction() override = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the number of columns handled.
+    */
+    SQMOD_NODISCARD std::size_t numOfColumnsHandled() const override
+    {
+        return TypeHandler<T>::size();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the number of rows handled.
+    */
+    SQMOD_NODISCARD std::size_t numOfRowsHandled() const override
+    {
+        return m_Extracted ? 1u : 0;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the number of rows allowed.
+    */
+    SQMOD_NODISCARD std::size_t numOfRowsAllowed() const override
+    {
+        return 1u;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Check if null.
+    */
+    SQMOD_NODISCARD bool isNull(std::size_t /*row*/) const override
+    {
+        return m_Null;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Extract the value.
+    */
+    std::size_t extract(std::size_t pos) override
+    {
+        if (m_Extracted)
+        {
+            throw ExtractException("value already extracted");
+        }
+
+        m_Extracted = true;
+        AbstractExtractor::Ptr pExt = getExtractor();
+        TypeHandler<T>::extract(pos, *m_Result, m_Default, pExt);
+        m_Null = isValueNull<T>(*m_Result, pExt->isNull(pos));
+
+        return 1u;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Reset state.
+    */
+    void reset() override
+    {
+        m_Extracted = false;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * See if a value was extracted.
+    */
+    SQMOD_NODISCARD bool canExtract() const override
+    {
+        return !m_Extracted;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Create a preparation instance for this type.
+    */
+    AbstractPreparation::Ptr createPreparation(AbstractPreparator::Ptr& pPrep, std::size_t pos) override
+    {
+        return new Preparation<T>(pPrep, pos, *m_Result);
+    }
+
+private:
+
+    Result  m_Result;
+    T       m_Default;
+    bool    m_Extracted;
+    bool    m_Null;
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Implementation of AbstractExtraction for shared ownership binding of values.
+ * Because we cannot take references to script variables, we use this as a proxy.
+*/
+template <class T>
+class ReferenceExtraction<std::vector<T>>: public AbstractExtraction
+{
+public:
+    using ValType = std::vector<T>;
+    using Result = SharedPtr<std::vector<T>>;
+    using ValPtr = SharedPtr<ValType>;
+    using Type = Extraction<ValType>;
+    using Ptr = SharedPtr<Type>;
+
+    /* --------------------------------------------------------------------------------------------
+     * Creates an Extraction object at specified position. Uses an empty object T as default value.
+    */
+    explicit ReferenceExtraction(const Result& result, const Position& pos = Position(0))
+        : AbstractExtraction(Limit::LIMIT_UNLIMITED, pos.value())
+        , m_Result(result), m_Default(), m_Nulls()
+    {
+        m_Result->clear();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Creates an Extraction object at specified position. Uses the provided def object as default value.
+    */
+    ReferenceExtraction(const Result& result, const T& def, const Position& pos = Position(0))
+        : AbstractExtraction(Limit::LIMIT_UNLIMITED, pos.value())
+        , m_Result(result), m_Default(def), m_Nulls()
+    {
+        m_Result->clear();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Destroys the Extraction object.
+    */
+    ~ReferenceExtraction() override = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the number of columns handled.
+    */
+    SQMOD_NODISCARD std::size_t numOfColumnsHandled() const override
+    {
+        return TypeHandler<T>::size();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the number of rows handled.
+    */
+    SQMOD_NODISCARD std::size_t numOfRowsHandled() const override
+    {
+        return static_cast<std::size_t>(m_Result->size());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the number of rows allowed.
+    */
+    SQMOD_NODISCARD std::size_t numOfRowsAllowed() const override
+    {
+        return getLimit();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Check if null.
+    */
+    SQMOD_NODISCARD bool isNull(std::size_t row) const override
+    {
+        try
+        {
+            return m_Nulls.at(row);
+        }
+        catch (std::out_of_range& ex)
+        {
+            throw RangeException(ex.what());
+        }
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Extract the value.
+    */
+    std::size_t extract(std::size_t pos) override
+    {
+        AbstractExtractor::Ptr ext = getExtractor();
+        m_Result->push_back(m_Default);
+        TypeHandler<T>::extract(pos, m_Result->back(), m_Default, ext);
+        m_Nulls.push_back(isValueNull(m_Result->back(), ext->isNull(pos)));
+        return 1u;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Create a preparation instance for this type.
+    */
+    AbstractPreparation::Ptr createPreparation(AbstractPreparator::Ptr& pPrep, std::size_t pos) override
+    {
+        return new Preparation<T>(pPrep, pos, m_Default);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Reset state.
+    */
+    void reset() override
+    {
+        m_Nulls.clear();
+    }
+
+protected:
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the container with the extracted values.
+    */
+    const std::vector<T>& result() const
+    {
+        return *m_Result;
+    }
+
+private:
+    Result              m_Result;
+    T                   m_Default;
+    std::deque< bool >  m_Nulls;
 };
 
 } // Namespace:: Data
@@ -255,6 +587,16 @@ template < class T > struct SqDataBinding
      * Modify a value from the instance.
     */
     SqDataBinding & SetEx(OptimalArg v) { SqDataBindingOpt< T >::Put(*mV, v); return *this; }
+
+    /* --------------------------------------------------------------------------------------------
+     * Use the value to a statement.
+    */
+    SqDataBinding & Use(SqDataStatement & stmt);
+
+    /* --------------------------------------------------------------------------------------------
+     * Use the value to a statement with a specific name.
+    */
+    SqDataBinding & UseAs(SqDataStatement & stmt, StackStrF & name);
 
     /* --------------------------------------------------------------------------------------------
      * Bind the value to a statement.
@@ -551,7 +893,15 @@ struct SqDataStatement : public Statement
     /* --------------------------------------------------------------------------------------------
      * Executes the statement synchronously or asynchronously.
     */
-    SQInteger Execute(bool reset)
+    SQInteger Execute()
+    {
+        return static_cast< SQInteger >(execute(true));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Executes the statement synchronously or asynchronously.
+    */
+    SQInteger Execute_(bool reset)
     {
         return static_cast< SQInteger >(execute(reset));
     }
@@ -559,7 +909,16 @@ struct SqDataStatement : public Statement
     /* --------------------------------------------------------------------------------------------
      * Executes the statement asynchronously.
     */
-    SqDataStatement & ExecuteAsync(bool reset)
+    SqDataStatement & ExecuteAsync()
+    {
+        executeAsync(true);
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Executes the statement asynchronously.
+    */
+    SqDataStatement & ExecuteAsync_(bool reset)
     {
         executeAsync(reset);
         return *this;
@@ -583,57 +942,155 @@ struct SqDataStatement : public Statement
     }
 
     /* --------------------------------------------------------------------------------------------
-     * 
+     * Bind a reference to the statement.
     */
     SqDataStatement & Use(LightObj & obj)
     {
-        return  UseEx(obj, String(), Poco::Data::AbstractBinding::PD_IN);
+        UseEx(obj, String(), Poco::Data::AbstractBinding::PD_IN);
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * 
+     * Bind a named reference to the statement.
     */
     SqDataStatement & UseAs(LightObj & obj, StackStrF & name)
     {
-        return  UseEx(obj, String(name.mPtr, name.GetSize()), Poco::Data::AbstractBinding::PD_IN);
+        UseEx(obj, String(name.mPtr, name.GetSize()), Poco::Data::AbstractBinding::PD_IN);
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Internal function used internally to bind a reference to the statement.
     */
-    SqDataStatement & UseEx(LightObj & obj, const std::string & name, Poco::Data::AbstractBinding::Direction dir);
+    void UseEx(LightObj & obj, const std::string & name, Poco::Data::AbstractBinding::Direction dir);
 
     /* --------------------------------------------------------------------------------------------
-     * 
+     * Internal function used internally to bind a instance reference to the statement.
+    */
+    void UseInst_(LightObj & obj, const std::string & name, Poco::Data::AbstractBinding::Direction dir);
+
+    /* --------------------------------------------------------------------------------------------
+     * Bind a value to the statement and mark it as input (i.e alias of Use).
+    */
+    SqDataStatement & In(LightObj & obj)
+    {
+        return Use(obj);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Bind a named value to the statement mark it as input (i.e alias of UseAs).
+    */
+    SqDataStatement & InAs(LightObj & obj, StackStrF & name)
+    {
+        return UseAs(obj, name);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Bind a reference to the statement and mark it as output.
+    */
+    SqDataStatement & Out(LightObj & obj)
+    {
+        UseEx(obj, String(), Poco::Data::AbstractBinding::PD_OUT);
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Bind a named reference to the statement and mark it as output.
+    */
+    SqDataStatement & OutAs(LightObj & obj, StackStrF & name)
+    {
+        UseEx(obj, String(name.mPtr, name.GetSize()), Poco::Data::AbstractBinding::PD_OUT);
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Bind a value to the statement.
     */
     SqDataStatement & Bind(LightObj & obj)
     {
-        return  BindEx(obj, String(), Poco::Data::AbstractBinding::PD_IN);
+        BindEx(obj, String(), Poco::Data::AbstractBinding::PD_IN);
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
-     * 
+     * Bind a named value to the statement.
     */
     SqDataStatement & BindAs(LightObj & obj, StackStrF & name)
     {
-        return  BindEx(obj, String(name.mPtr, name.GetSize()), Poco::Data::AbstractBinding::PD_IN);
+        BindEx(obj, String(name.mPtr, name.GetSize()), Poco::Data::AbstractBinding::PD_IN);
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
-     *
+     * Internal function used internally to bind a value to the statement.
     */
-    SqDataStatement & BindEx(LightObj & obj, const std::string & name, Poco::Data::AbstractBinding::Direction dir);
+    void BindEx(LightObj & obj, const std::string & name, Poco::Data::AbstractBinding::Direction dir);
+
+    /* --------------------------------------------------------------------------------------------
+     * Internal function used internally to bind a instance value to the statement.
+    */
+    void BindInst_(LightObj & obj, const std::string & name, Poco::Data::AbstractBinding::Direction dir);
+
+    /* --------------------------------------------------------------------------------------------
+     * Bind a value to the statement and mark it as input/output.
+    */
+    SqDataStatement & Io(LightObj & obj)
+    {
+        if (obj.GetType() == OT_INSTANCE)
+        {
+            UseInst_(obj, String(), Poco::Data::AbstractBinding::PD_IN_OUT);
+        }
+        else
+        {
+            Bind(obj);
+        }
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Register a single extraction with the statement.
+    */
+    SqDataStatement & Into(LightObj & obj);
+
+    /* --------------------------------------------------------------------------------------------
+     * Register a single extraction with the statement with a default value.
+    */
+    SqDataStatement & Into_(LightObj & obj, LightObj & def);
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns false if the current data set index points to the last data set. Otherwise, it returns true.
+    */
+    bool HasMoreDataSets() const
+    {
+        return hasMoreDataSets();
+    }
 };
+
+// ------------------------------------------------------------------------------------------------
+template < class T > inline SqDataBinding< T > & SqDataBinding< T >::Use(SqDataStatement & stmt)
+{
+    stmt.addBind(new Poco::Data::ReferenceBinding< T >(mV, String(), Poco::Data::AbstractBinding::PD_IN));
+    return *this;
+}
+
+// ------------------------------------------------------------------------------------------------
+template < class T > inline SqDataBinding< T > & SqDataBinding< T >::UseAs(SqDataStatement & stmt, StackStrF & name)
+{
+    stmt.addBind(new Poco::Data::ReferenceBinding< T >(mV, name.ToStr(), Poco::Data::AbstractBinding::PD_IN));
+    return *this;
+}
 
 // ------------------------------------------------------------------------------------------------
 template < class T > inline SqDataBinding< T > & SqDataBinding< T >::Bind(SqDataStatement & stmt)
 {
+    stmt.addBind(new Poco::Data::CopyBinding< T >(*mV, String(), Poco::Data::AbstractBinding::PD_IN));
     return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
 template < class T > inline SqDataBinding< T > & SqDataBinding< T >::BindAs(SqDataStatement & stmt, StackStrF & name)
 {
+    stmt.addBind(new Poco::Data::CopyBinding< T >(*mV, name.ToStr(), Poco::Data::AbstractBinding::PD_IN));
     return *this;
 }
 

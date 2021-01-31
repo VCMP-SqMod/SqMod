@@ -112,7 +112,7 @@ SqDataStatement SqDataSession::GetStatement(StackStrF & data)
 }
 
 // ------------------------------------------------------------------------------------------------
-SqDataStatement & SqDataStatement::UseEx(LightObj & obj, const std::string & name, Poco::Data::AbstractBinding::Direction dir)
+void SqDataStatement::UseEx(LightObj & obj, const std::string & name, Poco::Data::AbstractBinding::Direction dir)
 {
     //
     switch (obj.GetType())
@@ -122,42 +122,64 @@ SqDataStatement & SqDataStatement::UseEx(LightObj & obj, const std::string & nam
         case OT_FLOAT:
         case OT_BOOL:
         case OT_STRING: STHROWF("Use Bind(...) for non-reference types."); break;
-        case OT_INSTANCE: {
-            auto type = static_cast< AbstractStaticClassData * >(obj.GetTypeTag());
-            // Integer reference?
-            if (type == StaticClassTypeTag< SqDataBinding< SQInteger > >::Get())
-            {
-                addBind(new Poco::Data::ReferenceBinding< SQInteger >(obj.CastI< SqDataBinding< SQInteger > >()->mV, name, dir)); break;
-            } // Float reference?
-            else if (type == StaticClassTypeTag< SqDataBinding< SQFloat > >::Get())
-            {
-                addBind(new Poco::Data::ReferenceBinding< SQFloat >(obj.CastI< SqDataBinding< SQFloat > >()->mV, name, dir)); break;
-            } // String reference?
-            else if (type == StaticClassTypeTag< SqDataBinding< String > >::Get())
-            {
-                addBind(new Poco::Data::ReferenceBinding< String >(obj.CastI< SqDataBinding< String > >()->mV, name, dir)); break;
-            } // Bool reference?
-            else if (type == StaticClassTypeTag< SqDataBinding< bool > >::Get())
-            {
-                addBind(new Poco::Data::ReferenceBinding< bool >(obj.CastI< SqDataBinding< bool > >()->mV, name, dir)); break;
-            } // Unknown!
-            else
-            {
-                Var< LightObj >::push(SqVM(), obj);
-                String type_name = SqTypeName(SqVM(), -1);
-                sq_poptop(SqVM());
-                STHROWF("Can't use (%s) values", type_name.c_str()); break;
-            }
-
-        } break;
+        case OT_INSTANCE: UseInst_(obj, name, dir); break;
         default: STHROWF("Can't use (%s) values", SqTypeName(obj.GetType())); break;
     }
-    //
-    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-SqDataStatement & SqDataStatement::BindEx(LightObj & obj, const std::string & name, Poco::Data::AbstractBinding::Direction dir)
+void SqDataStatement::UseInst_(LightObj & obj, const std::string & name, Poco::Data::AbstractBinding::Direction dir)
+{
+    auto type = static_cast< AbstractStaticClassData * >(obj.GetTypeTag());
+    // Integer reference?
+    if (type == StaticClassTypeTag< SqDataBinding< SQInteger > >::Get())
+    {
+        addBind(new Poco::Data::ReferenceBinding< SQInteger >(obj.CastI< SqDataBinding< SQInteger > >()->mV, name, dir));
+    } // Float reference?
+    else if (type == StaticClassTypeTag< SqDataBinding< SQFloat > >::Get())
+    {
+        addBind(new Poco::Data::ReferenceBinding< SQFloat >(obj.CastI< SqDataBinding< SQFloat > >()->mV, name, dir));
+    } // String reference?
+    else if (type == StaticClassTypeTag< SqDataBinding< String > >::Get())
+    {
+        addBind(new Poco::Data::ReferenceBinding< String >(obj.CastI< SqDataBinding< String > >()->mV, name, dir));
+    } // Bool reference?
+    else if (type == StaticClassTypeTag< SqDataBinding< bool > >::Get())
+    {
+        addBind(new Poco::Data::ReferenceBinding< bool >(obj.CastI< SqDataBinding< bool > >()->mV, name, dir));
+    } // Integer vector reference?
+    else if (type == StaticClassTypeTag< SqVector< SQInteger > >::Get())
+    {
+        auto p = obj.CastI< SqVector< SQInteger > >();
+        addBind(new Poco::Data::ReferenceBinding< std::vector< SQInteger > >(p->ValidRef(), name, dir));
+    } // Float vector reference?
+    else if (type == StaticClassTypeTag< SqVector< SQFloat > >::Get())
+    {
+        auto p = obj.CastI< SqVector< SQFloat > >();
+        addBind(new Poco::Data::ReferenceBinding< std::vector< SQFloat > >(p->ValidRef(), name, dir));
+    } // String vector reference?
+    else if (type == StaticClassTypeTag< SqVector< String > >::Get())
+    {
+        auto p = obj.CastI< SqVector< String > >();
+        addBind(new Poco::Data::ReferenceBinding< std::vector< String > >(p->ValidRef(), name, dir));
+    } // Bool vector reference?
+    else if (type == StaticClassTypeTag< SqVector< bool > >::Get())
+    {
+        // There is no point in having these
+        // Their usefulness is limited and pointless compared to the number of specializations needed get them to work
+        STHROWF("Boolean vectors are not implemented");
+    } // Unknown!
+    else
+    {
+        Var< LightObj >::push(SqVM(), obj);
+        String type_name = SqTypeName(SqVM(), -1);
+        sq_poptop(SqVM());
+        STHROWF("Can't use (%s) values", type_name.c_str());
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void SqDataStatement::BindEx(LightObj & obj, const std::string & name, Poco::Data::AbstractBinding::Direction dir)
 {
     // Identify the object type
     switch (obj.GetType())
@@ -190,37 +212,154 @@ SqDataStatement & SqDataStatement::BindEx(LightObj & obj, const std::string & na
             addBind(new Poco::Data::CopyBinding<const char *>(str.mPtr, name, dir));
         } break;
         // Special?
-        case OT_INSTANCE: {
-            auto type = static_cast< AbstractStaticClassData * >(obj.GetTypeTag());
-            // Integer reference?
-            if (type == StaticClassTypeTag< SqDataBinding< SQInteger > >::Get())
-            {
-                addBind(new Poco::Data::CopyBinding< SQInteger >(*obj.CastI< SqDataBinding< SQInteger > >()->mV, name, dir)); break;
-            } // Float reference?
-            else if (type == StaticClassTypeTag< SqDataBinding< SQFloat > >::Get())
-            {
-                addBind(new Poco::Data::CopyBinding< SQFloat >(*obj.CastI< SqDataBinding< SQFloat > >()->mV, name, dir)); break;
-            } // String reference?
-            else if (type == StaticClassTypeTag< SqDataBinding< String > >::Get())
-            {
-                addBind(new Poco::Data::CopyBinding< String >(*obj.CastI< SqDataBinding< String > >()->mV, name, dir)); break;
-            } // Bool reference?
-            else if (type == StaticClassTypeTag< SqDataBinding< bool > >::Get())
-            {
-                addBind(new Poco::Data::CopyBinding< bool >(*obj.CastI< SqDataBinding< bool > >()->mV, name, dir)); break;
-            } // Unknown!
-            else
-            {
-                Var< LightObj >::push(SqVM(), obj);
-                String type_name = SqTypeName(SqVM(), -1);
-                sq_poptop(SqVM());
-                STHROWF("Can't bind (%s) values", type_name.c_str()); break;
-            }
-
-        } break;
+        case OT_INSTANCE: BindInst_(obj, name, dir); break;
         default: STHROWF("Can't bind (%s) values", SqTypeName(obj.GetType())); break;
     }
-    //
+}
+
+// ------------------------------------------------------------------------------------------------
+void SqDataStatement::BindInst_(LightObj & obj, const std::string & name, Poco::Data::AbstractBinding::Direction dir)
+{
+    auto type = static_cast< AbstractStaticClassData * >(obj.GetTypeTag());
+    // Integer reference?
+    if (type == StaticClassTypeTag< SqDataBinding< SQInteger > >::Get())
+    {
+        addBind(new Poco::Data::CopyBinding< SQInteger >(*obj.CastI< SqDataBinding< SQInteger > >()->mV, name, dir));
+    } // Float reference?
+    else if (type == StaticClassTypeTag< SqDataBinding< SQFloat > >::Get())
+    {
+        addBind(new Poco::Data::CopyBinding< SQFloat >(*obj.CastI< SqDataBinding< SQFloat > >()->mV, name, dir));
+    } // String reference?
+    else if (type == StaticClassTypeTag< SqDataBinding< String > >::Get())
+    {
+        addBind(new Poco::Data::CopyBinding< String >(*obj.CastI< SqDataBinding< String > >()->mV, name, dir));
+    } // Bool reference?
+    else if (type == StaticClassTypeTag< SqDataBinding< bool > >::Get())
+    {
+        addBind(new Poco::Data::CopyBinding< bool >(*obj.CastI< SqDataBinding< bool > >()->mV, name, dir));
+    } // Integer vector reference?
+    else if (type == StaticClassTypeTag< SqVector< SQInteger > >::Get())
+    {
+        addBind(new Poco::Data::CopyBinding< std::vector< SQInteger > >(obj.CastI< SqVector< SQInteger > >()->Valid(), name, dir));
+    } // Float vector reference?
+    else if (type == StaticClassTypeTag< SqVector< SQFloat > >::Get())
+    {
+        addBind(new Poco::Data::CopyBinding< std::vector< SQFloat > >(obj.CastI< SqVector< SQFloat > >()->Valid(), name, dir));
+    } // String vector reference?
+    else if (type == StaticClassTypeTag< SqVector< String > >::Get())
+    {
+        addBind(new Poco::Data::CopyBinding< std::vector< String > >(obj.CastI< SqVector< String > >()->Valid(), name, dir));
+    } // Bool vector reference?
+    else if (type == StaticClassTypeTag< SqVector< bool > >::Get())
+    {
+        // There is no point in having these
+        // Their usefulness is limited and pointless compared to the number of specializations needed get them to work
+        STHROWF("Boolean vectors are not implemented");
+    } // Unknown!
+    else
+    {
+        Var< LightObj >::push(SqVM(), obj);
+        String type_name = SqTypeName(SqVM(), -1);
+        sq_poptop(SqVM());
+        STHROWF("Can't bind (%s) values", type_name.c_str());
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+SqDataStatement & SqDataStatement::Into(LightObj & obj)
+{
+    auto type = static_cast< AbstractStaticClassData * >(obj.GetTypeTag());
+    // Integer reference?
+    if (type == StaticClassTypeTag< SqDataBinding< SQInteger > >::Get())
+    {
+        addExtract(new Poco::Data::ReferenceExtraction< SQInteger >(obj.CastI< SqDataBinding< SQInteger > >()->mV));
+    } // Float reference?
+    else if (type == StaticClassTypeTag< SqDataBinding< SQFloat > >::Get())
+    {
+        addExtract(new Poco::Data::ReferenceExtraction< SQFloat >(obj.CastI< SqDataBinding< SQFloat > >()->mV));
+    } // String reference?
+    else if (type == StaticClassTypeTag< SqDataBinding< String > >::Get())
+    {
+        addExtract(new Poco::Data::ReferenceExtraction< String >(obj.CastI< SqDataBinding< String > >()->mV));
+    } // Bool reference?
+    else if (type == StaticClassTypeTag< SqDataBinding< bool > >::Get())
+    {
+        addExtract(new Poco::Data::ReferenceExtraction< bool >(obj.CastI< SqDataBinding< bool > >()->mV));
+    } // Integer vector reference?
+    else if (type == StaticClassTypeTag< SqVector< SQInteger > >::Get())
+    {
+        addExtract(new Poco::Data::ReferenceExtraction< std::vector< SQInteger > >(obj.CastI< SqVector< SQInteger > >()->ValidRef()));
+    } // Float vector reference?
+    else if (type == StaticClassTypeTag< SqVector< SQFloat > >::Get())
+    {
+        addExtract(new Poco::Data::ReferenceExtraction< std::vector< SQFloat > >(obj.CastI< SqVector< SQFloat > >()->ValidRef()));
+    } // String vector reference?
+    else if (type == StaticClassTypeTag< SqVector< String > >::Get())
+    {
+        addExtract(new Poco::Data::ReferenceExtraction< std::vector< String > >(obj.CastI< SqVector< String > >()->ValidRef()));
+    } // Bool vector reference?
+    else if (type == StaticClassTypeTag< SqVector< bool > >::Get())
+    {
+        // There is no point in having these
+        // Their usefulness is limited and pointless compared to the number of specializations needed get them to work
+        STHROWF("Boolean vectors are not implemented");
+    } // Unknown!
+    else
+    {
+        Var< LightObj >::push(SqVM(), obj);
+        String type_name = SqTypeName(SqVM(), -1);
+        sq_poptop(SqVM());
+        STHROWF("Can't extract (%s) values", type_name.c_str());
+    }
+    return *this;
+}
+
+// ------------------------------------------------------------------------------------------------
+SqDataStatement & SqDataStatement::Into_(LightObj & obj, LightObj & def)
+{
+    auto type = static_cast< AbstractStaticClassData * >(obj.GetTypeTag());
+    // Integer reference?
+    if (type == StaticClassTypeTag< SqDataBinding< SQInteger > >::Get())
+    {
+        addExtract(new Poco::Data::ReferenceExtraction< SQInteger >(obj.CastI< SqDataBinding< SQInteger > >()->mV, def.Cast< SQInteger >()));
+    } // Float reference?
+    else if (type == StaticClassTypeTag< SqDataBinding< SQFloat > >::Get())
+    {
+        addExtract(new Poco::Data::ReferenceExtraction< SQFloat >(obj.CastI< SqDataBinding< SQFloat > >()->mV, def.Cast< SQFloat >()));
+    } // String reference?
+    else if (type == StaticClassTypeTag< SqDataBinding< String > >::Get())
+    {
+        addExtract(new Poco::Data::ReferenceExtraction< String >(obj.CastI< SqDataBinding< String > >()->mV, def.Cast< String >()));
+    } // Bool reference?
+    else if (type == StaticClassTypeTag< SqDataBinding< bool > >::Get())
+    {
+        addExtract(new Poco::Data::ReferenceExtraction< bool >(obj.CastI< SqDataBinding< bool > >()->mV, def.Cast< bool >()));
+    } // Integer vector reference?
+    else if (type == StaticClassTypeTag< SqVector< SQInteger > >::Get())
+    {
+        addExtract(new Poco::Data::ReferenceExtraction< std::vector< SQInteger > >(obj.CastI< SqVector< SQInteger > >()->ValidRef(), def.Cast< SQInteger >()));
+    } // Float vector reference?
+    else if (type == StaticClassTypeTag< SqVector< SQFloat > >::Get())
+    {
+        addExtract(new Poco::Data::ReferenceExtraction< std::vector< SQFloat > >(obj.CastI< SqVector< SQFloat > >()->ValidRef(), def.Cast< SQFloat >()));
+    } // String vector reference?
+    else if (type == StaticClassTypeTag< SqVector< String > >::Get())
+    {
+        addExtract(new Poco::Data::ReferenceExtraction< std::vector< String > >(obj.CastI< SqVector< String > >()->ValidRef(), def.Cast< String >()));
+    } // Bool vector reference?
+    else if (type == StaticClassTypeTag< SqVector< bool > >::Get())
+    {
+        // There is no point in having these
+        // Their usefulness is limited and pointless compared to the number of specializations needed get them to work
+        STHROWF("Boolean vectors are not implemented");
+    } // Unknown!
+    else
+    {
+        Var< LightObj >::push(SqVM(), obj);
+        String type_name = SqTypeName(SqVM(), -1);
+        sq_poptop(SqVM());
+        STHROWF("Can't extract (%s) values", type_name.c_str());
+    }
     return *this;
 }
 
@@ -245,6 +384,8 @@ static void Register_POCO_Data_Binding(HSQUIRRELVM vm, Table & ns, const SQChar 
         .Func(_SC("Set"), &Binding::SetEx)
         .Func(_SC("Bind"), &Binding::Bind)
         .Func(_SC("BindAs"), &Binding::BindAs)
+        .Func(_SC("Use"), &Binding::Use)
+        .Func(_SC("UseAs"), &Binding::UseAs)
     );
 }
 
@@ -252,7 +393,7 @@ static void Register_POCO_Data_Binding(HSQUIRRELVM vm, Table & ns, const SQChar 
 void Register_POCO_Data(HSQUIRRELVM vm)
 {
     Table ns(vm);
-
+    //Poco::Data::Keywords::into()
     // --------------------------------------------------------------------------------------------
     ns.Bind(_SC("Session"),
         Class< SqDataSession >(vm, SqPcDataSession::Str)
@@ -307,16 +448,27 @@ void Register_POCO_Data(HSQUIRRELVM vm)
         .Prop(_SC("Initialized"), &SqDataStatement::Initialized)
         .Prop(_SC("Paused"), &SqDataStatement::Paused)
         .Prop(_SC("Done"), &SqDataStatement::Done)
+        .Prop(_SC("HasMoreDataSets"), &SqDataStatement::HasMoreDataSets)
         // Member Methods
         .Func(_SC("Add"), &SqDataStatement::Add)
-        .Func(_SC("Execute"), &SqDataStatement::Execute)
-        .Func(_SC("ExecuteAsync"), &SqDataStatement::ExecuteAsync)
         .Func(_SC("SetAsync"), &SqDataStatement::SetAsync)
         .Func(_SC("Reset"), &SqDataStatement::Reset)
         .Func(_SC("Use"), &SqDataStatement::Use)
         .Func(_SC("UseAs"), &SqDataStatement::UseAs)
+        .Func(_SC("In"), &SqDataStatement::In)
+        .Func(_SC("InAs"), &SqDataStatement::InAs)
+        .Func(_SC("Out"), &SqDataStatement::Out)
+        .Func(_SC("OutAs"), &SqDataStatement::OutAs)
         .Func(_SC("Bind"), &SqDataStatement::Bind)
         .Func(_SC("BindAs"), &SqDataStatement::BindAs)
+        .Func(_SC("Io"), &SqDataStatement::Io)
+        // Overloaded Member Methods
+        .Overload(_SC("Execute"), &SqDataStatement::Execute)
+        .Overload(_SC("Execute"), &SqDataStatement::Execute_)
+        .Overload(_SC("ExecuteAsync"), &SqDataStatement::ExecuteAsync)
+        .Overload(_SC("ExecuteAsync"), &SqDataStatement::ExecuteAsync_)
+        .Overload(_SC("Into"), &SqDataStatement::Into)
+        .Overload(_SC("Into"), &SqDataStatement::Into_)
     );
     // --------------------------------------------------------------------------------------------
     Register_POCO_Data_Binding< SQInteger, SqIntegerBinding >(vm, ns, _SC("IntBind"));
