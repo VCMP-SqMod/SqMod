@@ -32,7 +32,6 @@ extern void Register_CVehicle(HSQUIRRELVM vm);
 
 // ------------------------------------------------------------------------------------------------
 extern void Register_Chrono(HSQUIRRELVM vm);
-extern void Register_Crypt(HSQUIRRELVM vm);
 extern void Register_CURL(HSQUIRRELVM vm);
 extern void Register_IO(HSQUIRRELVM vm);
 extern void Register_Job(HSQUIRRELVM vm);
@@ -48,6 +47,7 @@ extern void Register_Worker(HSQUIRRELVM vm);
 extern void Register_Web(HSQUIRRELVM vm);
 
 // ------------------------------------------------------------------------------------------------
+extern void Register_POCO_Crypto(HSQUIRRELVM vm);
 extern void Register_POCO_Data(HSQUIRRELVM vm);
 
 // ------------------------------------------------------------------------------------------------
@@ -89,7 +89,6 @@ bool RegisterAPI(HSQUIRRELVM vm)
     Register_CVehicle(vm);
 
     Register_Chrono(vm);
-    Register_Crypt(vm);
     Register_CURL(vm);
     Register_IO(vm);
     //Register_Job(vm);
@@ -104,6 +103,7 @@ bool RegisterAPI(HSQUIRRELVM vm)
     //Register_Worker(vm);
     //Register_Web(vm);
 
+    Register_POCO_Crypto(vm);
     Register_POCO_Data(vm);
 
     Register_Constants(vm);
