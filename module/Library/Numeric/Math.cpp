@@ -15,7 +15,7 @@ static SQInteger SqDiv(HSQUIRRELVM vm)
 {
     // The return type of the function
 #ifdef _SQ64
-    typedef std::lldiv_t DivT;
+    typedef typename std::conditional< std::is_same< SQInteger, signed long int >::value, std::ldiv_t, std::lldiv_t >::type DivT;
 #else
     typedef std::div_t DivT;
 #endif // _SQ64
