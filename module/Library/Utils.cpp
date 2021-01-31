@@ -82,6 +82,7 @@ static SQInteger SqExtractIPv4(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
+extern void Register_Map(HSQUIRRELVM vm, Table & ns);
 extern void Register_Vector(HSQUIRRELVM vm, Table & ns);
 
 // ================================================================================================
@@ -89,6 +90,7 @@ void Register_Utils(HSQUIRRELVM vm)
 {
     Table ns(vm);
 
+    Register_Map(vm, ns);
     Register_Vector(vm, ns);
 
     ns.SquirrelFunc(_SC("ExtractIPv4"), &SqExtractIPv4);
