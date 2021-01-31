@@ -105,7 +105,7 @@ if(WIN32 OR MINGW)
 	target_link_libraries(SqModule wsock32 ws2_32 shlwapi)
 endif()
 # Link to base libraries
-target_link_libraries(SqModule Squirrel FmtLib SimpleINI TinyDir ConcurrentQueue cpr::cpr maxminddb::maxminddb)
+target_link_libraries(SqModule Squirrel FmtLib SimpleINI TinyDir ConcurrentQueue cpr maxminddb)
 # Link to POCO libraries
 target_link_libraries(SqModule Poco::Foundation Poco::Encodings Poco::Crypto Poco::Util Poco::Data Poco::Net Poco::JSON Poco::XML Poco::Zip Poco::JWT Poco::Redis Poco::MongoDB)
 # Does POCO have SQLite support?

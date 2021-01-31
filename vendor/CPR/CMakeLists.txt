@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.7)
 project(cpr VERSION 1.5.1 LANGUAGES CXX)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -49,7 +49,8 @@ endif()
 
 
 include(GNUInstallDirs)
-include(FetchContent)
+# Disabled to reduce CMAke requirements
+#include(FetchContent)
 include(cmake/code_coverage.cmake)
 include(cmake/sanitizer.cmake)
 include(cmake/gcc_analyze.cmake)
@@ -128,7 +129,7 @@ if(NOT USE_SYSTEM_CURL OR NOT CURL_FOUND)
 endif()
 
 # GTest configuration
-if(BUILD_CPR_TESTS)
+#[[if(BUILD_CPR_TESTS)
     if(USE_SYSTEM_GTEST)
         find_package(GTest)
     endif()
@@ -156,11 +157,11 @@ if(BUILD_CPR_TESTS)
     set_property(TARGET gtest PROPERTY FOLDER "tests/gtest")
     set_property(TARGET gtest_main PROPERTY FOLDER "tests/gtest")
     endif()
-endif()
+endif()]]
 
 
 # Mongoose configuration
-if(BUILD_CPR_TESTS)
+#[[if(BUILD_CPR_TESTS)
     message(STATUS "Building mongoose project for test support.")
     if (SSL_ENABLED)
         find_package(OpenSSL)
@@ -197,4 +198,4 @@ add_subdirectory(include)
 if(BUILD_CPR_TESTS)
     enable_testing()
     add_subdirectory(test)
-endif()
+endif()]]
