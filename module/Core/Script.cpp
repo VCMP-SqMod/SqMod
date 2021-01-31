@@ -95,7 +95,12 @@ void ScriptSrc::Process()
     // Go back to the beginning
     std::fseek(fp, 0, SEEK_SET);
     // Read the file contents into allocated data
-    std::fread(&mData[0], 1, static_cast< size_t >(length), fp);
+    size_t r = std::fread(&mData[0], 1, static_cast< size_t >(length), fp);
+    // Read completely?
+    if (r != static_cast< size_t >(length))
+    {
+        return SqThrowF("Failed to read script contents."); // Not cool
+    }
     // Where the last line ended
     size_t line_start = 0, line_end = 0;
     // Process the file data and locate new lines
