@@ -5,18 +5,9 @@
 
 # Directories
 /bin/*
-# MySQL on windows
-/include/mysql/
-/config/mingw32/mysql/
-/config/mingw64/mysql/
-
-# Leftovers
-*.[Oo]bj
-*.[Pp]ch
 
 # Exclude
 !/bin/demo
 
 # Hidden files and folders
 .*
-module/Vendor/MaxmindDB/include/maxminddb_config.h
