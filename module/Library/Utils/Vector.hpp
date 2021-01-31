@@ -204,7 +204,7 @@ template < class T > struct SqVector
     {
         if (static_cast< size_t >(i) >= mC->size())
         {
-            STHROWF("Invalid vector container index");
+            STHROWF("Invalid vector container index(" PRINT_INT_FMT ")", i);
         }
         return *mC;
     }
@@ -580,13 +580,36 @@ template < class T > struct SqVector
         Validate();
         if (static_cast< size_t >(p) >= mC->size())
         {
-            STHROWF("Invalid container index");
+            STHROWF("Invalid container index (" PRINT_INT_FMT ")", p);
         }
         for (auto i = static_cast< size_t >(p); n--; ++i)
         {
             auto ret = fn.Eval(ctx);
             // Extract the value from object and insert it
             mC->insert(mC->begin() + i, ret.Cast< T >());
+        }
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Generate new elements at specified position.
+    */
+    SqVector & GenerateBetween(SQInteger p, SQInteger n, LightObj & ctx, Function & fn)
+    {
+        Validate();
+        if (static_cast< size_t >(p) >= mC->size())
+        {
+            STHROWF("Invalid container index (" PRINT_INT_FMT ")", p);
+        }
+        else if (static_cast< size_t >(p + n) >= mC->size())
+        {
+            STHROWF("Invalid container index (" PRINT_INT_FMT ")", p + n);
+        }
+        for (n = (p + n); p <= n; ++p)
+        {
+            auto ret = fn.Eval(ctx);
+            // Extract the value from object and assign it
+            mC->at(static_cast< size_t >(p)) = ret.Cast< T >();
         }
         return *this;
     }

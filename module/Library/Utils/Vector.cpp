@@ -63,6 +63,7 @@ static void Register_Vector(HSQUIRRELVM vm, Table & ns, const SQChar * name)
         .Func(_SC("Generate"), &Container::Generate)
         .Func(_SC("GenerateSome"), &Container::GenerateSome)
         .Func(_SC("GenerateFrom"), &Container::GenerateFrom)
+        .Func(_SC("GenerateBetween"), &Container::GenerateBetween)
         .Func(_SC("Sort"), &Container::Sort)
         .Func(_SC("Shuffle"), &Container::Shuffle)
     );
