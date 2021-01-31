@@ -50,10 +50,10 @@ void SqDataSession::SetProperty(const LightObj & value, StackStrF & name)
             setProperty(name.ToStr(), Poco::Any(nullptr));
         } break;
         case OT_INTEGER: {
-            setProperty(name.ToStr(), Poco::Any(value.Cast<SQInteger>()));
+            setProperty(name.ToStr(), Poco::Any(value.Cast< SQInteger >()));
         } break;
         case OT_FLOAT: {
-            setProperty(name.ToStr(), Poco::Any(value.Cast<SQFloat>()));
+            setProperty(name.ToStr(), Poco::Any(value.Cast< SQFloat >()));
         } break;
         case OT_BOOL: {
             setProperty(name.ToStr(), Poco::Any(value.Cast<bool>()));
@@ -159,24 +159,29 @@ SqDataStatement & SqDataStatement::UseEx(LightObj & obj, const std::string & nam
 // ------------------------------------------------------------------------------------------------
 SqDataStatement & SqDataStatement::BindEx(LightObj & obj, const std::string & name, Poco::Data::AbstractBinding::Direction dir)
 {
-    //
+    // Identify the object type
     switch (obj.GetType())
     {
+        // Null?
         case OT_NULL: {
             addBind(new Poco::Data::Binding<Poco::Data::NullData>(const_cast<Poco::Data::NullData&>(g_NullData), name, dir));
         } break;
+        // Integer?
         case OT_INTEGER: {
-            auto v = obj.Cast<SQInteger>();
-            addBind(new Poco::Data::CopyBinding<SQInteger>(v, name, dir));
+            auto v = obj.Cast< SQInteger >();
+            addBind(new Poco::Data::CopyBinding< SQInteger >(v, name, dir));
         } break;
+        // Float?
         case OT_FLOAT: {
-            auto v = obj.Cast<SQFloat>();
-            addBind(new Poco::Data::CopyBinding<SQFloat>(v, name, dir));
+            auto v = obj.Cast< SQFloat >();
+            addBind(new Poco::Data::CopyBinding< SQFloat >(v, name, dir));
         } break;
+        // Bool?
         case OT_BOOL: {
             auto v = obj.Cast<bool>();
             addBind(new Poco::Data::CopyBinding<bool>(v, name, dir));
         } break;
+        // String?
         case OT_STRING: {
             Var< LightObj >::push(SqVM(), obj);
             StackStrF str(SqVM(), -1);
@@ -184,35 +189,36 @@ SqDataStatement & SqDataStatement::BindEx(LightObj & obj, const std::string & na
             sq_poptop(SqVM());
             addBind(new Poco::Data::CopyBinding<const char *>(str.mPtr, name, dir));
         } break;
+        // Special?
         case OT_INSTANCE: {
             auto type = static_cast< AbstractStaticClassData * >(obj.GetTypeTag());
             // Integer reference?
             if (type == StaticClassTypeTag< SqDataBinding< SQInteger > >::Get())
             {
-                //addBind(new Poco::Data::ReferenceBinding< SQInteger >(obj.CastI< SqDataBinding< SQInteger > >()->mV, name, dir)); break;
+                addBind(new Poco::Data::CopyBinding< SQInteger >(*obj.CastI< SqDataBinding< SQInteger > >()->mV, name, dir)); break;
             } // Float reference?
             else if (type == StaticClassTypeTag< SqDataBinding< SQFloat > >::Get())
             {
-                //addBind(new Poco::Data::ReferenceBinding< SQFloat >(obj.CastI< SqDataBinding< SQFloat > >()->mV, name, dir)); break;
+                addBind(new Poco::Data::CopyBinding< SQFloat >(*obj.CastI< SqDataBinding< SQFloat > >()->mV, name, dir)); break;
             } // String reference?
             else if (type == StaticClassTypeTag< SqDataBinding< String > >::Get())
             {
-                //addBind(new Poco::Data::ReferenceBinding< String >(obj.CastI< SqDataBinding< String > >()->mV, name, dir)); break;
+                addBind(new Poco::Data::CopyBinding< String >(*obj.CastI< SqDataBinding< String > >()->mV, name, dir)); break;
             } // Bool reference?
             else if (type == StaticClassTypeTag< SqDataBinding< bool > >::Get())
             {
-                //addBind(new Poco::Data::ReferenceBinding< bool >(obj.CastI< SqDataBinding< bool > >()->mV, name, dir)); break;
+                addBind(new Poco::Data::CopyBinding< bool >(*obj.CastI< SqDataBinding< bool > >()->mV, name, dir)); break;
             } // Unknown!
             else
             {
                 Var< LightObj >::push(SqVM(), obj);
                 String type_name = SqTypeName(SqVM(), -1);
                 sq_poptop(SqVM());
-                STHROWF("Can't use (%s) values", type_name.c_str()); break;
+                STHROWF("Can't bind (%s) values", type_name.c_str()); break;
             }
 
         } break;
-        default: STHROWF("Can't use (%s) values", SqTypeName(obj.GetType())); break;
+        default: STHROWF("Can't bind (%s) values", SqTypeName(obj.GetType())); break;
     }
     //
     return *this;
