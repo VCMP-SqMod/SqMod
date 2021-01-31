@@ -16,7 +16,7 @@ namespace SqMod {
 static SQChar g_NumBuf[1024];
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * ConvNum< int8_t >::ToStr(int8_t v)
+const SQChar * ConvNum< signed char >::ToStr(signed char v)
 {
     // Write the numeric value to the buffer
     if (std::snprintf(g_NumBuf, sizeof(g_NumBuf), "%d", v) < 0)
@@ -27,18 +27,18 @@ const SQChar * ConvNum< int8_t >::ToStr(int8_t v)
     return g_NumBuf;
 }
 
-int8_t ConvNum< int8_t >::FromStr(const SQChar * s)
+signed char ConvNum< signed char >::FromStr(const SQChar * s)
 {
-    return ConvTo< int8_t >::From(std::strtol(s, nullptr, 10));
+    return ConvTo< signed char >::From(std::strtol(s, nullptr, 10));
 }
 
-int8_t ConvNum< int8_t >::FromStr(const SQChar * s, int32_t base)
+signed char ConvNum< signed char >::FromStr(const SQChar * s, int32_t base)
 {
-    return ConvTo< int8_t >::From(std::strtol(s, nullptr, base));
+    return ConvTo< signed char >::From(std::strtol(s, nullptr, base));
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * ConvNum< uint8_t >::ToStr(uint8_t v)
+const SQChar * ConvNum< unsigned char >::ToStr(unsigned char v)
 {
     // Write the numeric value to the buffer
     if (std::snprintf(g_NumBuf, sizeof(g_NumBuf), "%u", v) < 0)
@@ -49,18 +49,18 @@ const SQChar * ConvNum< uint8_t >::ToStr(uint8_t v)
     return g_NumBuf;
 }
 
-uint8_t ConvNum< uint8_t >::FromStr(const SQChar * s)
+unsigned char ConvNum< unsigned char >::FromStr(const SQChar * s)
 {
-    return ConvTo< uint8_t >::From(std::strtoul(s, nullptr, 10));
+    return ConvTo< unsigned char >::From(std::strtoul(s, nullptr, 10));
 }
 
-uint8_t ConvNum< uint8_t >::FromStr(const SQChar * s, int32_t base)
+unsigned char ConvNum< unsigned char >::FromStr(const SQChar * s, int32_t base)
 {
-    return ConvTo< uint8_t >::From(std::strtoul(s, nullptr, base));
+    return ConvTo< unsigned char >::From(std::strtoul(s, nullptr, base));
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * ConvNum< int16_t >::ToStr(int16_t v)
+const SQChar * ConvNum< signed short >::ToStr(signed short v)
 {
     // Write the numeric value to the buffer
     if (std::snprintf(g_NumBuf, sizeof(g_NumBuf), "%d", v) < 0)
@@ -71,18 +71,18 @@ const SQChar * ConvNum< int16_t >::ToStr(int16_t v)
     return g_NumBuf;
 }
 
-int16_t ConvNum< int16_t >::FromStr(const SQChar * s)
+signed short ConvNum< signed short >::FromStr(const SQChar * s)
 {
-    return ConvTo< int16_t >::From(std::strtol(s, nullptr, 10));
+    return ConvTo< signed short >::From(std::strtol(s, nullptr, 10));
 }
 
-int16_t ConvNum< int16_t >::FromStr(const SQChar * s, int32_t base)
+signed short ConvNum< signed short >::FromStr(const SQChar * s, int32_t base)
 {
-    return ConvTo< int16_t >::From(std::strtol(s, nullptr, base));
+    return ConvTo< signed short >::From(std::strtol(s, nullptr, base));
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * ConvNum< uint16_t >::ToStr(uint16_t v)
+const SQChar * ConvNum< unsigned short >::ToStr(unsigned short v)
 {
     // Write the numeric value to the buffer
     if (std::snprintf(g_NumBuf, sizeof(g_NumBuf), "%u", v) < 0)
@@ -93,18 +93,18 @@ const SQChar * ConvNum< uint16_t >::ToStr(uint16_t v)
     return g_NumBuf;
 }
 
-uint16_t ConvNum< uint16_t >::FromStr(const SQChar * s)
+unsigned short ConvNum< unsigned short >::FromStr(const SQChar * s)
 {
-    return ConvTo< uint16_t >::From(std::strtoul(s, nullptr, 10));
+    return ConvTo< unsigned short >::From(std::strtoul(s, nullptr, 10));
 }
 
-uint16_t ConvNum< uint16_t >::FromStr(const SQChar * s, int32_t base)
+unsigned short ConvNum< unsigned short >::FromStr(const SQChar * s, int32_t base)
 {
-    return ConvTo< uint16_t >::From(std::strtoul(s, nullptr, base));
+    return ConvTo< unsigned short >::From(std::strtoul(s, nullptr, base));
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * ConvNum< int32_t >::ToStr(int32_t v)
+const SQChar * ConvNum< signed int >::ToStr(signed int v)
 {
     // Write the numeric value to the buffer
     if (std::snprintf(g_NumBuf, sizeof(g_NumBuf), "%d", v) < 0)
@@ -115,18 +115,18 @@ const SQChar * ConvNum< int32_t >::ToStr(int32_t v)
     return g_NumBuf;
 }
 
-int32_t ConvNum< int32_t >::FromStr(const SQChar * s)
+signed int ConvNum< signed int >::FromStr(const SQChar * s)
 {
-    return ConvTo< int32_t >::From(std::strtol(s, nullptr, 10));
+    return ConvTo< signed int >::From(std::strtol(s, nullptr, 10));
 }
 
-int32_t ConvNum< int32_t >::FromStr(const SQChar * s, int32_t base)
+signed int ConvNum< signed int >::FromStr(const SQChar * s, signed int base)
 {
-    return ConvTo< int32_t >::From(std::strtol(s, nullptr, base));
+    return ConvTo< signed int >::From(std::strtol(s, nullptr, base));
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * ConvNum< uint32_t >::ToStr(uint32_t v)
+const SQChar * ConvNum< unsigned int >::ToStr(unsigned int v)
 {
     // Write the numeric value to the buffer
     if (std::snprintf(g_NumBuf, sizeof(g_NumBuf), "%u", v) < 0)
@@ -137,18 +137,18 @@ const SQChar * ConvNum< uint32_t >::ToStr(uint32_t v)
     return g_NumBuf;
 }
 
-uint32_t ConvNum< uint32_t >::FromStr(const SQChar * s)
+unsigned int ConvNum< unsigned int >::FromStr(const SQChar * s)
 {
-    return ConvTo< uint32_t >::From(std::strtoul(s, nullptr, 10));
+    return ConvTo< unsigned int >::From(std::strtoul(s, nullptr, 10));
 }
 
-uint32_t ConvNum< uint32_t >::FromStr(const SQChar * s, int32_t base)
+unsigned int ConvNum< unsigned int >::FromStr(const SQChar * s, signed int base)
 {
-    return ConvTo< uint32_t >::From(std::strtoul(s, nullptr, base));
+    return ConvTo< unsigned int >::From(std::strtoul(s, nullptr, base));
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * ConvNum< int64_t >::ToStr(int64_t v)
+const SQChar * ConvNum< signed long long >::ToStr(signed long long v)
 {
     // Write the numeric value to the buffer
     if (std::snprintf(g_NumBuf, sizeof(g_NumBuf), "%lld", v) < 0)
@@ -159,18 +159,18 @@ const SQChar * ConvNum< int64_t >::ToStr(int64_t v)
     return g_NumBuf;
 }
 
-int64_t ConvNum< int64_t >::FromStr(const SQChar * s)
+signed long long ConvNum< signed long long >::FromStr(const SQChar * s)
 {
     return std::strtoll(s, nullptr, 10);
 }
 
-int64_t ConvNum< int64_t >::FromStr(const SQChar * s, int32_t base)
+signed long long ConvNum< signed long long >::FromStr(const SQChar * s, int32_t base)
 {
     return std::strtoll(s, nullptr, base);
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * ConvNum< uint64_t >::ToStr(uint64_t v)
+const SQChar * ConvNum< unsigned long long >::ToStr(unsigned long long v)
 {
     // Write the numeric value to the buffer
     if (std::snprintf(g_NumBuf, sizeof(g_NumBuf), "%llu", v) < 0)
@@ -181,12 +181,12 @@ const SQChar * ConvNum< uint64_t >::ToStr(uint64_t v)
     return g_NumBuf;
 }
 
-uint64_t ConvNum< uint64_t >::FromStr(const SQChar * s)
+unsigned long long ConvNum< unsigned long long >::FromStr(const SQChar * s)
 {
     return std::strtoull(s, nullptr, 10);
 }
 
-uint64_t ConvNum< uint64_t >::FromStr(const SQChar * s, int32_t base)
+unsigned long long ConvNum< unsigned long long >::FromStr(const SQChar * s, int32_t base)
 {
     return std::strtoull(s, nullptr, base);
 }

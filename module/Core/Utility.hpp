@@ -9,7 +9,7 @@ namespace SqMod {
 /* ------------------------------------------------------------------------------------------------
  * Compute the next power of two for the specified number.
 */
-SQMOD_NODISCARD inline uint32_t NextPow2(uint32_t num)
+SQMOD_NODISCARD inline unsigned int NextPow2(unsigned int num)
 {
     --num;
     num |= num >> 1u;
@@ -200,95 +200,95 @@ template < typename T > struct ConvNum;
  * Specializations for each numeric type conversion to string and/or backwards.
 */
 
-template <> struct ConvNum< int8_t >
+template <> struct ConvNum< signed char >
 {
-    static const char * ToStr(int8_t v);
-    static int8_t FromStr(const char * s);
-    static int8_t FromStr(const char * s, int32_t base);
+    static const char * ToStr(signed char v);
+    static signed char FromStr(const char * s);
+    static signed char FromStr(const char * s, signed int base);
 };
 
-template <> struct ConvNum< uint8_t >
+template <> struct ConvNum< unsigned char >
 {
-    static const char * ToStr(uint8_t v);
-    static uint8_t FromStr(const char * s);
-    static uint8_t FromStr(const char * s, int32_t base);
+    static const char * ToStr(unsigned char v);
+    static unsigned char FromStr(const char * s);
+    static unsigned char FromStr(const char * s, signed int base);
 };
 
-template <> struct ConvNum< int16_t >
+template <> struct ConvNum< signed short >
 {
-    static const char * ToStr(int16_t v);
-    static int16_t FromStr(const char * s);
-    static int16_t FromStr(const char * s, int32_t base);
+    static const char * ToStr(signed short v);
+    static signed short FromStr(const char * s);
+    static signed short FromStr(const char * s, signed int base);
 };
 
-template <> struct ConvNum< uint16_t >
+template <> struct ConvNum< unsigned short >
 {
-    static const char * ToStr(uint16_t v);
-    static uint16_t FromStr(const char * s);
-    static uint16_t FromStr(const char * s, int32_t base);
+    static const char * ToStr(unsigned short v);
+    static unsigned short FromStr(const char * s);
+    static unsigned short FromStr(const char * s, signed int base);
 };
 
-template <> struct ConvNum< int32_t >
+template <> struct ConvNum< signed int >
 {
-    static const char * ToStr(int32_t v);
-    static int32_t FromStr(const char * s);
-    static int32_t FromStr(const char * s, int32_t base);
+    static const char * ToStr(signed int v);
+    static signed int FromStr(const char * s);
+    static signed int FromStr(const char * s, signed int base);
 };
 
-template <> struct ConvNum< uint32_t >
+template <> struct ConvNum< unsigned int >
 {
-    static const char * ToStr(uint32_t v);
-    static uint32_t FromStr(const char * s);
-    static uint32_t FromStr(const char * s, int32_t base);
+    static const char * ToStr(unsigned int v);
+    static unsigned int FromStr(const char * s);
+    static unsigned int FromStr(const char * s, signed int base);
 };
 
-template <> struct ConvNum< int64_t >
+template <> struct ConvNum< signed long long >
 {
-    static const char * ToStr(int64_t v);
-    static int64_t FromStr(const char * s);
-    static int64_t FromStr(const char * s, int32_t base);
+    static const char * ToStr(signed long long v);
+    static signed long long FromStr(const char * s);
+    static signed long long FromStr(const char * s, signed int base);
 };
 
-template <> struct ConvNum< uint64_t >
+template <> struct ConvNum< unsigned long long >
 {
-    static const char * ToStr(uint64_t v);
-    static uint64_t FromStr(const char * s);
-    static uint64_t FromStr(const char * s, int32_t base);
+    static const char * ToStr(unsigned long long v);
+    static unsigned long long FromStr(const char * s);
+    static unsigned long long FromStr(const char * s, signed int base);
 };
 
 template <> struct ConvNum< long >
 {
     static const char * ToStr(long v);
     static long FromStr(const char * s);
-    static long FromStr(const char * s, int32_t base);
+    static long FromStr(const char * s, signed int base);
 };
 
 template <> struct ConvNum< unsigned long >
 {
     static const char * ToStr(unsigned long v);
     static unsigned long FromStr(const char * s);
-    static unsigned long FromStr(const char * s, int32_t base);
+    static unsigned long FromStr(const char * s, signed int base);
 };
 
 template <> struct ConvNum< float >
 {
     static const char * ToStr(float v);
     static float FromStr(const char * s);
-    static float FromStr(const char * s, int32_t base);
+    static float FromStr(const char * s, signed int base);
 };
 
 template <> struct ConvNum< double >
 {
     static const char * ToStr(double v);
     static double FromStr(const char * s);
-    static double FromStr(const char * s, int32_t base);
+    static double FromStr(const char * s, signed int base);
 };
 
 template <> struct ConvNum< bool >
 {
     static const char * ToStr(bool v);
     static bool FromStr(const char * s);
-    static bool FromStr(const char * s, int32_t base);
+    static bool FromStr(const char * s, signed int base);
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -318,267 +318,267 @@ template < typename T > struct ConvTo
 /* ------------------------------------------------------------------------------------------------
  * Convert a string to 8/16/32 bit signed integers.
 */
-template <> template <> inline int8_t ConvTo< int8_t >::From< const char * >(const char * v)
+template <> template <> inline signed char ConvTo< signed char >::From< const char * >(const char * v)
 {
-    return ConvNum< int8_t >::FromStr(v);
+    return ConvNum< signed char >::FromStr(v);
 }
 
-template <> template <> inline int16_t ConvTo< int16_t >::From< const char * >(const char * v)
+template <> template <> inline signed short ConvTo< signed short >::From< const char * >(const char * v)
 {
-    return ConvNum< int16_t >::FromStr(v);
+    return ConvNum< signed short >::FromStr(v);
 }
 
-template <> template <> inline int32_t ConvTo< int32_t >::From< const char * >(const char * v)
+template <> template <> inline signed int ConvTo< signed int >::From< const char * >(const char * v)
 {
-    return ConvNum< int32_t >::FromStr(v);
+    return ConvNum< signed int >::FromStr(v);
 }
 
 /* ------------------------------------------------------------------------------------------------
  * Convert a string to 8/16/32 bit unsigned integers.
 */
-template <> template <> inline uint8_t ConvTo< uint8_t >::From< const char * >(const char * v)
+template <> template <> inline unsigned char ConvTo< unsigned char >::From< const char * >(const char * v)
 {
-    return ConvNum< uint8_t >::FromStr(v);
+    return ConvNum< unsigned char >::FromStr(v);
 }
 
-template <> template <> inline uint16_t ConvTo< uint16_t >::From< const char * >(const char * v)
+template <> template <> inline unsigned short ConvTo< unsigned short >::From< const char * >(const char * v)
 {
-    return ConvNum< uint16_t >::FromStr(v);
+    return ConvNum< unsigned short >::FromStr(v);
 }
 
-template <> template <> inline uint32_t ConvTo< uint32_t >::From< const char * >(const char * v)
+template <> template <> inline unsigned int ConvTo< unsigned int >::From< const char * >(const char * v)
 {
-    return ConvNum< uint32_t >::FromStr(v);
+    return ConvNum< unsigned int >::FromStr(v);
 }
 
 /* ------------------------------------------------------------------------------------------------
  * Convert to 8 bit signed integer from any unsigned integer.
 */
-template <> template <> inline int8_t ConvTo< int8_t >::From< uint8_t >(uint8_t v)
+template <> template <> inline signed char ConvTo< signed char >::From< unsigned char >(unsigned char v)
 {
-    return (v >= static_cast< uint8_t >(Max)) ? Max : static_cast< int8_t >(v);
+    return (v >= static_cast< unsigned char >(Max)) ? Max : static_cast< signed char >(v);
 }
 
-template <> template <> inline int8_t ConvTo< int8_t >::From< uint16_t >(uint16_t v)
+template <> template <> inline signed char ConvTo< signed char >::From< unsigned short >(unsigned short v)
 {
-    return (v >= static_cast< uint8_t >(Max)) ? Max : static_cast< int8_t >(v);
+    return (v >= static_cast< unsigned char >(Max)) ? Max : static_cast< signed char >(v);
 }
 
-template <> template <> inline int8_t ConvTo< int8_t >::From< uint32_t >(uint32_t v)
+template <> template <> inline signed char ConvTo< signed char >::From< unsigned int >(unsigned int v)
 {
-    return (v >= static_cast< uint8_t >(Max)) ? Max : static_cast< int8_t >(v);
+    return (v >= static_cast< unsigned char >(Max)) ? Max : static_cast< signed char >(v);
 }
 
-template <> template <> inline int8_t ConvTo< int8_t >::From< uint64_t >(uint64_t v)
+template <> template <> inline signed char ConvTo< signed char >::From< unsigned long long >(unsigned long long v)
 {
-    return (v >= static_cast< uint8_t >(Max)) ? Max : static_cast< int8_t >(v);
+    return (v >= static_cast< unsigned char >(Max)) ? Max : static_cast< signed char >(v);
 }
 
-template <> template <> inline int8_t ConvTo< int8_t >::From< unsigned long >(unsigned long v)
+template <> template <> inline signed char ConvTo< signed char >::From< unsigned long >(unsigned long v)
 {
-    return (v >= static_cast< uint8_t >(Max)) ? Max : static_cast< int8_t >(v);
+    return (v >= static_cast< unsigned char >(Max)) ? Max : static_cast< signed char >(v);
 }
 
 /* ------------------------------------------------------------------------------------------------
  * Convert to 16 bit signed integer from any unsigned integer.
 */
-template <> template <> inline int16_t ConvTo< int16_t >::From< uint8_t >(uint8_t v)
+template <> template <> inline signed short ConvTo< signed short >::From< unsigned char >(unsigned char v)
 {
-    return static_cast< int16_t >(v);
+    return static_cast< signed short >(v);
 }
 
-template <> template <> inline int16_t ConvTo< int16_t >::From< uint16_t >(uint16_t v)
+template <> template <> inline signed short ConvTo< signed short >::From< unsigned short >(unsigned short v)
 {
-    return (v >= static_cast< uint16_t >(Max)) ? Max : static_cast< int16_t >(v);
+    return (v >= static_cast< unsigned short >(Max)) ? Max : static_cast< signed short >(v);
 }
 
-template <> template <> inline int16_t ConvTo< int16_t >::From< uint32_t >(uint32_t v)
+template <> template <> inline signed short ConvTo< signed short >::From< unsigned int >(unsigned int v)
 {
-    return (v >= static_cast< uint16_t >(Max)) ? Max : static_cast< int16_t >(v);
+    return (v >= static_cast< unsigned short >(Max)) ? Max : static_cast< signed short >(v);
 }
 
-template <> template <> inline int16_t ConvTo< int16_t >::From< uint64_t >(uint64_t v)
+template <> template <> inline signed short ConvTo< signed short >::From< unsigned long long >(unsigned long long v)
 {
-    return (v >= static_cast< uint16_t >(Max)) ? Max : static_cast< int16_t >(v);
+    return (v >= static_cast< unsigned short >(Max)) ? Max : static_cast< signed short >(v);
 }
 
-template <> template <> inline int16_t ConvTo< int16_t >::From< unsigned long >(unsigned long v)
+template <> template <> inline signed short ConvTo< signed short >::From< unsigned long >(unsigned long v)
 {
-    return (v >= static_cast< uint16_t >(Max)) ? Max : static_cast< int16_t >(v);
+    return (v >= static_cast< unsigned short >(Max)) ? Max : static_cast< signed short >(v);
 }
 
 /* ------------------------------------------------------------------------------------------------
  * Convert to 32 bit signed integer from any unsigned integer.
 */
-template <> template <> inline int32_t ConvTo< int32_t >::From< uint8_t >(uint8_t v)
+template <> template <> inline signed int ConvTo< signed int >::From< unsigned char >(unsigned char v)
 {
-    return static_cast< int32_t >(v);
+    return static_cast< signed int >(v);
 }
 
-template <> template <> inline int32_t ConvTo< int32_t >::From< uint16_t >(uint16_t v)
+template <> template <> inline signed int ConvTo< signed int >::From< unsigned short >(unsigned short v)
 {
-    return static_cast< int32_t >(v);
+    return static_cast< signed int >(v);
 }
 
-template <> template <> inline int32_t ConvTo< int32_t >::From< uint32_t >(uint32_t v)
+template <> template <> inline signed int ConvTo< signed int >::From< unsigned int >(unsigned int v)
 {
-    return (v >= static_cast< uint32_t >(Max)) ? Max : static_cast< int32_t >(v);
+    return (v >= static_cast< unsigned int >(Max)) ? Max : static_cast< signed int >(v);
 }
 
-template <> template <> inline int32_t ConvTo< int32_t >::From< uint64_t >(uint64_t v)
+template <> template <> inline signed int ConvTo< signed int >::From< unsigned long long >(unsigned long long v)
 {
-    return (v >= static_cast< uint32_t >(Max)) ? Max : static_cast< int32_t >(v);
+    return (v >= static_cast< unsigned int >(Max)) ? Max : static_cast< signed int >(v);
 }
 
-template <> template <> inline int32_t ConvTo< int32_t >::From< unsigned long >(unsigned long v)
+template <> template <> inline signed int ConvTo< signed int >::From< unsigned long >(unsigned long v)
 {
-    return (v >= static_cast< uint32_t >(Max)) ? Max : static_cast< int32_t >(v);
+    return (v >= static_cast< unsigned int >(Max)) ? Max : static_cast< signed int >(v);
 }
 
 /* ------------------------------------------------------------------------------------------------
  * Convert to 8 bit unsigned integer from any signed integer.
 */
-template <> template <> inline uint8_t ConvTo< uint8_t >::From< int8_t >(int8_t v)
+template <> template <> inline unsigned char ConvTo< unsigned char >::From< signed char >(signed char v)
 {
-    return (v <= 0) ? static_cast< uint8_t >(0) : static_cast< uint8_t >(v);
+    return (v <= 0) ? static_cast< unsigned char >(0) : static_cast< unsigned char >(v);
 }
 
-template <> template <> inline uint8_t ConvTo< uint8_t >::From< int16_t >(int16_t v)
+template <> template <> inline unsigned char ConvTo< unsigned char >::From< signed short >(signed short v)
 {
     if (v <= 0)
     {
         return 0;
     }
-    else if (v >= static_cast< int16_t >(Max))
+    else if (v >= static_cast< signed short >(Max))
     {
         return Max;
     }
-    return static_cast< uint8_t >(v);
+    return static_cast< unsigned char >(v);
 }
 
-template <> template <> inline uint8_t ConvTo< uint8_t >::From< int32_t >(int32_t v)
+template <> template <> inline unsigned char ConvTo< unsigned char >::From< signed int >(signed int v)
 {
     if (v <= 0)
     {
         return 0;
     }
-    else if (v >= static_cast< int16_t >(Max))
+    else if (v >= static_cast< signed short >(Max))
     {
         return Max;
     }
-    return static_cast< uint8_t >(v);
+    return static_cast< unsigned char >(v);
 }
 
-template <> template <> inline uint8_t ConvTo< uint8_t >::From< int64_t >(int64_t v)
+template <> template <> inline unsigned char ConvTo< unsigned char >::From< signed long long >(signed long long v)
 {
     if (v <= 0)
     {
         return 0;
     }
-    else if (v >= static_cast< int16_t >(Max))
+    else if (v >= static_cast< signed short >(Max))
     {
         return Max;
     }
-    return static_cast< uint8_t >(v);
+    return static_cast< unsigned char >(v);
 }
 
-template <> template <> inline uint8_t ConvTo< uint8_t >::From< long >(long v)
+template <> template <> inline unsigned char ConvTo< unsigned char >::From< long >(long v)
 {
     if (v <= 0)
     {
         return 0;
     }
-    else if (v >= static_cast< int16_t >(Max))
+    else if (v >= static_cast< signed short >(Max))
     {
         return Max;
     }
-    return static_cast< uint8_t >(v);
+    return static_cast< unsigned char >(v);
 }
 
 /* ------------------------------------------------------------------------------------------------
  * Convert to 16 bit unsigned integer from any signed integer.
 */
-template <> template <> inline uint16_t ConvTo< uint16_t >::From< int8_t >(int8_t v)
+template <> template <> inline unsigned short ConvTo< unsigned short >::From< signed char >(signed char v)
 {
-    return (v <= 0) ? static_cast< uint16_t >(0) : static_cast< uint16_t >(v);
+    return (v <= 0) ? static_cast< unsigned short >(0) : static_cast< unsigned short >(v);
 }
 
-template <> template <> inline uint16_t ConvTo< uint16_t >::From< int16_t >(int16_t v)
+template <> template <> inline unsigned short ConvTo< unsigned short >::From< signed short >(signed short v)
 {
-    return (v <= 0) ? static_cast< uint16_t >(0) : static_cast< uint16_t >(v);
+    return (v <= 0) ? static_cast< unsigned short >(0) : static_cast< unsigned short >(v);
 }
 
-template <> template <> inline uint16_t ConvTo< uint16_t >::From< int32_t >(int32_t v)
+template <> template <> inline unsigned short ConvTo< unsigned short >::From< signed int >(signed int v)
 {
     if (v <= 0)
     {
         return 0;
     }
-    else if (v >= static_cast< int32_t >(Max))
+    else if (v >= static_cast< signed int >(Max))
     {
         return Max;
     }
-    return static_cast< uint16_t >(v);
+    return static_cast< unsigned short >(v);
 }
 
-template <> template <> inline uint16_t ConvTo< uint16_t >::From< int64_t >(int64_t v)
+template <> template <> inline unsigned short ConvTo< unsigned short >::From< signed long long >(signed long long v)
 {
     if (v <= 0)
     {
         return 0;
     }
-    else if (v >= static_cast< int32_t >(Max))
+    else if (v >= static_cast< signed int >(Max))
     {
         return Max;
     }
-    return static_cast< uint16_t >(v);
+    return static_cast< unsigned short >(v);
 }
 
-template <> template <> inline uint16_t ConvTo< uint16_t >::From< long >(long v)
+template <> template <> inline unsigned short ConvTo< unsigned short >::From< long >(long v)
 {
     if (v <= 0)
     {
         return 0;
     }
-    else if (v >= static_cast< int32_t >(Max))
+    else if (v >= static_cast< signed int >(Max))
     {
         return Max;
     }
-    return static_cast< uint16_t >(v);
+    return static_cast< unsigned short >(v);
 }
 
 /* ------------------------------------------------------------------------------------------------
  * Convert to 32 bit unsigned integer from any signed integer.
 */
-template <> template <> inline uint32_t ConvTo< uint32_t >::From< int8_t >(int8_t v)
+template <> template <> inline unsigned int ConvTo< unsigned int >::From< signed char >(signed char v)
 {
-    return (v <= 0) ? 0 : static_cast< uint32_t >(v);
+    return (v <= 0) ? 0 : static_cast< unsigned int >(v);
 }
 
-template <> template <> inline uint32_t ConvTo< uint32_t >::From< int16_t >(int16_t v)
+template <> template <> inline unsigned int ConvTo< unsigned int >::From< signed short >(signed short v)
 {
-    return (v <= 0) ? 0 : static_cast< uint32_t >(v);
+    return (v <= 0) ? 0 : static_cast< unsigned int >(v);
 }
 
-template <> template <> inline uint32_t ConvTo< uint32_t >::From< int32_t >(int32_t v)
+template <> template <> inline unsigned int ConvTo< unsigned int >::From< signed int >(signed int v)
 {
-    return (v <= 0) ? 0 : static_cast< uint32_t >(v);
+    return (v <= 0) ? 0 : static_cast< unsigned int >(v);
 }
 
-template <> template <> inline uint32_t ConvTo< uint32_t >::From< int64_t >(int64_t v)
+template <> template <> inline unsigned int ConvTo< unsigned int >::From< signed long long >(signed long long v)
 {
     if (v <= 0)
     {
         return 0;
     }
-    else if (v >= static_cast< int64_t >(Max))
+    else if (v >= static_cast< signed long long >(Max))
     {
         return Max;
     }
-    return static_cast< uint32_t >(v);
+    return static_cast< unsigned int >(v);
 }
 
-template <> template <> inline uint32_t ConvTo< uint32_t >::From< long >(long v)
+template <> template <> inline unsigned int ConvTo< unsigned int >::From< long >(long v)
 {
 #if (ULONG_MAX > UINT_MAX)
 
@@ -586,14 +586,14 @@ template <> template <> inline uint32_t ConvTo< uint32_t >::From< long >(long v)
     {
         return 0;
     }
-    else if (v >= static_cast< int64_t >(Max))
+    else if (v >= static_cast< signed long long >(Max))
     {
         return Max;
     }
-    return static_cast< uint32_t >(v);
+    return static_cast< unsigned int >(v);
 
 #else
-    return (v <= 0) ? 0 : static_cast< uint32_t >(v);
+    return (v <= 0) ? 0 : static_cast< unsigned int >(v);
 #endif
 }
 
@@ -601,7 +601,7 @@ template <> template <> inline uint32_t ConvTo< uint32_t >::From< long >(long v)
 /* ------------------------------------------------------------------------------------------------
  * Convert to signed integer from 32 bit floating point number.
 */
-template <> template <> inline int8_t ConvTo< int8_t >::From< float >(float v)
+template <> template <> inline signed char ConvTo< signed char >::From< float >(float v)
 {
     if (EpsLt(v, Min))
     {
@@ -611,10 +611,10 @@ template <> template <> inline int8_t ConvTo< int8_t >::From< float >(float v)
     {
         return Max;
     }
-    return static_cast< int8_t >(v);
+    return static_cast< signed char >(v);
 }
 
-template <> template <> inline int16_t ConvTo< int16_t >::From< float >(float v)
+template <> template <> inline signed short ConvTo< signed short >::From< float >(float v)
 {
     if (EpsLt(v, Min))
     {
@@ -624,10 +624,10 @@ template <> template <> inline int16_t ConvTo< int16_t >::From< float >(float v)
     {
         return Max;
     }
-    return static_cast< int16_t >(v);
+    return static_cast< signed short >(v);
 }
 
-template <> template <> inline int32_t ConvTo< int32_t >::From< float >(float v)
+template <> template <> inline signed int ConvTo< signed int >::From< float >(float v)
 {
     if (EpsLt(v, Min))
     {
@@ -637,13 +637,13 @@ template <> template <> inline int32_t ConvTo< int32_t >::From< float >(float v)
     {
         return Max;
     }
-    return static_cast< int32_t >(v);
+    return static_cast< signed int >(v);
 }
 
 /* ------------------------------------------------------------------------------------------------
  * Convert to signed integer from 64 bit floating point number.
 */
-template <> template <> inline int8_t ConvTo< int8_t >::From< double >(double v)
+template <> template <> inline signed char ConvTo< signed char >::From< double >(double v)
 {
     if (EpsLt(v, Min))
     {
@@ -653,10 +653,10 @@ template <> template <> inline int8_t ConvTo< int8_t >::From< double >(double v)
     {
         return Max;
     }
-    return static_cast< int8_t >(v);
+    return static_cast< signed char >(v);
 }
 
-template <> template <> inline int16_t ConvTo< int16_t >::From< double >(double v)
+template <> template <> inline signed short ConvTo< signed short >::From< double >(double v)
 {
     if (EpsLt(v, Min))
     {
@@ -666,10 +666,10 @@ template <> template <> inline int16_t ConvTo< int16_t >::From< double >(double 
     {
         return Max;
     }
-    return static_cast< int16_t >(v);
+    return static_cast< signed short >(v);
 }
 
-template <> template <> inline int32_t ConvTo< int32_t >::From< double >(double v)
+template <> template <> inline signed int ConvTo< signed int >::From< double >(double v)
 {
     if (EpsLt(v, Min))
     {
@@ -679,13 +679,13 @@ template <> template <> inline int32_t ConvTo< int32_t >::From< double >(double 
     {
         return Max;
     }
-    return static_cast< int32_t >(v);
+    return static_cast< signed int >(v);
 }
 
 /* ------------------------------------------------------------------------------------------------
  * Convert to unsigned integer from 32 bit floating point number.
 */
-template <> template <> inline uint8_t ConvTo< uint8_t >::From< float >(float v)
+template <> template <> inline unsigned char ConvTo< unsigned char >::From< float >(float v)
 {
     if (EpsLt(v, Min))
     {
@@ -695,10 +695,10 @@ template <> template <> inline uint8_t ConvTo< uint8_t >::From< float >(float v)
     {
         return Max;
     }
-    return static_cast< uint8_t >(v);
+    return static_cast< unsigned char >(v);
 }
 
-template <> template <> inline uint16_t ConvTo< uint16_t >::From< float >(float v)
+template <> template <> inline unsigned short ConvTo< unsigned short >::From< float >(float v)
 {
     if (EpsLt(v, Min))
     {
@@ -708,10 +708,10 @@ template <> template <> inline uint16_t ConvTo< uint16_t >::From< float >(float 
     {
         return Max;
     }
-    return static_cast< uint16_t >(v);
+    return static_cast< unsigned short >(v);
 }
 
-template <> template <> inline uint32_t ConvTo< uint32_t >::From< float >(float v)
+template <> template <> inline unsigned int ConvTo< unsigned int >::From< float >(float v)
 {
     if (EpsLt(v, Min))
     {
@@ -721,13 +721,13 @@ template <> template <> inline uint32_t ConvTo< uint32_t >::From< float >(float 
     {
         return Max;
     }
-    return static_cast< uint32_t >(v);
+    return static_cast< unsigned int >(v);
 }
 
 /* ------------------------------------------------------------------------------------------------
  * Convert to unsigned integer from 64 bit floating point number.
 */
-template <> template <> inline uint8_t ConvTo< uint8_t >::From< double >(double v)
+template <> template <> inline unsigned char ConvTo< unsigned char >::From< double >(double v)
 {
     if (EpsLt(v, Min))
     {
@@ -737,10 +737,10 @@ template <> template <> inline uint8_t ConvTo< uint8_t >::From< double >(double 
     {
         return Max;
     }
-    return static_cast< uint8_t >(v);
+    return static_cast< unsigned char >(v);
 }
 
-template <> template <> inline uint16_t ConvTo< uint16_t >::From< double >(double v)
+template <> template <> inline unsigned short ConvTo< unsigned short >::From< double >(double v)
 {
     if (EpsLt(v, Min))
     {
@@ -750,10 +750,10 @@ template <> template <> inline uint16_t ConvTo< uint16_t >::From< double >(doubl
     {
         return Max;
     }
-    return static_cast< uint16_t >(v);
+    return static_cast< unsigned short >(v);
 }
 
-template <> template <> inline uint32_t ConvTo< uint32_t >::From< double >(double v)
+template <> template <> inline unsigned int ConvTo< unsigned int >::From< double >(double v)
 {
     if (EpsLt(v, Min))
     {
@@ -763,43 +763,43 @@ template <> template <> inline uint32_t ConvTo< uint32_t >::From< double >(doubl
     {
         return Max;
     }
-    return static_cast< uint32_t >(v);
+    return static_cast< unsigned int >(v);
 }
 
 /* ------------------------------------------------------------------------------------------------
  * Convert other numeric values to 64 bit signed integer.
 */
-template <> struct ConvTo< int64_t >
+template <> struct ConvTo< signed long long >
 {
     // --------------------------------------------------------------------------------------------
-    static constexpr int64_t Min = std::numeric_limits< int64_t >::min();
-    static constexpr int64_t Max = std::numeric_limits< int64_t >::max();
+    static constexpr signed long long Min = std::numeric_limits< signed long long >::min();
+    static constexpr signed long long Max = std::numeric_limits< signed long long >::max();
 
     // --------------------------------------------------------------------------------------------
-    template < typename T > static inline int64_t From(T v)
+    template < typename T > static inline signed long long From(T v)
     {
-        return static_cast< int64_t >(v);
+        return static_cast< signed long long >(v);
     }
 };
 
 // ------------------------------------------------------------------------------------------------
-template <> inline int64_t ConvTo< int64_t >::From< const char * >(const char * v)
+template <> inline signed long long ConvTo< signed long long >::From< const char * >(const char * v)
 {
-    return ConvNum< int64_t >::FromStr(v);
+    return ConvNum< signed long long >::FromStr(v);
 }
 
 // ------------------------------------------------------------------------------------------------
-template <> inline int64_t ConvTo< int64_t >::From< uint64_t >(uint64_t v)
+template <> inline signed long long ConvTo< signed long long >::From< unsigned long long >(unsigned long long v)
 {
-    return (v >= static_cast< uint64_t >(Max)) ? Max : static_cast< int64_t >(v);
+    return (v >= static_cast< unsigned long long >(Max)) ? Max : static_cast< signed long long >(v);
 }
 
 #if (ULONG_MAX > UINT_MAX)
 
 // ------------------------------------------------------------------------------------------------
-template <> inline int64_t ConvTo< int64_t >::From< unsigned long >(unsigned long v)
+template <> inline signed long long ConvTo< signed long long >::From< unsigned long >(unsigned long v)
 {
-    return (v >= static_cast< unsigned long >(Max)) ? Max : static_cast< int64_t >(v);
+    return (v >= static_cast< unsigned long >(Max)) ? Max : static_cast< signed long long >(v);
 }
 
 #endif
@@ -807,35 +807,35 @@ template <> inline int64_t ConvTo< int64_t >::From< unsigned long >(unsigned lon
 /* ------------------------------------------------------------------------------------------------
  * Convert other numeric values to 64 bit unsigned integer.
 */
-template <> struct ConvTo< uint64_t >
+template <> struct ConvTo< unsigned long long >
 {
     // --------------------------------------------------------------------------------------------
-    static constexpr uint64_t Min = std::numeric_limits< uint64_t >::min();
-    static constexpr uint64_t Max = std::numeric_limits< uint64_t >::max();
+    static constexpr unsigned long long Min = std::numeric_limits< unsigned long long >::min();
+    static constexpr unsigned long long Max = std::numeric_limits< unsigned long long >::max();
 
     // --------------------------------------------------------------------------------------------
-    template < typename T > static inline uint64_t From(T v)
+    template < typename T > static inline unsigned long long From(T v)
     {
-        return (v <= static_cast< T >(0)) ? 0 : static_cast< uint64_t >(v);
+        return (v <= static_cast< T >(0)) ? 0 : static_cast< unsigned long long >(v);
     }
 };
 
 // ------------------------------------------------------------------------------------------------
-template <> inline uint64_t ConvTo< uint64_t >::From< const char * >(const char * v)
+template <> inline unsigned long long ConvTo< unsigned long long >::From< const char * >(const char * v)
 {
-    return ConvNum< uint64_t >::FromStr(v);
+    return ConvNum< unsigned long long >::FromStr(v);
 }
 
 // ------------------------------------------------------------------------------------------------
-template <> inline uint64_t ConvTo< uint64_t >::From< float >(float v)
+template <> inline unsigned long long ConvTo< unsigned long long >::From< float >(float v)
 {
-    return From(ConvTo< int64_t >::From(v));
+    return From(ConvTo< signed long long >::From(v));
 }
 
 // ------------------------------------------------------------------------------------------------
-template <> inline uint64_t ConvTo< uint64_t >::From< double >(double v)
+template <> inline unsigned long long ConvTo< unsigned long long >::From< double >(double v)
 {
-    return From(ConvTo< int64_t >::From(v));
+    return From(ConvTo< signed long long >::From(v));
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -863,17 +863,17 @@ template <> inline long ConvTo< long >::From< const char * >(const char * v)
 // ------------------------------------------------------------------------------------------------
 #if (ULONG_MAX <= UINT_MAX)
 
-template <> inline long ConvTo< long >::From< uint32_t >(uint32_t v)
+template <> inline long ConvTo< long >::From< unsigned int >(unsigned int v)
 {
-    return (v >= static_cast< uint32_t >(Max)) ? Max : static_cast< long >(v);
+    return (v >= static_cast< unsigned int >(Max)) ? Max : static_cast< long >(v);
 }
 
 #endif
 
 // ------------------------------------------------------------------------------------------------
-template <> inline long ConvTo< long >::From< uint64_t >(uint64_t v)
+template <> inline long ConvTo< long >::From< unsigned long long >(unsigned long long v)
 {
-    return (v >= static_cast< uint64_t >(Max)) ? Max : static_cast< long >(v);
+    return (v >= static_cast< unsigned long long >(Max)) ? Max : static_cast< long >(v);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -907,20 +907,20 @@ template <> inline unsigned long ConvTo< unsigned long >::From< const char * >(c
 // ------------------------------------------------------------------------------------------------
 #if (ULONG_MAX <= UINT_MAX)
 
-template <> inline unsigned long ConvTo< unsigned long >::From< int64_t >(int64_t v)
+template <> inline unsigned long ConvTo< unsigned long >::From< signed long long >(signed long long v)
 {
     if (v <= 0)
     {
         return Min;
     }
-    else if (v >= static_cast< int64_t >(Max))
+    else if (v >= static_cast< signed long long >(Max))
     {
         return Max;
     }
     return static_cast< unsigned long >(v);
 }
 
-template <> inline unsigned long ConvTo< unsigned long >::From< uint64_t >(uint64_t v)
+template <> inline unsigned long ConvTo< unsigned long >::From< unsigned long long >(unsigned long long v)
 {
     return (v >= Max) ? Max : static_cast< unsigned long >(v);
 }
@@ -1240,9 +1240,9 @@ public:
 };
 
 // ------------------------------------------------------------------------------------------------
-typedef BitGuard< uint8_t >    BitGuardU8;
-typedef BitGuard< uint16_t >   BitGuardU16;
-typedef BitGuard< uint32_t >   BitGuardU32;
+typedef BitGuard< unsigned char >    BitGuardU8;
+typedef BitGuard< unsigned short >   BitGuardU16;
+typedef BitGuard< unsigned int >   BitGuardU32;
 
 /* ------------------------------------------------------------------------------------------------
  * RAII approach to make sure a value is assigned regardless of what exceptions are thrown.
