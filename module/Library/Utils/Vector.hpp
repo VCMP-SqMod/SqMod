@@ -291,23 +291,25 @@ template < class T > struct SqVector
     */
     void Resize(SQInteger n)
     {
-        return Valid().resize(ClampL< SQInteger, size_t >(n), T());
+        Valid().resize(ClampL< SQInteger, size_t >(n), T());
     }
 
     /* --------------------------------------------------------------------------------------------
      * Resize the container to contain a specific amount of elements.
     */
-    void ResizeEx(SQInteger n, OptimalArg v)
+    SqVector & ResizeEx(SQInteger n, OptimalArg v)
     {
-        return Valid().resize(ClampL< SQInteger, size_t >(n), Opt::Get(v));
+        Valid().resize(ClampL< SQInteger, size_t >(n), Opt::Get(v));
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
      * Increase the capacity of the container to a value that's greater or equal to the one specified.
     */
-    void Reserve(SQInteger n)
+    SqVector & Reserve(SQInteger n)
     {
-        return Valid().reserve(ClampL< SQInteger, size_t >(n));
+        Valid().reserve(ClampL< SQInteger, size_t >(n));
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -315,7 +317,7 @@ template < class T > struct SqVector
     */
     void Compact()
     {
-        return Valid().shrink_to_fit();
+        Valid().shrink_to_fit();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -323,7 +325,7 @@ template < class T > struct SqVector
     */
     void Clear()
     {
-        return Valid().clear();
+        Valid().clear();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -331,7 +333,7 @@ template < class T > struct SqVector
     */
     void Push(OptimalArg v)
     {
-        return Valid().push_back(Opt::Get(v));
+        Valid().push_back(Opt::Get(v));
     }
 
     /* --------------------------------------------------------------------------------------------
