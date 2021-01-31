@@ -324,11 +324,11 @@ void CPlayer::SetName(StackStrF & name) const
     }
     else if (ret == vcmpErrorInvalidName)
     {
-        STHROWF("The specified name is invalid");
+        STHROWF("The specified name is invalid: %s", name.mPtr);
     }
     else if (ret == vcmpErrorTooLargeInput)
     {
-        STHROWF("The specified name is too large");
+        STHROWF("The specified name is too large: %" PRINT_INT_FMT, name.mLen);
     }
 }
 
@@ -1460,7 +1460,8 @@ void CPlayer::Redirect(StackStrF & ip, uint32_t port, StackStrF & nick,
     if (_Func->RedirectPlayerToServer(m_ID, ip.mPtr, port,
                                         nick.mPtr, server_pass.mPtr, user_pass.mPtr) == vcmpErrorNullArgument)
     {
-        STHROWF("Invalid arguments encountered");
+        STHROWF("Invalid arguments encountered: `%s:%u` `%s` `%s` %s",
+                ip.mPtr, port, nick.mPtr, server_pass.mPtr, user_pass.mPtr);
     }
 }
 
@@ -1941,7 +1942,7 @@ void CPlayer::FlushStream(bool reset)
     // Check for errors
     if (result == vcmpErrorTooLargeInput)
     {
-        STHROWF("Stream buffer is too big");
+        STHROWF("Stream buffer is too big: %u", m_Buffer.Position());
     }
 }
 
@@ -1969,7 +1970,7 @@ void CPlayer::SendBuffer(const SqBuffer & buffer) const
     // Check for errors
     if (result == vcmpErrorTooLargeInput)
     {
-        STHROWF("Stream buffer is too big");
+        STHROWF("Stream buffer is too big: %u", buffer.GetRef()->Position());
     }
 }
 
