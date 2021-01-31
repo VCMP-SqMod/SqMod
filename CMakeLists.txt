@@ -83,9 +83,12 @@ else()
 	if(${CMAKE_CXX_COMPILER_ID} MATCHES "(GNU)+")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CPP_STD_COMPILER_FLAG}")
 	endif()
-	# Try the standard method as well
-	set(CMAKE_CXX_STANDARD ${CPP_STD_NUMBER})
-	set(CMAKE_CXX_STANDARD_REQUIRED ON)
+	# F* you too Debian. What can I say.
+	if(CMAKE_VERSION VERSION_LESS "3.8.0" AND CPP_STD_NUMBER LESS 17)
+		# Try the standard method as well
+		set(CMAKE_CXX_STANDARD ${CPP_STD_NUMBER})
+		set(CMAKE_CXX_STANDARD_REQUIRED ON)
+	endif()
 endif()
 
 # Determine if build mode
