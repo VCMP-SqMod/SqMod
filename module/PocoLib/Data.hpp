@@ -856,6 +856,16 @@ struct SqDataStatement : public Statement
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Sets the asynchronous flag. This setting does not affect the statement's capability
+     * to be executed synchronously by directly calling Execute().
+    */
+    SqDataStatement & SetAsync(bool async)
+    {
+        setAsync(async);
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Returns true if the statement was initialized (i.e. not executed yet).
     */
     bool Initialized()
@@ -881,13 +891,114 @@ struct SqDataStatement : public Statement
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Sets the asynchronous flag. This setting does not affect the statement's capability
-     * to be executed synchronously by directly calling Execute().
+     * Returns true if statement is in a state that allows the internal storage to be modified.
     */
-    SqDataStatement & SetAsync(bool async)
+    bool CanModifyStorage()
     {
-        setAsync(async);
-        return *this;
+        return canModifyStorage();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns the internal storage type for the statement.
+    */
+    SQInteger Storage() const
+    {
+        return static_cast< SQInteger >(storage());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns the internal storage type for the statement.
+    */
+    const std::string & GetStorage() const
+    {
+        return getStorage();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Sets the internal storage type for the statement.
+    */
+    void SetStorage(StackStrF & storage)
+    {
+        setStorage(storage.ToStr());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns the number of columns returned for current data set.
+     * Default value indicates current data set (if any).
+    */
+    SQInteger GetColumnsExtracted(int data_set) const
+    {
+        return static_cast< SQInteger >(columnsExtracted(data_set));
+    }
+    SQInteger ColumnsExtracted() const
+    {
+        return static_cast< SQInteger >(columnsExtracted());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns the number of rows returned for current data set during last statement execution.
+     * Default value indicates current data set (if any).
+    */
+    SQInteger GetRowsExtracted(int data_set) const
+    {
+        return static_cast< SQInteger >(rowsExtracted(data_set));
+    }
+    SQInteger RowsExtracted() const
+    {
+        return static_cast< SQInteger >(rowsExtracted());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns the number of rows extracted so far for the data set.
+     * Default value indicates current data set (if any).
+    */
+    SQInteger GetSubTotalRowCount(int data_set) const
+    {
+        return static_cast< SQInteger >(subTotalRowCount(data_set));
+    }
+    SQInteger SubTotalRowCount() const
+    {
+        return static_cast< SQInteger >(subTotalRowCount());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns the number of extraction storage buffers associated with the current data set.
+    */
+    SQInteger ExtractionCount() const
+    {
+        return static_cast< SQInteger >(extractionCount());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns the number of data sets associated with the statement.
+    */
+    SQInteger DataSetCount() const
+    {
+        return static_cast< SQInteger >(dataSetCount());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns the index of the next data set.
+    */
+    SQInteger NextDataSet()
+    {
+        return static_cast< SQInteger >(nextDataSet());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns the index of the previous data set.
+    */
+    SQInteger PreviousDataSet()
+    {
+        return static_cast< SQInteger >(previousDataSet());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns false if the current data set index points to the last data set. Otherwise, it returns true.
+    */
+    bool HasMoreDataSets() const
+    {
+        return hasMoreDataSets();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -939,6 +1050,14 @@ struct SqDataStatement : public Statement
     {
         reset(session);
         return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Swaps the statement with another one.
+    */
+    void Swap(SqDataStatement & stmt)
+    {
+        swap(stmt);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1058,11 +1177,25 @@ struct SqDataStatement : public Statement
     SqDataStatement & Into_(LightObj & obj, LightObj & def);
 
     /* --------------------------------------------------------------------------------------------
-     * Returns false if the current data set index points to the last data set. Otherwise, it returns true.
+     * Sets a limit on the maximum number of rows a select is allowed to return.
     */
-    bool HasMoreDataSets() const
+    SqDataStatement & Limit1(SQInteger limit) { return Limit3(limit, false, false); }
+    SqDataStatement & Limit2(SQInteger limit, bool hard) { return Limit3(limit, hard, false); }
+    SqDataStatement & Limit3(SQInteger limit, bool hard, bool lower)
     {
-        return hasMoreDataSets();
+        (*this), Poco::Data::Limit(static_cast< Poco::Data::Limit::SizeT >(limit), hard, lower);
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Sets a an extraction range for the maximum number of rows a select is allowed to return.
+    */
+    SqDataStatement & Range(SQInteger lower, SQInteger upper) { return RangeEx(lower, upper, false); }
+    SqDataStatement & RangeEx(SQInteger lower, SQInteger upper, bool hard)
+    {
+        (*this), Poco::Data::Range(static_cast< Poco::Data::Limit::SizeT >(lower),
+                                    static_cast< Poco::Data::Limit::SizeT >(upper), hard);
+        return *this;
     }
 };
 
