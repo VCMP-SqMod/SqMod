@@ -206,8 +206,8 @@ class CVehicle;
 
 // ------------------------------------------------------------------------------------------------
 template < typename > class LongInt;
-typedef LongInt< int64_t > SLongInt;
-typedef LongInt< uint64_t > ULongInt;
+typedef LongInt< signed long long > SLongInt;
+typedef LongInt< unsigned long long > ULongInt;
 
 // ------------------------------------------------------------------------------------------------
 class SqBuffer;
