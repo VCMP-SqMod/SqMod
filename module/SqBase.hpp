@@ -6,6 +6,7 @@
 // ------------------------------------------------------------------------------------------------
 #include <cstddef>
 #include <cstdint>
+#include <climits>
 #include <cassert>
 #include <string>
 
@@ -384,9 +385,16 @@ enum EntityType
 #define SQMOD_FORMAT_ATTR(mode, index, first) __attribute__ ((format(mode, index, first)))
 
 #ifdef _SQ64
-    #define PRINT_SZ_FMT "llu"
-    #define PRINT_INT_FMT "lld"
-    #define PRINT_UINT_FMT "llu"
+    // Chances are (u)int64_t is defined as long and not long long
+    #ifdef SQMOD_OS_LINUX && (LONG_MAX == LLONG_MAX)
+        #define PRINT_SZ_FMT "lu"
+        #define PRINT_INT_FMT "ld"
+        #define PRINT_UINT_FMT "lu"
+    #else
+        #define PRINT_SZ_FMT "llu"
+        #define PRINT_INT_FMT "lld"
+        #define PRINT_UINT_FMT "llu"
+    #endif
 #else
     #define PRINT_SZ_FMT "u"
     #define PRINT_INT_FMT "d"
