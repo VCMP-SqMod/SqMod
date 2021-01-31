@@ -15,28 +15,28 @@ SQMOD_DECL_TYPENAME(TypenameS, _SC("SLongInt"))
 SQMOD_DECL_TYPENAME(TypenameU, _SC("ULongInt"))
 
 // ------------------------------------------------------------------------------------------------
-LongInt< int64_t >::LongInt(const SQChar * text)
+LongInt< signed long long >::LongInt(const SQChar * text)
     : m_Data(0), m_Text()
 {
     m_Data = std::strtoll(text, nullptr, 10);
 }
 
 // ------------------------------------------------------------------------------------------------
-LongInt< int64_t >::LongInt(const SQChar * text, uint32_t base)
+LongInt< signed long long >::LongInt(const SQChar * text, uint32_t base)
     : m_Data(0), m_Text()
 {
     m_Data = std::strtoll(text, nullptr, base);
 }
 
 // ------------------------------------------------------------------------------------------------
-LongInt< int64_t > & LongInt< int64_t >::operator = (const SQChar * text)
+LongInt< signed long long > & LongInt< signed long long >::operator = (const SQChar * text)
 {
     m_Data = std::strtoll(text, nullptr, 10);
     return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * LongInt< int64_t >::ToString()
+const SQChar * LongInt< signed long long >::ToString()
 {
     if (std::snprintf(m_Text, sizeof(m_Text), "%llu", m_Data) < 0)
     {
@@ -47,46 +47,46 @@ const SQChar * LongInt< int64_t >::ToString()
 }
 
 // ------------------------------------------------------------------------------------------------
-void LongInt< int64_t >::Random()
+void LongInt< signed long long >::Random()
 {
     m_Data = GetRandomInt64();
 }
 
 // ------------------------------------------------------------------------------------------------
-void LongInt< int64_t >::Random(Type n)
+void LongInt< signed long long >::Random(Type n)
 {
     m_Data = GetRandomInt64(n);
 }
 
 // ------------------------------------------------------------------------------------------------
-void LongInt< int64_t >::Random(Type m, Type n)
+void LongInt< signed long long >::Random(Type m, Type n)
 {
     m_Data = GetRandomInt64(m, n);
 }
 
 // ------------------------------------------------------------------------------------------------
-LongInt< uint64_t >::LongInt(const SQChar * text)
+LongInt< unsigned long long >::LongInt(const SQChar * text)
     : m_Data(0), m_Text()
 {
     m_Data = std::strtoull(text, nullptr, 10);
 }
 
 // ------------------------------------------------------------------------------------------------
-LongInt< uint64_t >::LongInt(const SQChar * text, uint32_t base)
+LongInt< unsigned long long >::LongInt(const SQChar * text, uint32_t base)
     : m_Data(0), m_Text()
 {
     m_Data = std::strtoull(text, nullptr, base);
 }
 
 // ------------------------------------------------------------------------------------------------
-LongInt< uint64_t > & LongInt< uint64_t >::operator = (const SQChar * text)
+LongInt< unsigned long long > & LongInt< unsigned long long >::operator = (const SQChar * text)
 {
     m_Data = std::strtoull(text, nullptr, 10);
     return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-const SQChar * LongInt< uint64_t >::ToString()
+const SQChar * LongInt< unsigned long long >::ToString()
 {
     if (std::snprintf(m_Text, sizeof(m_Text), "%llu", m_Data) < 0)
     {
@@ -97,25 +97,25 @@ const SQChar * LongInt< uint64_t >::ToString()
 }
 
 // ------------------------------------------------------------------------------------------------
-void LongInt< uint64_t >::Random()
+void LongInt< unsigned long long >::Random()
 {
     m_Data = GetRandomUint64();
 }
 
 // ------------------------------------------------------------------------------------------------
-void LongInt< uint64_t >::Random(Type n)
+void LongInt< unsigned long long >::Random(Type n)
 {
     m_Data = GetRandomUint64(n);
 }
 
 // ------------------------------------------------------------------------------------------------
-void LongInt< uint64_t >::Random(Type m, Type n)
+void LongInt< unsigned long long >::Random(Type m, Type n)
 {
     m_Data = GetRandomUint64(m, n);
 }
 
 // ------------------------------------------------------------------------------------------------
-int64_t PopStackSLong(HSQUIRRELVM vm, SQInteger idx)
+signed long long PopStackSLong(HSQUIRRELVM vm, SQInteger idx)
 {
     // Identify which type must be extracted
     switch (sq_gettype(vm, idx))
@@ -124,19 +124,19 @@ int64_t PopStackSLong(HSQUIRRELVM vm, SQInteger idx)
         {
             SQInteger val;
             sq_getinteger(vm, idx, &val);
-            return static_cast< int64_t >(val);
+            return static_cast< signed long long >(val);
         }
         case OT_FLOAT:
         {
             SQFloat val;
             sq_getfloat(vm, idx, &val);
-            return ConvTo< int64_t >::From(val);
+            return ConvTo< signed long long >::From(val);
         }
         case OT_BOOL:
         {
             SQBool val;
             sq_getbool(vm, idx, &val);
-            return static_cast< int64_t >(val);
+            return static_cast< signed long long >(val);
         }
         case OT_STRING:
         {
@@ -152,7 +152,7 @@ int64_t PopStackSLong(HSQUIRRELVM vm, SQInteger idx)
         case OT_CLASS:
         case OT_USERDATA:
         {
-            return static_cast< int64_t >(sq_getsize(vm, idx));
+            return static_cast< signed long long >(sq_getsize(vm, idx));
         }
         case OT_INSTANCE:
         {
@@ -168,14 +168,14 @@ int64_t PopStackSLong(HSQUIRRELVM vm, SQInteger idx)
             // Attempt to treat the value as a unsigned long instance
             try
             {
-                return ConvTo< int64_t >::From(Var< const ULongInt & >(vm, idx).value.GetNum());
+                return ConvTo< signed long long >::From(Var< const ULongInt & >(vm, idx).value.GetNum());
             }
             catch (...)
             {
                 // Just ignore it...
             }
             // Attempt to get the size of the instance as a fall back
-            return static_cast< int64_t >(sq_getsize(vm, idx));
+            return static_cast< signed long long >(sq_getsize(vm, idx));
         }
         default: break;
     }
@@ -184,7 +184,7 @@ int64_t PopStackSLong(HSQUIRRELVM vm, SQInteger idx)
 }
 
 // ------------------------------------------------------------------------------------------------
-uint64_t PopStackULong(HSQUIRRELVM vm, SQInteger idx)
+unsigned long long PopStackULong(HSQUIRRELVM vm, SQInteger idx)
 {
     // Identify which type must be extracted
     switch (sq_gettype(vm, idx))
@@ -193,19 +193,19 @@ uint64_t PopStackULong(HSQUIRRELVM vm, SQInteger idx)
         {
             SQInteger val;
             sq_getinteger(vm, idx, &val);
-            return ConvTo< uint64_t >::From(val);
+            return ConvTo< unsigned long long >::From(val);
         }
         case OT_FLOAT:
         {
             SQFloat val;
             sq_getfloat(vm, idx, &val);
-            return ConvTo< uint64_t >::From(val);
+            return ConvTo< unsigned long long >::From(val);
         }
         case OT_BOOL:
         {
             SQBool val;
             sq_getbool(vm, idx, &val);
-            return ConvTo< uint64_t >::From(val);
+            return ConvTo< unsigned long long >::From(val);
         }
         case OT_STRING:
         {
@@ -221,14 +221,14 @@ uint64_t PopStackULong(HSQUIRRELVM vm, SQInteger idx)
         case OT_CLASS:
         case OT_USERDATA:
         {
-            return ConvTo< uint64_t >::From(sq_getsize(vm, idx));
+            return ConvTo< unsigned long long >::From(sq_getsize(vm, idx));
         }
         case OT_INSTANCE:
         {
             // Attempt to treat the value as a signed long instance
             try
             {
-                return ConvTo< uint64_t >::From(Var< const SLongInt & >(vm, idx).value.GetNum());
+                return ConvTo< unsigned long long >::From(Var< const SLongInt & >(vm, idx).value.GetNum());
             }
             catch (...)
             {
@@ -244,7 +244,7 @@ uint64_t PopStackULong(HSQUIRRELVM vm, SQInteger idx)
                 // Just ignore it...
             }
             // Attempt to get the size of the instance as a fall back
-            return ConvTo< uint64_t >::From(sq_getsize(vm, idx));
+            return ConvTo< unsigned long long >::From(sq_getsize(vm, idx));
         }
         default: break;
     }
@@ -260,7 +260,7 @@ const SLongInt & GetSLongInt()
     return l;
 }
 
-const SLongInt & GetSLongInt(int64_t n)
+const SLongInt & GetSLongInt(signed long long n)
 {
     static SLongInt l;
     l.SetNum(n);
@@ -281,7 +281,7 @@ const ULongInt & GetULongInt()
     return l;
 }
 
-const ULongInt & GetULongInt(uint64_t n)
+const ULongInt & GetULongInt(unsigned long long n)
 {
     static ULongInt l;
     l.SetNum(n);

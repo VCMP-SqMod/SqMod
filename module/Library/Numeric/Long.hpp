@@ -12,12 +12,12 @@ template < typename T > class LongInt;
 /* ------------------------------------------------------------------------------------------------
  * Specialization of the Long int class for signed integers.
 */
-template <> class LongInt< int64_t >
+template <> class LongInt< signed long long >
 {
 public:
 
     // --------------------------------------------------------------------------------------------
-    typedef int64_t Type; // The specialized type.
+    typedef signed long long Type; // The specialized type.
 
 private:
 
@@ -418,7 +418,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with another one.
     */
-    SQMOD_NODISCARD int32_t Cmp(const LongInt< uint64_t > & o) const;
+    SQMOD_NODISCARD int32_t Cmp(const LongInt< unsigned long long > & o) const;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with a scalar value.
@@ -622,12 +622,12 @@ public:
 /* ------------------------------------------------------------------------------------------------
  * Specialization of the Long int class for unsigned integers.
 */
-template <> class LongInt< uint64_t >
+template <> class LongInt< unsigned long long >
 {
 public:
 
     // --------------------------------------------------------------------------------------------
-    typedef uint64_t Type; // The specialized type.
+    typedef unsigned long long Type; // The specialized type.
 
 private:
 
@@ -1028,7 +1028,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare an instance of this type with another one.
     */
-    SQMOD_NODISCARD int32_t Cmp(const LongInt< int64_t > & o) const
+    SQMOD_NODISCARD int32_t Cmp(const LongInt< signed long long > & o) const
     {
         const Type v = ConvTo< Type >::From(o.GetNum());
 
@@ -1246,7 +1246,7 @@ public:
 };
 
 // ------------------------------------------------------------------------------------------------
-inline int32_t LongInt< int64_t >::Cmp(const LongInt< uint64_t > & o) const
+inline int32_t LongInt< signed long long >::Cmp(const LongInt< unsigned long long > & o) const
 {
     const Type v = ConvTo< Type >::From(o.GetNum());
 
@@ -1265,27 +1265,27 @@ inline int32_t LongInt< int64_t >::Cmp(const LongInt< uint64_t > & o) const
 }
 
 // ------------------------------------------------------------------------------------------------
-typedef LongInt< int64_t > SLongInt;
-typedef LongInt< uint64_t > ULongInt;
+typedef LongInt< signed long long > SLongInt;
+typedef LongInt< unsigned long long > ULongInt;
 
 /* ------------------------------------------------------------------------------------------------
  * Attempt to pop the value at the specified index on the stack as a signed long integer.
 */
-int64_t PopStackSLong(HSQUIRRELVM vm, SQInteger idx);
+signed long long PopStackSLong(HSQUIRRELVM vm, SQInteger idx);
 
 /* ------------------------------------------------------------------------------------------------
  * Attempt to pop the value at the specified index on the stack as an unsigned long integer.
 */
-uint64_t PopStackULong(HSQUIRRELVM vm, SQInteger idx);
+unsigned long long PopStackULong(HSQUIRRELVM vm, SQInteger idx);
 
 /* ------------------------------------------------------------------------------------------------
  * Get a persistent LongInt instance with the given values.
 */
 const SLongInt & GetSLongInt();
-const SLongInt & GetSLongInt(int64_t n);
+const SLongInt & GetSLongInt(signed long long n);
 const SLongInt & GetSLongInt(const SQChar * s);
 const ULongInt & GetULongInt();
-const ULongInt & GetULongInt(uint64_t n);
+const ULongInt & GetULongInt(unsigned long long n);
 const ULongInt & GetULongInt(const SQChar * s);
 
 } // Namespace:: SqMod
