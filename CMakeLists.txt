@@ -6,8 +6,9 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/vendor/POCO/cmake)
 
 # Several plugin options
-option(FORCE_32BIT_BIN "Create a 32-bit executable binary if the compiler defaults to 64-bit." OFF)
 option(ENABLE_API21 "Build for 2.1 API." OFF)
+option(COPY_DEPENDENCIES "Copy deppendent DLLs into the deps folder." OFF)
+option(FORCE_32BIT_BIN "Create a 32-bit executable binary if the compiler defaults to 64-bit." OFF)
 
 include(CheckCXXCompilerFlag)
 # C++ standard availability check
