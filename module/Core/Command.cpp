@@ -382,10 +382,10 @@ int32_t Controller::Exec(Context & ctx)
         {
             result = ctx.mInstance->Execute(ctx.mInvoker, args);
         }
-        catch (const Sqrat::Exception & e)
+        catch (const std::exception & e)
         {
             // Let's store the exception message
-            ctx.mBuffer.Write(0, e.what(), static_cast< Buffer::SzType >(e.Message().size()));
+            ctx.mBuffer.WriteS(0, e.what());
             // Specify that the command execution failed
             failed = true;
         }
@@ -404,10 +404,10 @@ int32_t Controller::Exec(Context & ctx)
         {
             result = ctx.mInstance->Execute(ctx.mInvoker, args);
         }
-        catch (const Sqrat::Exception & e)
+        catch (const std::exception & e)
         {
             // Let's store the exception message
-            ctx.mBuffer.Write(0, e.what(), static_cast< Buffer::SzType >(e.Message().size()));
+            ctx.mBuffer.WriteS(0, e.what());
             // Specify that the command execution failed
             failed = true;
         }
