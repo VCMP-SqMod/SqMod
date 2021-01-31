@@ -74,7 +74,7 @@ struct LightObj {
     /// \param so LightObj to move
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    LightObj(LightObj&& so) : mObj(so.mObj) {
+    LightObj(LightObj&& so) noexcept : mObj(so.mObj) {
         sq_resetobject(&so.mObj);
     }
 
