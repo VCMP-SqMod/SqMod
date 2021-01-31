@@ -493,7 +493,11 @@ SockAddr::SockAddr(const SQChar * addr)
             freeaddrinfo(m_Handle);
         }
         // Now it's safe to throw the error
+#if defined(UNICODE) || defined(_UNICODE)
         STHROWF("Unable to query the specified address for information [%s]", gai_strerrorA(status));
+#else
+        STHROWF("Unable to query the specified address for information [%s]", gai_strerror(status));
+#endif
     }
     // Save the specified string address
     m_Addres.assign(addr ? addr : _SC(""));
@@ -613,7 +617,11 @@ LookupResult Database::LookupString(const SQChar * addr)
     // Validate the result of the getaddrinfo() function call
     if (gai_error != 0)
     {
+#if defined(UNICODE) || defined(_UNICODE)
         STHROWF("Unable to resolve address (%s) because [%s]", addr, gai_strerrorA(gai_error));
+#else
+        STHROWF("Unable to resolve address (%s) because [%s]", addr, gai_strerror(gai_error));
+#endif
     }
     // Validate the lookup status code
     else if (mmdb_error != MMDB_SUCCESS)
