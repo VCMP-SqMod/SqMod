@@ -1,8 +1,6 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.7)
 
-target_include_directories(cpr PUBLIC  
-    $<INSTALL_INTERFACE:include>    
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+target_include_directories(cpr PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 target_sources(cpr PRIVATE
      # Header files (useful in IDEs)
