@@ -34,6 +34,17 @@ if(WIN32)
 	target_compile_definitions(DataMySQL PUBLIC __LCC__) #__LCC__ define used by MySQL.h
 endif()
 
+if(UNIX)
+	include(CheckSymbolExists)
+	# Some instalations don't have mysql_reset_connection() even if their version indicates otherwise
+	CHECK_SYMBOL_EXISTS(mysql_reset_connection "${MYSQL_INCLUDE_DIR}/mysql.h" HAVE_MYSQL_RESET_CONNECTION)
+
+	if(HAVE_MYSQL_RESET_CONNECTION)
+		message(status "Found: mysql_reset_connection")
+		target_compile_definitions(DataMySQL PRIVATE HAVE_MYSQL_RESET_CONNECTION)
+	endif()
+endif()
+
 POCO_INSTALL(DataMySQL)
 POCO_GENERATE_PACKAGE(DataMySQL)
 
