@@ -129,7 +129,8 @@ if(NOT USE_SYSTEM_CURL OR NOT CURL_FOUND)
 endif()
 
 # GTest configuration
-#[[if(BUILD_CPR_TESTS)
+#[[
+if(BUILD_CPR_TESTS)
     if(USE_SYSTEM_GTEST)
         find_package(GTest)
     endif()
@@ -157,11 +158,13 @@ endif()
     set_property(TARGET gtest PROPERTY FOLDER "tests/gtest")
     set_property(TARGET gtest_main PROPERTY FOLDER "tests/gtest")
     endif()
-endif()]]
+endif()
+]]
 
 
 # Mongoose configuration
-#[[if(BUILD_CPR_TESTS)
+#[[
+if(BUILD_CPR_TESTS)
     message(STATUS "Building mongoose project for test support.")
     if (SSL_ENABLED)
         find_package(OpenSSL)
@@ -190,12 +193,14 @@ endif()]]
     # Group under the "external" project folder in IDEs such as Visual Studio.
     set_property(TARGET mongoose PROPERTY FOLDER "external")
 endif()
-
+]]
 
 add_subdirectory(cpr)
 add_subdirectory(include)
 
+#[[
 if(BUILD_CPR_TESTS)
     enable_testing()
     add_subdirectory(test)
-endif()]]
+endif()
+]]
