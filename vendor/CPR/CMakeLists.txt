@@ -195,8 +195,68 @@ if(BUILD_CPR_TESTS)
 endif()
 ]]
 
-add_subdirectory(cpr)
-add_subdirectory(include)
+add_library(cpr
+    # Source files
+    cpr/auth.cpp
+    cpr/bearer.cpp
+    cpr/cookies.cpp
+    cpr/cprtypes.cpp
+    cpr/curl_container.cpp
+    cpr/curlholder.cpp
+    cpr/error.cpp
+    cpr/multipart.cpp
+    cpr/parameters.cpp
+    cpr/payload.cpp
+    cpr/proxies.cpp
+    cpr/session.cpp
+    cpr/timeout.cpp
+    cpr/unix_socket.cpp
+    cpr/util.cpp
+    cpr/response.cpp
+    # Header files
+    include/cpr/api.h
+    include/cpr/auth.h
+    include/cpr/bearer.h
+    include/cpr/body.h
+    include/cpr/cookies.h
+    include/cpr/cpr.h
+    include/cpr/cprtypes.h
+    include/cpr/curlholder.h
+    include/cpr/curlholder.h
+    include/cpr/digest.h
+    include/cpr/error.h
+    include/cpr/limit_rate.h
+    include/cpr/max_redirects.h
+    include/cpr/multipart.h
+    include/cpr/ntlm.h
+    include/cpr/parameters.h
+    include/cpr/payload.h
+    include/cpr/proxies.h
+    include/cpr/response.h
+    include/cpr/session.h
+    include/cpr/ssl_options.h
+    include/cpr/timeout.h
+    include/cpr/unix_socket.h
+    include/cpr/util.h
+    include/cpr/verbose.h
+)
+
+add_library(cpr::cpr ALIAS cpr)
+
+target_include_directories(cpr PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(cpr PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+target_link_libraries(cpr PUBLIC CURL::libcurl) # todo should be private, but first dependencies in ssl_options need to be removed
+
+# Set version for shared libraries.
+set_target_properties(cpr
+     PROPERTIES
+     VERSION ${${PROJECT_NAME}_VERSION}
+     SOVERSION ${${PROJECT_NAME}_VERSION_MAJOR})
+
+install(DIRECTORY cpr DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install(TARGETS cpr)
 
 #[[
 if(BUILD_CPR_TESTS)
