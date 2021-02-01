@@ -246,7 +246,7 @@ add_library(cpr::cpr ALIAS cpr)
 target_include_directories(cpr PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(cpr PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-target_link_libraries(cpr PUBLIC libcurl) # todo should be private, but first dependencies in ssl_options need to be removed
+target_link_libraries(cpr PUBLIC curl) # todo should be private, but first dependencies in ssl_options need to be removed
 
 # Set version for shared libraries.
 set_target_properties(cpr
