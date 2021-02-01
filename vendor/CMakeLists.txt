@@ -34,3 +34,7 @@ set(ENABLE_PAGECOMPILER_FILE2PAGE OFF CACHE INTERNAL "" FORCE)
 set(ENABLE_TESTS OFF CACHE INTERNAL "" FORCE)
 set(POCO_UNBUNDLED OFF CACHE INTERNAL "" FORCE)
 add_subdirectory(POCO)
+# Windows gets stupid sometimes
+if (WIN32 AND MINGW)
+	target_compile_definitions(Foundation PUBLIC POCO_NO_FPENVIRONMENT=1)
+endif()
