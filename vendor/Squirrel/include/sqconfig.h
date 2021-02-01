@@ -2,9 +2,11 @@
 #ifdef __cplusplus
 	#include <cstddef>
 	#include <cstdint>
+	#include <climits>
 #else
 	#include <stddef.h>
 	#include <stdint.h>
+	#include <limits.h>
 #endif
 
 #ifdef _SQ64
@@ -144,8 +146,13 @@ typedef SQInteger SQRESULT;
 #endif
 
 #ifdef _SQ64
-	#define _PRINT_INT_PREC _SC("ll")
-	#define _PRINT_INT_FMT _SC("%lld")
+	#if (defined(linux) || defined(__linux) || defined(__linux__)) && (LONG_MAX == LLONG_MAX)
+		#define _PRINT_INT_PREC _SC("l")
+		#define _PRINT_INT_FMT _SC("%ld")
+	#else
+		#define _PRINT_INT_PREC _SC("ll")
+		#define _PRINT_INT_FMT _SC("%lld")
+	#endif
 #else
 	#define _PRINT_INT_FMT _SC("%d")
 #endif
