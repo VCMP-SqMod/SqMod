@@ -1,5 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "Library/Utils.hpp"
+#include "Core/Utility.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cstdio>
@@ -68,7 +69,7 @@ static SQInteger SqExtractIPv4(HSQUIRRELVM vm)
         // Push the element index
         sq_pushinteger(vm, i);
         // Push the element value
-        sq_pushinteger(vm, std::clamp(blocks[i], 0U, 255U));
+        sq_pushinteger(vm, Clamp(blocks[i], 0U, 255U));
         // Assign the element
         const SQRESULT res = sq_set(vm, -3);
         // See if the assignment failed
