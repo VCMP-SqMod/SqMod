@@ -137,7 +137,7 @@ struct ZCtx
             // Just in case
             if (r != 0)
             {
-                LogFtl("Context failed to terminate properly: [%d], %s", r, zmq_strerror(r));
+                LogFtl("Context failed to terminate properly: [%d], %s", r, zmq_strerror(errno));
             }
         }
     }
@@ -189,7 +189,7 @@ struct ZMsg
         // Validate result
         if (r != 0)
         {
-            STHROWF("Unable to initialize message: [%d] %s", r, zmq_strerror(r));
+            STHROWF("Unable to initialize message: [%d] %s", r, zmq_strerror(errno));
         }
     }
 
@@ -203,7 +203,7 @@ struct ZMsg
         // Validate result
         if (r != 0)
         {
-            STHROWF("Unable to initialize message: [%d] %s", r, zmq_strerror(r));
+            STHROWF("Unable to initialize message: [%d] %s", r, zmq_strerror(errno));
         }
     }
 
@@ -223,7 +223,7 @@ struct ZMsg
         // Validate result
         if (r != 0)
         {
-            STHROWF("Unable to initialize message: [%d] %s", r, zmq_strerror(r));
+            STHROWF("Unable to initialize message: [%d] %s", r, zmq_strerror(errno));
         }
     }
 
@@ -237,13 +237,13 @@ struct ZMsg
         // Validate result
         if (r != 0)
         {
-            LogFtl("Unable to initialize message: [%d] %s", r, zmq_strerror(r));
+            LogFtl("Unable to initialize message: [%d] %s", r, zmq_strerror(errno));
         }
         r = zmq_msg_copy(mPtr.get(), o.mPtr.get());
         // Validate result
         if (r != 0)
         {
-            LogFtl("Unable to copy message: [%d] %s", r, zmq_strerror(r));
+            LogFtl("Unable to copy message: [%d] %s", r, zmq_strerror(errno));
         }
     }
 
@@ -281,7 +281,7 @@ struct ZMsg
                 // Validate result
                 if (r != 0)
                 {
-                    LogFtl("Unable to initialize message: [%d] %s", r, zmq_strerror(r));
+                    LogFtl("Unable to initialize message: [%d] %s", r, zmq_strerror(errno));
                 }
             }
             // Do we have a message?
@@ -291,7 +291,7 @@ struct ZMsg
                 // Validate result
                 if (r != 0)
                 {
-                    LogFtl("Unable to copy message: [%d] %s", r, zmq_strerror(r));
+                    LogFtl("Unable to copy message: [%d] %s", r, zmq_strerror(errno));
                 }
             }
         }
@@ -433,7 +433,7 @@ struct ZSkt : SqChainedInstances< ZSkt >
             // Just in case
             if (r != 0)
             {
-                LogFtl("Socket failed to close properly: [%d], %s", r, zmq_strerror(r));
+                LogFtl("Socket failed to close properly: [%d], %s", r, zmq_strerror(errno));
             }
         }
         // Forget about this instance
@@ -515,7 +515,7 @@ struct ZSkt : SqChainedInstances< ZSkt >
             // Validate result
             if (r != 0)
             {
-                STHROWF("Unable to close socket: [%d] %s", r, zmq_strerror(r));
+                STHROWF("Unable to close socket: [%d] %s", r, zmq_strerror(errno));
             }
         }
     }
@@ -585,7 +585,7 @@ protected:
             // Could we send what the message had?
             if (r != zmq_msg_size(msg))
             {
-                LogErr("Unable to send data to socket: [%d], %s", r, zmq_strerror(r));
+                LogErr("Unable to send data to socket: [%d], %s", r, zmq_strerror(errno));
             }
             // One item was found in the queue
             return true;
@@ -615,7 +615,7 @@ protected:
                 // Could we send what the message had?
                 if (r != zmq_msg_size(msg))
                 {
-                    LogErr("Unable to send multi-part data to socket: [%d], %s", r, zmq_strerror(r));
+                    LogErr("Unable to send multi-part data to socket: [%d], %s", r, zmq_strerror(errno));
                 }
             }
             // One item was found in the queue
@@ -735,7 +735,7 @@ struct ZContext
         // Validate result
         if (r != 0)
         {
-            STHROWF("Unable to set context option: [%d] %s", r, zmq_strerror(r));
+            STHROWF("Unable to set context option: [%d] %s", r, zmq_strerror(errno));
         }
     }
 
@@ -748,7 +748,7 @@ struct ZContext
         // Validate result
         if (r != 0)
         {
-            STHROWF("Unable to shutdown context: %s", zmq_strerror(r));
+            STHROWF("Unable to shutdown context: %s", zmq_strerror(errno));
         }
     }
 
@@ -877,7 +877,7 @@ struct ZMessage
         // Validate result
         if (r != 0)
         {
-            STHROWF("Unable to set message option: [%d] %s", r, zmq_strerror(r));
+            STHROWF("Unable to set message option: [%d] %s", r, zmq_strerror(errno));
         }
         // Allow chaining
         return *this;
@@ -900,7 +900,7 @@ struct ZMessage
         // Validate result
         if (r != 0)
         {
-            STHROWF("Unable to copy message: [%d] %s", r, zmq_strerror(r));
+            STHROWF("Unable to copy message: [%d] %s", r, zmq_strerror(errno));
         }
         // Allow chaining
         return *this;
@@ -1078,6 +1078,16 @@ struct ZSocket
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the value of a socket option.
+    */
+    SQMOD_NODISCARD LightObj GetOpt(int opt) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the value of a socket option.
+    */
+    void SetOpt(int opt, LightObj & value);
+
+    /* --------------------------------------------------------------------------------------------
      * Callback to receive incoming messages.
     */
     ZSocket & OnData(Function & cb)
@@ -1099,7 +1109,7 @@ struct ZSocket
         // Validate result
         if (r != 0)
         {
-            STHROWF("Unable to bind socket: [%d] %s", r, zmq_strerror(r));
+            STHROWF("Unable to bind socket: [%d] %s", r, zmq_strerror(errno));
         }
         // Allow chaining
         return *this;
@@ -1117,7 +1127,7 @@ struct ZSocket
         // Validate result
         if (r != 0)
         {
-            STHROWF("Unable to connect socket: [%d] %s", r, zmq_strerror(r));
+            STHROWF("Unable to connect socket: [%d] %s", r, zmq_strerror(errno));
         }
         // Allow chaining
         return *this;
@@ -1135,7 +1145,7 @@ struct ZSocket
         // Validate result
         if (r != 0)
         {
-            STHROWF("Unable to disconnect socket: [%d] %s", r, zmq_strerror(r));
+            STHROWF("Unable to disconnect socket: [%d] %s", r, zmq_strerror(errno));
         }
         // Allow chaining
         return *this;

@@ -37,6 +37,273 @@ LightObj ZContext::Socket(int type) const
     return LightObj(SqTypeIdentity< ZSocket >{}, SqVM(), *this, type);
 }
 // ------------------------------------------------------------------------------------------------
+LightObj ZSocket::GetOpt(int opt) const
+{
+    int r = 0;
+    // Identify option
+    switch (opt)
+    {
+        // int
+        case ZMQ_BACKLOG:
+        case ZMQ_CONFLATE:
+        case ZMQ_CONNECT_TIMEOUT:
+        case ZMQ_CURVE_SERVER:
+        case ZMQ_GSSAPI_PLAINTEXT:
+        case ZMQ_GSSAPI_SERVER:
+        case ZMQ_GSSAPI_PRINCIPAL_NAMETYPE:
+        case ZMQ_HANDSHAKE_IVL:
+        case ZMQ_HEARTBEAT_IVL:
+        case ZMQ_HEARTBEAT_TIMEOUT:
+        case ZMQ_HEARTBEAT_TTL:
+        case ZMQ_IMMEDIATE:
+        case ZMQ_INVERT_MATCHING:
+        case ZMQ_IPV6:
+        case ZMQ_LINGER:
+        case ZMQ_MULTICAST_HOPS:
+        case ZMQ_MULTICAST_MAXTPDU:
+        case ZMQ_PLAIN_SERVER:
+        case ZMQ_USE_FD:
+        case ZMQ_PROBE_ROUTER:
+        case ZMQ_RATE:
+        case ZMQ_RCVBUF:
+        case ZMQ_RCVHWM:
+        case ZMQ_RCVTIMEO:
+        case ZMQ_RECONNECT_IVL:
+        case ZMQ_RECONNECT_IVL_MAX:
+        case ZMQ_RECOVERY_IVL:
+        case ZMQ_REQ_CORRELATE:
+        case ZMQ_REQ_RELAXED:
+        case ZMQ_ROUTER_HANDOVER:
+        case ZMQ_ROUTER_MANDATORY:
+        case ZMQ_ROUTER_RAW:
+        case ZMQ_SNDBUF:
+        case ZMQ_SNDHWM:
+        case ZMQ_SNDTIMEO:
+        case ZMQ_STREAM_NOTIFY:
+        case ZMQ_TCP_KEEPALIVE:
+        case ZMQ_TCP_KEEPALIVE_CNT:
+        case ZMQ_TCP_KEEPALIVE_IDLE:
+        case ZMQ_TCP_KEEPALIVE_INTVL:
+        case ZMQ_TCP_MAXRT:
+        case ZMQ_TOS:
+        case ZMQ_XPUB_VERBOSE:
+        case ZMQ_XPUB_VERBOSER:
+        case ZMQ_XPUB_MANUAL:
+        case ZMQ_XPUB_NODROP:
+        case ZMQ_IPV4ONLY:
+        case ZMQ_VMCI_CONNECT_TIMEOUT: {
+            int out;
+            size_t len = sizeof(out);
+            r = zmq_getsockopt(Valid(), opt, &out, &len);
+            // Validate and return it
+            if (r == 0)
+            {
+                sq_pushinteger(SqVM(), out);
+                LightObj o(-1);
+                sq_poptop(SqVM());
+                return o;
+            }
+        } break;
+        // character string
+        case ZMQ_BINDTODEVICE:
+        case ZMQ_GSSAPI_PRINCIPAL:
+        case ZMQ_GSSAPI_SERVICE_PRINCIPAL:
+        case ZMQ_PLAIN_PASSWORD:
+        case ZMQ_PLAIN_USERNAME:
+        case ZMQ_SOCKS_PROXY:
+        case ZMQ_ZAP_DOMAIN: {
+            SQChar out[1024]; // Let's hope this is reasonable. I really don't care much about this feature.
+            size_t len = sizeof(out);
+            r = zmq_getsockopt(Valid(), opt, &out, &len);
+            // Validate and return it
+            if (r == 0)
+            {
+                return LightObj(out, static_cast< SQInteger >(len));
+            }
+        } break;
+        // uint64_t
+        case ZMQ_AFFINITY:
+        case ZMQ_VMCI_BUFFER_SIZE:
+        case ZMQ_VMCI_BUFFER_MIN_SIZE:
+        case ZMQ_VMCI_BUFFER_MAX_SIZE: {
+            uint64_t out;
+            size_t len = sizeof(out);
+            r = zmq_getsockopt(Valid(), opt, &out, &len);
+            // Validate and return it
+            if (r == 0)
+            {
+                sq_pushinteger(SqVM(), static_cast< SQInteger >(out));
+                LightObj o(-1);
+                sq_poptop(SqVM());
+                return o;
+            }
+        } break;
+        // int64_t
+        case ZMQ_MAXMSGSIZE: {
+            int64_t out;
+            size_t len = sizeof(out);
+            r = zmq_getsockopt(Valid(), opt, &out, &len);
+            // Validate and return it
+            if (r == 0)
+            {
+                sq_pushinteger(SqVM(), static_cast< SQInteger >(out));
+                LightObj o(-1);
+                sq_poptop(SqVM());
+                return o;
+            }
+        } break;
+        // binary data
+        case ZMQ_CONNECT_ROUTING_ID:
+        case ZMQ_CURVE_PUBLICKEY:
+        case ZMQ_CURVE_SECRETKEY:
+        case ZMQ_CURVE_SERVERKEY:
+        case ZMQ_ROUTING_ID:
+        case ZMQ_SUBSCRIBE:
+        case ZMQ_UNSUBSCRIBE:
+        case ZMQ_XPUB_WELCOME_MSG:
+        case ZMQ_TCP_ACCEPT_FILTER: {
+            Buffer out(4096); // Let's hope this is reasonable. I really don't care much about this feature.
+            size_t len = out.Size();
+            r = zmq_getsockopt(Valid(), opt, &out, &len);
+            out.Move(static_cast< SQInteger >(len));
+            // Validate and return it
+            if (r == 0)
+            {
+                return LightObj(SqTypeIdentity< SqBuffer >{}, SqVM(), std::move(out));
+            }
+        } break;
+        default: STHROWF("Unknown socket option");
+    }
+    // Validate result
+    if (r != 0)
+    {
+        STHROWF("Unable to retrieve socket option: [%d] %s", r, zmq_strerror(errno));
+    }
+    SQ_UNREACHABLE;
+    // Never reaches here
+    return LightObj();
+}
+
+// ------------------------------------------------------------------------------------------------
+void ZSocket::SetOpt(int opt, LightObj & value)
+{
+    int r = 0;
+    // Identify option
+    switch (opt)
+    {
+        // int
+        case ZMQ_BACKLOG:
+        case ZMQ_CONFLATE:
+        case ZMQ_CONNECT_TIMEOUT:
+        case ZMQ_CURVE_SERVER:
+        case ZMQ_GSSAPI_PLAINTEXT:
+        case ZMQ_GSSAPI_SERVER:
+        case ZMQ_GSSAPI_PRINCIPAL_NAMETYPE:
+        case ZMQ_HANDSHAKE_IVL:
+        case ZMQ_HEARTBEAT_IVL:
+        case ZMQ_HEARTBEAT_TIMEOUT:
+        case ZMQ_HEARTBEAT_TTL:
+        case ZMQ_IMMEDIATE:
+        case ZMQ_INVERT_MATCHING:
+        case ZMQ_IPV6:
+        case ZMQ_LINGER:
+        case ZMQ_MULTICAST_HOPS:
+        case ZMQ_MULTICAST_MAXTPDU:
+        case ZMQ_PLAIN_SERVER:
+        case ZMQ_USE_FD:
+        case ZMQ_PROBE_ROUTER:
+        case ZMQ_RATE:
+        case ZMQ_RCVBUF:
+        case ZMQ_RCVHWM:
+        case ZMQ_RCVTIMEO:
+        case ZMQ_RECONNECT_IVL:
+        case ZMQ_RECONNECT_IVL_MAX:
+        case ZMQ_RECOVERY_IVL:
+        case ZMQ_REQ_CORRELATE:
+        case ZMQ_REQ_RELAXED:
+        case ZMQ_ROUTER_HANDOVER:
+        case ZMQ_ROUTER_MANDATORY:
+        case ZMQ_ROUTER_RAW:
+        case ZMQ_SNDBUF:
+        case ZMQ_SNDHWM:
+        case ZMQ_SNDTIMEO:
+        case ZMQ_STREAM_NOTIFY:
+        case ZMQ_TCP_KEEPALIVE:
+        case ZMQ_TCP_KEEPALIVE_CNT:
+        case ZMQ_TCP_KEEPALIVE_IDLE:
+        case ZMQ_TCP_KEEPALIVE_INTVL:
+        case ZMQ_TCP_MAXRT:
+        case ZMQ_TOS:
+        case ZMQ_XPUB_VERBOSE:
+        case ZMQ_XPUB_VERBOSER:
+        case ZMQ_XPUB_MANUAL:
+        case ZMQ_XPUB_NODROP:
+        case ZMQ_IPV4ONLY:
+        case ZMQ_VMCI_CONNECT_TIMEOUT: {
+            auto in = value.Cast< int >();
+            r = zmq_setsockopt(Valid(), opt, &in, sizeof(in));
+        } break;
+        // character string
+        case ZMQ_BINDTODEVICE:
+        case ZMQ_GSSAPI_PRINCIPAL:
+        case ZMQ_GSSAPI_SERVICE_PRINCIPAL:
+        case ZMQ_PLAIN_PASSWORD:
+        case ZMQ_PLAIN_USERNAME:
+        case ZMQ_SOCKS_PROXY:
+        case ZMQ_ZAP_DOMAIN: {
+            Var<LightObj>::push(SqVM(), value);
+            StackStrF str(SqVM(), -1);
+            if (SQ_SUCCEEDED(str.Proc(false)))
+            {
+                r = zmq_setsockopt(Valid(), opt, str.mPtr, str.GetSize());
+            } else r = -1;
+            sq_poptop(SqVM());
+        } break;
+        // uint64_t
+        case ZMQ_AFFINITY:
+        case ZMQ_VMCI_BUFFER_SIZE:
+        case ZMQ_VMCI_BUFFER_MIN_SIZE:
+        case ZMQ_VMCI_BUFFER_MAX_SIZE: {
+            auto in = value.Cast< uint64_t >();
+            r = zmq_setsockopt(Valid(), opt, &in, sizeof(in));
+        } break;
+        // int64_t
+        case ZMQ_MAXMSGSIZE: {
+            auto in = value.Cast< int64_t >();
+            r = zmq_setsockopt(Valid(), opt, &in, sizeof(in));
+        } break;
+        // binary data
+        case ZMQ_CONNECT_ROUTING_ID:
+        case ZMQ_CURVE_PUBLICKEY:
+        case ZMQ_CURVE_SECRETKEY:
+        case ZMQ_CURVE_SERVERKEY:
+        case ZMQ_ROUTING_ID:
+        case ZMQ_SUBSCRIBE:
+        case ZMQ_UNSUBSCRIBE:
+        case ZMQ_XPUB_WELCOME_MSG:
+        case ZMQ_TCP_ACCEPT_FILTER: {
+            if (value.GetTypeTag() != StaticClassTypeTag< SqBuffer >::Get())
+            {
+                 STHROWF("Invalid buffer value");
+            }
+            auto * inst = value.CastI< SqBuffer >();
+            if (inst)
+            {
+                r = zmq_setsockopt(Valid(), opt, inst->GetRef()->Data(), static_cast< size_t >(inst->GetPosition()));
+            } else r = -1;
+        } break;
+        default: STHROWF("Unknown socket option");
+    }
+    // Validate result
+    if (r != 0)
+    {
+        STHROWF("Unable to modify socket option: [%d] %s", r, zmq_strerror(errno));
+    }
+    // Never reaches here
+    SQ_UNREACHABLE;
+}
+
+// ------------------------------------------------------------------------------------------------
 static String SqZmqVersion()
 {
     int major=0, minor=0, patch=0;
@@ -135,6 +402,8 @@ void Register_ZMQ(HSQUIRRELVM vm)
         .FmtFunc(_SC("SendString"), &ZSocket::SendString)
         .Func(_SC("SendMessages"), &ZSocket::SendMessages)
         .Func(_SC("SendStrings"), &ZSocket::SendStrings)
+        .Func(_SC("GetOpt"), &ZSocket::GetOpt)
+        .Func(_SC("SetOpt"), &ZSocket::SetOpt)
     );
 
     RootTable(vm).Bind(_SC("SqZMQ"), ns);
