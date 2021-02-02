@@ -109,7 +109,7 @@ endif()
 # Link to base libraries
 target_link_libraries(SqModule Squirrel FmtLib SimpleINI TinyDir ConcurrentQueue maxminddb libzmq-static)
 # Link to POCO libraries
-target_link_libraries(SqModule Poco::Foundation Poco::Encodings Poco::Crypto Poco::Util Poco::Data Poco::Net Poco::JSON Poco::XML Poco::Zip Poco::JWT Poco::Redis Poco::MongoDB)
+target_link_libraries(SqModule Poco::Foundation Poco::Crypto Poco::Data Poco::Net Poco::JSON Poco::XML)
 # Does POCO have SQLite support?
 if(ENABLE_DATA_SQLITE)
 	# Link the libraries
