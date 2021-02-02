@@ -472,14 +472,14 @@ struct ZSkt : SqChainedInstances< ZSkt >
         while (mStatus > 0)
         {
             using namespace std::chrono_literals;
-            // Wait a bit before each iteration to not exhaust resources
-            std::this_thread::sleep_for(50ms);
             // Acquire exclusive access to the socket
             std::lock_guard< std::mutex > guard(mMtx);
-            // Perform tasks
-            Recv();
-            Send();
-            SendMore();
+            // Perform tasks until there's none left
+            if (!Recv() && !Send() && !SendMore())
+            {
+                // Don't exhaust resources pointlessly
+                std::this_thread::sleep_for(50ms);
+            }
         }
     }
 
@@ -557,7 +557,7 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Receive one message from the socket.
     */
-    void Recv()
+    bool Recv()
     {
         // Need someone to receive the message
         ZMsg msg;
@@ -566,8 +566,13 @@ protected:
         // Did we have a message?
         if (r >= 0)
         {
-            mOutputQueue.enqueue(std::move(msg)); // Put it in the queue
+            // Put it in the queue
+            mOutputQueue.enqueue(std::move(msg));
+            // We received a message
+            return true;
         }
+        // No message was retrieved
+        return false;
     }
 
     /* --------------------------------------------------------------------------------------------
