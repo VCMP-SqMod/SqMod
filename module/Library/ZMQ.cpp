@@ -36,9 +36,16 @@ LightObj ZContext::Socket(int type) const
 {
     return LightObj(SqTypeIdentity< ZSocket >{}, SqVM(), *this, type);
 }
+// ------------------------------------------------------------------------------------------------
+static String SqZmqVersion()
+{
+    int major=0, minor=0, patch=0;
+    zmq_version(&major, &minor, &patch);
+    return fmt::format("{}.{}.{}", major, minor, patch);
+}
 
 // ------------------------------------------------------------------------------------------------
-static void ZmqProcess()
+static void SqZmqProcess()
 {
     // Go over all sockets and try to update them
     for (ZSkt * inst = ZSkt::sHead; inst && inst->mNext != ZSkt::sHead; inst = inst->mNext)
@@ -66,7 +73,8 @@ void Register_ZMQ(HSQUIRRELVM vm)
 {
     Table ns(vm);
 
-    ns.Func(_SC("Process"), &ZmqProcess);
+    ns.Func(_SC("Process"), &SqZmqProcess);
+    ns.Func(_SC("Version"), &SqZmqVersion);
 
     // --------------------------------------------------------------------------------------------
     ns.Bind(_SC("Context"),
@@ -89,8 +97,7 @@ void Register_ZMQ(HSQUIRRELVM vm)
         Class< ZMessage, NoCopy< ZMessage > >(vm, SqZMessage::Str)
         // Constructors
         .Ctor()
-        .Ctor< SQInteger >()
-        .Ctor< SQInteger, StackStrF & >()
+        .Ctor< StackStrF & >()
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &SqZMessage::Fn)
         // Properties
@@ -101,7 +108,11 @@ void Register_ZMQ(HSQUIRRELVM vm)
         .Func(_SC("Get"), &ZMessage::Get)
         .Func(_SC("Set"), &ZMessage::Set)
         .Func(_SC("Meta"), &ZMessage::Meta)
+        .Func(_SC("Copy"), &ZMessage::Copy)
         .Func(_SC("ToString"), &ZMessage::ToString)
+        .Func(_SC("FromString"), &ZMessage::FromString)
+        .Func(_SC("ToBuffer"), &ZMessage::ToBuffer)
+        .Func(_SC("FromBuffer"), &ZMessage::FromBuffer)
     );
 
     // --------------------------------------------------------------------------------------------
@@ -114,12 +125,16 @@ void Register_ZMQ(HSQUIRRELVM vm)
         // Properties
         .Prop(_SC("IsNull"), &ZSocket::IsNull)
         // Member Methods
-        .Func(_SC("Bind"), &ZSocket::Bind)
-        .Func(_SC("Connect"), &ZSocket::Connect)
-        .Func(_SC("Disconnect"), &ZSocket::Disconnect)
+        .CbFunc(_SC("OnData"), &ZSocket::OnData)
+        .FmtFunc(_SC("Bind"), &ZSocket::Bind)
+        .FmtFunc(_SC("Connect"), &ZSocket::Connect)
+        .FmtFunc(_SC("Disconnect"), &ZSocket::Disconnect)
         .Func(_SC("Run"), &ZSocket::Run)
         .Func(_SC("Close"), &ZSocket::Close)
-        .CbFunc(_SC("OnData"), &ZSocket::OnData)
+        .Func(_SC("SendMessage"), &ZSocket::SendMessage)
+        .FmtFunc(_SC("SendString"), &ZSocket::SendString)
+        .Func(_SC("SendMessages"), &ZSocket::SendMessages)
+        .Func(_SC("SendStrings"), &ZSocket::SendStrings)
     );
 
     RootTable(vm).Bind(_SC("SqZMQ"), ns);
