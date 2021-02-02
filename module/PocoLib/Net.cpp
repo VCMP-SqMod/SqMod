@@ -8,7 +8,7 @@ namespace SqMod {
 
 
 // ================================================================================================
-void Register_POCO_Net(HSQUIRRELVM vm)
+void Register_POCO_Net(HSQUIRRELVM vm, Table &)
 {
     Table ns(vm);
 

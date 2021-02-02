@@ -6,14 +6,6 @@
 #include <sstream>
 
 // ------------------------------------------------------------------------------------------------
-#include <Poco/Base32Encoder.h>
-#include <Poco/Base32Decoder.h>
-#include <Poco/Base64Encoder.h>
-#include <Poco/Base64Decoder.h>
-// ------------------------------------------------------------------------------------------------
-#include <Poco/Checksum.h>
-
-// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
@@ -240,7 +232,7 @@ static SQInteger SqGetADLER32(HSQUIRRELVM vm)
 }
 
 // ================================================================================================
-void Register_POCO_Crypto(HSQUIRRELVM vm)
+void Register_POCO_Crypto(HSQUIRRELVM vm, Table &)
 {
     Table ns(vm);
 

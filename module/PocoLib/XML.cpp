@@ -8,7 +8,7 @@ namespace SqMod {
 
 
 // ================================================================================================
-void Register_POCO_XML(HSQUIRRELVM vm)
+void Register_POCO_XML(HSQUIRRELVM vm, Table &)
 {
     Table ns(vm);
 

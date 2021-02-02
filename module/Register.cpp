@@ -34,21 +34,14 @@ extern void Register_CVehicle(HSQUIRRELVM vm);
 extern void Register_Chrono(HSQUIRRELVM vm);
 extern void Register_CURL(HSQUIRRELVM vm);
 extern void Register_IO(HSQUIRRELVM vm);
-extern void Register_Job(HSQUIRRELVM vm);
-extern void Register_MMDB(HSQUIRRELVM vm);
-extern void Register_MySQL(HSQUIRRELVM vm);
 extern void Register_Numeric(HSQUIRRELVM vm);
-extern void Register_Socket(HSQUIRRELVM vm);
-extern void Register_SQLite(HSQUIRRELVM vm);
 extern void Register_String(HSQUIRRELVM vm);
 extern void Register_System(HSQUIRRELVM vm);
 extern void Register_Utils(HSQUIRRELVM vm);
-extern void Register_Worker(HSQUIRRELVM vm);
-extern void Register_Web(HSQUIRRELVM vm);
+extern void Register_ZMQ(HSQUIRRELVM vm);
 
 // ------------------------------------------------------------------------------------------------
-extern void Register_POCO_Crypto(HSQUIRRELVM vm);
-extern void Register_POCO_Data(HSQUIRRELVM vm);
+extern void Register_POCO(HSQUIRRELVM vm);
 
 // ------------------------------------------------------------------------------------------------
 extern void Register_Constants(HSQUIRRELVM vm);
@@ -91,20 +84,13 @@ bool RegisterAPI(HSQUIRRELVM vm)
     Register_Chrono(vm);
     Register_CURL(vm);
     Register_IO(vm);
-    //Register_Job(vm);
-    //Register_MMDB(vm);
-    //Register_MySQL(vm);
     Register_Numeric(vm);
-    //Register_Socket(vm);
-    //Register_SQLite(vm);
     Register_String(vm);
     Register_System(vm);
     Register_Utils(vm);
-    //Register_Worker(vm);
-    //Register_Web(vm);
+    Register_ZMQ(vm);
 
-    Register_POCO_Crypto(vm);
-    Register_POCO_Data(vm);
+    Register_POCO(vm);
 
     Register_Constants(vm);
     Register_Log(vm);

@@ -76,6 +76,7 @@ add_library(SqModule MODULE SqBase.hpp Main.cpp
 	Library/Utils.cpp Library/Utils.hpp
 	Library/Utils/Map.cpp Library/Utils/Map.hpp
 	Library/Utils/Vector.cpp Library/Utils/Vector.hpp
+	Library/ZMQ.cpp Library/ZMQ.hpp
 	# Misc
 	Misc/Broadcast.cpp
 	Misc/Constants.cpp
@@ -89,9 +90,11 @@ add_library(SqModule MODULE SqBase.hpp Main.cpp
 	# POCO
 	PocoLib/Crypto.cpp PocoLib/Crypto.hpp
 	PocoLib/Data.cpp PocoLib/Data.hpp
-	PocoLib/Foundation.cpp PocoLib/Foundation.hpp
 	PocoLib/JSON.cpp PocoLib/JSON.hpp
 	PocoLib/Net.cpp PocoLib/Net.hpp
+	PocoLib/RegEx.cpp PocoLib/RegEx.hpp
+	PocoLib/Register.cpp PocoLib/Register.hpp
+	PocoLib/Time.cpp PocoLib/Time.hpp
 	PocoLib/Util.cpp PocoLib/Util.hpp
 	PocoLib/XML.cpp PocoLib/XML.hpp
 	# 
@@ -105,7 +108,7 @@ if(WIN32 OR MINGW)
 	target_link_libraries(SqModule wsock32 ws2_32 shlwapi)
 endif()
 # Link to base libraries
-target_link_libraries(SqModule Squirrel FmtLib SimpleINI TinyDir ConcurrentQueue cpr maxminddb)
+target_link_libraries(SqModule Squirrel FmtLib SimpleINI TinyDir ConcurrentQueue cpr maxminddb libzmq-static)
 # Link to POCO libraries
 target_link_libraries(SqModule Poco::Foundation Poco::Encodings Poco::Crypto Poco::Util Poco::Data Poco::Net Poco::JSON Poco::XML Poco::Zip Poco::JWT Poco::Redis Poco::MongoDB)
 # Does POCO have SQLite support?

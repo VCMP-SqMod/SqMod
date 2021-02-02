@@ -37,7 +37,8 @@ namespace SqMod {
 extern bool RegisterAPI(HSQUIRRELVM vm);
 
 // ------------------------------------------------------------------------------------------------
-extern void PocoStartup();
+extern void ZmqProcess();
+extern void ZmqTerminate();
 extern void InitializeTasks();
 extern void InitializeRoutines();
 extern void TerminateAreas();
@@ -46,7 +47,6 @@ extern void TerminateTasks();
 extern void TerminateRoutines();
 extern void TerminateCommands();
 extern void TerminateSignals();
-//extern void TerminateWorkers();
 
 // ------------------------------------------------------------------------------------------------
 extern Buffer GetRealFilePath(const SQChar * path);
@@ -501,8 +501,8 @@ void Core::Terminate(bool shutdown)
     TerminateAreas();
     // Release privilege managers
     //TerminatePrivileges();
-    // Terminate workers
-    //TerminateWorkers();
+    // Release ZMQ sockets
+    ZmqTerminate();
     // In case there's a payload for reload
     m_ReloadPayload.Release();
     // Release null objects in case any reference to valid objects is stored in them

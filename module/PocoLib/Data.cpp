@@ -390,10 +390,10 @@ static void Register_POCO_Data_Binding(HSQUIRRELVM vm, Table & ns, const SQChar 
 }
 
 // ================================================================================================
-void Register_POCO_Data(HSQUIRRELVM vm)
+void Register_POCO_Data(HSQUIRRELVM vm, Table &)
 {
     Table ns(vm);
-    //Poco::Data::Keywords::into()
+
     // --------------------------------------------------------------------------------------------
     ns.Bind(_SC("Session"),
         Class< SqDataSession >(vm, SqPcDataSession::Str)

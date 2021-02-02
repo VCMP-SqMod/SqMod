@@ -138,7 +138,7 @@ static _Noreturn void unreachable() { return; }
 /// Removes unused variable warnings in a way that Doxygen can understand
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <typename T>
-void SQUNUSED(const T&) {
+inline void SQUNUSED(const T&) {
 }
 
 /// @endcond
@@ -2202,88 +2202,86 @@ template < typename T > struct SqChainedInstances
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Default constructor.
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    SqChainedInstances()
-        : m_Prev(nullptr), m_Next(nullptr)
+    SqChainedInstances() noexcept
+        : mPrev(nullptr), mNext(nullptr)
     {
         //...
     }
 
-protected:
+    T * mPrev; // Previous instance in the chain.
+    T * mNext; // Next instance in the chain.
 
-    SqChainedInstances *   m_Prev; // Previous instance in the chain.
-    SqChainedInstances *   m_Next; // Next instance in the chain.
-
-    static SqChainedInstances * s_Head; // The head of the instance chain.
+    static T * sHead; // The head of the instance chain.
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Attach the instance to the chain.
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    void ChainInstance()
+    void ChainInstance() noexcept
     {
         // Is there an existing head?
-        if (s_Head == nullptr)
+        if (sHead == nullptr)
         {
             // There was no existing head
-            m_Prev = m_Next = nullptr;
+            mPrev = mNext = nullptr;
             // We're the head
-            s_Head = this;
+            sHead = static_cast< T * >(this);
         }
         // Is there a preceding instance before the current head?
-        else if (s_Head->m_Prev == nullptr)
+        else if (sHead->mPrev == nullptr)
         {
             // Grab the current head as the next instance in the chain
-            m_Next = s_Head;
+            mNext = sHead;
             // Become the new head and the preceding instance of the current head
-            m_Next->m_Prev = s_Head = this;
+            mNext->mPrev = sHead = static_cast< T * >(this);
         }
         else
         {
             // Grab the current head as the next instance in the chain
-            m_Next = s_Head;
+            mNext = sHead;
             // Become the new head and the next instance of the preceding instance of the current head
-            m_Next->m_Prev->m_Next = s_Head = this;
+            mNext->mPrev->mNext = sHead = static_cast< T * >(this);
             // Become the preceding instance of the current head
-            m_Next->m_Prev = this;
+            mNext->mPrev = static_cast< T * >(this);
         }
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Detach the instance from the chain.
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    void UnchainInstance()
+    void UnchainInstance() noexcept
     {
         // Is there an instance after us?
-        if (m_Next != nullptr)
+        if (mNext != nullptr)
         {
             // Link the next instance with the one before us
-            m_Next->m_Prev = m_Prev;
+            mNext->mPrev = mPrev;
             // Are we the current head?
-            if (s_Head == this)
+            if (sHead == static_cast< T * >(this))
             {
-                s_Head = m_Next; // Make the next one the head
+                sHead = mNext; // Make the next one the head
             }
         }
         // Is there an instance before us?
-        if (m_Prev != nullptr)
+        if (mPrev != nullptr)
         {
             // Link the previous instance with the one after us
-            m_Prev->m_Next = m_Next;
+            mPrev->mNext = mNext;
             // Are we the current head?
-            if (s_Head == nullptr || s_Head == this)
+            if (sHead == nullptr || sHead == static_cast< T * >(this))
             {
                 // If there was no instance after us then make the previous one the head
-                s_Head = m_Prev;
+                sHead = mPrev;
             }
         }
         // Are we the current and the only head?
-        else if (s_Head == this)
+        else if (sHead == static_cast< T * >(this))
         {
-            s_Head = nullptr; // No more instances of this type
+            sHead = nullptr; // No more instances of this type
         }
     }
 };
 
-template < typename T > SqChainedInstances< T > * SqChainedInstances< T >::s_Head = nullptr;
+template < typename T > T * SqChainedInstances< T >::sHead = nullptr;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// @cond DEV

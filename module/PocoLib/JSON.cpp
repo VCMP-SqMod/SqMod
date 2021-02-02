@@ -8,7 +8,7 @@ namespace SqMod {
 
 
 // ================================================================================================
-void Register_POCO_JSON(HSQUIRRELVM vm)
+void Register_POCO_JSON(HSQUIRRELVM vm, Table &)
 {
     Table ns(vm);
 
