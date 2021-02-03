@@ -167,7 +167,7 @@ static inline void OutputConsoleMessage(const Logger::MsgPtr & msg)
     CONSOLE_SCREEN_BUFFER_INFO csb_state;
     GetConsoleScreenBufferInfo(hstdout, &csb_state);
     SetConsoleTextAttribute(hstdout, GetLevelColor(msg->mLvl));
-    if (msg->mTms)
+    if (Logger::Get().ConsoleHasTime())
     {
         std::printf("%s %s ", GetLevelTag(msg->mLvl), msg->mBuf);
     }
@@ -179,7 +179,7 @@ static inline void OutputConsoleMessage(const Logger::MsgPtr & msg)
     std::printf("%s\n", msg->mStr.c_str());
     SetConsoleTextAttribute(hstdout, csb_state.wAttributes);
 #else
-    if (msg->mTms)
+    if (Logger::Get().ConsoleHasTime())
     {
         std::printf("%s %s %s\033[0m\n",
                     msg->mSub ? GetColoredLevelTagDim(msg->mLvl) : GetColoredLevelTag(msg->mLvl), msg->mBuf, msg->mStr.c_str());
@@ -532,8 +532,6 @@ void Logger::ProcessMessage()
             return;
         }
     }
-    // Override time-stamp requirements
-    m_Message->mTms = (m_ConsoleTime || m_LogFileTime);
     // Are we allowed to send this message level to console?
     if (m_ConsoleLevels & m_Message->mLvl)
     {
@@ -546,7 +544,7 @@ void Logger::ProcessMessage()
         std::fputs(GetLevelTag(m_Message->mLvl), m_File);
         std::fputc(' ', m_File);
         // Should we include the time-stamp?
-        if (m_Message->mTms)
+        if (m_LogFileTime)
         {
             std::fputs(m_Message->mBuf, m_File);
             std::fputc(' ', m_File);

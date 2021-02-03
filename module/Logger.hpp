@@ -52,7 +52,7 @@ protected:
         uint8_t     mLvl; // Message level.
         uint8_t     mInc; // Message increments.
         bool        mSub; // Message hierarchy.
-        bool        mTms; // Message hierarchy.
+        bool        mTms; // Message time-stamp.
         char        mBuf[TMS_LEN]; // Message time-stamp.
         /* ----------------------------------------------------------------------------------------
          * Default constructor.
@@ -155,8 +155,8 @@ private:
     MsgQueue        m_Queue; // Queue of messages outside of main thread.
 
     // --------------------------------------------------------------------------------------------
-    uint8_t           m_ConsoleLevels; // The levels allowed to be outputted to console.
-    uint8_t           m_LogFileLevels; // The levels allowed to be outputted to log file.
+    uint8_t         m_ConsoleLevels; // The levels allowed to be outputted to console.
+    uint8_t         m_LogFileLevels; // The levels allowed to be outputted to log file.
 
     // --------------------------------------------------------------------------------------------
     bool            m_ConsoleTime; // Whether console messages should be timestamped.
@@ -164,7 +164,7 @@ private:
     bool            m_CyclicLock; // Prevent the script callback from entering a loop.
 
     // --------------------------------------------------------------------------------------------
-    uint32_t          m_StringTruncate; // The length at which to truncate strings in debug.
+    uint32_t        m_StringTruncate; // The length at which to truncate strings in debug.
 
     // --------------------------------------------------------------------------------------------
     std::FILE*      m_File; // Handle to the file where the logs should be saved.
