@@ -145,6 +145,14 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve a reference to the managed memory buffer.
+    */
+    SQMOD_NODISCARD Buffer & GetInst() const
+    {
+        return *m_Buffer;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Validate the managed memory buffer reference.
     */
     void Validate() const

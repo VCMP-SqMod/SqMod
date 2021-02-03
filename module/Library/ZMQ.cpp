@@ -9,24 +9,33 @@ namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
 SQMOD_DECL_TYPENAME(SqZContext, _SC("SqZmqContext"))
-SQMOD_DECL_TYPENAME(SqZMessage, _SC("SqZmqMessage"))
 SQMOD_DECL_TYPENAME(SqZSocket, _SC("SqZmqSocket"))
 
 // ------------------------------------------------------------------------------------------------
 void ZSkt::Flush(HSQUIRRELVM vm)
 {
     // Need someone to receive the message
-    ZMsg msg;
+    Item data;
     // Try to get a message from the queue
-    while (mOutputQueue.try_dequeue(msg))
+    while (mOutputQueue.try_dequeue(data))
     {
         // Is there a callback to receive the message?
         if (!mOnData.IsNull())
         {
             // Transform the message into a script object
-            LightObj o(SqTypeIdentity< ZMessage >{}, vm, std::make_shared< ZMsg >(std::move(msg)));
-            // Forward it to the callback
-            mOnData(o);
+            if (mStringMessages)
+            {
+                LightObj o(static_cast< const SQChar * >(data->Get()),
+                            static_cast< SQInteger >(data->Size< SQChar >()));
+                // Forward it to the callback
+                mOnData(o);
+            }
+            else
+            {
+                LightObj o(SqTypeIdentity< SqBuffer >{}, vm, std::move(*data));
+                // Forward it to the callback
+                mOnData(o);
+            }
         }
     }
 }
@@ -37,9 +46,11 @@ LightObj ZContext::Socket(int type) const
     return LightObj(SqTypeIdentity< ZSocket >{}, SqVM(), *this, type);
 }
 // ------------------------------------------------------------------------------------------------
-LightObj ZSocket::GetOpt(int opt) const
+LightObj ZSocket::GetOpt(int opt)
 {
     int r = 0;
+    // Acquire exclusive access to the socket
+    std::lock_guard< std::mutex > guard(Valid().mMtx);
     // Identify option
     switch (opt)
     {
@@ -177,7 +188,7 @@ LightObj ZSocket::GetOpt(int opt) const
     // Validate result
     if (r != 0)
     {
-        STHROWF("Unable to retrieve socket option: [%d] %s", r, zmq_strerror(errno));
+        STHROWF("Unable to retrieve socket option: [{}] {}", r, zmq_strerror(errno));
     }
     SQ_UNREACHABLE;
     // Never reaches here
@@ -188,6 +199,8 @@ LightObj ZSocket::GetOpt(int opt) const
 void ZSocket::SetOpt(int opt, LightObj & value)
 {
     int r = 0;
+    // Acquire exclusive access to the socket
+    std::lock_guard< std::mutex > guard(Valid().mMtx);
     // Identify option
     switch (opt)
     {
@@ -297,7 +310,7 @@ void ZSocket::SetOpt(int opt, LightObj & value)
     // Validate result
     if (r != 0)
     {
-        STHROWF("Unable to modify socket option: [%d] %s", r, zmq_strerror(errno));
+        STHROWF("Unable to modify socket option: [{}] {}", r, zmq_strerror(errno));
     }
     // Never reaches here
     SQ_UNREACHABLE;
@@ -360,29 +373,6 @@ void Register_ZMQ(HSQUIRRELVM vm)
     );
 
     // --------------------------------------------------------------------------------------------
-    ns.Bind(_SC("Message"),
-        Class< ZMessage, NoCopy< ZMessage > >(vm, SqZMessage::Str)
-        // Constructors
-        .Ctor()
-        .Ctor< StackStrF & >()
-        // Meta-methods
-        .SquirrelFunc(_SC("_typename"), &SqZMessage::Fn)
-        // Properties
-        .Prop(_SC("IsNull"), &ZMessage::IsNull)
-        .Prop(_SC("More"), &ZMessage::More)
-        .Prop(_SC("Size"), &ZMessage::GetSize)
-        // Member Methods
-        .Func(_SC("Get"), &ZMessage::Get)
-        .Func(_SC("Set"), &ZMessage::Set)
-        .Func(_SC("Meta"), &ZMessage::Meta)
-        .Func(_SC("Copy"), &ZMessage::Copy)
-        .Func(_SC("ToString"), &ZMessage::ToString)
-        .Func(_SC("FromString"), &ZMessage::FromString)
-        .Func(_SC("ToBuffer"), &ZMessage::ToBuffer)
-        .Func(_SC("FromBuffer"), &ZMessage::FromBuffer)
-    );
-
-    // --------------------------------------------------------------------------------------------
     ns.Bind(_SC("Socket"),
         Class< ZSocket, NoCopy< ZSocket > >(vm, SqZSocket::Str)
         // Constructors
@@ -391,16 +381,16 @@ void Register_ZMQ(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("_typename"), &SqZSocket::Fn)
         // Properties
         .Prop(_SC("IsNull"), &ZSocket::IsNull)
+        .Prop(_SC("StringMessages"), &ZSocket::GetStringMessages, &ZSocket::SetStringMessages)
         // Member Methods
         .CbFunc(_SC("OnData"), &ZSocket::OnData)
         .FmtFunc(_SC("Bind"), &ZSocket::Bind)
         .FmtFunc(_SC("Connect"), &ZSocket::Connect)
         .FmtFunc(_SC("Disconnect"), &ZSocket::Disconnect)
-        .Func(_SC("Run"), &ZSocket::Run)
         .Func(_SC("Close"), &ZSocket::Close)
-        .Func(_SC("SendMessage"), &ZSocket::SendMessage)
+        .Func(_SC("SendBuffer"), &ZSocket::SendBuffer)
         .FmtFunc(_SC("SendString"), &ZSocket::SendString)
-        .Func(_SC("SendMessages"), &ZSocket::SendMessages)
+        .Func(_SC("SendBuffers"), &ZSocket::SendBuffers)
         .Func(_SC("SendStrings"), &ZSocket::SendStrings)
         .Func(_SC("GetOpt"), &ZSocket::GetOpt)
         .Func(_SC("SetOpt"), &ZSocket::SetOpt)
