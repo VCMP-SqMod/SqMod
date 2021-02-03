@@ -270,7 +270,7 @@ template < class T > struct SqVector
     */
     SQMOD_NODISCARD bool IsNull() const
     {
-        return static_cast< bool >(mC);
+        return !mC;
     }
 
     /* --------------------------------------------------------------------------------------------
