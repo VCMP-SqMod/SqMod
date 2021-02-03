@@ -357,6 +357,10 @@ protected:
                     std::this_thread::sleep_for(50ms); // Sleep for 1/20'th of a second
                 }
             }
+            catch (const Poco::Exception & e)
+            {
+                if (mLog) LogErr("Announcer failed: %s -> %s", e.what(), e.message().c_str());
+            }
             catch (const std::exception & e)
             {
                 if (mLog) LogErr("Announcer failed: %s", e.what());
@@ -437,6 +441,14 @@ protected:
             std::ostream & os = session.sendRequest(request);
             // Send the content
             os << body;
+        }
+        catch (const Poco::Exception & e)
+        {
+            if (mLog) LogErr("Request failed: %s -> %s", e.what(), e.message().c_str());
+            // Failed!
+            DoFailed();
+            // Probably the server is offline
+            return;
         }
         catch (const std::exception & e)
         {
