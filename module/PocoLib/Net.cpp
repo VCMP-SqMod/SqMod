@@ -10,9 +10,9 @@ namespace SqMod {
 // ================================================================================================
 void Register_POCO_Net(HSQUIRRELVM vm, Table &)
 {
-    Table ns(vm);
+    //Table ns(vm);
 
-    RootTable(vm).Bind(_SC("SqNet"), ns);
+    //RootTable(vm).Bind(_SC("SqNet"), ns);
 }
 
 } // Namespace:: SqMod

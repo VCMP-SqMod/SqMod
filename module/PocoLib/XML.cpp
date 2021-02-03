@@ -10,9 +10,9 @@ namespace SqMod {
 // ================================================================================================
 void Register_POCO_XML(HSQUIRRELVM vm, Table &)
 {
-    Table ns(vm);
+    //Table ns(vm);
 
-    RootTable(vm).Bind(_SC("SqXML"), ns);
+    //RootTable(vm).Bind(_SC("SqXML"), ns);
 }
 
 } // Namespace:: SqMod

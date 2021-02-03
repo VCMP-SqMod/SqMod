@@ -10,9 +10,9 @@ namespace SqMod {
 // ================================================================================================
 void Register_POCO_JSON(HSQUIRRELVM vm, Table &)
 {
-    Table ns(vm);
+    //Table ns(vm);
 
-    RootTable(vm).Bind(_SC("SqJSON"), ns);
+    //RootTable(vm).Bind(_SC("SqJSON"), ns);
 }
 
 } // Namespace:: SqMod
