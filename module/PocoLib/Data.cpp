@@ -112,6 +112,32 @@ SqDataStatement SqDataSession::GetStatement(StackStrF & data)
 }
 
 // ------------------------------------------------------------------------------------------------
+SqDataSession & SqDataSession::Execute(StackStrF & query)
+{
+    // Create a statement instance
+    Statement stmt(impl()->createStatementImpl());
+    // Add the query to the
+    stmt << (query);
+    // Execute it
+    stmt.execute();
+    // Allow chaining
+    return *this;
+}
+
+// ------------------------------------------------------------------------------------------------
+SqDataSession & SqDataSession::ExecuteAsync(StackStrF & query)
+{
+    // Create a statement instance
+    Statement stmt(impl()->createStatementImpl());
+    // Add the query to the
+    stmt << (query);
+    // Execute it
+    stmt.executeAsync();
+    // Allow chaining
+    return *this;
+}
+
+// ------------------------------------------------------------------------------------------------
 void SqDataStatement::UseEx(LightObj & obj, const std::string & name, Poco::Data::AbstractBinding::Direction dir)
 {
     //
@@ -426,6 +452,8 @@ void Register_POCO_Data(HSQUIRRELVM vm, Table &)
         .FmtFunc(_SC("GetFeature"), &SqDataSession::GetFeature)
         .FmtFunc(_SC("SetProperty"), &SqDataSession::SetProperty)
         .FmtFunc(_SC("GetProperty"), &SqDataSession::GetProperty)
+        .FmtFunc(_SC("Execute"), &SqDataSession::Execute)
+        .FmtFunc(_SC("ExecuteAsync"), &SqDataSession::ExecuteAsync)
         // Static Functions
         .StaticFunc(_SC("GetURI"), &SqDataSession::BuildURI)
         // Static Values

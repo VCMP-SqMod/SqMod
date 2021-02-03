@@ -788,6 +788,16 @@ struct SqDataSession : public Session
      * Look up the value of a property.
     */
     SQMOD_NODISCARD SqDataStatement GetStatement(StackStrF & data);
+
+    /* --------------------------------------------------------------------------------------------
+     * Create a statement and execute the given query immediately.
+    */
+    SqDataSession & Execute(StackStrF & query);
+
+    /* --------------------------------------------------------------------------------------------
+     * Create a statement and execute the given query whenever possible.
+    */
+    SqDataSession & ExecuteAsync(StackStrF & query);
 };
 
 /* ------------------------------------------------------------------------------------------------
