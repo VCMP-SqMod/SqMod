@@ -479,10 +479,10 @@ template < class T > struct SqVector
     /* --------------------------------------------------------------------------------------------
      * Retrieve a portion of this container.
     */
-    SqVector Slice(SQInteger p, SQInteger n) const
+    LightObj Slice(SQInteger p, SQInteger n) const
     {
-        return SqVector(Poco::makeShared< Container >(ValidIdx(p).begin() + static_cast< size_t >(p),
-                                             ValidIdx(p + n).begin() + static_cast< size_t >(p + n)));
+        return LightObj(SqTypeIdentity< SqVector >{}, SqVM(), Poco::makeShared< Container >(
+            ValidIdx(p).begin() + static_cast< size_t >(p), ValidIdx(p + n).begin() + static_cast< size_t >(p + n)));
     }
 
     /* --------------------------------------------------------------------------------------------
