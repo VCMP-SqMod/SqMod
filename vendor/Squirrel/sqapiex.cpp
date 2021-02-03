@@ -119,3 +119,10 @@ SQRESULT sq_arrayreserve(HSQUIRRELVM v,SQInteger idx,SQInteger newcap)
     }
     return sq_throwerror(v,_SC("negative capacity"));
 }
+
+SQInteger sq_cmpr(HSQUIRRELVM v)
+{
+    SQInteger res;
+    v->ObjCmp(stack_get(v, -2), stack_get(v, -1),res);
+    return res;
+}

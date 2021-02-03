@@ -839,40 +839,6 @@ static SQInteger SqNameFilterCheck(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-struct CmpEQ {
-    static const String FSTR;
-    inline bool operator() (SQInteger r) const noexcept { return (r == 0); }
-};
-struct CmpNE {
-    static const String FSTR;
-    inline bool operator() (SQInteger r) const noexcept { return (r != 0); }
-};
-struct CmpLT {
-    static const String FSTR;
-    inline bool operator() (SQInteger r) const noexcept { return (r < 0); }
-};
-struct CmpGT {
-    static const String FSTR;
-    inline bool operator() (SQInteger r) const noexcept { return (r > 0); }
-};
-struct CmpLE {
-    static const String FSTR;
-    inline bool operator() (SQInteger r) const noexcept { return (r <= 0); }
-};
-struct CmpGE {
-    static const String FSTR;
-    inline bool operator() (SQInteger r) const noexcept { return (r >= 0); }
-};
-
-// ------------------------------------------------------------------------------------------------
-const String CmpEQ::FSTR("Assertion passed: {0} == {1}"); // NOLINT(cert-err58-cpp)
-const String CmpNE::FSTR("Assertion passed: {0} != {1}"); // NOLINT(cert-err58-cpp)
-const String CmpLT::FSTR("Assertion passed: {0} < {1}"); // NOLINT(cert-err58-cpp)
-const String CmpGT::FSTR("Assertion passed: {0} > {1}"); // NOLINT(cert-err58-cpp)
-const String CmpLE::FSTR("Assertion passed: {0} <= {1}"); // NOLINT(cert-err58-cpp)
-const String CmpGE::FSTR("Assertion passed: {0} >= {1}"); // NOLINT(cert-err58-cpp)
-
-// ------------------------------------------------------------------------------------------------
 SQMOD_DECL_TYPENAME(SqAssertRes, _SC("SqAssertResult"))
 
 // ------------------------------------------------------------------------------------------------
@@ -1014,6 +980,55 @@ struct SqAssertResult
 const String SqAssertResult::FSTR("Assertion passed ({0})."); // NOLINT(cert-err58-cpp)
 
 // ------------------------------------------------------------------------------------------------
+struct CmpEQ {
+    static const String FSTR;
+    static const String FSTRV;
+    inline bool operator() (SQInteger r) const noexcept { return (r == 0); }
+};
+struct CmpNE {
+    static const String FSTR;
+    static const String FSTRT;
+    static const String FSTRV;
+    inline bool operator() (SQInteger r) const noexcept { return (r != 0); }
+};
+struct CmpLT {
+    static const String FSTR;
+    static const String FSTRV;
+    inline bool operator() (SQInteger r) const noexcept { return (r < 0); }
+};
+struct CmpGT {
+    static const String FSTR;
+    static const String FSTRV;
+    inline bool operator() (SQInteger r) const noexcept { return (r > 0); }
+};
+struct CmpLE {
+    static const String FSTR;
+    static const String FSTRV;
+    inline bool operator() (SQInteger r) const noexcept { return (r <= 0); }
+};
+struct CmpGE {
+    static const String FSTR;
+    static const String FSTRV;
+    inline bool operator() (SQInteger r) const noexcept { return (r >= 0); }
+};
+
+// ------------------------------------------------------------------------------------------------
+const String CmpEQ::FSTR("Assertion passed: {0} == {1}"); // NOLINT(cert-err58-cpp)
+const String CmpNE::FSTR("Assertion passed: {0} != {1}"); // NOLINT(cert-err58-cpp)
+const String CmpLT::FSTR("Assertion passed: {0} < {1}"); // NOLINT(cert-err58-cpp)
+const String CmpGT::FSTR("Assertion passed: {0} > {1}"); // NOLINT(cert-err58-cpp)
+const String CmpLE::FSTR("Assertion passed: {0} <= {1}"); // NOLINT(cert-err58-cpp)
+const String CmpGE::FSTR("Assertion passed: {0} >= {1}"); // NOLINT(cert-err58-cpp)
+
+// ------------------------------------------------------------------------------------------------
+const String CmpEQ::FSTRV("Assertion failed. Value mismatch: {0} == {1}"); // NOLINT(cert-err58-cpp)
+const String CmpNE::FSTRV("Assertion failed. Value mismatch: {0} != {1}"); // NOLINT(cert-err58-cpp)
+const String CmpLT::FSTRV("Assertion failed. Value mismatch: {0} < {1}"); // NOLINT(cert-err58-cpp)
+const String CmpGT::FSTRV("Assertion failed. Value mismatch: {0} > {1}"); // NOLINT(cert-err58-cpp)
+const String CmpLE::FSTRV("Assertion failed. Value mismatch: {0} <= {1}"); // NOLINT(cert-err58-cpp)
+const String CmpGE::FSTRV("Assertion failed. Value mismatch: {0} >= {1}"); // NOLINT(cert-err58-cpp)
+
+// ------------------------------------------------------------------------------------------------
 static SQInteger SqNameFilterCheckInsensitive(HSQUIRRELVM vm)
 {
     const int32_t top = sq_gettop(vm);
@@ -1097,35 +1112,23 @@ template < class C > static SQInteger SqAssertValue(HSQUIRRELVM vm)
     {
         return sq_throwerror(vm, "Not enough parameters.");
     }
-    StackStrF a(vm, 2);
-    StackStrF b(vm, 3);
-    // Get the first value as string
-    if (SQ_FAILED(a.Proc(false)))
-    {
-        return a.mRes; // Propagate the error
-    }
-    // Get the second value as string
-    if (SQ_FAILED(b.Proc(false)))
-    {
-        return b.mRes; // Propagate the error
-    }
+    // Create the instance and guard it to make sure it gets deleted in case of exceptions
+    DeleteGuard< SqAssertResult > ar(new SqAssertResult(vm, top, C::FSTR));
     // Compare values
-    SQInteger r = sq_cmp(vm);
+    SQInteger r = sq_cmpr(vm);
     // Validate result
     if (C{}(r) == false)
     {
         // Throw the error
-        return sq_throwerrorf(vm, "Assertion failed. Value mismatch: %s != %s", a.mPtr, b.mPtr);
+        return sq_throwerrorf(vm, fmt::format(C::FSTRV, ar.Get()->mA, ar.Get()->mB).c_str());
     }
     // Try to return assert result
     try
     {
-        // Create the instance and guard it to make sure it gets deleted in case of exceptions
-        DeleteGuard< SqAssertResult > instance(new SqAssertResult(vm, top, C::FSTR));
         // Push the instance on the stack
-        ClassType< SqAssertResult >::PushInstance(vm, instance);
+        ClassType< SqAssertResult >::PushInstance(vm, ar);
         // Stop guarding the instance
-        instance.Release();
+        ar.Release();
         // Specify that we returned a value
         return 1;
     }
@@ -1154,15 +1157,23 @@ template < class C > static SQInteger SqAssertSame(HSQUIRRELVM vm)
         return sq_throwerrorf(vm, "Assertion failed. Type mismatch: %s != %s",
                                 SqTypeName(vm, 2).c_str(), SqTypeName(vm, 3).c_str());
     }
+    // Create the instance and guard it to make sure it gets deleted in case of exceptions
+    DeleteGuard< SqAssertResult > ar(new SqAssertResult(vm, top, C::FSTR));
+    // Compare values
+    SQInteger r = sq_cmpr(vm);
+    // Validate result
+    if (C{}(r) == false)
+    {
+        // Throw the error
+        return sq_throwerrorf(vm, fmt::format(C::FSTRV, ar.Get()->mA, ar.Get()->mB).c_str());
+    }
     // Try to return assert result
     try
     {
-        // Create the instance and guard it to make sure it gets deleted in case of exceptions
-        DeleteGuard< SqAssertResult > instance(new SqAssertResult(vm, top, C::FSTR));
         // Push the instance on the stack
-        ClassType< SqAssertResult >::PushInstance(vm, instance);
+        ClassType< SqAssertResult >::PushInstance(vm, ar);
         // Stop guarding the instance
-        instance.Release();
+        ar.Release();
         // Specify that we returned a value
         return 1;
     }
