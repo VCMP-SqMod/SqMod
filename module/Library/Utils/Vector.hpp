@@ -670,10 +670,10 @@ template < class T > struct SqVector
     /* --------------------------------------------------------------------------------------------
      * Check if the elements from the container are sorted.
     */
-    void IsSorted()
+    bool IsSorted()
     {
         Validate();
-        std::is_sorted(mC->begin(), mC->end());
+        return std::is_sorted(mC->begin(), mC->end());
     }
 
     /* --------------------------------------------------------------------------------------------
