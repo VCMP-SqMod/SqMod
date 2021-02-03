@@ -4,6 +4,7 @@
 #include "Core/Utility.hpp"
 #include "Library/String.hpp"
 #include "Library/Numeric/Random.hpp"
+#include "Core.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -838,6 +839,181 @@ static SQInteger SqNameFilterCheck(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
+struct CmpEQ {
+    static const String FSTR;
+    inline bool operator() (SQInteger r) const noexcept { return (r == 0); }
+};
+struct CmpNE {
+    static const String FSTR;
+    inline bool operator() (SQInteger r) const noexcept { return (r != 0); }
+};
+struct CmpLT {
+    static const String FSTR;
+    inline bool operator() (SQInteger r) const noexcept { return (r < 0); }
+};
+struct CmpGT {
+    static const String FSTR;
+    inline bool operator() (SQInteger r) const noexcept { return (r > 0); }
+};
+struct CmpLE {
+    static const String FSTR;
+    inline bool operator() (SQInteger r) const noexcept { return (r <= 0); }
+};
+struct CmpGE {
+    static const String FSTR;
+    inline bool operator() (SQInteger r) const noexcept { return (r >= 0); }
+};
+
+// ------------------------------------------------------------------------------------------------
+const String CmpEQ::FSTR("Assertion passed: {0} == {1}"); // NOLINT(cert-err58-cpp)
+const String CmpNE::FSTR("Assertion passed: {0} != {1}"); // NOLINT(cert-err58-cpp)
+const String CmpLT::FSTR("Assertion passed: {0} < {1}"); // NOLINT(cert-err58-cpp)
+const String CmpGT::FSTR("Assertion passed: {0} > {1}"); // NOLINT(cert-err58-cpp)
+const String CmpLE::FSTR("Assertion passed: {0} <= {1}"); // NOLINT(cert-err58-cpp)
+const String CmpGE::FSTR("Assertion passed: {0} >= {1}"); // NOLINT(cert-err58-cpp)
+
+// ------------------------------------------------------------------------------------------------
+SQMOD_DECL_TYPENAME(SqAssertRes, _SC("SqAssertResult"))
+
+// ------------------------------------------------------------------------------------------------
+struct SqAssertResult
+{
+    /* --------------------------------------------------------------------------------------------
+     * First assert argument.
+    */
+    String  mA{};
+
+    /* --------------------------------------------------------------------------------------------
+     * Second assert argument.
+    */
+    String  mB{};
+
+    /* --------------------------------------------------------------------------------------------
+     * Assert source file.
+    */
+    String  mSource{};
+
+    /* --------------------------------------------------------------------------------------------
+     * Assert location.
+    */
+    SQInteger mLine{0};
+
+    /* --------------------------------------------------------------------------------------------
+     * Second assert argument.
+    */
+    const String & mFStr{};
+
+    /* --------------------------------------------------------------------------------------------
+     * Assert location.
+    */
+    SQInteger mResult{SQ_OK};
+
+    // --------------------------------------------------------------------------------------------
+    static const String FSTR;
+
+    /* --------------------------------------------------------------------------------------------
+     * Explicit constructor.
+    */
+    SqAssertResult(HSQUIRRELVM vm, SQInteger top, const String & fstr = FSTR)
+        : mA(), mB(), mSource(), mLine(0), mFStr(fstr), mResult(SQ_OK)
+    {
+        // Used to acquire stack information
+        SQStackInfos si;
+        // Obtain information about the current stack level
+        mResult = sq_stackinfos(vm, 1, &si);
+        // Validate result
+        if (SQ_FAILED(mResult))
+        {
+            return; // Abort
+        }
+        // Store the source
+        mSource.assign(si.source ? si.source : _SC("unknown"));
+        // Store the line
+        mLine = si.line;
+        // First argument
+        StackStrF a(vm, 2);
+        // Get the first value as string
+        if (SQ_FAILED(a.Proc(false)))
+        {
+            mResult = a.mRes;
+            return; // Abort
+        }
+        // Store the first argument
+        mA.assign(a.mPtr, a.GetSize());
+        // Has second parameter?
+        if (top > 2)
+        {
+            // Second argument
+            StackStrF b(vm, 3);
+            // Get the second value as string
+            if (SQ_FAILED(b.Proc(false)))
+            {
+                mResult = a.mRes;
+                return; // Abort
+            }
+            // Store the first argument
+            mB.assign(b.mPtr, b.GetSize());
+        }
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor (disabled).
+    */
+    SqAssertResult(const SqAssertResult &) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor (disabled).
+    */
+    SqAssertResult(SqAssertResult &&) noexcept = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Destructor.
+    */
+    ~SqAssertResult() = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Assignment operator (disabled).
+    */
+    SqAssertResult & operator = (const SqAssertResult &) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment (disabled).
+    */
+    SqAssertResult & operator = (SqAssertResult &&) noexcept = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Log what happened. Can be custom or default message.
+    */
+    SqAssertResult & What(StackStrF & s)
+    {
+        // Default?
+        if (s.mLen <= 0)
+        {
+            LogScs(fmt::format(mFStr, mA, mB).c_str());
+        }
+        else
+        {
+            LogScs(fmt::format(s.ToStr(), mA, mB).c_str());
+        }
+        // Allow chaining
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Log where it happened.
+    */
+    SqAssertResult & Where()
+    {
+        LogSInf("=>In: %s : %d", mSource.c_str(), static_cast< int >(mLine));
+        // Allow chaining
+        return *this;
+    }
+};
+
+// ------------------------------------------------------------------------------------------------
+const String SqAssertResult::FSTR("Assertion passed ({0})."); // NOLINT(cert-err58-cpp)
+
+// ------------------------------------------------------------------------------------------------
 static SQInteger SqNameFilterCheckInsensitive(HSQUIRRELVM vm)
 {
     const int32_t top = sq_gettop(vm);
@@ -871,9 +1047,147 @@ static SQInteger SqNameFilterCheckInsensitive(HSQUIRRELVM vm)
     return 1;
 }
 
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqAssert(HSQUIRRELVM vm)
+{
+    // Get the number of arguments
+    SQInteger top = sq_gettop(vm);
+    // Make sure we have enough
+    if (top < 2)
+    {
+        return sq_throwerror(vm, "Not enough parameters.");
+    }
+    // We only validate boolean values
+    SQBool b = SQFalse;
+    // Retrieve the argument as boolean
+    sq_tobool(vm, 2, &b);
+    // Check assertion result
+    if (b != SQTrue)
+    {
+        return sq_throwerror(vm, "Assertion failed.");
+    }
+    // Try to return assert result
+    try
+    {
+        // Create the instance and guard it to make sure it gets deleted in case of exceptions
+        DeleteGuard< SqAssertResult > instance(new SqAssertResult(vm, top));
+        // Push the instance on the stack
+        ClassType< SqAssertResult >::PushInstance(vm, instance);
+        // Stop guarding the instance
+        instance.Release();
+        // Specify that we returned a value
+        return 1;
+    }
+    catch (const std::exception & e)
+    {
+        return sq_throwerror(vm, e.what());
+    }
+    SQ_UNREACHABLE
+    // Unreachable
+    return 0;
+}
+
+// ------------------------------------------------------------------------------------------------
+template < class C > static SQInteger SqAssertValue(HSQUIRRELVM vm)
+{
+    // Get the number of arguments
+    SQInteger top = sq_gettop(vm);
+    // Make sure we have enough
+    if (top < 3)
+    {
+        return sq_throwerror(vm, "Not enough parameters.");
+    }
+    StackStrF a(vm, 2);
+    StackStrF b(vm, 3);
+    // Get the first value as string
+    if (SQ_FAILED(a.Proc(false)))
+    {
+        return a.mRes; // Propagate the error
+    }
+    // Get the second value as string
+    if (SQ_FAILED(b.Proc(false)))
+    {
+        return b.mRes; // Propagate the error
+    }
+    // Compare values
+    SQInteger r = sq_cmp(vm);
+    // Validate result
+    if (C{}(r) == false)
+    {
+        // Throw the error
+        return sq_throwerrorf(vm, "Assertion failed. Value mismatch: %s != %s", a.mPtr, b.mPtr);
+    }
+    // Try to return assert result
+    try
+    {
+        // Create the instance and guard it to make sure it gets deleted in case of exceptions
+        DeleteGuard< SqAssertResult > instance(new SqAssertResult(vm, top, C::FSTR));
+        // Push the instance on the stack
+        ClassType< SqAssertResult >::PushInstance(vm, instance);
+        // Stop guarding the instance
+        instance.Release();
+        // Specify that we returned a value
+        return 1;
+    }
+    catch (const std::exception & e)
+    {
+        return sq_throwerror(vm, e.what());
+    }
+    SQ_UNREACHABLE
+    // Unreachable
+    return 0;
+}
+
+// ------------------------------------------------------------------------------------------------
+template < class C > static SQInteger SqAssertSame(HSQUIRRELVM vm)
+{
+    // Get the number of arguments
+    SQInteger top = sq_gettop(vm);
+    // Make sure we have enough
+    if (top < 3)
+    {
+        return sq_throwerror(vm, "Not enough parameters.");
+    }
+    // Validate types
+    if (sq_gettype(vm, 2) != sq_gettype(vm, 3))
+    {
+        return sq_throwerrorf(vm, "Assertion failed. Type mismatch: %s != %s",
+                                SqTypeName(vm, 2).c_str(), SqTypeName(vm, 3).c_str());
+    }
+    // Try to return assert result
+    try
+    {
+        // Create the instance and guard it to make sure it gets deleted in case of exceptions
+        DeleteGuard< SqAssertResult > instance(new SqAssertResult(vm, top, C::FSTR));
+        // Push the instance on the stack
+        ClassType< SqAssertResult >::PushInstance(vm, instance);
+        // Stop guarding the instance
+        instance.Release();
+        // Specify that we returned a value
+        return 1;
+    }
+    catch (const std::exception & e)
+    {
+        return sq_throwerror(vm, e.what());
+    }
+    SQ_UNREACHABLE
+    // Unreachable
+    return 0;
+}
+
 // ================================================================================================
 void Register_Base(HSQUIRRELVM vm)
 {
+    // --------------------------------------------------------------------------------------------
+    RootTable(vm).Bind(SqAssertRes::Str,
+        Class< SqAssertResult, NoCopy< SqAssertResult > >(vm, SqAssertRes::Str)
+        // Meta-methods
+        .SquirrelFunc(_SC("_typename"), &SqAssertRes::Fn)
+        // Member Methods
+        .Func(_SC("What"), &SqAssertResult::What)
+        .Func(_SC("Where"), &SqAssertResult::Where)
+    );
+
     RootTable(vm)
     .Func(_SC("EpsEq"), &EpsEq< SQFloat, SQFloat >)
     .Func(_SC("EpsLt"), &EpsLt< SQFloat, SQFloat >)
@@ -892,7 +1206,20 @@ void Register_Base(HSQUIRRELVM vm)
     .Func(_SC("PackRGBA"), &SqPackRGBA)
     .Func(_SC("PackARGB"), &SqPackARGB)
     .SquirrelFunc(_SC("NameFilterCheck"), &SqNameFilterCheck)
-    .SquirrelFunc(_SC("NameFilterCheckInsensitive"), &SqNameFilterCheckInsensitive);
+    .SquirrelFunc(_SC("NameFilterCheckInsensitive"), &SqNameFilterCheckInsensitive)
+    .SquirrelFunc(_SC("SqAssert"), &SqAssert)
+    .SquirrelFunc(_SC("SqAssertEQ"), &SqAssertValue< CmpEQ >)
+    .SquirrelFunc(_SC("SqAssertNE"), &SqAssertValue< CmpNE >)
+    .SquirrelFunc(_SC("SqAssertLT"), &SqAssertValue< CmpLT >)
+    .SquirrelFunc(_SC("SqAssertGT"), &SqAssertValue< CmpGT >)
+    .SquirrelFunc(_SC("SqAssertLE"), &SqAssertValue< CmpLE >)
+    .SquirrelFunc(_SC("SqAssertGE"), &SqAssertValue< CmpGE >)
+    .SquirrelFunc(_SC("SqAssertEQ_"), &SqAssertSame< CmpEQ >)
+    .SquirrelFunc(_SC("SqAssertNE_"), &SqAssertSame< CmpNE >)
+    .SquirrelFunc(_SC("SqAssertLT_"), &SqAssertSame< CmpLT >)
+    .SquirrelFunc(_SC("SqAssertGT_"), &SqAssertSame< CmpGT >)
+    .SquirrelFunc(_SC("SqAssertLE_"), &SqAssertSame< CmpLE >)
+    .SquirrelFunc(_SC("SqAssertGE_"), &SqAssertSame< CmpGE >);
 }
 
 } // Namespace:: SqMod
