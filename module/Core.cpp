@@ -39,6 +39,7 @@ extern bool RegisterAPI(HSQUIRRELVM vm);
 // ------------------------------------------------------------------------------------------------
 extern void ZmqProcess();
 extern void ZmqTerminate();
+extern void AnnounceTerminate();
 extern void InitializeTasks();
 extern void InitializeRoutines();
 extern void TerminateAreas();
@@ -501,6 +502,8 @@ void Core::Terminate(bool shutdown)
     TerminateAreas();
     // Release privilege managers
     //TerminatePrivileges();
+    // Release announcers
+    AnnounceTerminate();
     // Release ZMQ sockets
     ZmqTerminate();
     // In case there's a payload for reload
