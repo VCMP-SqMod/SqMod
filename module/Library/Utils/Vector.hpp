@@ -673,6 +673,10 @@ template < class T > struct SqVector
     bool IsSorted()
     {
         Validate();
+        if (std::is_same< T, bool >::value)
+        {
+            STHROWF("This functionality is not implemented for booleans");
+        }
         return std::is_sorted(mC->begin(), mC->end());
     }
 
