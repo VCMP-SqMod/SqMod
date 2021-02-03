@@ -112,7 +112,7 @@ protected:
      * Validate the managed sockaddr pointer and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    void Validate(CCStr file, int32_t line) const;
+    void Validate(const SQChar * file, int32_t line) const;
 #else
     void Validate() const;
 #endif // _DEBUG
@@ -121,7 +121,7 @@ protected:
      * Validate the managed sockaddr pointer and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    SQMOD_NODISCARD Pointer GetValid(CCStr file, int32_t line) const;
+    SQMOD_NODISCARD Pointer GetValid(const SQChar * file, int32_t line) const;
 #else
     SQMOD_NODISCARD Pointer GetValid() const;
 #endif // _DEBUG
@@ -314,7 +314,7 @@ protected:
      * Validate the managed database handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    void Validate(CCStr file, int32_t line) const;
+    void Validate(const SQChar * file, int32_t line) const;
 #else
     void Validate() const;
 #endif //
@@ -323,7 +323,7 @@ protected:
      * Validate the managed database handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    SQMOD_NODISCARD const DbRef & GetValid(CCStr file, int32_t line) const;
+    SQMOD_NODISCARD const DbRef & GetValid(const SQChar * file, int32_t line) const;
 #else
     SQMOD_NODISCARD const DbRef & GetValid() const;
 #endif // _DEBUG
@@ -502,7 +502,7 @@ protected:
      * Validate the managed database handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    void Validate(CCStr file, int32_t line) const;
+    void Validate(const SQChar * file, int32_t line) const;
 #else
     void Validate() const;
 #endif // _DEBUG
@@ -511,7 +511,7 @@ protected:
      * Validate the managed database handle and description pointer and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    SQMOD_NODISCARD Pointer GetValid(CCStr file, int32_t line) const;
+    SQMOD_NODISCARD Pointer GetValid(const SQChar * file, int32_t line) const;
 #else
     SQMOD_NODISCARD Pointer GetValid() const;
 #endif // _DEBUG
@@ -646,7 +646,7 @@ protected:
      * Validate the managed database handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    void Validate(CCStr file, int32_t line) const;
+    void Validate(const SQChar * file, int32_t line) const;
 #else
     void Validate() const;
 #endif // _DEBUG
@@ -655,7 +655,7 @@ protected:
      * Validate the managed database handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    SQMOD_NODISCARD ConstRef GetValid(CCStr file, int32_t line) const;
+    SQMOD_NODISCARD ConstRef GetValid(const SQChar * file, int32_t line) const;
 #else
     SQMOD_NODISCARD ConstRef GetValid() const;
 #endif // _DEBUG
@@ -857,7 +857,7 @@ protected:
      * Validate the managed database handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    void Validate(CCStr file, int32_t line) const;
+    void Validate(const SQChar * file, int32_t line) const;
 #else
     void Validate() const;
 #endif // _DEBUG
@@ -866,7 +866,7 @@ protected:
      * Validate the managed database handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    SQMOD_NODISCARD Pointer GetValid(CCStr file, int32_t line) const;
+    SQMOD_NODISCARD Pointer GetValid(const SQChar * file, int32_t line) const;
 #else
     SQMOD_NODISCARD Pointer GetValid() const;
 #endif // _DEBUG
@@ -875,7 +875,7 @@ protected:
      * Validate the managed database handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    SQMOD_NODISCARD Pointer GetValidElem(CCStr file, int32_t line) const;
+    SQMOD_NODISCARD Pointer GetValidElem(const SQChar * file, int32_t line) const;
 #else
     SQMOD_NODISCARD Pointer GetValidElem() const;
 #endif // _DEBUG
@@ -1164,7 +1164,7 @@ protected:
      * Validate the managed database handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    void Validate(CCStr file, int32_t line) const;
+    void Validate(const SQChar * file, int32_t line) const;
 #else
     void Validate() const;
 #endif // _DEBUG
@@ -1173,7 +1173,7 @@ protected:
      * Validate the managed database handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    SQMOD_NODISCARD const DbRef & GetValid(CCStr file, int32_t line) const;
+    SQMOD_NODISCARD const DbRef & GetValid(const SQChar * file, int32_t line) const;
 #else
     SQMOD_NODISCARD const DbRef & GetValid() const;
 #endif // _DEBUG
@@ -1316,7 +1316,7 @@ protected:
      * Validate the managed database handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    void Validate(CCStr file, int32_t line) const;
+    void Validate(const SQChar * file, int32_t line) const;
 #else
     void Validate() const;
 #endif // _DEBUG
@@ -1325,7 +1325,7 @@ protected:
      * Validate the managed database handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    SQMOD_NODISCARD Pointer GetValid(CCStr file, int32_t line) const;
+    SQMOD_NODISCARD Pointer GetValid(const SQChar * file, int32_t line) const;
 #else
     SQMOD_NODISCARD Pointer GetValid() const;
 #endif // _DEBUG
@@ -1563,7 +1563,7 @@ protected:
      * Validate the managed database handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    void Validate(CCStr file, int32_t line) const;
+    void Validate(const SQChar * file, int32_t line) const;
 #else
     void Validate() const;
 #endif // _DEBUG
@@ -1572,7 +1572,7 @@ protected:
      * Validate the managed database handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    SQMOD_NODISCARD Reference GetValid(CCStr file, int32_t line);
+    SQMOD_NODISCARD Reference GetValid(const SQChar * file, int32_t line);
 #else
     SQMOD_NODISCARD Reference GetValid();
 #endif // _DEBUG

@@ -440,7 +440,7 @@ SQInteger SockAddr::Typename(HSQUIRRELVM vm)
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void SockAddr::Validate(CCStr file, int32_t line) const
+void SockAddr::Validate(const SQChar * file, int32_t line) const
 {
     if (!m_Handle)
     {
@@ -459,7 +459,7 @@ void SockAddr::Validate() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-SockAddr::Pointer SockAddr::GetValid(CCStr file, int32_t line) const
+SockAddr::Pointer SockAddr::GetValid(const SQChar * file, int32_t line) const
 {
     Validate(file, line);
     return m_Handle;
@@ -547,7 +547,7 @@ SQInteger Database::Typename(HSQUIRRELVM vm)
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void Database::Validate(CCStr file, int32_t line) const
+void Database::Validate(const SQChar * file, int32_t line) const
 {
     if (!m_Handle)
     {
@@ -566,7 +566,7 @@ void Database::Validate() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const DbRef & Database::GetValid(CCStr file, int32_t line) const
+const DbRef & Database::GetValid(const SQChar * file, int32_t line) const
 {
     Validate(file, line);
     return m_Handle;
@@ -683,7 +683,7 @@ SQInteger Description::Typename(HSQUIRRELVM vm)
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void Description::Validate(CCStr file, int32_t line) const
+void Description::Validate(const SQChar * file, int32_t line) const
 {
     if (!m_Handle)
     {
@@ -702,7 +702,7 @@ void Description::Validate() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-Description::Pointer Description::GetValid(CCStr file, int32_t line) const
+Description::Pointer Description::GetValid(const SQChar * file, int32_t line) const
 {
     Validate(file, line);
     // Validate the referenced description
@@ -743,7 +743,7 @@ SQInteger EntryData::Typename(HSQUIRRELVM vm)
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void EntryData::Validate(CCStr file, int32_t line) const
+void EntryData::Validate(const SQChar * file, int32_t line) const
 {
     if (!m_Handle)
     {
@@ -762,7 +762,7 @@ void EntryData::Validate() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-EntryData::ConstRef EntryData::GetValid(CCStr file, int32_t line) const
+EntryData::ConstRef EntryData::GetValid(const SQChar * file, int32_t line) const
 {
     Validate(file, line);
     // See if the entry has any data
@@ -817,7 +817,7 @@ SQInteger EntryDataList::Typename(HSQUIRRELVM vm)
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void EntryDataList::Validate(CCStr file, int32_t line) const
+void EntryDataList::Validate(const SQChar * file, int32_t line) const
 {
     if (!m_Handle)
     {
@@ -836,7 +836,7 @@ void EntryDataList::Validate() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-EntryDataList::Pointer EntryDataList::GetValid(CCStr file, int32_t line) const
+EntryDataList::Pointer EntryDataList::GetValid(const SQChar * file, int32_t line) const
 {
     Validate(file, line);
     // Validate the managed list
@@ -863,7 +863,7 @@ EntryDataList::Pointer EntryDataList::GetValid() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-EntryDataList::Pointer EntryDataList::GetValidElem(CCStr file, int32_t line) const
+EntryDataList::Pointer EntryDataList::GetValidElem(const SQChar * file, int32_t line) const
 {
     Validate(file, line);
     // Validate the current element
@@ -975,7 +975,7 @@ SQInteger LookupResult::Typename(HSQUIRRELVM vm)
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void LookupResult::Validate(CCStr file, int32_t line) const
+void LookupResult::Validate(const SQChar * file, int32_t line) const
 {
     if (!m_Handle)
     {
@@ -994,7 +994,7 @@ void LookupResult::Validate() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const DbRef & LookupResult::GetValid(CCStr file, int32_t line) const
+const DbRef & LookupResult::GetValid(const SQChar * file, int32_t line) const
 {
     Validate(file, line);
     return m_Handle;
@@ -1135,7 +1135,7 @@ SQInteger Metadata::Typename(HSQUIRRELVM vm)
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void Metadata::Validate(CCStr file, int32_t line) const
+void Metadata::Validate(const SQChar * file, int32_t line) const
 {
     if (!m_Handle)
     {
@@ -1154,7 +1154,7 @@ void Metadata::Validate() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-Metadata::Pointer Metadata::GetValid(CCStr file, int32_t line) const
+Metadata::Pointer Metadata::GetValid(const SQChar * file, int32_t line) const
 {
     Validate(file, line);
     // Validate the referenced meta-data
@@ -1207,7 +1207,7 @@ SQInteger SearchNode::Typename(HSQUIRRELVM vm)
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void SearchNode::Validate(CCStr file, int32_t line) const
+void SearchNode::Validate(const SQChar * file, int32_t line) const
 {
     if (!m_Handle)
     {
@@ -1226,7 +1226,7 @@ void SearchNode::Validate() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-SearchNode::Reference SearchNode::GetValid(CCStr file, int32_t line)
+SearchNode::Reference SearchNode::GetValid(const SQChar * file, int32_t line)
 {
     Validate(file, line);
     return m_Node;
