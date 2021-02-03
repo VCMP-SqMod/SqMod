@@ -86,7 +86,7 @@ struct ZCtx
             // Just in case
             if (r != 0)
             {
-                LogFtl("Context failed to terminate properly: [{}], {}", r, zmq_strerror(errno));
+                LogFtl("Context failed to terminate properly: [%d], %s", r, zmq_strerror(errno));
             }
         }
     }
@@ -341,7 +341,7 @@ struct ZSkt : SqChainedInstances< ZSkt >
         // Validate result
         if (r != 0)
         {
-            LogErr("Unable to close socket: [{}] {}", r, zmq_strerror(errno));
+            LogErr("Unable to close socket: [%d] {%s}", r, zmq_strerror(errno));
         }
     }
 
@@ -451,7 +451,7 @@ protected:
             // Could we send what the message had?
             if (r >= 0 && static_cast< Buffer::SzType >(r) != data->Size())
             {
-                LogErr("Unable to send data to socket: [{}], {}", r, zmq_strerror(errno));
+                LogErr("Unable to send data to socket: [%d], {%s}", r, zmq_strerror(errno));
                 // NOTE: Should we put the buffer back into the queue?
             }
             // One item was found in the queue
@@ -480,7 +480,7 @@ protected:
                 // Could we send what the message had?
                 if (r >= 0 && static_cast< Buffer::SzType >(r) != (*mp_msg)[i].Size())
                 {
-                    LogErr("Unable to send multi-part data to socket: [{}], {}", r, zmq_strerror(errno));
+                    LogErr("Unable to send multi-part data to socket: [%d], %s", r, zmq_strerror(errno));
                     // NOTE: Should we abort the whole thing? But we probably already sent some.
                 }
             }
