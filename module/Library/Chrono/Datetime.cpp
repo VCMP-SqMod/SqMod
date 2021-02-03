@@ -122,7 +122,7 @@ void Datetime::Set(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint
     // Validate the specified date
     if (!Chrono::ValidDate(year, month, day))
     {
-        STHROWF("Invalid date: %04u%c%02u%c%02u%c%u"
+        STHROWF("Invalid date: {:04}{:c}{:02}{:c}{:02}{:c}{}"
             , m_DateDelim, m_Year
             , m_DateDelim, m_Month
             , m_DateDelim, m_Day
@@ -131,22 +131,22 @@ void Datetime::Set(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint
     // Is the specified hour within range?
     else if (hour >= 24)
     {
-        STHROWF("Hour value is out of range: %u >= 24", hour);
+        STHROWF("Hour value is out of range: {} >= 24", hour);
     }
     // Is the specified minute within range?
     else if (minute >= 60)
     {
-        STHROWF("Minute value is out of range: %u >= 60", minute);
+        STHROWF("Minute value is out of range: {} >= 60", minute);
     }
     // Is the specified second within range?
     else if (second >= 60)
     {
-        STHROWF("Second value is out of range: %u >= 60", second);
+        STHROWF("Second value is out of range: {} >= 60", second);
     }
     // Is the specified millisecond within range?
     else if (millisecond >= 1000)
     {
-        STHROWF("Millisecond value is out of range: %u >= 1000", millisecond);
+        STHROWF("Millisecond value is out of range: {} >= 1000", millisecond);
     }
     // Assign the specified values
     m_Year = year;
@@ -216,7 +216,7 @@ void Datetime::SetYear(uint16_t year)
     // Make sure the year is valid
     if (!year)
     {
-        STHROWF("Invalid year: %u", year);
+        STHROWF("Invalid year: {}", year);
     }
     // Assign the value
     m_Year = year;
@@ -234,7 +234,7 @@ void Datetime::SetMonth(uint8_t month)
     // Make sure the month is valid
     if (month == 0 || month > 12)
     {
-        STHROWF("Invalid month: %u", month);
+        STHROWF("Invalid month: {}", month);
     }
     // Assign the value
     m_Month = month;
@@ -253,11 +253,11 @@ void Datetime::SetDay(uint8_t day)
     // Make sure the day is valid
     if (day == 0)
     {
-        STHROWF("Invalid day: %u", day);
+        STHROWF("Invalid day: {}", day);
     }
     else if (day > dim)
     {
-        STHROWF("Day is out of range: %u > %u", day, dim);
+        STHROWF("Day is out of range: {} > {}", day, dim);
     }
     // Assign the value
     m_Day = day;
@@ -269,7 +269,7 @@ void Datetime::SetHour(uint8_t hour)
     // Is the specified hour within range?
     if (hour >= 24)
     {
-        STHROWF("Hour value is out of range: %u >= 24", hour);
+        STHROWF("Hour value is out of range: {} >= 24", hour);
     }
     // Now it's safe to assign the value
     m_Hour = hour;
@@ -281,7 +281,7 @@ void Datetime::SetMinute(uint8_t minute)
     // Is the specified minute within range?
     if (minute >= 60)
     {
-        STHROWF("Minute value is out of range: %u >= 60", minute);
+        STHROWF("Minute value is out of range: {} >= 60", minute);
     }
     // Now it's safe to assign the value
     m_Minute = minute;
@@ -293,7 +293,7 @@ void Datetime::SetSecond(uint8_t second)
     // Is the specified second within range?
     if (second >= 60)
     {
-        STHROWF("Second value is out of range: %u >= 60", second);
+        STHROWF("Second value is out of range: {} >= 60", second);
     }
     // Now it's safe to assign the value
     m_Second = second;
@@ -305,7 +305,7 @@ void Datetime::SetMillisecond(uint16_t millisecond)
     // Is the specified millisecond within range?
     if (millisecond >= 1000)
     {
-        STHROWF("Millisecond value is out of range: %u >= 1000", millisecond);
+        STHROWF("Millisecond value is out of range: {} >= 1000", millisecond);
     }
     // Now it's safe to assign the value
     m_Millisecond = millisecond;

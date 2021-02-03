@@ -79,7 +79,7 @@ void Date::Set(uint16_t year, uint8_t month, uint8_t day)
 {
     if (!Chrono::ValidDate(year, month, day))
     {
-        STHROWF("Invalid date: %04u%c%02u%c%02u" , m_Year, m_Delimiter, m_Month, m_Delimiter, m_Day);
+        STHROWF("Invalid date: {:04}{:c}{:02}{:c}{:02}" , m_Year, m_Delimiter, m_Month, m_Delimiter, m_Day);
     }
     // Assign the specified values
     m_Year = year;
@@ -133,7 +133,7 @@ void Date::SetYear(uint16_t year)
     // Make sure the year is valid
     if (!year)
     {
-        STHROWF("Invalid year: %u", year);
+        STHROWF("Invalid year: {}", year);
     }
     // Assign the value
     m_Year = year;
@@ -151,7 +151,7 @@ void Date::SetMonth(uint8_t month)
     // Make sure the month is valid
     if (month == 0 || month > 12)
     {
-        STHROWF("Invalid month: %u", month);
+        STHROWF("Invalid month: {}", month);
     }
     // Assign the value
     m_Month = month;
@@ -170,11 +170,11 @@ void Date::SetDay(uint8_t day)
     // Make sure the day is valid
     if (day == 0)
     {
-        STHROWF("Invalid day: %u", day);
+        STHROWF("Invalid day: {}", day);
     }
     else if (day > dim)
     {
-        STHROWF("Day is out of range: %u > %u", day, dim);
+        STHROWF("Day is out of range: {} > {}", day, dim);
     }
     // Assign the value
     m_Day = day;

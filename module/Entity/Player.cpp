@@ -324,11 +324,11 @@ void CPlayer::SetName(StackStrF & name) const
     }
     else if (ret == vcmpErrorInvalidName)
     {
-        STHROWF("The specified name is invalid: %s", name.mPtr);
+        STHROWF("The specified name is invalid: {}", name.mPtr);
     }
     else if (ret == vcmpErrorTooLargeInput)
     {
-        STHROWF("The specified name is too large: %" PRINT_INT_FMT, name.mLen);
+        STHROWF("The specified name is too large: {}", name.mLen);
     }
 }
 
@@ -349,7 +349,7 @@ int32_t CPlayer::GetOption(int32_t option_id) const
     // Check for errors
     if (_Func->GetLastError() == vcmpErrorArgumentOutOfBounds)
     {
-        STHROWF("Invalid option identifier: %d", option_id);
+        STHROWF("Invalid option identifier: {}", option_id);
     }
     // Return the requested value
     return value;
@@ -378,7 +378,7 @@ void CPlayer::SetOptionEx(int32_t option_id, bool toggle, int32_t header, LightO
         static_cast< vcmpPlayerOption >(option_id),
         static_cast< uint8_t >(toggle)) == vcmpErrorArgumentOutOfBounds)
     {
-        STHROWF("Invalid option identifier: %d", option_id);
+        STHROWF("Invalid option identifier: {}", option_id);
     }
     // Avoid infinite recursive event loops
     else if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_OPTION))
@@ -529,7 +529,7 @@ void CPlayer::SetTeam(int32_t team)
     // Avoid property unwind from a recursive call
     else if (_Func->SetPlayerTeam(m_ID, team) == vcmpErrorArgumentOutOfBounds)
     {
-        STHROWF("Invalid team identifier: %d", team);
+        STHROWF("Invalid team identifier: {}", team);
     }
     // Avoid infinite recursive event loops
     else if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_TEAM))
@@ -565,7 +565,7 @@ void CPlayer::SetSkin(int32_t skin)
     // Avoid property unwind from a recursive call
     else if (_Func->SetPlayerSkin(m_ID, skin) == vcmpErrorArgumentOutOfBounds)
     {
-        STHROWF("Invalid skin identifier: %d", skin);
+        STHROWF("Invalid skin identifier: {}", skin);
     }
     // Avoid infinite recursive event loops
     else if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_SKIN))
@@ -1143,7 +1143,7 @@ void CPlayer::SetWeapon(int32_t wep) const
     // Perform the requested operation
     if (_Func->SetPlayerWeapon(m_ID, wep, mDefaultAmmo) == vcmpErrorArgumentOutOfBounds)
     {
-        STHROWF("Invalid weapon identifier: %d", wep);
+        STHROWF("Invalid weapon identifier: {}", wep);
     }
 }
 
@@ -1155,7 +1155,7 @@ void CPlayer::SetWeaponEx(int32_t wep, int32_t ammo) const
     // Perform the requested operation
     if (_Func->SetPlayerWeapon(m_ID, wep, ammo) == vcmpErrorArgumentOutOfBounds)
     {
-        STHROWF("Invalid weapon ammo: %d", ammo);
+        STHROWF("Invalid weapon ammo: {}", ammo);
     }
 }
 
@@ -1167,7 +1167,7 @@ void CPlayer::GiveWeapon(int32_t wep, int32_t ammo) const
     // Perform the requested operation
     if (_Func->GivePlayerWeapon(m_ID, wep, ammo) == vcmpErrorArgumentOutOfBounds)
     {
-        STHROWF("Invalid weapon ammo: %d", ammo);
+        STHROWF("Invalid weapon ammo: {}", ammo);
     }
 }
 
@@ -1197,7 +1197,7 @@ void CPlayer::SetWeaponSlot(int32_t slot) const
     // Perform the requested operation
     if (_Func->SetPlayerWeaponSlot(m_ID, slot) == vcmpErrorArgumentOutOfBounds)
     {
-        STHROWF("Invalid weapon slot: %d", slot);
+        STHROWF("Invalid weapon slot: {}", slot);
     }
 }
 
@@ -1209,7 +1209,7 @@ int32_t CPlayer::GetWeaponAtSlot(int32_t slot) const
     // Check for errors
     if (_Func->GetLastError() == vcmpErrorArgumentOutOfBounds)
     {
-        STHROWF("Invalid weapon slot: %d", slot);
+        STHROWF("Invalid weapon slot: {}", slot);
     }
     // Return the requested information
     return id;
@@ -1223,7 +1223,7 @@ int32_t CPlayer::GetAmmoAtSlot(int32_t slot) const
     // Check for errors
     if (_Func->GetLastError() == vcmpErrorArgumentOutOfBounds)
     {
-        STHROWF("Invalid weapon slot: %d", slot);
+        STHROWF("Invalid weapon slot: {}", slot);
     }
     // Return the requested information
     return ammo;
@@ -1460,7 +1460,7 @@ void CPlayer::Redirect(StackStrF & ip, uint32_t port, StackStrF & nick,
     if (_Func->RedirectPlayerToServer(m_ID, ip.mPtr, port,
                                         nick.mPtr, server_pass.mPtr, user_pass.mPtr) == vcmpErrorNullArgument)
     {
-        STHROWF("Invalid arguments encountered: `%s:%u` `%s` `%s` %s",
+        STHROWF("Invalid arguments encountered: `{}:{}` `{}` `{}` {}",
                 ip.mPtr, port, nick.mPtr, server_pass.mPtr, user_pass.mPtr);
     }
 }
@@ -1666,7 +1666,7 @@ const String & CPlayer::GetMessagePrefix(uint32_t index) const
     // Perform a range check on the specified prefix index
     if (index >= SQMOD_PLAYER_MSG_PREFIXES)
     {
-        STHROWF("Prefix index is out of range: %u >= %d", index, SQMOD_PLAYER_MSG_PREFIXES);
+        STHROWF("Prefix index is out of range: {} >= {}", index, SQMOD_PLAYER_MSG_PREFIXES);
     }
     // Validate the managed identifier
     Validate();
@@ -1680,7 +1680,7 @@ void CPlayer::SetMessagePrefix(uint32_t index, StackStrF & prefix)
     // Perform a range check on the specified prefix index
     if (index >= SQMOD_PLAYER_MSG_PREFIXES)
     {
-        STHROWF("Prefix index is out of range: %u >= %d", index, SQMOD_PLAYER_MSG_PREFIXES);
+        STHROWF("Prefix index is out of range: {} >= {}", index, SQMOD_PLAYER_MSG_PREFIXES);
     }
     // Validate the managed identifier
     Validate();
@@ -1942,7 +1942,7 @@ void CPlayer::FlushStream(bool reset)
     // Check for errors
     if (result == vcmpErrorTooLargeInput)
     {
-        STHROWF("Stream buffer is too big: %u", m_Buffer.Position());
+        STHROWF("Stream buffer is too big: {}", m_Buffer.Position());
     }
 }
 
@@ -1970,7 +1970,7 @@ void CPlayer::SendBuffer(const SqBuffer & buffer) const
     // Check for errors
     if (result == vcmpErrorTooLargeInput)
     {
-        STHROWF("Stream buffer is too big: %u", buffer.GetRef()->Position());
+        STHROWF("Stream buffer is too big: {}", buffer.GetRef()->Position());
     }
 }
 

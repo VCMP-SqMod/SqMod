@@ -1115,7 +1115,7 @@ SQFloat SqIToF(int64_t sigv, int64_t expv, int32_t padn, bool negf)
     // Is the number of pad characters out of range?
     if (static_cast< uint32_t >(padn) >= sizeof(padb))
     {
-        STHROWF("Pad characters out of range: %d >= %d", padn, sizeof(padb));
+        STHROWF("Pad characters out of range: {} >= {}", padn, sizeof(padb));
     }
     // Write the padding characters
     std::memset(padb, '0', padn);

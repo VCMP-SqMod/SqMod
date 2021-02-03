@@ -104,7 +104,7 @@ public:
     {
         if (INVALID_ENTITY(m_ID))
         {
-            STHROWF("Invalid object reference [%s]", m_Tag.c_str());
+            STHROWF("Invalid object reference [{}]", m_Tag);
         }
     }
 

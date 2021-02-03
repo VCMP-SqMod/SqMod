@@ -88,7 +88,7 @@ public:
     {
         if (INVALID_ENTITY(m_ID))
         {
-            STHROWF("Invalid pickup reference [%s]", m_Tag.c_str());
+            STHROWF("Invalid pickup reference [{}]", m_Tag);
         }
     }
 

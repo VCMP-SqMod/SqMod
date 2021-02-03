@@ -145,7 +145,7 @@ bool GetEntryAsBool(const MMDB_entry_data_s & ed)
             value = ConvTo< bool >::From(ed.float_value);
         } break;
         default:
-            STHROWF("Unsupported conversion from (%s) to (boolean)", AsTypeStr(ed.type));
+            STHROWF("Unsupported conversion from ({}) to (boolean)", AsTypeStr(ed.type));
     }
     // Return the extracted value
     return value;
@@ -199,7 +199,7 @@ SQInteger GetEntryAsInteger(const MMDB_entry_data_s & ed)
             value = ConvTo< SQInteger >::From(ed.float_value);
         } break;
         default:
-            STHROWF("Unsupported conversion from (%s) to (integer)", AsTypeStr(ed.type));
+            STHROWF("Unsupported conversion from ({}) to (integer)", AsTypeStr(ed.type));
     }
     // Return the extracted value
     return value;
@@ -258,7 +258,7 @@ SQFloat GetEntryAsFloat(const MMDB_entry_data_s & ed)
             value = ConvTo< SQFloat >::From(ed.float_value);
         } break;
         default:
-            STHROWF("Unsupported conversion from (%s) to (float)", AsTypeStr(ed.type));
+            STHROWF("Unsupported conversion from ({}) to (float)", AsTypeStr(ed.type));
     }
     // Return the extracted value
     return value;
@@ -312,7 +312,7 @@ LightObj GetEntryAsLong(const MMDB_entry_data_s & ed)
             value = ConvTo< uint64_t >::From(ed.float_value);
         } break;
         default:
-            STHROWF("Unsupported conversion from (%s) to (long)", AsTypeStr(ed.type));
+            STHROWF("Unsupported conversion from ({}) to (long)", AsTypeStr(ed.type));
     }
     // Return a long integer instance with the requested value
     return LightObj(SqTypeIdentity< ULongInt >{}, SqVM(), value);
@@ -366,7 +366,7 @@ LightObj GetEntryAsString(const MMDB_entry_data_s & ed)
             sq_pushstring(vm, fmt::format("{}", ed.float_value).c_str(), -1);
         } break;
         default:
-            STHROWF("Unsupported conversion from (%s) to (string)", AsTypeStr(ed.type));
+            STHROWF("Unsupported conversion from ({}) to (string)", AsTypeStr(ed.type));
     }
     // Obtain the object from the stack and return it
     return LightObj(-1);
@@ -424,7 +424,7 @@ LightObj GetEntryAsBytes(const MMDB_entry_data_s & ed)
                                  sizeof(ed.float_value), 0);
         }
         default:
-            STHROWF("Unsupported conversion from (%s) to (buffer)", AsTypeStr(ed.type));
+            STHROWF("Unsupported conversion from ({}) to (buffer)", AsTypeStr(ed.type));
     }
     // Return a null object (shouldn't reach here)
     return LightObj{};
@@ -444,7 +444,7 @@ void SockAddr::Validate(CCStr file, int32_t line) const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid sockaddr structure handle =>[%s:%d]", file, line);
+        SqThrowF("Invalid sockaddr structure handle =>[{}:{}]", file, line);
     }
 }
 #else
@@ -494,9 +494,9 @@ SockAddr::SockAddr(const SQChar * addr)
         }
         // Now it's safe to throw the error
 #if defined(UNICODE) || defined(_UNICODE)
-        STHROWF("Unable to query the specified address for information [%s]", gai_strerrorA(status));
+        STHROWF("Unable to query the specified address for information [{}]", gai_strerrorA(status));
 #else
-        STHROWF("Unable to query the specified address for information [%s]", gai_strerror(status));
+        STHROWF("Unable to query the specified address for information [{}]", gai_strerror(status));
 #endif
     }
     // Save the specified string address
@@ -526,7 +526,7 @@ DbHnd::DbHnd(const SQChar * filepath, uint32_t flags)
     // Validate the result of the operation
     if (status != MMDB_SUCCESS)
     {
-        STHROWF("Unable to open the specified database [%s]", MMDB_strerror(status));
+        STHROWF("Unable to open the specified database [{}]", MMDB_strerror(status));
     }
 }
 
@@ -551,7 +551,7 @@ void Database::Validate(CCStr file, int32_t line) const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid Maxmind database reference =>[%s:%d]", file, line);
+        SqThrowF("Invalid Maxmind database reference =>[{}:{}]", file, line);
     }
 }
 #else
@@ -594,7 +594,7 @@ LightObj Database::GetMetadataAsEntryDataList() const
     // Validate the status code
     if (status != MMDB_SUCCESS)
     {
-        STHROWF("Unable to get meta-data entry data list [%s]", MMDB_strerror(status));
+        STHROWF("Unable to get meta-data entry data list [{}]", MMDB_strerror(status));
     }
     // Return the resulted list
     return LightObj(SqTypeIdentity< EntryDataList >{}, SqVM(), m_Handle, entry_data_list);
@@ -618,15 +618,15 @@ LookupResult Database::LookupString(const SQChar * addr)
     if (gai_error != 0)
     {
 #if defined(UNICODE) || defined(_UNICODE)
-        STHROWF("Unable to resolve address (%s) because [%s]", addr, gai_strerrorA(gai_error));
+        STHROWF("Unable to resolve address ({}) because [{}]", addr, gai_strerrorA(gai_error));
 #else
-        STHROWF("Unable to resolve address (%s) because [%s]", addr, gai_strerror(gai_error));
+        STHROWF("Unable to resolve address ({}) because [{}]", addr, gai_strerror(gai_error));
 #endif
     }
     // Validate the lookup status code
     else if (mmdb_error != MMDB_SUCCESS)
     {
-        STHROWF("Unable to lookup address (%s) because [%s]", addr, MMDB_strerror(mmdb_error));
+        STHROWF("Unable to lookup address ({}) because [{}]", addr, MMDB_strerror(mmdb_error));
     }
     // Now it's safe to return the lookup result
     return LookupResult(m_Handle, result);
@@ -649,7 +649,7 @@ LookupResult Database::LookupSockAddr(SockAddr & addr)
     // Validate the lookup status code
     if (mmdb_error != MMDB_SUCCESS)
     {
-        STHROWF("Unable to lookup address (%s) because [%s]", addr.GetAddress(), MMDB_strerror(mmdb_error));
+        STHROWF("Unable to lookup address ({}) because [{}]", addr.GetAddress(), MMDB_strerror(mmdb_error));
     }
     // Now it's safe to return the lookup result
     return LookupResult(m_Handle, result);
@@ -667,7 +667,7 @@ SearchNode Database::ReadNode(uint32_t node) const
     // Validate the status code
     if (status != MMDB_SUCCESS)
     {
-        STHROWF("Unable to get node [%s]", MMDB_strerror(status));
+        STHROWF("Unable to get node [{}]", MMDB_strerror(status));
     }
     // Return the resulted list
     return SearchNode(m_Handle, search_node);
@@ -687,7 +687,7 @@ void Description::Validate(CCStr file, int32_t line) const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid Maxmind database reference =>[%s:%d]", file, line);
+        SqThrowF("Invalid Maxmind database reference =>[{}:{}]", file, line);
     }
 }
 #else
@@ -708,7 +708,7 @@ Description::Pointer Description::GetValid(CCStr file, int32_t line) const
     // Validate the referenced description
     if (!m_Description)
     {
-        SqThrowF("Invalid Maxmind meta-data description reference =>[%s:%d]", file, line);
+        SqThrowF("Invalid Maxmind meta-data description reference =>[{}:{}]", file, line);
     }
     // Return the description pointer
     return m_Description;
@@ -747,7 +747,7 @@ void EntryData::Validate(CCStr file, int32_t line) const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid Maxmind database reference =>[%s:%d]", file, line);
+        SqThrowF("Invalid Maxmind database reference =>[{}:{}]", file, line);
     }
 }
 #else
@@ -768,7 +768,7 @@ EntryData::ConstRef EntryData::GetValid(CCStr file, int32_t line) const
     // See if the entry has any data
     if (!m_Entry.has_data)
     {
-        SqThrowF("The referenced entry has no data =>[%s:%d]", file, line);
+        SqThrowF("The referenced entry has no data =>[{}:{}]", file, line);
     }
     // Return the entry
     return m_Entry;
@@ -821,7 +821,7 @@ void EntryDataList::Validate(CCStr file, int32_t line) const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid Maxmind database reference =>[%s:%d]", file, line);
+        SqThrowF("Invalid Maxmind database reference =>[{}:{}]", file, line);
     }
 }
 #else
@@ -842,7 +842,7 @@ EntryDataList::Pointer EntryDataList::GetValid(CCStr file, int32_t line) const
     // Validate the managed list
     if (!m_List)
     {
-        SqThrowF("Invalid Maxmind entry data list reference =>[%s:%d]", file, line);
+        SqThrowF("Invalid Maxmind entry data list reference =>[{}:{}]", file, line);
     }
     // return the list
     return m_List;
@@ -869,7 +869,7 @@ EntryDataList::Pointer EntryDataList::GetValidElem(CCStr file, int32_t line) con
     // Validate the current element
     if (!m_List)
     {
-        SqThrowF("Invalid Maxmind entry data element reference =>[%s:%d]", file, line);
+        SqThrowF("Invalid Maxmind entry data element reference =>[{}:{}]", file, line);
     }
     // return the element
     return m_Elem;
@@ -952,7 +952,7 @@ void EntryDataList::DumpTo(const SQChar * filepath, int32_t indent) const
     // Validate the file handle
     if (!fp)
     {
-        STHROWF("Unable to open file %s", filepath);
+        STHROWF("Unable to open file {}", filepath);
     }
     // Attempt to dump the entry data list
     int32_t status = MMDB_dump_entry_data_list(fp, ptr, indent);
@@ -961,7 +961,7 @@ void EntryDataList::DumpTo(const SQChar * filepath, int32_t indent) const
     // Validate the result of the operation
     if (status != MMDB_SUCCESS)
     {
-        STHROWF("Unable to dump the list [%s]", MMDB_strerror(status));
+        STHROWF("Unable to dump the list [{}]", MMDB_strerror(status));
     }
 }
 
@@ -979,7 +979,7 @@ void LookupResult::Validate(CCStr file, int32_t line) const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid Maxmind database reference =>[%s:%d]", file, line);
+        SqThrowF("Invalid Maxmind database reference =>[{}:{}]", file, line);
     }
 }
 #else
@@ -1042,7 +1042,7 @@ Object LookupResult::GetEntryDataList()
     // Validate the status code
     if (status != MMDB_SUCCESS)
     {
-        STHROWF("Unable to get entry data list [%s]", MMDB_strerror(status));
+        STHROWF("Unable to get entry data list [{}]", MMDB_strerror(status));
     }
     // Return the resulted list
     return Object(new EntryDataList(m_Handle, entry_data_list));
@@ -1139,7 +1139,7 @@ void Metadata::Validate(CCStr file, int32_t line) const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid Maxmind database reference =>[%s:%d]", file, line);
+        SqThrowF("Invalid Maxmind database reference =>[{}:{}]", file, line);
     }
 }
 #else
@@ -1160,7 +1160,7 @@ Metadata::Pointer Metadata::GetValid(CCStr file, int32_t line) const
     // Validate the referenced meta-data
     if (!m_Metadata)
     {
-        SqThrowF("Invalid Maxmind meta-data reference =>[%s:%d]", file, line);
+        SqThrowF("Invalid Maxmind meta-data reference =>[{}:{}]", file, line);
     }
     // Return the meta-data pointer
     return m_Metadata;
@@ -1191,7 +1191,7 @@ Description Metadata::GetDescriptionHandle(uint32_t idx) const
     // Validate the specified index
     if (idx > SQMOD_GET_VALID(*this)->description.count)
     {
-        STHROWF("The specified description index is out of range: %u > %u", idx, m_Metadata->description.count);
+        STHROWF("The specified description index is out of range: {} > {}", idx, m_Metadata->description.count);
     }
     // Return the requested description
     return Description(m_Handle, m_Metadata->description.descriptions[idx]);
@@ -1211,7 +1211,7 @@ void SearchNode::Validate(CCStr file, int32_t line) const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid Maxmind database reference =>[%s:%d]", file, line);
+        SqThrowF("Invalid Maxmind database reference =>[{}:{}]", file, line);
     }
 }
 #else
@@ -1269,7 +1269,7 @@ Object SearchNode::GetLeftRecordEntryDataList()
     // Validate the status code
     if (status != MMDB_SUCCESS)
     {
-        STHROWF("Unable to get entry data list [%s]", MMDB_strerror(status));
+        STHROWF("Unable to get entry data list [{}]", MMDB_strerror(status));
     }
     // Return the resulted list
     return Object(new EntryDataList(m_Handle, entry_data_list));
@@ -1285,7 +1285,7 @@ Object SearchNode::GetRightRecordEntryDataList()
     // Validate the status code
     if (status != MMDB_SUCCESS)
     {
-        STHROWF("Unable to get entry data list [%s]", MMDB_strerror(status));
+        STHROWF("Unable to get entry data list [{}]", MMDB_strerror(status));
     }
     // Return the resulted list
     return Object(new EntryDataList(m_Handle, entry_data_list));

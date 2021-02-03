@@ -161,7 +161,7 @@ uint8_t Chrono::DaysInMonth(uint16_t year, uint8_t month)
     // Is the specified month within range?
     if (month > 12)
     {
-        STHROWF("Month value is out of range: %u > 12", month);
+        STHROWF("Month value is out of range: {} > 12", month);
     }
     // Obtain the days in this month
     uint8_t days = *(MonthLengths + month);

@@ -459,7 +459,7 @@ const Tasks::Task & Tasks::FindByTag(int32_t id, int32_t type, StackStrF & tag)
         }
     }
     // Unable to find such task
-    STHROWF("Unable to find a task with tag (%s)", tag.mPtr);
+    STHROWF("Unable to find a task with tag ({})", tag.mPtr);
     // Should not reach this point but if it did, we have to return something
     SQ_UNREACHABLE
 }

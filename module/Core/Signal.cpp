@@ -1621,7 +1621,7 @@ const LightObj & Signal::Fetch(StackStrF & name)
         }
     }
     // No such signal exists
-    STHROWF("Unknown signal named (%s)", sname.c_str());
+    STHROWF("Unknown signal named ({})", sname);
     // SHOULD NOT REACH THIS POINT!
     static LightObj slo;
     return slo;

@@ -133,7 +133,7 @@ void SqThrowLastF(const SQChar * msg, ...)
     if(error_num == 0)
     {
         // Invoker is responsible for making sure this doesn't happen!
-        SqThrowF("%s [Unknown error]", b.Data());
+        SqThrowF("{} [Unknown error]", b.Data());
     }
     // The resulted message buffer
     LPSTR msg_buff = nullptr;
@@ -147,9 +147,9 @@ void SqThrowLastF(const SQChar * msg, ...)
     //Free the message buffer
     LocalFree(msg_buff);
     // Now it's safe to throw the error
-    SqThrowF("%s [%s]", b.Data(), message.c_str());
+    SqThrowF("{} [{}]", b.Data(), message);
 #else
-    SqThrowF("%s [%s]", b.Data(), std::strerror(errno));
+    SqThrowF("{} [{}]", b.Data(), std::strerror(errno));
 #endif // SQMOD_OS_WINDOWS
 }
 
@@ -266,7 +266,7 @@ LightObj BufferToStrObj(const Buffer & b, uint32_t size)
     // Perform a range check on the specified buffer
     if (size > b.Capacity())
     {
-        STHROWF("The specified buffer size is out of range: %u >= %u", size, b.Capacity());
+        STHROWF("The specified buffer size is out of range: {} >= {}", size, b.Capacity());
     }
     // Obtain the initial stack size
     const StackGuard sg(SqVM());

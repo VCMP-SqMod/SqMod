@@ -328,7 +328,7 @@ public:
             }
         }
         // Unable to find such routine
-        STHROWF("Unable to find a routine with tag (%s)", tag.mPtr);
+        STHROWF("Unable to find a routine with tag ({})", tag.mPtr);
         // Should not reach this point but if it did, we have to return something
 #ifdef __clang__
 	#pragma clang diagnostic push
@@ -470,7 +470,7 @@ public:
         // Validate the specified
         if (!sq_isclosure(func.GetFunc()) && !sq_isnativeclosure(func.GetFunc()))
         {
-            STHROWF("Invalid callback type %s", SqTypeName(GetValid().mFunc.GetType()));
+            STHROWF("Invalid callback type {}", SqTypeName(GetValid().mFunc.GetType()));
         }
         // Store the function without the environment
         GetValid().mFunc = LightObj(func.GetFunc());
@@ -644,7 +644,7 @@ public:
         // Validate the specified index
         if (idx >= 14)
         {
-            STHROWF("The specified index is out of range: %u >= %u", idx, 14);
+            STHROWF("The specified index is out of range: {} >= {}", idx, 14);
         }
         // Return the requested argument
         return GetValid().mArgv[idx];

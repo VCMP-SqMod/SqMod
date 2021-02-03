@@ -94,7 +94,7 @@ String GetAutomobileName(uint32_t id)
     }
     else
     {
-        STHROWF("Vehicle identifier breaks these demands (%u > 129 and %u < 237) or (%u > 6399 and %u < 6500)", id, id, id, id);
+        STHROWF("Vehicle identifier breaks these demands ({} > 129 and {} < 237) or ({} > 6399 and {} < 6500)", id, id, id, id);
     }
     // Should never reach this point
     return NullString();
@@ -113,7 +113,7 @@ void SetAutomobileName(uint32_t id, StackStrF & name)
     }
     else
     {
-        STHROWF("Vehicle identifier breaks these demands (%u > 129 and %u < 237) or (%u > 6399 and %u < 6500)", id, id, id, id);
+        STHROWF("Vehicle identifier breaks these demands ({} > 129 and {} < 237) or ({} > 6399 and {} < 6500)", id, id, id, id);
     }
 }
 

@@ -146,7 +146,7 @@ Table GetPluginInfo(int32_t plugin_id)
     // Attempt to update the plug-in info structure
     if (_Func->GetPluginInfo(plugin_id, &g_PluginInfo) == vcmpErrorNoSuchEntity)
     {
-        STHROWF("Unknown plug-in identifier: %d", plugin_id);
+        STHROWF("Unknown plug-in identifier: {}", plugin_id);
     }
     // Allocate a script table
     Table tbl;
@@ -260,7 +260,7 @@ const SQChar * GetServerName()
     // Populate the buffer
     //if (_Func->GetServerName(g_SvNameBuff, SQMOD_SVNAMELENGTH) == vcmpErrorBufferTooSmall)
     //{
-    //    STHROWF("Server name was too big for the available buffer: %u", sizeof(g_SvNameBuff));
+    //    STHROWF("Server name was too big for the available buffer: {}", sizeof(g_SvNameBuff));
     //}
 
 	// TEMPORARY WROKAROUND
@@ -287,7 +287,7 @@ const SQChar * GetServerPassword()
     // Populate the buffer
     //if (_Func->GetServerPassword(g_PasswdBuff, SQMOD_PASSWDLENGTH) == vcmpErrorBufferTooSmall)
     //{
-    //    STHROWF("Server password was too big for the available buffer: %u", sizeof(g_PasswdBuff));
+    //    STHROWF("Server password was too big for the available buffer: {}", sizeof(g_PasswdBuff));
     //}
 
 	// TEMPORARY WROKAROUND
@@ -314,7 +314,7 @@ const SQChar * GetGameModeText()
     // Populate the buffer
     //if (_Func->GetGameModeText(g_GmNameBuff, SQMOD_GMNAMELENGTH) == vcmpErrorBufferTooSmall)
     //{
-    //    STHROWF("Game-mode text was too big for the available buffer: %u", sizeof(g_GmNameBuff));
+    //    STHROWF("Game-mode text was too big for the available buffer: {}", sizeof(g_GmNameBuff));
     //}
 
 	// TEMPORARY WROKAROUND
@@ -369,7 +369,7 @@ bool GetServerOption(int32_t option_id)
     // Check for errors
     if (_Func->GetLastError() == vcmpErrorArgumentOutOfBounds)
     {
-        STHROWF("Unknown option identifier: %d", option_id);
+        STHROWF("Unknown option identifier: {}", option_id);
     }
     // Return the obtained value
     return value;
@@ -381,7 +381,7 @@ void SetServerOption(int32_t option_id, bool toggle)
     if (_Func->SetServerOption(static_cast< vcmpServerOption >(option_id),
                                static_cast< uint8_t >(toggle)) == vcmpErrorArgumentOutOfBounds)
     {
-        STHROWF("Unknown option identifier: %d", option_id);
+        STHROWF("Unknown option identifier: {}", option_id);
     }
     else
     {
@@ -395,7 +395,7 @@ void SetServerOptionEx(int32_t option_id, bool toggle, int32_t header, LightObj 
     if (_Func->SetServerOption(static_cast< vcmpServerOption >(option_id),
                                static_cast< uint8_t >(toggle)) == vcmpErrorArgumentOutOfBounds)
     {
-        STHROWF("Unknown option identifier: %d", option_id);
+        STHROWF("Unknown option identifier: {}", option_id);
     }
     else
     {

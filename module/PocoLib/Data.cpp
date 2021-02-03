@@ -149,7 +149,7 @@ void SqDataStatement::UseEx(LightObj & obj, const std::string & name, Poco::Data
         case OT_BOOL:
         case OT_STRING: STHROWF("Use Bind(...) for non-reference types."); break;
         case OT_INSTANCE: UseInst_(obj, name, dir); break;
-        default: STHROWF("Can't use (%s) values", SqTypeName(obj.GetType())); break;
+        default: STHROWF("Can't use ({}) values", SqTypeName(obj.GetType())); break;
     }
 }
 
@@ -200,7 +200,7 @@ void SqDataStatement::UseInst_(LightObj & obj, const std::string & name, Poco::D
         Var< LightObj >::push(SqVM(), obj);
         String type_name = SqTypeName(SqVM(), -1);
         sq_poptop(SqVM());
-        STHROWF("Can't use (%s) values", type_name.c_str());
+        STHROWF("Can't use {}) values", type_name);
     }
 }
 
@@ -239,7 +239,7 @@ void SqDataStatement::BindEx(LightObj & obj, const std::string & name, Poco::Dat
         } break;
         // Special?
         case OT_INSTANCE: BindInst_(obj, name, dir); break;
-        default: STHROWF("Can't bind (%s) values", SqTypeName(obj.GetType())); break;
+        default: STHROWF("Can't bind ({}) values", SqTypeName(obj.GetType())); break;
     }
 }
 
@@ -287,7 +287,7 @@ void SqDataStatement::BindInst_(LightObj & obj, const std::string & name, Poco::
         Var< LightObj >::push(SqVM(), obj);
         String type_name = SqTypeName(SqVM(), -1);
         sq_poptop(SqVM());
-        STHROWF("Can't bind (%s) values", type_name.c_str());
+        STHROWF("Can't bind ({}) values", type_name);
     }
 }
 
@@ -335,7 +335,7 @@ SqDataStatement & SqDataStatement::Into(LightObj & obj)
         Var< LightObj >::push(SqVM(), obj);
         String type_name = SqTypeName(SqVM(), -1);
         sq_poptop(SqVM());
-        STHROWF("Can't extract (%s) values", type_name.c_str());
+        STHROWF("Can't extract ({}) values", type_name);
     }
     return *this;
 }
@@ -384,7 +384,7 @@ SqDataStatement & SqDataStatement::Into_(LightObj & obj, LightObj & def)
         Var< LightObj >::push(SqVM(), obj);
         String type_name = SqTypeName(SqVM(), -1);
         sq_poptop(SqVM());
-        STHROWF("Can't extract (%s) values", type_name.c_str());
+        STHROWF("Can't extract ({}) values", type_name);
     }
     return *this;
 }

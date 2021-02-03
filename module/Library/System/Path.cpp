@@ -376,7 +376,7 @@ SysPath & SysPath::Assign(const Buffer & path, int32_t size)
     }
     else
     {
-        STHROWF("The specified path size is out of range: %u >= %u", size, path.Capacity());
+        STHROWF("The specified path size is out of range: {} >= {}", size, path.Capacity());
     }
     // Allow chaining
     return *this;
@@ -445,7 +445,7 @@ SysPath & SysPath::Assign(const Buffer & path, Style style, int32_t size)
     }
     else
     {
-        STHROWF("The specified path size is out of range: %u >= %u", size, path.Capacity());
+        STHROWF("The specified path size is out of range: {} >= {}", size, path.Capacity());
     }
     // Allow chaining
     return *this;

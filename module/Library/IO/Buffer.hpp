@@ -481,7 +481,7 @@ public:
         }
         catch (const std::exception & e)
         {
-            STHROWF("%s", e.what()); // Re-package
+            STHROWF("{}", e.what()); // Re-package
         }
     }
 

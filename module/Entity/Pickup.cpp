@@ -134,7 +134,7 @@ bool CPickup::GetOption(int32_t option_id) const
     // Check for errors
     if (_Func->GetLastError() == vcmpErrorArgumentOutOfBounds)
     {
-        STHROWF("Invalid option identifier: %d", option_id);
+        STHROWF("Invalid option identifier: {}", option_id);
     }
     // Return the requested value
     return value;
@@ -149,7 +149,7 @@ void CPickup::SetOption(int32_t option_id, bool toggle)
     if (_Func->SetPickupOption(m_ID, static_cast< vcmpPickupOption >(option_id),
                                static_cast< uint8_t >(toggle)) == vcmpErrorArgumentOutOfBounds)
     {
-        STHROWF("Invalid option identifier: %d", option_id);
+        STHROWF("Invalid option identifier: {}", option_id);
     }
     else if (!(m_CircularLocks & PICKUPCL_EMIT_PICKUP_OPTION))
     {
@@ -169,7 +169,7 @@ void CPickup::SetOptionEx(int32_t option_id, bool toggle, int32_t header, LightO
     if (_Func->SetPickupOption(m_ID, static_cast< vcmpPickupOption >(option_id),
                                static_cast< uint8_t >(toggle)) == vcmpErrorArgumentOutOfBounds)
     {
-        STHROWF("Invalid option identifier: %d", option_id);
+        STHROWF("Invalid option identifier: {}", option_id);
     }
     else if (!(m_CircularLocks & PICKUPCL_EMIT_PICKUP_OPTION))
     {

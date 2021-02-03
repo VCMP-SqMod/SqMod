@@ -27,7 +27,7 @@ public:
     {
         if (!mFile)
         {
-            STHROWF("Unable to open script source (%s)", path);
+            STHROWF("Unable to open script source ({})", path);
         }
     }
 

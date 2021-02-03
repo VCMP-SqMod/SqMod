@@ -116,7 +116,7 @@ static const LightObj & Blip_FindBySprID(int32_t spr_id)
     // Perform a range check on the specified identifier
     if (spr_id < 0)
     {
-        STHROWF("The specified sprite identifier is invalid: %d", spr_id);
+        STHROWF("The specified sprite identifier is invalid: {}", spr_id);
     }
     // Obtain the ends of the entity pool
     auto itr = Core::Get().GetBlips().cbegin();

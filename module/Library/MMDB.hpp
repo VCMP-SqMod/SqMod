@@ -1467,7 +1467,7 @@ public:
         // Validate the specified index
         if (idx > SQMOD_GET_VALID(*this)->languages.count)
         {
-            STHROWF("The specified language index is out of range: %u > %u", idx, m_Metadata->languages.count);
+            STHROWF("The specified language index is out of range: {} > {}", idx, m_Metadata->languages.count);
         }
         // Return the requested name
         return m_Metadata->languages.names[idx];
@@ -1518,7 +1518,7 @@ public:
         // Validate the specified index
         if (idx > SQMOD_GET_VALID(*this)->description.count)
         {
-            STHROWF("The specified description index is out of range: %u > %u", idx, m_Metadata->description.count);
+            STHROWF("The specified description index is out of range: {} > {}", idx, m_Metadata->description.count);
         }
         // Return the requested description value
         return m_Metadata->description.descriptions[idx]->description;
@@ -1532,7 +1532,7 @@ public:
         // Validate the specified index
         if (idx > SQMOD_GET_VALID(*this)->description.count)
         {
-            STHROWF("The specified description index is out of range: %u > %u", idx, m_Metadata->description.count);
+            STHROWF("The specified description index is out of range: {} > {}", idx, m_Metadata->description.count);
         }
         // Return the requested description language
         return m_Metadata->description.descriptions[idx]->language;

@@ -354,7 +354,7 @@ void Logger::BindCb(uint8_t level, Function & func)
     // Is the log level valid?
     if (idx > 6)
     {
-        STHROWF("Out of range log level index: %d > 4", int(idx));
+        STHROWF("Out of range log level index: {} > 4", int(idx));
     }
     // Obtain the function instance called for this log level
     Function & cb = m_LogCb[idx];

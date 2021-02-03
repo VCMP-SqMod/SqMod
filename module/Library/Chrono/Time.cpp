@@ -93,22 +93,22 @@ void Time::Set(uint8_t hour, uint8_t minute, uint8_t second, uint16_t millisecon
     // Is the specified hour within range?
     if (hour >= 24)
     {
-        STHROWF("Hour value is out of range: %u >= 24", hour);
+        STHROWF("Hour value is out of range: {} >= 24", hour);
     }
     // Is the specified minute within range?
     else if (minute >= 60)
     {
-        STHROWF("Minute value is out of range: %u >= 60", minute);
+        STHROWF("Minute value is out of range: {} >= 60", minute);
     }
     // Is the specified second within range?
     else if (second >= 60)
     {
-        STHROWF("Second value is out of range: %u >= 60", second);
+        STHROWF("Second value is out of range: {} >= 60", second);
     }
     // Is the specified millisecond within range?
     else if (millisecond >= 1000)
     {
-        STHROWF("Millisecond value is out of range: %u >= 1000", millisecond);
+        STHROWF("Millisecond value is out of range: {} >= 1000", millisecond);
     }
     // Now it's safe to assign the values
     m_Hour = hour;
@@ -155,7 +155,7 @@ void Time::SetHour(uint8_t hour)
     // Is the specified hour within range?
     if (hour >= 24)
     {
-        STHROWF("Hour value is out of range: %u >= 24", hour);
+        STHROWF("Hour value is out of range: {} >= 24", hour);
     }
     // Now it's safe to assign the value
     m_Hour = hour;
@@ -167,7 +167,7 @@ void Time::SetMinute(uint8_t minute)
     // Is the specified minute within range?
     if (minute >= 60)
     {
-        STHROWF("Minute value is out of range: %u >= 60", minute);
+        STHROWF("Minute value is out of range: {} >= 60", minute);
     }
     // Now it's safe to assign the value
     m_Minute = minute;
@@ -179,7 +179,7 @@ void Time::SetSecond(uint8_t second)
     // Is the specified second within range?
     if (second >= 60)
     {
-        STHROWF("Second value is out of range: %u >= 60", second);
+        STHROWF("Second value is out of range: {} >= 60", second);
     }
     // Now it's safe to assign the value
     m_Second = second;
@@ -191,7 +191,7 @@ void Time::SetMillisecond(uint16_t millisecond)
     // Is the specified millisecond within range?
     if (millisecond >= 1000)
     {
-        STHROWF("Millisecond value is out of range: %u >= 1000", millisecond);
+        STHROWF("Millisecond value is out of range: {} >= 1000", millisecond);
     }
     // Now it's safe to assign the value
     m_Millisecond = millisecond;

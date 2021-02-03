@@ -1384,14 +1384,14 @@ void Core::EmitEntityPool(vcmpEntityPool entity_type, int32_t entity_id, bool is
                 // Make sure that the specified entity identifier is valid
                 if (INVALID_ENTITYEX(entity_id, SQMOD_BLIP_POOL))
                 {
-                    STHROWF("Cannot allocate blip with invalid identifier: %d", entity_id);
+                    STHROWF("Cannot allocate blip with invalid identifier: {}", entity_id);
                 }
                 // Retrieve the specified entity instance
                 BlipInst & inst = m_Blips[entity_id];
                 // Make sure that the instance isn't already allocated
                 if (VALID_ENTITY(inst.mID))
                 {
-                    STHROWF("Cannot allocate blip that already exists: %d", entity_id);
+                    STHROWF("Cannot allocate blip that already exists: {}", entity_id);
                 }
                 // Information about the blip entity
                 int32_t world, scale, sprid;
@@ -1436,7 +1436,7 @@ void Core::EmitPlayerUpdate(int32_t player_id, vcmpPlayerUpdate update_type)
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(player_id, SQMOD_PLAYER_POOL))
     {
-        STHROWF("Cannot update player with invalid identifier: %d", player_id);
+        STHROWF("Cannot update player with invalid identifier: {}", player_id);
     }
     // Retrieve the associated tracking instance
     PlayerInst & inst = m_Players[player_id];
@@ -1631,7 +1631,7 @@ void Core::EmitEntityStreaming(int32_t player_id, int32_t entity_id, vcmpEntityP
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(player_id, SQMOD_PLAYER_POOL))
     {
-        STHROWF("Cannot notify player with invalid identifier about streaming: %d", player_id);
+        STHROWF("Cannot notify player with invalid identifier about streaming: {}", player_id);
     }
     // See what type of entity changed
     switch (entity_type)
@@ -1640,7 +1640,7 @@ void Core::EmitEntityStreaming(int32_t player_id, int32_t entity_id, vcmpEntityP
             // Make sure that the specified entity identifier is valid
             if (INVALID_ENTITYEX(entity_id, SQMOD_VEHICLE_POOL))
             {
-                STHROWF("Cannot stream vehicle with invalid identifier: %d", entity_id);
+                STHROWF("Cannot stream vehicle with invalid identifier: {}", entity_id);
             }
             // Forward the event to the dedicated handler
             EmitVehicleStream(player_id, entity_id, is_deleted);
@@ -1649,7 +1649,7 @@ void Core::EmitEntityStreaming(int32_t player_id, int32_t entity_id, vcmpEntityP
             // Make sure that the specified entity identifier is valid
             if (INVALID_ENTITYEX(entity_id, SQMOD_OBJECT_POOL))
             {
-                STHROWF("Cannot stream object with invalid identifier: %d", entity_id);
+                STHROWF("Cannot stream object with invalid identifier: {}", entity_id);
             }
             // Forward the event to the dedicated handler
             EmitObjectStream(player_id, entity_id, is_deleted);
@@ -1658,7 +1658,7 @@ void Core::EmitEntityStreaming(int32_t player_id, int32_t entity_id, vcmpEntityP
             // Make sure that the specified entity identifier is valid
             if (INVALID_ENTITYEX(entity_id, SQMOD_PICKUP_POOL))
             {
-                STHROWF("Cannot stream pickup with invalid identifier: %d", entity_id);
+                STHROWF("Cannot stream pickup with invalid identifier: {}", entity_id);
             }
             // Forward the event to the dedicated handler
             EmitPickupStream(player_id, entity_id, is_deleted);
@@ -1667,7 +1667,7 @@ void Core::EmitEntityStreaming(int32_t player_id, int32_t entity_id, vcmpEntityP
             // Make sure that the specified entity identifier is valid
             if (INVALID_ENTITYEX(entity_id, SQMOD_PLAYER_POOL))
             {
-                STHROWF("Cannot stream player with invalid identifier: %d", entity_id);
+                STHROWF("Cannot stream player with invalid identifier: {}", entity_id);
             }
             // Forward the event to the dedicated handler
             EmitPlayerStream(player_id, entity_id, is_deleted);
@@ -1676,7 +1676,7 @@ void Core::EmitEntityStreaming(int32_t player_id, int32_t entity_id, vcmpEntityP
             // Make sure that the specified entity identifier is valid
             if (INVALID_ENTITYEX(entity_id, SQMOD_CHECKPOINT_POOL))
             {
-                STHROWF("Cannot stream checkpoint with invalid identifier: %d", entity_id);
+                STHROWF("Cannot stream checkpoint with invalid identifier: {}", entity_id);
             }
             // Forward the event to the dedicated handler
             EmitCheckpointStream(player_id, entity_id, is_deleted);
@@ -1694,7 +1694,7 @@ void Core::EmitVehicleUpdate(int32_t vehicle_id, vcmpVehicleUpdate update_type)
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(vehicle_id, SQMOD_VEHICLE_POOL))
     {
-        STHROWF("Cannot update vehicle with invalid identifier: %d", vehicle_id);
+        STHROWF("Cannot update vehicle with invalid identifier: {}", vehicle_id);
     }
     // Retrieve the associated instance
     VehicleInst & inst = m_Vehicles[vehicle_id];
@@ -1850,7 +1850,7 @@ void Core::EmitClientScriptData(int32_t player_id, const uint8_t * data, size_t 
     }
     catch (const std::exception & e)
     {
-        STHROWF("%s", e.what()); // Re-package
+        STHROWF("{}", e.what()); // Re-package
     }
     // Make sure the buffer cannot be null at this point
     if (o.IsNull())

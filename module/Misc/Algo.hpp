@@ -911,7 +911,7 @@ template < typename T > struct AppendElemFunc
         // Append the object at the back of the array
         if (SQ_FAILED(sq_arrayappend(mVM, mIdx)))
         {
-            STHROWF("Unable to append %s instance to the list", InstSpec< T >::LcName);
+            STHROWF("Unable to append {} instance to the list", InstSpec< T >::LcName);
         }
     }
 };
@@ -1187,7 +1187,7 @@ public:
         // Perform a range check on the specified identifier
         if (INVALID_ENTITYEX(id, Inst::Max))
         {
-            STHROWF("The specified %s identifier is invalid: %d", Inst::LcName, id);
+            STHROWF("The specified {} identifier is invalid: {}", Inst::LcName, id);
         }
         // Obtain the ends of the entity pool
         typename Inst::Instances::const_iterator itr = Inst::CBegin();

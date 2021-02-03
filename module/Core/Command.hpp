@@ -1529,7 +1529,7 @@ public:
         }
         else
         {
-            STHROWF("Argument tag (%u) is out of range (%d)", max, SQMOD_MAX_CMD_ARGS);
+            STHROWF("Argument tag ({}) is out of range ({})", max, SQMOD_MAX_CMD_ARGS);
         }
     }
 
@@ -1669,11 +1669,11 @@ public:
         // Perform a range check on the specified argument index
         if (val >= SQMOD_MAX_CMD_ARGS)
         {
-            STHROWF("Argument (%d) is out of total range (%d)", val, SQMOD_MAX_CMD_ARGS);
+            STHROWF("Argument ({}) is out of total range ({})", val, SQMOD_MAX_CMD_ARGS);
         }
         else if (static_cast< uint8_t >(val) > m_MaxArgc)
         {
-            STHROWF("Minimum argument (%d) exceeds maximum (%u)", val, m_MaxArgc);
+            STHROWF("Minimum argument ({}) exceeds maximum ({})", val, m_MaxArgc);
         }
         // Apply the specified value
         m_MinArgc = static_cast< uint8_t >(val);
@@ -1697,11 +1697,11 @@ public:
         // Perform a range check on the specified argument index
         if (val >= SQMOD_MAX_CMD_ARGS)
         {
-            STHROWF("Argument (%d) is out of total range (%d)", val, SQMOD_MAX_CMD_ARGS);
+            STHROWF("Argument ({}) is out of total range ({})", val, SQMOD_MAX_CMD_ARGS);
         }
         else if (static_cast< uint8_t >(val) < m_MinArgc)
         {
-            STHROWF("Maximum argument (%d) exceeds minimum (%u)", val, m_MinArgc);
+            STHROWF("Maximum argument ({}) exceeds minimum ({})", val, m_MinArgc);
         }
         // Apply the specified value
         m_MaxArgc = static_cast< uint8_t >(val);
@@ -1779,7 +1779,7 @@ public:
         // Perform a range check on the specified argument index
         if (arg >= SQMOD_MAX_CMD_ARGS)
         {
-            STHROWF("Argument (%u) is out of total range (%u)", arg, SQMOD_MAX_CMD_ARGS);
+            STHROWF("Argument ({}) is out of total range ({})", arg, SQMOD_MAX_CMD_ARGS);
         }
         // Return the requested information
         return m_ArgTags[arg];
@@ -1793,7 +1793,7 @@ public:
         // Perform a range check on the specified argument index
         if (arg >= SQMOD_MAX_CMD_ARGS)
         {
-            STHROWF("Argument (%u) is out of total range (%u)", arg, SQMOD_MAX_CMD_ARGS);
+            STHROWF("Argument ({}) is out of total range ({})", arg, SQMOD_MAX_CMD_ARGS);
         }
         else if ((SQ_FAILED(name.Proc())))
         {
@@ -1819,7 +1819,7 @@ public:
         // Perform a range check on the specified argument index
         if (idx >= SQMOD_MAX_CMD_ARGS)
         {
-            STHROWF("Argument (%u) is out of total range (%u)", idx, SQMOD_MAX_CMD_ARGS);
+            STHROWF("Argument ({}) is out of total range ({})", idx, SQMOD_MAX_CMD_ARGS);
         }
         // Return the requested information
         return m_ArgSpec[idx];
@@ -1833,7 +1833,7 @@ public:
         // Perform a range check on the specified argument index
         if (arg >= SQMOD_MAX_CMD_ARGS)
         {
-            STHROWF("Argument (%u) is out of total range (%u)", arg, SQMOD_MAX_CMD_ARGS);
+            STHROWF("Argument ({}) is out of total range ({})", arg, SQMOD_MAX_CMD_ARGS);
         }
         // Retrieve the argument flags
         const uint8_t f = m_ArgSpec[arg];

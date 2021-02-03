@@ -769,7 +769,7 @@ void Core::SetIncomingName(const SQChar * name)
     // Does the name satisfy the minimum length required?
     else if (len < 2)
     {
-        STHROWF("The specified name needs to be at least 2 characters: %zu", len);
+        STHROWF("The specified name needs to be at least 2 characters: {}", len);
     }
     // Copy the specified name to the assigned buffer
     std::strncpy(m_IncomingNameBuffer, name, m_IncomingNameCapacity);
@@ -1085,7 +1085,7 @@ BlipInst & Core::AllocBlip(int32_t id, bool owned, int32_t header, LightObj & pa
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_BLIP_POOL))
     {
-        STHROWF("Cannot allocate blip with invalid identifier: %d", id);
+        STHROWF("Cannot allocate blip with invalid identifier: {}", id);
     }
     // Retrieve the specified entity instance
     BlipInst & inst = m_Blips[id];
@@ -1107,7 +1107,7 @@ BlipInst & Core::AllocBlip(int32_t id, bool owned, int32_t header, LightObj & pa
     {
         inst.ResetInstance();
         // Now we can throw the error
-        STHROWF("Unable to create a blip instance for: %d", id);
+        STHROWF("Unable to create a blip instance for: {}", id);
     }
     // Assign the specified entity identifier
     inst.mID = id;
@@ -1134,7 +1134,7 @@ CheckpointInst & Core::AllocCheckpoint(int32_t id, bool owned, int32_t header, L
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_CHECKPOINT_POOL))
     {
-        STHROWF("Cannot allocate checkpoint with invalid identifier: %d", id);
+        STHROWF("Cannot allocate checkpoint with invalid identifier: {}", id);
     }
     // Retrieve the specified entity instance
     CheckpointInst & inst = m_Checkpoints[id];
@@ -1156,7 +1156,7 @@ CheckpointInst & Core::AllocCheckpoint(int32_t id, bool owned, int32_t header, L
     {
         inst.ResetInstance();
         // Now we can throw the error
-        STHROWF("Unable to create a checkpoint instance for: %d", id);
+        STHROWF("Unable to create a checkpoint instance for: {}", id);
     }
     // Assign the specified entity identifier
     inst.mID = id;
@@ -1183,7 +1183,7 @@ KeyBindInst & Core::AllocKeyBind(int32_t id, bool owned, int32_t header, LightOb
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_KEYBIND_POOL))
     {
-        STHROWF("Cannot allocate keybind with invalid identifier: %d", id);
+        STHROWF("Cannot allocate keybind with invalid identifier: {}", id);
     }
     // Retrieve the specified entity instance
     KeyBindInst & inst = m_KeyBinds[id];
@@ -1205,7 +1205,7 @@ KeyBindInst & Core::AllocKeyBind(int32_t id, bool owned, int32_t header, LightOb
     {
         inst.ResetInstance();
         // Now we can throw the error
-        STHROWF("Unable to create a keybind instance for: %d", id);
+        STHROWF("Unable to create a keybind instance for: {}", id);
     }
     // Assign the specified entity identifier
     inst.mID = id;
@@ -1232,7 +1232,7 @@ ObjectInst & Core::AllocObject(int32_t id, bool owned, int32_t header, LightObj 
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_OBJECT_POOL))
     {
-        STHROWF("Cannot allocate object with invalid identifier: %d", id);
+        STHROWF("Cannot allocate object with invalid identifier: {}", id);
     }
     // Retrieve the specified entity instance
     ObjectInst & inst = m_Objects[id];
@@ -1254,7 +1254,7 @@ ObjectInst & Core::AllocObject(int32_t id, bool owned, int32_t header, LightObj 
     {
         inst.ResetInstance();
         // Now we can throw the error
-        STHROWF("Unable to create a object instance for: %d", id);
+        STHROWF("Unable to create a object instance for: {}", id);
     }
     // Assign the specified entity identifier
     inst.mID = id;
@@ -1281,7 +1281,7 @@ PickupInst & Core::AllocPickup(int32_t id, bool owned, int32_t header, LightObj 
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_PICKUP_POOL))
     {
-        STHROWF("Cannot allocate pickup with invalid identifier: %d", id);
+        STHROWF("Cannot allocate pickup with invalid identifier: {}", id);
     }
     // Retrieve the specified entity instance
     PickupInst & inst = m_Pickups[id];
@@ -1303,7 +1303,7 @@ PickupInst & Core::AllocPickup(int32_t id, bool owned, int32_t header, LightObj 
     {
         inst.ResetInstance();
         // Now we can throw the error
-        STHROWF("Unable to create a pickup instance for: %d", id);
+        STHROWF("Unable to create a pickup instance for: {}", id);
     }
     // Assign the specified entity identifier
     inst.mID = id;
@@ -1330,7 +1330,7 @@ VehicleInst & Core::AllocVehicle(int32_t id, bool owned, int32_t header, LightOb
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
     {
-        STHROWF("Cannot allocate vehicle with invalid identifier: %d", id);
+        STHROWF("Cannot allocate vehicle with invalid identifier: {}", id);
     }
     // Retrieve the specified entity instance
     VehicleInst & inst = m_Vehicles[id];
@@ -1352,7 +1352,7 @@ VehicleInst & Core::AllocVehicle(int32_t id, bool owned, int32_t header, LightOb
     {
         inst.ResetInstance();
         // Now we can throw the error
-        STHROWF("Unable to create a vehicle instance for: %d", id);
+        STHROWF("Unable to create a vehicle instance for: {}", id);
     }
     // Assign the specified entity identifier
     inst.mID = id;
@@ -1384,7 +1384,7 @@ void Core::DeallocBlip(int32_t id, bool destroy, int32_t header, LightObj & payl
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_BLIP_POOL))
     {
-        STHROWF("Cannot deallocate blip with invalid identifier: %d", id);
+        STHROWF("Cannot deallocate blip with invalid identifier: {}", id);
     }
     // Retrieve the specified entity instance
     BlipInst & inst = m_Blips[id];
@@ -1401,7 +1401,7 @@ void Core::DeallocCheckpoint(int32_t id, bool destroy, int32_t header, LightObj 
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_CHECKPOINT_POOL))
     {
-        STHROWF("Cannot deallocate checkpoint with invalid identifier: %d", id);
+        STHROWF("Cannot deallocate checkpoint with invalid identifier: {}", id);
     }
     // Retrieve the specified entity instance
     CheckpointInst & inst = m_Checkpoints[id];
@@ -1418,7 +1418,7 @@ void Core::DeallocKeyBind(int32_t id, bool destroy, int32_t header, LightObj & p
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_KEYBIND_POOL))
     {
-        STHROWF("Cannot deallocate keybind with invalid identifier: %d", id);
+        STHROWF("Cannot deallocate keybind with invalid identifier: {}", id);
     }
     // Retrieve the specified entity instance
     KeyBindInst & inst = m_KeyBinds[id];
@@ -1435,7 +1435,7 @@ void Core::DeallocObject(int32_t id, bool destroy, int32_t header, LightObj & pa
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_OBJECT_POOL))
     {
-        STHROWF("Cannot deallocate object with invalid identifier: %d", id);
+        STHROWF("Cannot deallocate object with invalid identifier: {}", id);
     }
     // Retrieve the specified entity instance
     ObjectInst & inst = m_Objects[id];
@@ -1452,7 +1452,7 @@ void Core::DeallocPickup(int32_t id, bool destroy, int32_t header, LightObj & pa
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_PICKUP_POOL))
     {
-        STHROWF("Cannot deallocate pickup with invalid identifier: %d", id);
+        STHROWF("Cannot deallocate pickup with invalid identifier: {}", id);
     }
     // Retrieve the specified entity instance
     PickupInst & inst = m_Pickups[id];
@@ -1469,7 +1469,7 @@ void Core::DeallocVehicle(int32_t id, bool destroy, int32_t header, LightObj & p
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
     {
-        STHROWF("Cannot deallocate vehicle with invalid identifier: %d", id);
+        STHROWF("Cannot deallocate vehicle with invalid identifier: {}", id);
     }
     // Retrieve the specified entity instance
     VehicleInst & inst = m_Vehicles[id];
@@ -1490,12 +1490,12 @@ LightObj & Core::NewBlip(int32_t index, int32_t world, float x, float y, float z
     // See if the entity creation failed on the server
     if (_Func->GetLastError() == vcmpErrorPoolExhausted)
     {
-        STHROWF("Blip pool was exhausted: %d", id);
+        STHROWF("Blip pool was exhausted: {}", id);
     }
     // Validate the identifier returned by the server
     else if (INVALID_ENTITYEX(id, SQMOD_BLIP_POOL))
     {
-        STHROWF("Server returned invalid blip: %d", id);
+        STHROWF("Server returned invalid blip: {}", id);
     }
     // Attempt to allocate this entity and grab the reference to the instance
     BlipInst & inst = AllocBlip(id, true, header, payload);
@@ -1518,16 +1518,16 @@ LightObj & Core::NewCheckpoint(int32_t player, int32_t world, bool sphere, float
     // See if the entity creation failed on the server
     if (_Func->GetLastError() == vcmpErrorNoSuchEntity)
     {
-        STHROWF("Invalid player reference: %d", player);
+        STHROWF("Invalid player reference: {}", player);
     }
     else if (_Func->GetLastError() == vcmpErrorPoolExhausted)
     {
-        STHROWF("Checkpoint pool was exhausted: %d", id);
+        STHROWF("Checkpoint pool was exhausted: {}", id);
     }
     // Validate the identifier returned by the server
     else if (INVALID_ENTITYEX(id, SQMOD_CHECKPOINT_POOL))
     {
-        STHROWF("Server returned invalid checkpoint: %d", id);
+        STHROWF("Server returned invalid checkpoint: {}", id);
     }
     // Attempt to allocate this entity and grab the reference to the instance
     CheckpointInst & inst = AllocCheckpoint(id, true, header, payload);
@@ -1552,14 +1552,14 @@ LightObj & Core::NewKeyBind(int32_t slot, bool release, int32_t primary, int32_t
     // Validate the keybind slot returned by the server
     if (INVALID_ENTITYEX(slot, SQMOD_KEYBIND_POOL))
     {
-        STHROWF("Server returned invalid keybind slot: %d", slot);
+        STHROWF("Server returned invalid keybind slot: {}", slot);
     }
     // Request the server to create this entity
     const vcmpError result = _Func->RegisterKeyBind(slot, release, primary, secondary, alternative);
     // See if the entity creation failed on the server
     if (result == vcmpErrorArgumentOutOfBounds)
     {
-        STHROWF("Out of bounds keybind argument: %d", slot);
+        STHROWF("Out of bounds keybind argument: {}", slot);
     }
     // Attempt to allocate this entity and grab the reference to the instance
     KeyBindInst & inst = AllocKeyBind(slot, true, header, payload);
@@ -1581,12 +1581,12 @@ LightObj & Core::NewObject(int32_t model, int32_t world, float x, float y, float
     // See if the entity creation failed on the server
     if (_Func->GetLastError() == vcmpErrorPoolExhausted)
     {
-        STHROWF("Object pool was exhausted: %d", id);
+        STHROWF("Object pool was exhausted: {}", id);
     }
     // Validate the identifier returned by the server
     else if (INVALID_ENTITYEX(id, SQMOD_OBJECT_POOL))
     {
-        STHROWF("Server returned invalid object: %d", id);
+        STHROWF("Server returned invalid object: {}", id);
     }
     // Attempt to allocate this entity and grab the reference to the instance
     ObjectInst & inst = AllocObject(id, true, header, payload);
@@ -1609,12 +1609,12 @@ LightObj & Core::NewPickup(int32_t model, int32_t world, int32_t quantity,
     // See if the entity creation failed on the server
     if (_Func->GetLastError() == vcmpErrorPoolExhausted)
     {
-        STHROWF("Pickup pool was exhausted: %d", id);
+        STHROWF("Pickup pool was exhausted: {}", id);
     }
     // Validate the identifier returned by the server
     else if (INVALID_ENTITYEX(id, SQMOD_PICKUP_POOL))
     {
-        STHROWF("Server returned invalid pickup: %d", id);
+        STHROWF("Server returned invalid pickup: {}", id);
     }
     // Attempt to allocate this entity and grab the reference to the instance
     PickupInst & inst = AllocPickup(id, true, header, payload);
@@ -1638,16 +1638,16 @@ LightObj & Core::NewVehicle(int32_t model, int32_t world, float x, float y, floa
     // See if the entity creation failed on the server
     if (_Func->GetLastError() == vcmpErrorArgumentOutOfBounds)
     {
-        STHROWF("Out of bounds vehicle argument: %d", id);
+        STHROWF("Out of bounds vehicle argument: {}", id);
     }
     else if (_Func->GetLastError() == vcmpErrorPoolExhausted)
     {
-        STHROWF("Vehicle pool was exhausted: %d", id);
+        STHROWF("Vehicle pool was exhausted: {}", id);
     }
     // Validate the identifier returned by the server
     else if (INVALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
     {
-        STHROWF("Server returned invalid vehicle: %d", id);
+        STHROWF("Server returned invalid vehicle: {}", id);
     }
     // Attempt to allocate this entity and grab the reference to the instance
     VehicleInst & inst = AllocVehicle(id, true, header, payload);
@@ -1720,7 +1720,7 @@ void Core::ConnectPlayer(int32_t id, int32_t header, LightObj & payload)
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
     {
-        STHROWF("Cannot allocate player with invalid identifier: %d", id);
+        STHROWF("Cannot allocate player with invalid identifier: {}", id);
     }
     // Retrieve the specified entity instance
     PlayerInst & inst = m_Players[id];
@@ -1741,7 +1741,7 @@ void Core::ConnectPlayer(int32_t id, int32_t header, LightObj & payload)
     if (!inst.mInst || inst.mObj.IsNull())
     {
         inst.ResetInstance();
-        STHROWF("Unable to create a player instance for: %d", id);
+        STHROWF("Unable to create a player instance for: {}", id);
     }
     // Assign the specified entity identifier
     inst.mID = id;
@@ -1769,7 +1769,7 @@ void Core::DisconnectPlayer(int32_t id, int32_t header, LightObj & payload)
     // Make sure that the specified entity identifier is valid
     if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
     {
-        STHROWF("Cannot deallocate player with invalid identifier: %d", id);
+        STHROWF("Cannot deallocate player with invalid identifier: {}", id);
     }
     // Retrieve the specified entity instance
     PlayerInst & inst = m_Players[id];
@@ -2290,7 +2290,7 @@ static LightObj & SqGetBlip(int32_t id)
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_BLIP_POOL))
     {
-        STHROWF("Out of range blip identifier: %d", id);
+        STHROWF("Out of range blip identifier: {}", id);
     }
     // Return the requested information
     return Core::Get().GetBlip(id).mObj;
@@ -2302,7 +2302,7 @@ static LightObj & SqGetCheckpoint(int32_t id)
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_CHECKPOINT_POOL))
     {
-        STHROWF("Out of range checkpoint identifier: %d", id);
+        STHROWF("Out of range checkpoint identifier: {}", id);
     }
     // Return the requested information
     return Core::Get().GetCheckpoint(id).mObj;
@@ -2314,7 +2314,7 @@ static LightObj & SqGetKeyBind(int32_t id)
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_KEYBIND_POOL))
     {
-        STHROWF("Out of range keybind identifier: %d", id);
+        STHROWF("Out of range keybind identifier: {}", id);
     }
     // Return the requested information
     return Core::Get().GetKeyBind(id).mObj;
@@ -2326,7 +2326,7 @@ static LightObj & SqGetObj(int32_t id)
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_OBJECT_POOL))
     {
-        STHROWF("Out of range object identifier: %d", id);
+        STHROWF("Out of range object identifier: {}", id);
     }
     // Return the requested information
     return Core::Get().GetObj(id).mObj;
@@ -2338,7 +2338,7 @@ static LightObj & SqGetPickup(int32_t id)
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_PICKUP_POOL))
     {
-        STHROWF("Out of range blip identifier: %d", id);
+        STHROWF("Out of range blip identifier: {}", id);
     }
     // Return the requested information
     return Core::Get().GetPickup(id).mObj;
@@ -2350,7 +2350,7 @@ static LightObj & SqGetPlayer(int32_t id)
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL))
     {
-        STHROWF("Out of range player identifier: %d", id);
+        STHROWF("Out of range player identifier: {}", id);
     }
     // Return the requested information
     return Core::Get().GetPlayer(id).mObj;
@@ -2362,7 +2362,7 @@ static LightObj & SqGetVehicle(int32_t id)
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
     {
-        STHROWF("Out of range vehicle identifier: %d", id);
+        STHROWF("Out of range vehicle identifier: {}", id);
     }
     // Return the requested information
     return Core::Get().GetVehicle(id).mObj;
@@ -2374,7 +2374,7 @@ static bool SqDelBlip(int32_t id, int32_t header, LightObj & payload)
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_BLIP_POOL))
     {
-        STHROWF("Out of range blip identifier: %d", id);
+        STHROWF("Out of range blip identifier: {}", id);
     }
     // Perform the requested operation
     return Core::Get().DelBlip(id, header, payload);
@@ -2386,7 +2386,7 @@ static bool SqDelCheckpoint(int32_t id, int32_t header, LightObj & payload)
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_CHECKPOINT_POOL))
     {
-        STHROWF("Out of range checkpoint identifier: %d", id);
+        STHROWF("Out of range checkpoint identifier: {}", id);
     }
     // Perform the requested operation
     return Core::Get().DelCheckpoint(id, header, payload);
@@ -2398,7 +2398,7 @@ static bool SqDelKeyBind(int32_t id, int32_t header, LightObj & payload)
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_KEYBIND_POOL))
     {
-        STHROWF("Out of range keybind identifier: %d", id);
+        STHROWF("Out of range keybind identifier: {}", id);
     }
     // Perform the requested operation
     return Core::Get().DelKeyBind(id, header, payload);
@@ -2410,7 +2410,7 @@ static bool SqDelObject(int32_t id, int32_t header, LightObj & payload)
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_OBJECT_POOL))
     {
-        STHROWF("Out of range object identifier: %d", id);
+        STHROWF("Out of range object identifier: {}", id);
     }
     // Perform the requested operation
     return Core::Get().DelObject(id, header, payload);
@@ -2422,7 +2422,7 @@ static bool SqDelPickup(int32_t id, int32_t header, LightObj & payload)
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_PICKUP_POOL))
     {
-        STHROWF("Out of range blip identifier: %d", id);
+        STHROWF("Out of range blip identifier: {}", id);
     }
     // Perform the requested operation
     return Core::Get().DelPickup(id, header, payload);
@@ -2434,7 +2434,7 @@ static bool SqDelVehicle(int32_t id, int32_t header, LightObj & payload)
     // Validate the identifier first
     if (INVALID_ENTITYEX(id, SQMOD_VEHICLE_POOL))
     {
-        STHROWF("Out of range vehicle identifier: %d", id);
+        STHROWF("Out of range vehicle identifier: {}", id);
     }
     // Perform the requested operation
     return Core::Get().DelVehicle(id, header, payload);

@@ -223,7 +223,7 @@ LightObj SqBuffer::ReadRawString(SQInteger length)
     // Validate the obtained length
     if ((m_Buffer->Position() + len) > m_Buffer->Capacity())
     {
-        STHROWF("String of size (%u) starting at (%u) is out of buffer capacity (%u)",
+        STHROWF("String of size ({}) starting at ({}) is out of buffer capacity ({})",
                     len, m_Buffer->Position(), m_Buffer->Capacity());
     }
     // Remember the current stack size
@@ -248,7 +248,7 @@ LightObj SqBuffer::ReadClientString()
     // Validate the obtained length
     if ((m_Buffer->Position() + sizeof(uint16_t) + length) > m_Buffer->Capacity())
     {
-        STHROWF("String of size (%u) starting at (%u) is out of buffer capacity (%u)",
+        STHROWF("String of size ({}) starting at ({}) is out of buffer capacity ({})",
                     length, m_Buffer->Position() + sizeof(uint16_t), m_Buffer->Capacity());
     }
     // Advance the buffer to the actual string

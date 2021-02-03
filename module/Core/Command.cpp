@@ -140,7 +140,7 @@ Object & Controller::Attach(Object && obj, Listener * ptr)
         if (cmd.mHash == hash)
         {
             // Include information necessary to help identify hash collisions!
-            STHROWF("Command '%s' already exists as '%s' for hash (%zu)",
+            STHROWF("Command '{}' already exists as '{}' for hash ({})",
                         name.c_str(), cmd.mName.c_str(), hash);
         }
     }
@@ -916,7 +916,7 @@ void Listener::ProcSpec(const SQChar * str)
             {
                 if (idx >= SQMOD_MAX_CMD_ARGS)
                 {
-                    STHROWF("Extraneous type specifiers: %d >= %d", idx, SQMOD_MAX_CMD_ARGS);
+                    STHROWF("Extraneous type specifiers: {} >= {}", idx, SQMOD_MAX_CMD_ARGS);
                 }
                 // Move to the next character
                 ++str;
@@ -1005,7 +1005,7 @@ void Listener::ProcSpec(const SQChar * str)
                         }
                     } break;
                     // Unknown type!
-                    default: STHROWF("Unknown type specifier (%c) at argument: %u", *str, idx);
+                    default: STHROWF("Unknown type specifier ({:c}) at argument: {}", *str, idx);
                 }
             }
         }

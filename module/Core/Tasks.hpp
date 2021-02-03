@@ -176,7 +176,7 @@ private:
             // Validate the specified
             if (!sq_isclosure(func.GetFunc()) && !sq_isnativeclosure(func.GetFunc()))
             {
-                STHROWF("Invalid callback type %s", SqTypeName(mFunc.GetType()));
+                STHROWF("Invalid callback type {}", SqTypeName(mFunc.GetType()));
             }
             // Grab the virtual machine once
             HSQUIRRELVM vm = SqVM();
@@ -257,7 +257,7 @@ private:
             // Validate the specified index
             if (idx >= argvn)
             {
-                STHROWF("The specified index is out of range: %u >= %u", idx, argvn);
+                STHROWF("The specified index is out of range: {} >= {}", idx, argvn);
             }
             // Return the requested argument
             return mArgv[idx];

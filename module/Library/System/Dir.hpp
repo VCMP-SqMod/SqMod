@@ -45,7 +45,7 @@ public:
     {
         if (!mHandle)
         {
-            STHROWF("Cannot %s. Invalid directory handle.", action);
+            STHROWF("Cannot {}. Invalid directory handle.", action);
         }
     }
 
@@ -396,7 +396,7 @@ public:
     {
         if (!mHandle)
         {
-            STHROWF("Cannot %s. Invalid file handle.", action);
+            STHROWF("Cannot {}. Invalid file handle.", action);
         }
     }
 
@@ -527,11 +527,11 @@ public:
             // Now we can throw the exception
             if (errno != 0)
             {
-                STHROWF("Failed to open file: %s [%s]", path.mPtr, strerror(errno));
+                STHROWF("Failed to open file: {} [{}]", path.mPtr, strerror(errno));
             }
             else
             {
-                STHROWLASTF("Failed to open file: %s", path.mPtr);
+                STHROWLASTF("Failed to open file: {}", path.mPtr);
             }
         }
     }
