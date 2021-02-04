@@ -406,10 +406,6 @@ public:
 	bool isFiltered() const;
 		/// Returns true if recordset is filtered.
 
-    //@SQMOD: Modified/added for SqMod project
-	size_t currentRow() const;
-		/// Returns the current row.
-
 private:
 	RecordSet();
 
@@ -666,10 +662,6 @@ inline void RecordSet::formatNames() const
 	(*_pBegin)->formatNames();
 }
 
-inline size_t RecordSet::currentRow() const
-{
-    return _currentRow;
-}
 
 } } // namespace Poco::Data
 
