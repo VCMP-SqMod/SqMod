@@ -193,7 +193,7 @@ struct LightObj {
     template<class T>
     LightObj(SqInPlace SQ_UNUSED_ARG(t), HSQUIRRELVM vm, T value) {
         // Push the value on the stack
-        Var<T>::PushInstance(vm, std::forward< T >(value));
+        Var<T>::push(vm, std::forward< T >(value));
         // Attempt to retrieve it
         if (SQ_FAILED(sq_getstackobj(vm, -1, &mObj))) {
             sq_resetobject(&mObj);
