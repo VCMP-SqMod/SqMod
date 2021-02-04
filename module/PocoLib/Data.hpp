@@ -1550,7 +1550,6 @@ protected:
             case Poco::Data::MetaColumn::FDT_STRING:
                 return LightObj(SqInPlace{}, SqVM(), v.convert< std::string >());
             case Poco::Data::MetaColumn::FDT_WSTRING:
-                return LightObj(SqInPlace{}, SqVM(), v.convert< std::wstring >());
             case Poco::Data::MetaColumn::FDT_BLOB:
             case Poco::Data::MetaColumn::FDT_CLOB:
             case Poco::Data::MetaColumn::FDT_DATE:
