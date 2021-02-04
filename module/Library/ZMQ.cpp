@@ -269,7 +269,7 @@ LightObj ZSocket::GetOpt(int opt)
     {
         STHROWF("Unable to retrieve socket option: [{}] {}", r, zmq_strerror(errno));
     }
-    SQ_UNREACHABLE;
+    SQ_UNREACHABLE
     // Never reaches here
     return LightObj();
 }
@@ -374,15 +374,46 @@ void ZSocket::SetOpt(int opt, LightObj & value)
         case ZMQ_UNSUBSCRIBE:
         case ZMQ_XPUB_WELCOME_MSG:
         case ZMQ_TCP_ACCEPT_FILTER: {
-            if (value.GetTypeTag() != StaticClassTypeTag< SqBuffer >::Get())
+            // Is this a string?
+            if (value.GetType() == OT_STRING)
+            {
+
+                // Push the stringobject on the stack
+                Var< LightObj >::push(SqVM(), value);
+                // Prepare for string extraction
+                StackStrF str(SqVM(), -1);
+                // Attempt to extract the string
+                if (SQ_SUCCEEDED(str.Proc(false)))
+                {
+                    r = zmq_setsockopt(Valid(), opt, str.mPtr, static_cast< size_t >(str.mLen));
+                    // Pop the string object from the stack
+                    sq_poptop(SqVM());
+                }
+                // Failed
+                else
+                {
+                    STHROWF("Invalid string value");
+                }
+            }
+            // Is this a binary buffer?
+            else if (value.GetTypeTag() != StaticClassTypeTag< SqBuffer >::Get())
             {
                  STHROWF("Invalid buffer value");
             }
-            auto * inst = value.CastI< SqBuffer >();
-            if (inst)
+            else
             {
-                r = zmq_setsockopt(Valid(), opt, inst->GetRef()->Data(), static_cast< size_t >(inst->GetPosition()));
-            } else r = -1;
+                auto * inst = value.CastI< SqBuffer >();
+                // Validate the instance
+                if (inst)
+                {
+                    r = zmq_setsockopt(Valid(), opt, inst->GetRef()->Data(), static_cast< size_t >(inst->GetPosition()));
+                // Failed
+                }
+                else
+                {
+                    STHROWF("Invalid instance value");
+                }
+            }
         } break;
         default: STHROWF("Unknown socket option");
     }
@@ -391,8 +422,6 @@ void ZSocket::SetOpt(int opt, LightObj & value)
     {
         STHROWF("Unable to modify socket option: [{}] {}", r, zmq_strerror(errno));
     }
-    // Never reaches here
-    SQ_UNREACHABLE;
 }
 
 // ------------------------------------------------------------------------------------------------
