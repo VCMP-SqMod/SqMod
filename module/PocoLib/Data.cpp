@@ -2,6 +2,9 @@
 #include "PocoLib/Data.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <sqratConst.h>
+
+// ------------------------------------------------------------------------------------------------
 #ifdef SQMOD_POCO_HAS_SQLITE
     #include <Poco/Data/SQLite/Connector.h>
 #endif
@@ -23,6 +26,7 @@ SQMOD_DECL_TYPENAME(SqBoolBinding, _SC("SqBoolBinding"))
 // ------------------------------------------------------------------------------------------------
 SQMOD_DECL_TYPENAME(SqPcDataSession, _SC("SqDataSession"))
 SQMOD_DECL_TYPENAME(SqPcDataStatement, _SC("SqDataStatement"))
+SQMOD_DECL_TYPENAME(SqPcDataRecordSet, _SC("SqDataRecordSet"))
 
 // ------------------------------------------------------------------------------------------------
 static const Poco::Data::NullData g_NullData{Poco::NULL_GENERIC};
@@ -109,6 +113,12 @@ LightObj SqDataSession::GetProperty(StackStrF & name) const
 SqDataStatement SqDataSession::GetStatement(StackStrF & data)
 {
     return SqDataStatement(*this, data);
+}
+
+// ------------------------------------------------------------------------------------------------
+SqDataRecordSet SqDataSession::GetRecordSet(StackStrF & data)
+{
+    return SqDataRecordSet(*this, data);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -443,6 +453,7 @@ void Register_POCO_Data(HSQUIRRELVM vm, Table &)
         .Func(_SC("Close"), &SqDataSession::Close)
         .Func(_SC("Reconnect"), &SqDataSession::Reconnect)
         .Func(_SC("Statement"), &SqDataSession::GetStatement)
+        .Func(_SC("RecordSet"), &SqDataSession::GetRecordSet)
         .Func(_SC("Begin"), &SqDataSession::Begin)
         .Func(_SC("Commit"), &SqDataSession::Commit)
         .Func(_SC("Rollback"), &SqDataSession::Rollback)
@@ -506,6 +517,8 @@ void Register_POCO_Data(HSQUIRRELVM vm, Table &)
         // Overloaded Member Methods
         .Overload(_SC("Execute"), &SqDataStatement::Execute)
         .Overload(_SC("Execute"), &SqDataStatement::Execute_)
+        .Overload(_SC("Execute_"), &SqDataStatement::ExecuteChained)
+        .Overload(_SC("Execute_"), &SqDataStatement::ExecuteChained_)
         .Overload(_SC("ExecuteAsync"), &SqDataStatement::ExecuteAsync)
         .Overload(_SC("ExecuteAsync"), &SqDataStatement::ExecuteAsync_)
         .Overload(_SC("Into"), &SqDataStatement::Into)
@@ -516,6 +529,7 @@ void Register_POCO_Data(HSQUIRRELVM vm, Table &)
         .Overload(_SC("Range"), &SqDataStatement::Range)
         .Overload(_SC("Range"), &SqDataStatement::RangeEx)
         // Static Values
+        .SetStaticValue(_SC("Unlimited"), static_cast< SQInteger >(Poco::Data::Limit::LIMIT_UNLIMITED))
         .SetStaticValue(_SC("WaitForever"), static_cast< SQInteger >(SqDataStatement::WAIT_FOREVER))
         .SetStaticValue(_SC("UseCurrentDataSet"), static_cast< SQInteger >(Poco::Data::StatementImpl::USE_CURRENT_DATA_SET))
         .SetStaticValue(_SC("StorageDeque"), static_cast< SQInteger >(SqDataStatement::STORAGE_DEQUE))
@@ -524,12 +538,69 @@ void Register_POCO_Data(HSQUIRRELVM vm, Table &)
         .SetStaticValue(_SC("StorageUnknown"), static_cast< SQInteger >(SqDataStatement::STORAGE_UNKNOWN))
     );
     // --------------------------------------------------------------------------------------------
+    ns.Bind(_SC("RecordSet"),
+        Class< SqDataRecordSet >(vm, SqPcDataRecordSet::Str)
+        // Constructors
+        .Ctor< SqDataSession &, StackStrF & >()
+        // Meta-methods
+        .SquirrelFunc(_SC("_typename"), &SqPcDataRecordSet::Fn)
+        // Properties
+        .Prop(_SC("RowCount"), &SqDataRecordSet::RowCount)
+        .Prop(_SC("ExtractedRowCount"), &SqDataRecordSet::ExtractedRowCount)
+        .Prop(_SC("TotalRowCount"), &SqDataRecordSet::GetTotalRowCount, &SqDataRecordSet::SetTotalRowCount)
+        .Prop(_SC("ColumnCount"), &SqDataRecordSet::ColumnCount)
+        .Prop(_SC("IsFiltered"), &SqDataRecordSet::IsFiltered)
+        // Member Methods
+        .FmtFunc(_SC("SetTotalRowCount"), &SqDataRecordSet::SetTotalRowCountQ)
+        .Func(_SC("First"), &SqDataRecordSet::MoveFirst)
+        .Func(_SC("Next"), &SqDataRecordSet::MoveNext)
+        .Func(_SC("Previous"), &SqDataRecordSet::MovePrevious)
+        .Func(_SC("Last"), &SqDataRecordSet::MoveLast)
+        .Func(_SC("Reset"), &SqDataRecordSet::Reset)
+        .Func(_SC("ColumnTypeAt"), &SqDataRecordSet::ColumnTypeAt)
+        .Func(_SC("ColumnType"), &SqDataRecordSet::ColumnType)
+        .Func(_SC("ColumnName"), &SqDataRecordSet::ColumnName)
+        .Func(_SC("ColumnLengthAt"), &SqDataRecordSet::ColumnLengthAt)
+        .Func(_SC("ColumnLength"), &SqDataRecordSet::ColumnLength)
+        .Func(_SC("ColumnPrecisionAt"), &SqDataRecordSet::ColumnPrecisionAt)
+        .Func(_SC("ColumnPrecision"), &SqDataRecordSet::ColumnPrecision)
+        .Func(_SC("IsNull"), &SqDataRecordSet::IsNull)
+        // Overloaded Member Methods
+        .Overload(_SC("ValueAt"), &SqDataRecordSet::GetValueAt)
+        .Overload(_SC("ValueAt"), &SqDataRecordSet::GetValueAtOr)
+        .Overload(_SC("Value"), &SqDataRecordSet::GetValue)
+        .Overload(_SC("Value"), &SqDataRecordSet::GetValueOr)
+    );
+    // --------------------------------------------------------------------------------------------
     Register_POCO_Data_Binding< SQInteger, SqIntegerBinding >(vm, ns, _SC("IntBind"));
     Register_POCO_Data_Binding< String, SqStringBinding >(vm, ns, _SC("StrBind"));
     Register_POCO_Data_Binding< SQFloat, SqFloatBinding >(vm, ns, _SC("FloatBind"));
     Register_POCO_Data_Binding< bool, SqBoolBinding >(vm, ns, _SC("BoolBind"));
 
     RootTable(vm).Bind(_SC("SqData"), ns);
+
+    // --------------------------------------------------------------------------------------------
+    ConstTable(vm).Enum(_SC("SqDataColumnType"), Enumeration(vm)
+        .Const(_SC("Bool"),         static_cast< SQInteger >(Poco::Data::MetaColumn::FDT_BOOL))
+        .Const(_SC("Int8"),         static_cast< SQInteger >(Poco::Data::MetaColumn::FDT_INT8))
+        .Const(_SC("Uint8"),        static_cast< SQInteger >(Poco::Data::MetaColumn::FDT_UINT8))
+        .Const(_SC("Int16"),        static_cast< SQInteger >(Poco::Data::MetaColumn::FDT_INT16))
+        .Const(_SC("Uint16"),       static_cast< SQInteger >(Poco::Data::MetaColumn::FDT_UINT16))
+        .Const(_SC("Int32"),        static_cast< SQInteger >(Poco::Data::MetaColumn::FDT_INT32))
+        .Const(_SC("Uint32"),       static_cast< SQInteger >(Poco::Data::MetaColumn::FDT_UINT32))
+        .Const(_SC("Int64"),        static_cast< SQInteger >(Poco::Data::MetaColumn::FDT_INT64))
+        .Const(_SC("Uint64"),       static_cast< SQInteger >(Poco::Data::MetaColumn::FDT_UINT64))
+        .Const(_SC("Float"),        static_cast< SQInteger >(Poco::Data::MetaColumn::FDT_FLOAT))
+        .Const(_SC("Double"),       static_cast< SQInteger >(Poco::Data::MetaColumn::FDT_DOUBLE))
+        .Const(_SC("String"),       static_cast< SQInteger >(Poco::Data::MetaColumn::FDT_STRING))
+        .Const(_SC("WString"),      static_cast< SQInteger >(Poco::Data::MetaColumn::FDT_WSTRING))
+        .Const(_SC("Blob"),         static_cast< SQInteger >(Poco::Data::MetaColumn::FDT_BLOB))
+        .Const(_SC("Clob"),         static_cast< SQInteger >(Poco::Data::MetaColumn::FDT_CLOB))
+        .Const(_SC("Date"),         static_cast< SQInteger >(Poco::Data::MetaColumn::FDT_DATE))
+        .Const(_SC("Time"),         static_cast< SQInteger >(Poco::Data::MetaColumn::FDT_TIME))
+        .Const(_SC("TimeStamp"),    static_cast< SQInteger >(Poco::Data::MetaColumn::FDT_TIMESTAMP))
+        .Const(_SC("Unknown"),      static_cast< SQInteger >(Poco::Data::MetaColumn::FDT_UNKNOWN))
+    );
 }
 
 } // Namespace:: SqMod

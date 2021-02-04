@@ -465,6 +465,7 @@ using Poco::Data::ReferenceBinding;
 // ------------------------------------------------------------------------------------------------
 struct SqDataSession;
 struct SqDataStatement;
+struct SqDataRecordSet;
 
 /* ------------------------------------------------------------------------------------------------
  * Utility used to transform optimal argument type to stored type.
@@ -785,9 +786,14 @@ struct SqDataSession : public Session
 	SQMOD_NODISCARD LightObj GetProperty(StackStrF & name) const;
 
     /* --------------------------------------------------------------------------------------------
-     * Look up the value of a property.
+     * Retrieve a statement from this session.
     */
     SQMOD_NODISCARD SqDataStatement GetStatement(StackStrF & data);
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve a record-set from this session.
+    */
+    SQMOD_NODISCARD SqDataRecordSet GetRecordSet(StackStrF & data);
 
     /* --------------------------------------------------------------------------------------------
      * Create a statement and execute the given query immediately.
@@ -854,6 +860,7 @@ struct SqDataStatement : public Statement
     SqDataStatement & Add(StackStrF & data)
     {
         Statement::operator<<(data);
+        // Allow chaining
         return *this;
     }
 
@@ -1025,6 +1032,26 @@ struct SqDataStatement : public Statement
     SQInteger Execute_(bool reset)
     {
         return static_cast< SQInteger >(execute(reset));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Executes the statement synchronously or asynchronously. Returns itself instead of rows.
+    */
+    SqDataStatement & ExecuteChained()
+    {
+        execute(true);
+        // Allow chaining
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Executes the statement synchronously or asynchronously. Returns itself instead of rows.
+    */
+    SqDataStatement & ExecuteChained_(bool reset)
+    {
+        execute(reset);
+        // Allow chaining
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1236,5 +1263,307 @@ template < class T > inline SqDataBinding< T > & SqDataBinding< T >::BindAs(SqDa
     stmt.addBind(new Poco::Data::CopyBinding< T >(*mV, name.ToStr(), Poco::Data::AbstractBinding::PD_IN));
     return *this;
 }
+
+/* ------------------------------------------------------------------------------------------------
+ * RecordSet provides access to data returned from a query.
+*/
+struct SqDataRecordSet : public RecordSet
+{
+    /* --------------------------------------------------------------------------------------------
+     * Creates the RecordSet for the given query.
+    */
+    SqDataRecordSet(SqDataSession & session, StackStrF & query)
+        : RecordSet(session, query.ToStr())
+    {
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. If the statement has been executed asynchronously and has not been
+     * synchronized prior to copy operation (i.e. is copied while executing), this constructor shall synchronize it.
+    */
+    SqDataRecordSet(const SqDataRecordSet &) = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    SqDataRecordSet(SqDataRecordSet &&) noexcept = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Destroys the RecordSet.
+    */
+    ~SqDataRecordSet() = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Assignment operator.
+    */
+    SqDataRecordSet & operator = (const SqDataRecordSet &) = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment.
+    */
+    SqDataRecordSet & operator = (SqDataRecordSet &&) noexcept = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns the number of rows in the RecordSet. The number of rows reported is dependent on filtering.
+    */
+    SQInteger RowCount() const
+    {
+        return static_cast< SQInteger >(rowCount());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns the number of rows extracted during the last statement execution.
+     * The number of rows reported is independent of filtering.
+    */
+    SQInteger ExtractedRowCount() const
+    {
+        return static_cast< SQInteger >(extractedRowCount());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns the total number of rows in the RecordSet.
+     * The number of rows reported is independent of filtering.
+    */
+    SQInteger GetTotalRowCount() const
+    {
+        return static_cast< SQInteger >(getTotalRowCount());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Explicitly sets the total row count.
+    */
+    void SetTotalRowCount(SQInteger totalRowCount)
+    {
+        setTotalRowCount(ClampL< SQInteger, size_t >(totalRowCount));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Implicitly sets the total row count.  The supplied sql must return exactly one column and one row.
+     * The returned value must be an unsigned integer. The value is set as the total number of rows.
+    */
+    void SetTotalRowCountQ(StackStrF & sql)
+    {
+        setTotalRowCount(sql.ToStr());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns the number of columns in the recordset.
+    */
+    SQInteger ColumnCount() const
+    {
+        return static_cast< SQInteger >(columnCount());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Moves the row cursor to the first row.
+     * Returns true if there is at least one row in the RecordSet, false otherwise.
+    */
+    bool MoveFirst()
+    {
+        return moveFirst();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Moves the row cursor to the next row.
+     * Returns true if the row is available, or false if the end of the record set has been reached and no more rows are available.
+    */
+    bool MoveNext()
+    {
+        return moveNext();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Moves the row cursor to the previous row.
+     * Returns true if the row is available, or false if there are no more rows available.
+    */
+    bool MovePrevious()
+    {
+        return movePrevious();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Moves the row cursor to the last row.
+     * Returns true if there is at least one row in the RecordSet, false otherwise.
+    */
+    bool MoveLast()
+    {
+        return moveLast();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Resets the RecordSet and assigns a new statement.
+     * Should be called after the given statement has been reset, assigned a new SQL statement, and executed.
+     * Does not remove the associated RowFilter or RowFormatter.
+    */
+    void Reset(const SqDataStatement & stmt)
+    {
+        reset(stmt);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value in the given column (index) of the current row if the value is not NULL.
+    */
+    LightObj GetValueAt(SQInteger idx)
+    {
+        size_t i = ClampL< SQInteger, size_t >(idx);
+        return GetValueImpl(value(i), columnType(i), LightObj{});
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value in the given column (index) of the current row if the value is not NULL, or `fallback` otherwise.
+    */
+    LightObj GetValueAtOr(SQInteger idx, const LightObj & fallback)
+    {
+        size_t i = ClampL< SQInteger, size_t >(idx);
+        return GetValueImpl(value(i), columnType(i), fallback);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value in the given column (name) of the current row if the value is not NULL.
+    */
+    LightObj GetValue(StackStrF & name)
+    {
+        String s(name.ToStr());
+        return GetValueImpl(value(s), columnType(s), LightObj{});
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value in the given column (name) of the current row if the value is not NULL, or `fallback` otherwise.
+    */
+    LightObj GetValueOr(StackStrF & name, const LightObj & fallback)
+    {
+        String s(name.ToStr());
+        return GetValueImpl(value(s), columnType(s), fallback);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the type for the column at specified position.
+    */
+    SQInteger ColumnTypeAt(SQInteger pos) const
+    {
+        return static_cast< SQInteger >(columnType(ClampL< SQInteger, size_t >(pos)));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the type for the column with specified name.
+    */
+    SQInteger ColumnType(StackStrF & name) const
+    {
+        return static_cast< SQInteger >(columnType(name.ToStr()));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve column name for the column at specified position.
+    */
+    const std::string & ColumnName(SQInteger pos) const
+    {
+        return columnName(ClampL< SQInteger, size_t >(pos));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve column maximum length for the column at specified position.
+    */
+    SQInteger ColumnLengthAt(SQInteger pos) const
+    {
+        return static_cast< SQInteger >(columnLength(ClampL< SQInteger, size_t >(pos)));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve column maximum length for the column with specified name.
+    */
+    SQInteger ColumnLength(StackStrF & name) const
+    {
+        return static_cast< SQInteger >(columnLength(name.ToStr()));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve column precision for the column at specified position.
+     * Valid for floating point fields only (zero for other data types).
+    */
+    SQInteger ColumnPrecisionAt(SQInteger pos) const
+    {
+        return static_cast< SQInteger >(columnPrecision(ClampL< SQInteger, size_t >(pos)));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve column precision for the column with specified name.
+     * Valid for floating point fields only (zero for other data types).
+    */
+    SQInteger ColumnPrecision(StackStrF & name) const
+    {
+        return static_cast< SQInteger >(columnPrecision(name.ToStr()));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns true if column value of the current row is null.
+    */
+    bool IsNull(StackStrF & name) const
+    {
+        return isNull(name.ToStr());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns true if recordset is filtered.
+    */
+    bool IsFiltered() const
+    {
+        return isFiltered();
+    }
+
+protected:
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the value in the given column (index) of the current row if the value is not NULL, or `fallback` otherwise.
+    */
+    static LightObj GetValueImpl(const Poco::Dynamic::Var & v, Poco::Data::MetaColumn::ColumnDataType t, const LightObj & fb)
+    {
+        // Is null?
+        if (v.isEmpty())
+        {
+            return fb; // Use fallback
+        }
+        // Identify type
+        switch (t)
+        {
+            case Poco::Data::MetaColumn::FDT_BOOL:
+                return LightObj(SqInPlace{}, SqVM(), v.convert< bool >());
+            case Poco::Data::MetaColumn::FDT_INT8:
+            case Poco::Data::MetaColumn::FDT_INT16:
+            case Poco::Data::MetaColumn::FDT_INT32:
+#ifndef _SQ64
+                return LightObj(SqInPlace{}, SqVM(), v.convert< SQInteger >());
+#endif
+            case Poco::Data::MetaColumn::FDT_INT64:
+                return LightObj(SqInPlace{}, SqVM(), v.convert< int64_t >());
+            case Poco::Data::MetaColumn::FDT_UINT8:
+            case Poco::Data::MetaColumn::FDT_UINT16:
+            case Poco::Data::MetaColumn::FDT_UINT32:
+#ifndef _SQ64
+                return LightObj(SqInPlace{}, SqVM(), v.convert< SQUnsignedInteger >());
+#endif
+            case Poco::Data::MetaColumn::FDT_UINT64:
+                return LightObj(SqInPlace{}, SqVM(), v.convert< uint64_t >());
+            case Poco::Data::MetaColumn::FDT_FLOAT:
+                return LightObj(SqInPlace{}, SqVM(), v.convert< float >());
+            case Poco::Data::MetaColumn::FDT_DOUBLE:
+                return LightObj(SqInPlace{}, SqVM(), v.convert< double >());
+            case Poco::Data::MetaColumn::FDT_STRING:
+                return LightObj(SqInPlace{}, SqVM(), v.convert< std::string >());
+            case Poco::Data::MetaColumn::FDT_WSTRING:
+                return LightObj(SqInPlace{}, SqVM(), v.convert< std::wstring >());
+            case Poco::Data::MetaColumn::FDT_BLOB:
+            case Poco::Data::MetaColumn::FDT_CLOB:
+            case Poco::Data::MetaColumn::FDT_DATE:
+            case Poco::Data::MetaColumn::FDT_TIME:
+            case Poco::Data::MetaColumn::FDT_TIMESTAMP:
+                STHROWF("This type of data is currently not implemented.");
+            default:
+                STHROWF("Unknown or unsupported type");
+        }
+        SQ_UNREACHABLE
+        // Unreachable
+        return LightObj();
+    }
+};
 
 } // Namespace:: SqMod
