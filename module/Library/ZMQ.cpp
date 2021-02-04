@@ -12,29 +12,108 @@ SQMOD_DECL_TYPENAME(SqZContext, _SC("SqZmqContext"))
 SQMOD_DECL_TYPENAME(SqZSocket, _SC("SqZmqSocket"))
 
 // ------------------------------------------------------------------------------------------------
+static void FlushSingleString(HSQUIRRELVM, Function & callback, Buffer & data)
+{
+    // Transform the message into a script object
+    LightObj o(static_cast< const SQChar * >(data.Get()),
+                static_cast< SQInteger >(data.Position()));
+    // Forward it to the callback
+    callback(o, false);
+}
+
+// ------------------------------------------------------------------------------------------------
+static void FlushSingleBuffer(HSQUIRRELVM vm, Function & callback, Buffer & data)
+{
+    // Transform the message into a script object
+    LightObj o(SqTypeIdentity< SqBuffer >{}, vm, std::move(data));
+    // Forward it to the callback
+    callback(o, false);
+}
+
+// ------------------------------------------------------------------------------------------------
+static void FlushMultiString(HSQUIRRELVM vm, Function & callback, ZMsg::List & list)
+{
+    // Create a script array
+    Array a(vm);
+    // Reserve space upfront
+    a.Reserve(static_cast< SQInteger >(list.size()));
+    // Populate the array with elements from the list
+    a.AppendFromCounted([&list](HSQUIRRELVM vm, SQInteger i) -> bool {
+        // Are we still withing range of our list?
+        if (static_cast< size_t >(i) < list.size())
+        {
+            // Transform the message into a script object
+            sq_pushstring(vm, static_cast< const SQChar * >(list[i].Get()),
+                                static_cast< SQInteger >(list[i].Position()));
+            // We have an element on the stack
+            return true;
+        }
+        // We don't have an element on the stack
+        return false;
+    });
+    // Forward it to the callback
+    callback(a, true);
+}
+
+// ------------------------------------------------------------------------------------------------
+static void FlushMultiBuffer(HSQUIRRELVM vm, Function & callback, ZMsg::List & list)
+{
+    // Create a script array
+    Array a(vm);
+    // Reserve space upfront
+    a.Reserve(static_cast< SQInteger >(list.size()));
+    // Populate the array with elements from the list
+    a.AppendFromCounted([&list](HSQUIRRELVM vm, SQInteger i) -> bool {
+        // Are we still withing range of our list?
+        if (static_cast< size_t >(i) < list.size())
+        {
+            // Transform the message into a script object
+            LightObj o(SqTypeIdentity< SqBuffer >{}, vm, std::move(list[i]));
+            // Push it on the stack
+            Var< LightObj >::push(vm, o);
+            // We have an element on the stack
+            return true;
+        }
+        // We don't have an element on the stack
+        return false;
+    });
+    // Forward it to the callback
+    callback(a, true);
+}
+
+// ------------------------------------------------------------------------------------------------
 void ZSkt::Flush(HSQUIRRELVM vm)
 {
     // Need someone to receive the message
-    Item data;
+    Item item;
     // Try to get a message from the queue
-    while (mOutputQueue.try_dequeue(data))
+    while (mOutputQueue.try_dequeue(item))
     {
         // Is there a callback to receive the message?
         if (!mOnData.IsNull())
         {
-            // Transform the message into a script object
-            if (mStringMessages)
+            // Is this a multi-part message?
+            if (!(item->mMulti))
             {
-                LightObj o(static_cast< const SQChar * >(data->Get()),
-                            static_cast< SQInteger >(data->Size< SQChar >()));
-                // Forward it to the callback
-                mOnData(o);
+                if (mStringMessages)
+                {
+                    FlushSingleString(vm, mOnData, item->mBuff);
+                }
+                else
+                {
+                    FlushSingleBuffer(vm, mOnData, item->mBuff);
+                }
             }
             else
             {
-                LightObj o(SqTypeIdentity< SqBuffer >{}, vm, std::move(*data));
-                // Forward it to the callback
-                mOnData(o);
+                if (mStringMessages)
+                {
+                    FlushMultiString(vm, mOnData, item->mList);
+                }
+                else
+                {
+                    FlushMultiBuffer(vm, mOnData, item->mList);
+                }
             }
         }
     }
