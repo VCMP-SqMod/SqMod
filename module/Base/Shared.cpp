@@ -955,11 +955,11 @@ struct SqAssertResult
         // Default?
         if (s.mLen <= 0)
         {
-            LogScs(fmt::format(mFStr, mA, mB).c_str());
+            LogScs("%s", fmt::format(mFStr, mA, mB).c_str());
         }
         else
         {
-            LogScs(fmt::format(s.ToStr(), mA, mB).c_str());
+            LogScs("%s", fmt::format(s.ToStr(), mA, mB).c_str());
         }
         // Allow chaining
         return *this;
