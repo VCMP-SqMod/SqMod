@@ -32,6 +32,8 @@ static const EnumElement g_SqMod[] = {
     {_SC("MaxInteger"),     std::numeric_limits< SQInteger >::max()},
     {_SC("MinInt32"),       std::numeric_limits< SQInt32 >::min()},
     {_SC("MaxInt32"),       std::numeric_limits< SQInt32 >::max()},
+    {_SC("MinUint32"),      std::numeric_limits< uint32_t >::min()},
+    {_SC("MaxUint32"),      std::numeric_limits< uint32_t >::max()},
     {_SC("MinFloat"),       std::numeric_limits< SQFloat >::min()},
     {_SC("MaxFloat"),       std::numeric_limits< SQFloat >::max()},
     {_SC("MinFloat32"),     std::numeric_limits< float >::min()},
