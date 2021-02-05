@@ -406,9 +406,9 @@ bool Core::Execute()
     m_LockPostLoadSignal = false;
     m_LockUnloadSignal = false;
 
-    cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins to register their API");
+    //cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins to register their API");
     // Tell modules to do their monkey business
-    _Func->SendPluginCommand(0xDEADBABE, "");
+    //_Func->SendPluginCommand(0xDEADBABE, "");
 
     // Load pending scripts while we're in the bounds of the allowed recursiveness
     for (unsigned levels = 0; !m_PendingScripts.empty() && (levels < 8); ++levels)
@@ -475,9 +475,9 @@ void Core::Terminate(bool shutdown)
         // Clear the callbacks
         ResetSignalPair(mOnUnload);
 
-        cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins to release their resources");
+        //cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins to release their resources");
         // Tell modules to do their monkey business
-        _Func->SendPluginCommand(0xDEADC0DE, "");
+        //_Func->SendPluginCommand(0xDEADC0DE, "");
     }
     cLogDbg(m_Verbosity >= 1, "Clearing the entity containers");
     // Release all entity resources by clearing the containers
@@ -537,17 +537,17 @@ void Core::Terminate(bool shutdown)
         HSQUIRRELVM sq_vm = m_VM;
         m_VM = nullptr;
 
-        cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins the virtual machine is closing");
+        //cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins the virtual machine is closing");
         // Tell modules to do their monkey business
-        _Func->SendPluginCommand(0xBAAAAAAD, "");
+        //_Func->SendPluginCommand(0xBAAAAAAD, "");
         // Release any callbacks from the logger
         Logger::Get().Release();
         // Attempt to close the VM
         sq_close(sq_vm);
 
-        cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins to release the virtual machine");
+        //cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins to release the virtual machine");
         // Tell modules to do their monkey business
-        _Func->SendPluginCommand(0xDEADBEAF, "");
+        //_Func->SendPluginCommand(0xDEADBEAF, "");
     }
 
     OutputMessage("Squirrel plug-in was successfully terminated");
