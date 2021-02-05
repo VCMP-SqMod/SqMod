@@ -390,6 +390,30 @@ bool PvClass::HaveUnitWithTag(StackStrF & tag)
     return false;
 }
 
+// ------------------------------------------------------------------------------------------------
+void PvClass::EachEntryID(Object & ctx, Function & func)
+{
+    // In order to be safe from modifications while iterating, create a copy
+    PvStatusList list(mPrivileges);
+    // Iterate entries and forward the ID to the callback
+    for (const auto & e : list)
+    {
+        func(ctx, e.first);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void PvClass::EachUnitID(Object & ctx, Function & func)
+{
+    // In order to be safe from modifications while iterating, create a copy
+    PvUnit::List list(mUnits);
+    // Iterate units and forward the ID to the callback
+    for (const auto & u : list)
+    {
+        func(ctx, u.second->mID);
+    }
+}
+
 // ================================================================================================
 bool SqPvClass::Can(LightObj & obj) const
 {
@@ -462,6 +486,8 @@ void Register_Privilege_Class(HSQUIRRELVM vm, Table & ns)
         .FmtFunc(_SC("GetUnitWithTag"), &SqPvClass::GetUnitWithTag)
         .Func(_SC("HaveUnit"), &SqPvClass::HaveUnitWithID)
         .FmtFunc(_SC("HaveUnitWithTag"), &SqPvClass::HaveUnitWithTag)
+        .FmtFunc(_SC("EachEntryID"), &SqPvClass::EachEntryID)
+        .FmtFunc(_SC("EachUnitID"), &SqPvClass::EachUnitID)
     );
 }
 

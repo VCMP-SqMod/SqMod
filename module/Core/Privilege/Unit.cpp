@@ -342,6 +342,18 @@ bool PvUnit::Can(SQInteger id) const
     return false;
 }
 
+// ------------------------------------------------------------------------------------------------
+void PvUnit::EachEntryID(Object & ctx, Function & func)
+{
+    // In order to be safe from modifications while iterating, create a copy
+    PvStatusList list(mPrivileges);
+    // Iterate entries and forward the ID to the callback
+    for (const auto & e : list)
+    {
+        func(ctx, e.first);
+    }
+}
+
 // ================================================================================================
 LightObj SqPvUnit::GetClass() const
 {
@@ -429,6 +441,7 @@ void Register_Privilege_Unit(HSQUIRRELVM vm, Table & ns)
         .Func(_SC("Modify"), &SqPvUnit::ModifyPrivilegeWithID)
         .FmtFunc(_SC("ModifyWithTag"), &SqPvUnit::ModifyPrivilegeWithTag)
         .Func(_SC("RemoveAll"), &SqPvUnit::RemoveAllPrivileges)
+        .Func(_SC("EachEntryID"), &SqPvUnit::EachEntryID)
     );
 }
 

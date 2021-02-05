@@ -646,6 +646,21 @@ public:
      * Remove a unit with a certain tag from this manager.
     */
     void RemoveUnitWithTag(StackStrF & tag);
+
+    /* --------------------------------------------------------------------------------------------
+     * Invoke a given callback with every known entry identifier.
+    */
+    void EachEntryID(Object & ctx, Function & func);
+
+    /* --------------------------------------------------------------------------------------------
+     * Invoke a given callback with every known class identifier.
+    */
+    void EachClassID(Object & ctx, Function & func);
+
+    /* --------------------------------------------------------------------------------------------
+     * Invoke a given callback with every known unit identifier.
+    */
+    void EachUnitID(Object & ctx, Function & func);
 };
 
 } // Namespace:: SqMod

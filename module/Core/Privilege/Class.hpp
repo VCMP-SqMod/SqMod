@@ -296,6 +296,16 @@ struct PvClass
      * See if a unit with a certain tag inherits this class.
     */
     bool HaveUnitWithTag(StackStrF & tag);
+
+    /* --------------------------------------------------------------------------------------------
+     * Invoke a given callback with every owned entry identifier.
+    */
+    void EachEntryID(Object & ctx, Function & func);
+
+    /* --------------------------------------------------------------------------------------------
+     * Invoke a given callback with every parented unit identifier.
+    */
+    void EachUnitID(Object & ctx, Function & func);
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -358,6 +368,9 @@ struct SqPvClass
     SQMOD_NODISCARD LightObj GetUnitWithTag(StackStrF & tag) const { return Valid().GetUnitWithTag(tag); }
     SQMOD_NODISCARD bool HaveUnitWithID(SQInteger id) const { return Valid().HaveUnitWithID(id); }
     SQMOD_NODISCARD bool HaveUnitWithTag(StackStrF & tag) const { return Valid().HaveUnitWithTag(tag); }
+    // --------------------------------------------------------------------------------------------
+    void EachEntryID(Object & ctx, Function & func) { return Valid().EachEntryID(ctx, func); }
+    void EachUnitID(Object & ctx, Function & func) { return Valid().EachUnitID(ctx, func); }
 };
 
 } // Namespace:: SqMod

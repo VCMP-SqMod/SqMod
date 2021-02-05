@@ -249,6 +249,11 @@ struct PvUnit
      * Check if this unit has a certain privilege.
     */
     SQMOD_NODISCARD bool Can(SQInteger id) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Invoke a given callback with every owned entry identifier.
+    */
+    void EachEntryID(Object & ctx, Function & func);
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -304,6 +309,8 @@ struct SqPvUnit
     void ModifyPrivilegeWithID(SQInteger id, SQInteger value) { Valid().ModifyPrivilege(id, value); }
     void ModifyPrivilegeWithTag(StackStrF & tag, SQInteger value) { Valid().ModifyPrivilege(tag, value); }
     void RemoveAllPrivileges() { Valid().RemoveAllPrivileges(); }
+    // --------------------------------------------------------------------------------------------
+    void EachEntryID(Object & ctx, Function & func) { return Valid().EachEntryID(ctx, func); }
 };
 
 } // Namespace:: SqMod

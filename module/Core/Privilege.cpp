@@ -342,6 +342,8 @@ bool PvManager::HaveUnitWithTag(StackStrF & tag)
 // ------------------------------------------------------------------------------------------------
 void PvManager::RemoveEntryWithID(SQInteger id)
 {
+    ModifyEntries();
+
     // Remove this entry from the units
     for (const auto & u : m_Units)
     {
@@ -359,6 +361,8 @@ void PvManager::RemoveEntryWithID(SQInteger id)
 // ------------------------------------------------------------------------------------------------
 void PvManager::RemoveEntryWithTag(StackStrF & tag)
 {
+    ModifyEntries();
+
     PvEntry & e = *GetValidEntryWithTag(tag);
     // Remove this entry from the units
     for (const auto & u : m_Units)
@@ -383,6 +387,8 @@ void PvManager::RemoveEntryWithTag(StackStrF & tag)
 // ------------------------------------------------------------------------------------------------
 void PvManager::RemoveClassWithID(SqPvClass & sub, SQInteger id)
 {
+    ModifyClasses();
+
     PvClass::Ref cls = sub.mI.lock();
     // Remove this entry from units
     for (const auto & u : m_Units)
@@ -409,6 +415,8 @@ void PvManager::RemoveClassWithID(SqPvClass & sub, SQInteger id)
 // ------------------------------------------------------------------------------------------------
 void PvManager::RemoveClassWithTag(SqPvClass & sub, StackStrF & tag)
 {
+    ModifyClasses();
+
     PvClass::Ref cls = sub.mI.lock();
     // Remove this class from units
     for (const auto & u : m_Units)
@@ -441,6 +449,8 @@ void PvManager::RemoveClassWithTag(SqPvClass & sub, StackStrF & tag)
 // ------------------------------------------------------------------------------------------------
 void PvManager::RemoveUnitWithID(SQInteger id)
 {
+    ModifyUnits();
+
     // Remove this class from classes
     for (const auto & c : m_Classes)
     {
@@ -453,6 +463,8 @@ void PvManager::RemoveUnitWithID(SQInteger id)
 // ------------------------------------------------------------------------------------------------
 void PvManager::RemoveUnitWithTag(StackStrF & tag)
 {
+    ModifyUnits();
+
     PvUnit & u = *GetValidUnitWithTag(tag);
     // Remove this class from classes
     for (const auto & c : m_Classes)
@@ -466,6 +478,42 @@ void PvManager::RemoveUnitWithTag(StackStrF & tag)
     if (itr != m_Units.end())
     {
         m_Units.erase(itr);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void PvManager::EachEntryID(Object & ctx, Function & func)
+{
+    // Prevent any changes to entries during this operation
+    AutoAssign< bool > aag(m_LockEntries, false, true);
+    // Iterate entries and forward the ID to the callback
+    for (const auto & e : m_Entries)
+    {
+        func(ctx, e.second->mID);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void PvManager::EachClassID(Object & ctx, Function & func)
+{
+    // Prevent any changes to classes during this operation
+    AutoAssign< bool > aag(m_LockClasses, false, true);
+    // Iterate classes and forward the ID to the callback
+    for (const auto & c : m_Classes)
+    {
+        func(ctx, c.second->mID);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void PvManager::EachUnitID(Object & ctx, Function & func)
+{
+    // Prevent any changes to units during this operation
+    AutoAssign< bool > aag(m_LockUnits, false, true);
+    // Iterate units and forward the ID to the callback
+    for (const auto & u : m_Units)
+    {
+        func(ctx, u.second->mID);
     }
 }
 
@@ -523,6 +571,9 @@ void Register_Privilege(HSQUIRRELVM vm)
         .FmtFunc(_SC("RemoveEntryWithTag"), &PvManager::RemoveEntryWithTag)
         .Func(_SC("RemoveClass"), &PvManager::RemoveClassWithID)
         .FmtFunc(_SC("RemoveClassWithTag"), &PvManager::RemoveClassWithTag)
+        .FmtFunc(_SC("EachEntryID"), &PvManager::EachEntryID)
+        .FmtFunc(_SC("EachClassID"), &PvManager::EachClassID)
+        .FmtFunc(_SC("EachUnitID"), &PvManager::EachUnitID)
     );
 
     RootTable(vm).Bind(_SC("SqPrivilege"), ns);
