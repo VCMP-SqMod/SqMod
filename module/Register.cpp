@@ -94,7 +94,7 @@ bool RegisterAPI(HSQUIRRELVM vm)
     Register_Log(vm);
     Register_Core(vm);
     Register_Command(vm);
-    //Register_Privilege(vm);
+    Register_Privilege(vm);
     Register_Routine(vm);
     Register_Tasks(vm);
 

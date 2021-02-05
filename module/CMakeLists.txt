@@ -38,11 +38,17 @@ add_library(SqModule MODULE SqBase.hpp Main.cpp
 	Core/Command.cpp Core/Command.hpp
 	Core/Common.cpp Core/Common.hpp
 	Core/Entity.cpp Core/Entity.hpp
+	Core/Privilege.cpp Core/Privilege.hpp
+	Core/Privilege/Base.cpp Core/Privilege/Base.hpp
+	Core/Privilege/Class.cpp Core/Privilege/Class.hpp
+	Core/Privilege/Entry.cpp Core/Privilege/Entry.hpp
+	Core/Privilege/Unit.cpp Core/Privilege/Unit.hpp
 	Core/Routine.cpp Core/Routine.hpp
 	Core/Script.cpp Core/Script.hpp
 	Core/Signal.cpp Core/Signal.hpp
 	Core/Tasks.cpp Core/Tasks.hpp
 	Core/Utility.cpp Core/Utility.hpp
+	Core/VecMap.hpp
 	# Entity
 	Entity/Blip.cpp Entity/Blip.hpp
 	Entity/Checkpoint.cpp Entity/Checkpoint.hpp

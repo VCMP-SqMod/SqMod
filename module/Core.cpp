@@ -44,7 +44,7 @@ extern void InitializeTasks();
 extern void InitializeRoutines();
 extern void TerminateAreas();
 extern void TerminateTasks();
-//extern void TerminatePrivileges();
+extern void TerminatePrivileges();
 extern void TerminateRoutines();
 extern void TerminateCommands();
 extern void TerminateSignals();
@@ -501,7 +501,7 @@ void Core::Terminate(bool shutdown)
     // Release all managed areas
     TerminateAreas();
     // Release privilege managers
-    //TerminatePrivileges();
+    TerminatePrivileges();
     // Release announcers
     AnnounceTerminate();
     // Release ZMQ sockets
