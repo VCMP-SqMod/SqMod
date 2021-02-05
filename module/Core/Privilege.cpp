@@ -133,7 +133,7 @@ void PvManager::PropagateParentChange(const PvClass & cls, const PvClass::Ref & 
             // Is this entry inherited or owned?
             if (itr != cls.mPrivileges.end())
             {
-                break; // Nothing new will happen here
+                continue; // Nothing new will happen here
             }
         }
         // We know we inherit this entry value so let's get that value instead
@@ -143,7 +143,7 @@ void PvManager::PropagateParentChange(const PvClass & cls, const PvClass::Ref & 
         // Are they literally the same?
         if (inherited == current)
         {
-            break; // Don't even bother
+            continue; // Don't even bother
         }
         // Find out who can identify this change
         const Function & modify = e.second->mOnModify.IsNull() ? m_OnModify : e.second->mOnModify;
@@ -180,7 +180,7 @@ void PvManager::PropagateClassChange(const PvUnit & unit, const PvClass::Ref & c
             // Is this entry inherited or owned?
             if (itr != unit.mPrivileges.end())
             {
-                break; // Nothing new will happen here
+                continue; // Nothing new will happen here
             }
         }
         // We know we inherit this entry value so let's get that value instead
@@ -190,7 +190,7 @@ void PvManager::PropagateClassChange(const PvUnit & unit, const PvClass::Ref & c
         // Are they literally the same?
         if (inherited == current)
         {
-            break; // Don't even bother
+            continue; // Don't even bother
         }
         // Find out who can identify this change
         const Function & modify = e.second->mOnModify.IsNull() ? m_OnModify : e.second->mOnModify;
