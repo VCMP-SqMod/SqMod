@@ -263,6 +263,11 @@ struct PvClass
     void ModifyPrivilege(StackStrF & tag, SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
+     * Remove all status values. Basically it reverts to the parent class privileges.
+    */
+    void RemoveAllPrivileges();
+
+    /* --------------------------------------------------------------------------------------------
      * Change the parent class.
     */
     void AssignParent(const Ref & parent);
@@ -347,6 +352,7 @@ struct SqPvClass
     void RemovePrivilegeWithTag(StackStrF & tag) { Valid().RemovePrivilege(tag); }
     void ModifyPrivilegeWithID(SQInteger id, SQInteger value) { Valid().ModifyPrivilege(id, value); }
     void ModifyPrivilegeWithTag(StackStrF & tag, SQInteger value) { Valid().ModifyPrivilege(tag, value); }
+    void RemoveAllPrivileges() { Valid().RemoveAllPrivileges(); }
     // --------------------------------------------------------------------------------------------
     SQMOD_NODISCARD LightObj GetUnitWithID(SQInteger id) const { return Valid().GetUnitWithID(id); }
     SQMOD_NODISCARD LightObj GetUnitWithTag(StackStrF & tag) const { return Valid().GetUnitWithTag(tag); }

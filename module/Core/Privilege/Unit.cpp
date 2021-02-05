@@ -263,6 +263,41 @@ void PvUnit::ModifyPrivilege(StackStrF & tag, SQInteger value)
 }
 
 // ------------------------------------------------------------------------------------------------
+void PvUnit::RemoveAllPrivileges()
+{
+    // Discard all privileges but not before gaining ownership of them
+    PvStatusList list = std::move(mPrivileges);
+    // Go over all entries and see if this unit will gain or loose any privileges from this change
+    for (const auto & e : list)
+    {
+        // Get the value that we have now after the change
+        SQInteger current = GetEntryValue(e.first);
+        // Were they literally the same?
+        if (current == e.second)
+        {
+            continue; // Don't even bother
+        }
+        // Retrieve the associated entry
+        PvEntry & entry = ValidManager().ValidEntry(e.first);
+        // Is there someone that can identify this change?
+        if (!entry.mOnModify.IsNull())
+        {
+            LightObj r = entry.mOnModify.Eval(current, e.second);
+            // Was this considered a change?
+            if (!r.IsNull())
+            {
+                DoChanged(e.first, r.Cast< bool >(), e.second);
+            }
+        }
+        else
+        {
+            // By default we use > comparison to decide upgrades
+            DoChanged(e.first, e.second > current, e.second);
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 void PvUnit::AssignClass(const std::shared_ptr< PvClass > & cls)
 {
     // Make sure we have a valid class
@@ -388,11 +423,12 @@ void Register_Privilege_Unit(HSQUIRRELVM vm, Table & ns)
         // Member Methods
         .Func(_SC("Can"), &SqPvUnit::Can)
         .Func(_SC("Assign"), &SqPvUnit::AssignPrivilegeWithID)
-        .Func(_SC("AssignWithTag"), &SqPvUnit::AssignPrivilegeWithTag)
+        .FmtFunc(_SC("AssignWithTag"), &SqPvUnit::AssignPrivilegeWithTag)
         .Func(_SC("Remove"), &SqPvUnit::RemovePrivilegeWithID)
-        .Func(_SC("RemoveWithTag"), &SqPvUnit::RemovePrivilegeWithTag)
+        .FmtFunc(_SC("RemoveWithTag"), &SqPvUnit::RemovePrivilegeWithTag)
         .Func(_SC("Modify"), &SqPvUnit::ModifyPrivilegeWithID)
-        .Func(_SC("ModifyWithTag"), &SqPvUnit::ModifyPrivilegeWithTag)
+        .FmtFunc(_SC("ModifyWithTag"), &SqPvUnit::ModifyPrivilegeWithTag)
+        .Func(_SC("RemoveAll"), &SqPvUnit::RemoveAllPrivileges)
     );
 }
 
