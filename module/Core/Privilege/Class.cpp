@@ -162,7 +162,7 @@ void PvClass::AssignPrivilege(SQInteger id, SQInteger value)
             DoChanged(id, r.Cast< bool >(), value);
         }
     }
-    // Either waiy, we are setting this value
+    // Either way, we are setting this value
     mPrivileges[id] = value;
 }
 
@@ -391,7 +391,7 @@ bool PvClass::HaveUnitWithTag(StackStrF & tag)
 }
 
 // ------------------------------------------------------------------------------------------------
-void PvClass::EachEntryID(Object & ctx, Function & func)
+void PvClass::EachEntryID(Object & ctx, Function & func) const
 {
     // In order to be safe from modifications while iterating, create a copy
     PvStatusList list(mPrivileges);
@@ -403,7 +403,7 @@ void PvClass::EachEntryID(Object & ctx, Function & func)
 }
 
 // ------------------------------------------------------------------------------------------------
-void PvClass::EachUnitID(Object & ctx, Function & func)
+void PvClass::EachUnitID(Object & ctx, Function & func) const
 {
     // In order to be safe from modifications while iterating, create a copy
     PvUnit::List list(mUnits);

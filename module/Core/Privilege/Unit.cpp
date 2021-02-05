@@ -343,7 +343,7 @@ bool PvUnit::Can(SQInteger id, SQInteger req) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void PvUnit::EachEntryID(Object & ctx, Function & func)
+void PvUnit::EachEntryID(Object & ctx, Function & func) const
 {
     // In order to be safe from modifications while iterating, create a copy
     PvStatusList list(mPrivileges);

@@ -253,7 +253,7 @@ struct PvUnit
     /* --------------------------------------------------------------------------------------------
      * Invoke a given callback with every owned entry identifier.
     */
-    void EachEntryID(Object & ctx, Function & func);
+    void EachEntryID(Object & ctx, Function & func) const;
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -302,15 +302,15 @@ struct SqPvUnit
     // --------------------------------------------------------------------------------------------
     bool Can(LightObj & obj, SQInteger req) const;
     // --------------------------------------------------------------------------------------------
-    void AssignPrivilegeWithID(SQInteger id, SQInteger value) { Valid().AssignPrivilege(id, value); }
-    void AssignPrivilegeWithTag(StackStrF & tag, SQInteger value) { Valid().AssignPrivilege(tag, value); }
-    void RemovePrivilegeWithID(SQInteger id) { Valid().RemovePrivilege(id); }
-    void RemovePrivilegeWithTag(StackStrF & tag) { Valid().RemovePrivilege(tag); }
-    void ModifyPrivilegeWithID(SQInteger id, SQInteger value) { Valid().ModifyPrivilege(id, value); }
-    void ModifyPrivilegeWithTag(StackStrF & tag, SQInteger value) { Valid().ModifyPrivilege(tag, value); }
-    void RemoveAllPrivileges() { Valid().RemoveAllPrivileges(); }
+    void AssignPrivilegeWithID(SQInteger id, SQInteger value) const { Valid().AssignPrivilege(id, value); }
+    void AssignPrivilegeWithTag(StackStrF & tag, SQInteger value) const { Valid().AssignPrivilege(tag, value); }
+    void RemovePrivilegeWithID(SQInteger id) const { Valid().RemovePrivilege(id); }
+    void RemovePrivilegeWithTag(StackStrF & tag) const { Valid().RemovePrivilege(tag); }
+    void ModifyPrivilegeWithID(SQInteger id, SQInteger value) const { Valid().ModifyPrivilege(id, value); }
+    void ModifyPrivilegeWithTag(StackStrF & tag, SQInteger value) const { Valid().ModifyPrivilege(tag, value); }
+    void RemoveAllPrivileges() const { Valid().RemoveAllPrivileges(); }
     // --------------------------------------------------------------------------------------------
-    void EachEntryID(Object & ctx, Function & func) { return Valid().EachEntryID(ctx, func); }
+    void EachEntryID(Object & ctx, Function & func) const { return Valid().EachEntryID(ctx, func); }
 };
 
 } // Namespace:: SqMod

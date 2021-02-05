@@ -194,7 +194,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Makes sure you can modify current entries.
     */
-    void ModifyEntries()
+    void ModifyEntries() const
     {
         if (m_LockEntries)
         {
@@ -205,7 +205,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Makes sure you can modify current entries.
     */
-    void ModifyClasses()
+    void ModifyClasses() const
     {
         if (m_LockClasses)
         {
@@ -216,7 +216,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Makes sure you can modify current entries.
     */
-    void ModifyUnits()
+    void ModifyUnits() const
     {
         if (m_LockUnits)
         {
