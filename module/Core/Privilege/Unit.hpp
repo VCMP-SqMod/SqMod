@@ -207,18 +207,33 @@ struct PvUnit
      * Assign a status value. Does not care if a parent (class or global) has the same status.
      * Later if the parent changes this status, we will keep having this status value.
     */
-    void AssignStatus(SQInteger id, SQInteger value);
+    void AssignPrivilege(SQInteger id, SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
      * Remove a status value. If the specified status value is not assigned, nothing happens.
     */
-    void RemoveStatus(SQInteger id);
+    void RemovePrivilege(SQInteger id);
 
     /* --------------------------------------------------------------------------------------------
      * Assign a status value. If a parent (class or global) has the same value, nothing changes.
      * Same as AssignStatus but the status will not be enforced if we have it (inherited or not).
     */
-    void ModifyStatus(SQInteger id, SQInteger value);
+    void ModifyPrivilege(SQInteger id, SQInteger value);
+
+    /* --------------------------------------------------------------------------------------------
+     * See AssignPrivilege().
+    */
+    void AssignPrivilege(StackStrF & tag, SQInteger value);
+
+    /* --------------------------------------------------------------------------------------------
+     * See RemovePrivilege().
+    */
+    void RemovePrivilege(StackStrF & tag);
+
+    /* --------------------------------------------------------------------------------------------
+     * See ModifyPrivilege().
+    */
+    void ModifyPrivilege(StackStrF & tag, SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
      * Assign a new class.
@@ -276,6 +291,13 @@ struct SqPvUnit
     SQMOD_NODISCARD LightObj GetManager() const;
     // --------------------------------------------------------------------------------------------
     bool Can(LightObj & obj) const;
+    // --------------------------------------------------------------------------------------------
+    void AssignPrivilegeWithID(SQInteger id, SQInteger value) { Valid().AssignPrivilege(id, value); }
+    void AssignPrivilegeWithTag(StackStrF & tag, SQInteger value) { Valid().AssignPrivilege(tag, value); }
+    void RemovePrivilegeWithID(SQInteger id) { Valid().RemovePrivilege(id); }
+    void RemovePrivilegeWithTag(StackStrF & tag) { Valid().RemovePrivilege(tag); }
+    void ModifyPrivilegeWithID(SQInteger id, SQInteger value) { Valid().ModifyPrivilege(id, value); }
+    void ModifyPrivilegeWithTag(StackStrF & tag, SQInteger value) { Valid().ModifyPrivilege(tag, value); }
 };
 
 } // Namespace:: SqMod

@@ -161,7 +161,7 @@ void PvUnit::DoChanged(SQInteger id, bool status, SQInteger value) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void PvUnit::AssignStatus(SQInteger id, SQInteger value)
+void PvUnit::AssignPrivilege(SQInteger id, SQInteger value)
 {
     // Find the current status of this entry
     SQInteger current = GetEntryValue(id);
@@ -182,7 +182,7 @@ void PvUnit::AssignStatus(SQInteger id, SQInteger value)
 }
 
 // ------------------------------------------------------------------------------------------------
-void PvUnit::RemoveStatus(SQInteger id)
+void PvUnit::RemovePrivilege(SQInteger id)
 {
     // Look for the status of this value
     auto itr = mPrivileges.find(id);
@@ -212,7 +212,7 @@ void PvUnit::RemoveStatus(SQInteger id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void PvUnit::ModifyStatus(SQInteger id, SQInteger value)
+void PvUnit::ModifyPrivilege(SQInteger id, SQInteger value)
 {
     // Find the current status of this entry
     SQInteger current = GetEntryValue(id);
@@ -245,6 +245,24 @@ void PvUnit::ModifyStatus(SQInteger id, SQInteger value)
 }
 
 // ------------------------------------------------------------------------------------------------
+void PvUnit::AssignPrivilege(StackStrF & tag, SQInteger value)
+{
+    AssignPrivilege(ValidManager().GetValidEntryWithTag(tag.CacheHash())->mID, value);
+}
+
+// ------------------------------------------------------------------------------------------------
+void PvUnit::RemovePrivilege(StackStrF & tag)
+{
+    RemovePrivilege(ValidManager().GetValidEntryWithTag(tag.CacheHash())->mID);
+}
+
+// ------------------------------------------------------------------------------------------------
+void PvUnit::ModifyPrivilege(StackStrF & tag, SQInteger value)
+{
+    ModifyPrivilege(ValidManager().GetValidEntryWithTag(tag.CacheHash())->mID, value);
+}
+
+// ------------------------------------------------------------------------------------------------
 void PvUnit::AssignClass(const std::shared_ptr< PvClass > & cls)
 {
     // Make sure we have a valid class
@@ -265,13 +283,13 @@ void PvUnit::AssignClass(const std::shared_ptr< PvClass > & cls)
 // ------------------------------------------------------------------------------------------------
 bool PvUnit::Can(SQInteger id) const
 {
+    // Get the current status of the specified entry
+    SQInteger current = GetEntryValue(id);
     // Retrieve the function responsible for the query event
     const Function & query = GetOnQuery(id);
     // Is there someone that can arbitrate this request?
     if (!query.IsNull())
     {
-        // Get the current status of the specified entry
-        SQInteger current = GetEntryValue(id);
         // Attempt arbitration
         LightObj r = query.Eval(current);
         // If NULL or false the request was denied
@@ -279,6 +297,11 @@ bool PvUnit::Can(SQInteger id) const
         {
             return true; // Request allowed
         }
+    }
+    // We use the >= comparison to settle arbitration
+    else if (current >= ValidManager().ValidEntry(id).mDefault)
+    {
+        return true;
     }
     // Request failed, no arbitration
     return false;
@@ -364,6 +387,12 @@ void Register_Privilege_Unit(HSQUIRRELVM vm, Table & ns)
         .CbFunc(_SC("OnGained"), &SqPvUnit::SetOnGained)
         // Member Methods
         .Func(_SC("Can"), &SqPvUnit::Can)
+        .Func(_SC("Assign"), &SqPvUnit::AssignPrivilegeWithID)
+        .Func(_SC("AssignWithTag"), &SqPvUnit::AssignPrivilegeWithTag)
+        .Func(_SC("Remove"), &SqPvUnit::RemovePrivilegeWithID)
+        .Func(_SC("RemoveWithTag"), &SqPvUnit::RemovePrivilegeWithTag)
+        .Func(_SC("Modify"), &SqPvUnit::ModifyPrivilegeWithID)
+        .Func(_SC("ModifyWithTag"), &SqPvUnit::ModifyPrivilegeWithTag)
     );
 }
 

@@ -146,7 +146,7 @@ void PvClass::DoChanged(SQInteger id, bool status, SQInteger value) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void PvClass::AssignStatus(SQInteger id, SQInteger value)
+void PvClass::AssignPrivilege(SQInteger id, SQInteger value)
 {
     // Find the current status of this entry
     SQInteger current = GetEntryValue(id);
@@ -167,7 +167,7 @@ void PvClass::AssignStatus(SQInteger id, SQInteger value)
 }
 
 // ------------------------------------------------------------------------------------------------
-void PvClass::RemoveStatus(SQInteger id)
+void PvClass::RemovePrivilege(SQInteger id)
 {
     // Look for the status of this value
     auto itr = mPrivileges.find(id);
@@ -197,7 +197,7 @@ void PvClass::RemoveStatus(SQInteger id)
 }
 
 // ------------------------------------------------------------------------------------------------
-void PvClass::ModifyStatus(SQInteger id, SQInteger value)
+void PvClass::ModifyPrivilege(SQInteger id, SQInteger value)
 {
     // Find the current status of this entry
     SQInteger current = GetEntryValue(id);
@@ -230,6 +230,24 @@ void PvClass::ModifyStatus(SQInteger id, SQInteger value)
 }
 
 // ------------------------------------------------------------------------------------------------
+void PvClass::AssignPrivilege(StackStrF & tag, SQInteger value)
+{
+    AssignPrivilege(ValidManager().GetValidEntryWithTag(tag.CacheHash())->mID, value);
+}
+
+// ------------------------------------------------------------------------------------------------
+void PvClass::RemovePrivilege(StackStrF & tag)
+{
+    RemovePrivilege(ValidManager().GetValidEntryWithTag(tag.CacheHash())->mID);
+}
+
+// ------------------------------------------------------------------------------------------------
+void PvClass::ModifyPrivilege(StackStrF & tag, SQInteger value)
+{
+    ModifyPrivilege(ValidManager().GetValidEntryWithTag(tag.CacheHash())->mID, value);
+}
+
+// ------------------------------------------------------------------------------------------------
 void PvClass::AssignParent(const Ref & parent)
 {
     // Do we have a parent?
@@ -253,13 +271,13 @@ void PvClass::AssignParent(const Ref & parent)
 // ------------------------------------------------------------------------------------------------
 bool PvClass::Can(SQInteger id) const
 {
+    // Get the current status of the specified entry
+    SQInteger current = GetEntryValue(id);
     // Retrieve the function responsible for the query event
     const Function & query = GetOnQuery(id);
     // Is there someone that can arbitrate this request?
     if (!query.IsNull())
     {
-        // Get the current status of the specified entry
-        SQInteger current = GetEntryValue(id);
         // Attempt arbitration
         LightObj r = query.Eval(current);
         // If NULL or false the request was denied
@@ -267,6 +285,11 @@ bool PvClass::Can(SQInteger id) const
         {
             return true; // Request allowed
         }
+    }
+    // We use the >= comparison to settle arbitration
+    else if (current >= ValidManager().ValidEntry(id).mDefault)
+    {
+        return true;
     }
     // Request failed, no arbitration
     return false;
@@ -392,12 +415,17 @@ void Register_Privilege_Class(HSQUIRRELVM vm, Table & ns)
         .CbFunc(_SC("OnLost"), &SqPvClass::SetOnLost)
         .CbFunc(_SC("OnGained"), &SqPvClass::SetOnGained)
         // Member Methods
-        .Func(_SC("Can"), &SqPvUnit::Can)
+        .Func(_SC("Can"), &SqPvClass::Can)
+        .Func(_SC("Assign"), &SqPvClass::AssignPrivilegeWithID)
+        .Func(_SC("AssignWithTag"), &SqPvClass::AssignPrivilegeWithTag)
+        .Func(_SC("Remove"), &SqPvClass::RemovePrivilegeWithID)
+        .Func(_SC("RemoveWithTag"), &SqPvClass::RemovePrivilegeWithTag)
+        .Func(_SC("Modify"), &SqPvClass::ModifyPrivilegeWithID)
+        .Func(_SC("ModifyWithTag"), &SqPvClass::ModifyPrivilegeWithTag)
         .Func(_SC("GetUnit"), &SqPvClass::GetUnitWithID)
         .FmtFunc(_SC("GetUnitWithTag"), &SqPvClass::GetUnitWithTag)
         .Func(_SC("HaveUnit"), &SqPvClass::HaveUnitWithID)
         .FmtFunc(_SC("HaveUnitWithTag"), &SqPvClass::HaveUnitWithTag)
-        // Member Overloads
     );
 }
 

@@ -131,6 +131,19 @@ struct PvClass
     PvClass & operator = (PvClass && o) = delete;
 
     /* --------------------------------------------------------------------------------------------
+     * Update the hash of the specified unit.
+    */
+    void UpdateUnitHash(SQInteger id, size_t hash)
+    {
+        auto itr = mUnits.find(PvIdentity(id));
+        // Only update if it exists
+        if (itr != mUnits.end())
+        {
+            itr->first.mHash = hash;
+        }
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Modify the associated user tag.
     */
     void SetTag(StackStrF & tag);
@@ -221,18 +234,33 @@ struct PvClass
      * Assign a status value. Does not care if a parent (class or global) has the same status.
      * Later if the parent changes this status, we will keep having this status value.
     */
-    void AssignStatus(SQInteger id, SQInteger value);
+    void AssignPrivilege(SQInteger id, SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
      * Remove a status value. If the specified status value is not assigned, nothing happens.
     */
-    void RemoveStatus(SQInteger id);
+    void RemovePrivilege(SQInteger id);
 
     /* --------------------------------------------------------------------------------------------
      * Assign a status value. If a parent (class or global) has the same value, nothing changes.
      * Same as AssignStatus but the status will not be enforced if we have it (inherited or not).
     */
-    void ModifyStatus(SQInteger id, SQInteger value);
+    void ModifyPrivilege(SQInteger id, SQInteger value);
+
+    /* --------------------------------------------------------------------------------------------
+     * See AssignPrivilege().
+    */
+    void AssignPrivilege(StackStrF & tag, SQInteger value);
+
+    /* --------------------------------------------------------------------------------------------
+     * See RemovePrivilege().
+    */
+    void RemovePrivilege(StackStrF & tag);
+
+    /* --------------------------------------------------------------------------------------------
+     * See ModifyPrivilege().
+    */
+    void ModifyPrivilege(StackStrF & tag, SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
      * Change the parent class.
@@ -263,19 +291,6 @@ struct PvClass
      * See if a unit with a certain tag inherits this class.
     */
     bool HaveUnitWithTag(StackStrF & tag);
-
-    /* --------------------------------------------------------------------------------------------
-     * Update the hash of the specified unit.
-    */
-    void UpdateUnitHash(SQInteger id, size_t hash)
-    {
-        auto itr = mUnits.find(PvIdentity(id));
-        // Only update if it exists
-        if (itr != mUnits.end())
-        {
-            itr->first.mHash = hash;
-        }
-    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -325,6 +340,13 @@ struct SqPvClass
     }
     // --------------------------------------------------------------------------------------------
     bool Can(LightObj & obj) const;
+    // --------------------------------------------------------------------------------------------
+    void AssignPrivilegeWithID(SQInteger id, SQInteger value) { Valid().AssignPrivilege(id, value); }
+    void AssignPrivilegeWithTag(StackStrF & tag, SQInteger value) { Valid().AssignPrivilege(tag, value); }
+    void RemovePrivilegeWithID(SQInteger id) { Valid().RemovePrivilege(id); }
+    void RemovePrivilegeWithTag(StackStrF & tag) { Valid().RemovePrivilege(tag); }
+    void ModifyPrivilegeWithID(SQInteger id, SQInteger value) { Valid().ModifyPrivilege(id, value); }
+    void ModifyPrivilegeWithTag(StackStrF & tag, SQInteger value) { Valid().ModifyPrivilege(tag, value); }
     // --------------------------------------------------------------------------------------------
     SQMOD_NODISCARD LightObj GetUnitWithID(SQInteger id) const { return Valid().GetUnitWithID(id); }
     SQMOD_NODISCARD LightObj GetUnitWithTag(StackStrF & tag) const { return Valid().GetUnitWithTag(tag); }
