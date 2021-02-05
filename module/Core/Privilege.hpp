@@ -558,64 +558,94 @@ public:
     void PropagateClassChange(const PvUnit::Ref & unit, const PvClass::Ref & cls) { PropagateClassChange(*unit, cls); }
 
     /* --------------------------------------------------------------------------------------------
-     * See if a entry with a certain identifier inherits this class.
+     * Retrieve a entry with a certain identifier from this manager.
     */
     SQMOD_NODISCARD LightObj GetEntryWithID(SQInteger id);
 
     /* --------------------------------------------------------------------------------------------
-     * See if a entry with a certain tag inherits this class.
+     * Retrieve a entry with a certain tag from this manager.
     */
     SQMOD_NODISCARD LightObj GetEntryWithTag(StackStrF & tag);
 
     /* --------------------------------------------------------------------------------------------
-     * See if a entry with a certain identifier inherits this class.
+     * See if a entry with a certain identifier exists in this manager.
     */
     bool HaveEntryWithID(SQInteger id);
 
     /* --------------------------------------------------------------------------------------------
-     * See if a entry with a certain tag inherits this class.
+     * See if a entry with a certain tag exists in this manager.
     */
     bool HaveEntryWithTag(StackStrF & tag);
 
     /* --------------------------------------------------------------------------------------------
-     * See if a class with a certain identifier inherits this class.
+     * Retrieve a class with a certain identifier from this manager.
     */
     SQMOD_NODISCARD LightObj GetClassWithID(SQInteger id);
 
     /* --------------------------------------------------------------------------------------------
-     * See if a class with a certain tag inherits this class.
+     * Retrieve a class with a certain tag from this manager.
     */
     SQMOD_NODISCARD LightObj GetClassWithTag(StackStrF & tag);
 
     /* --------------------------------------------------------------------------------------------
-     * See if a class with a certain identifier inherits this class.
+     * See if a class with a certain identifier exists in this manager.
     */
     bool HaveClassWithID(SQInteger id);
 
     /* --------------------------------------------------------------------------------------------
-     * See if a class with a certain tag inherits this class.
+     * See if a class with a certain tag exists in this manager.
     */
     bool HaveClassWithTag(StackStrF & tag);
 
     /* --------------------------------------------------------------------------------------------
-     * See if a unit with a certain identifier inherits this class.
+     * Retrieve a unit with a certain identifier from this manager.
     */
     SQMOD_NODISCARD LightObj GetUnitWithID(SQInteger id);
 
     /* --------------------------------------------------------------------------------------------
-     * See if a unit with a certain tag inherits this class.
+     * Retrieve a unit with a certain tag from this manager.
     */
     SQMOD_NODISCARD LightObj GetUnitWithTag(StackStrF & tag);
 
     /* --------------------------------------------------------------------------------------------
-     * See if a unit with a certain identifier inherits this class.
+     * See if a unit with a certain identifier exists in this manager.
     */
     bool HaveUnitWithID(SQInteger id);
 
     /* --------------------------------------------------------------------------------------------
-     * See if a unit with a certain tag inherits this class.
+     * See if a unit with a certain tag exists in this manager.
     */
     bool HaveUnitWithTag(StackStrF & tag);
+
+    /* --------------------------------------------------------------------------------------------
+     * Remove a entry with a certain identifier from this manager.
+    */
+    void RemoveEntryWithID(SQInteger id);
+
+    /* --------------------------------------------------------------------------------------------
+     * Remove a entry with a certain tag from this manager.
+    */
+    void RemoveEntryWithTag(StackStrF & tag);
+
+    /* --------------------------------------------------------------------------------------------
+     * Remove a class with a certain identifier from this manager.
+    */
+    void RemoveClassWithID(SqPvClass & sub, SQInteger id);
+
+    /* --------------------------------------------------------------------------------------------
+     * Remove a class with a certain tag from this manager.
+    */
+    void RemoveClassWithTag(SqPvClass & sub, StackStrF & tag);
+
+    /* --------------------------------------------------------------------------------------------
+     * Remove a unit with a certain identifier from this manager.
+    */
+    void RemoveUnitWithID(SQInteger id);
+
+    /* --------------------------------------------------------------------------------------------
+     * Remove a unit with a certain tag from this manager.
+    */
+    void RemoveUnitWithTag(StackStrF & tag);
 };
 
 } // Namespace:: SqMod

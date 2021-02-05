@@ -340,6 +340,136 @@ bool PvManager::HaveUnitWithTag(StackStrF & tag)
 }
 
 // ------------------------------------------------------------------------------------------------
+void PvManager::RemoveEntryWithID(SQInteger id)
+{
+    // Remove this entry from the units
+    for (const auto & u : m_Units)
+    {
+        u.second->mPrivileges.erase(id);
+    }
+    // Remove this entry from the classes
+    for (const auto & c : m_Units)
+    {
+        c.second->mPrivileges.erase(id);
+    }
+    // Finally remove it from the list
+    m_Entries.erase(PvIdentity(id));
+}
+
+// ------------------------------------------------------------------------------------------------
+void PvManager::RemoveEntryWithTag(StackStrF & tag)
+{
+    PvEntry & e = *GetValidEntryWithTag(tag);
+    // Remove this entry from the units
+    for (const auto & u : m_Units)
+    {
+        u.second->mPrivileges.erase(e.mID);
+    }
+    // Remove this entry from the classes
+    for (const auto & c : m_Units)
+    {
+        c.second->mPrivileges.erase(e.mID);
+    }
+    // Finally remove it from the list
+    auto itr = std::find_if(m_Entries.cbegin(), m_Entries.cend(),
+                            [h = tag.CacheHash().GetHash()](PvEntry::List::const_reference e) -> bool { return e.first.mHash == h; });
+    // Was this unit found?
+    if (itr != m_Entries.end())
+    {
+        m_Entries.erase(itr);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void PvManager::RemoveClassWithID(SqPvClass & sub, SQInteger id)
+{
+    PvClass::Ref cls = sub.mI.lock();
+    // Remove this entry from units
+    for (const auto & u : m_Units)
+    {
+        if (u.second->mClass.lock().get() == cls.get())
+        {
+            AutoAssign< bool > aag(m_LockUnits, false, true);
+            u.second->AssignClass(cls);
+        }
+    }
+    // Remove this entry from classes
+    for (const auto & c : m_Classes)
+    {
+        if (!c.second->mParent.expired() && c.second->mParent.lock().get() == cls.get())
+        {
+            AutoAssign< bool > aag(m_LockClasses, false, true);
+            c.second->AssignParent(cls);
+        }
+    }
+    // Finally remove it from the list
+    m_Classes.erase(PvIdentity(id));
+}
+
+// ------------------------------------------------------------------------------------------------
+void PvManager::RemoveClassWithTag(SqPvClass & sub, StackStrF & tag)
+{
+    PvClass::Ref cls = sub.mI.lock();
+    // Remove this class from units
+    for (const auto & u : m_Units)
+    {
+        if (u.second->mClass.lock().get() == cls.get())
+        {
+            AutoAssign< bool > aag(m_LockUnits, false, true);
+            u.second->AssignClass(cls);
+        }
+    }
+    // Remove this class from classes
+    for (const auto & c : m_Classes)
+    {
+        if (!c.second->mParent.expired() && c.second->mParent.lock().get() == cls.get())
+        {
+            AutoAssign< bool > aag(m_LockClasses, false, true);
+            c.second->AssignParent(cls);
+        }
+    }
+    // Finally remove it from the list
+    auto itr = std::find_if(m_Classes.cbegin(), m_Classes.cend(),
+                            [h = tag.CacheHash().GetHash()](PvClass::List::const_reference e) -> bool { return e.first.mHash == h; });
+    // Was this unit found?
+    if (itr != m_Classes.end())
+    {
+        m_Classes.erase(itr);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void PvManager::RemoveUnitWithID(SQInteger id)
+{
+    // Remove this class from classes
+    for (const auto & c : m_Classes)
+    {
+        c.second->mUnits.erase(PvIdentity(id));
+    }
+    // Finally remove it from the list
+    m_Units.erase(PvIdentity(id));
+}
+
+// ------------------------------------------------------------------------------------------------
+void PvManager::RemoveUnitWithTag(StackStrF & tag)
+{
+    PvUnit & u = *GetValidUnitWithTag(tag);
+    // Remove this class from classes
+    for (const auto & c : m_Classes)
+    {
+        c.second->mUnits.erase(PvIdentity(u.mID));
+    }
+    // Finally remove it from the list
+    auto itr = std::find_if(m_Units.cbegin(), m_Units.cend(),
+                            [h = tag.CacheHash().GetHash()](PvUnit::List::const_reference e) -> bool { return e.first.mHash == h; });
+    // Was this unit found?
+    if (itr != m_Units.end())
+    {
+        m_Units.erase(itr);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 extern void Register_Privilege_Class(HSQUIRRELVM vm, Table & ns);
 extern void Register_Privilege_Entry(HSQUIRRELVM vm, Table & ns);
 extern void Register_Privilege_Unit(HSQUIRRELVM vm, Table & ns);
@@ -387,6 +517,12 @@ void Register_Privilege(HSQUIRRELVM vm)
         .FmtFunc(_SC("GetUnitWithTag"), &PvManager::GetUnitWithTag)
         .Func(_SC("HaveUnit"), &PvManager::HaveUnitWithID)
         .FmtFunc(_SC("HaveUnitWithTag"), &PvManager::HaveUnitWithTag)
+        .Func(_SC("RemoveUnit"), &PvManager::RemoveUnitWithID)
+        .FmtFunc(_SC("RemoveUnitWithTag"), &PvManager::RemoveUnitWithTag)
+        .Func(_SC("RemoveEntry"), &PvManager::RemoveEntryWithID)
+        .FmtFunc(_SC("RemoveEntryWithTag"), &PvManager::RemoveEntryWithTag)
+        .Func(_SC("RemoveClass"), &PvManager::RemoveClassWithID)
+        .FmtFunc(_SC("RemoveClassWithTag"), &PvManager::RemoveClassWithTag)
     );
 
     RootTable(vm).Bind(_SC("SqPrivilege"), ns);
