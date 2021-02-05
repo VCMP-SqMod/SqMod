@@ -215,7 +215,7 @@ struct Function  {
         return cenv;
     }
     // Runs the Function and returns its value as a LightObj
-    template<class... Args> LightObj Eval(Args &&... args) {
+    template<class... Args> LightObj Eval(Args &&... args) const {
         static constexpr unsigned ARGC = sizeof...(Args) + 1; // + environment
         HSQUIRRELVM vm = SqVM();
         const SQInteger top = sq_gettop(vm);
@@ -253,7 +253,7 @@ struct Function  {
         return ret;
     }
     // Runs the Function and returns its value as a SharedPtr
-    template<class R, class... Args> SharedPtr<R> Evaluate(Args &&... args) {
+    template<class R, class... Args> SharedPtr<R> Evaluate(Args &&... args) const {
         static constexpr unsigned ARGC = sizeof...(Args) + 1; // + environment
         HSQUIRRELVM vm = SqVM();
         const SQInteger top = sq_gettop(vm);
@@ -293,7 +293,7 @@ struct Function  {
     }
     // Runs the Function
     template< class... Args >
-    void Execute(Args &&... args) {
+    void Execute(Args &&... args) const {
         static constexpr unsigned ARGC = sizeof...(Args) + 1; // + environment
         HSQUIRRELVM vm = SqVM();
         const SQInteger top = sq_gettop(vm);
@@ -329,7 +329,7 @@ struct Function  {
 #endif
     }
     // Runs the Function
-    template< class... Args > void operator() (Args &&... args) {
+    template< class... Args > void operator() (Args &&... args) const {
         Execute(std::forward<Args>(args)...);
     }
 };
