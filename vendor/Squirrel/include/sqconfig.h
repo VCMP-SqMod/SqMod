@@ -53,12 +53,15 @@ typedef SQUnsignedInteger SQBool;
 typedef SQInteger SQRESULT;
 
 #ifdef SQUNICODE
-	#include <wchar.h>
-	#include <wctype.h>
-
+	#ifdef __cplusplus
+		#include <cwchar>
+		#include <cwctype>
+	#else
+		#include <wchar.h>
+		#include <wctype.h>
+	#endif
 
 	typedef wchar_t SQChar;
-
 
 	#define scstrcmp    wcscmp
 
