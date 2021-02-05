@@ -31,23 +31,27 @@ void PvManager::Release()
 // ------------------------------------------------------------------------------------------------
 void PvManager::Terminate()
 {
-    // Release script objects held by classes
-    for (auto & c : m_Classes)
-    {
-        //c->Release();
-    }
     // Release script objects held by units
     for (auto & u : m_Units)
     {
-        //c->Release();
+        u.second->Release();
+    }
+    // Release script objects held by classes
+    for (auto & c : m_Classes)
+    {
+        c.second->Release();
     }
     // Release script objects held by entries
     for (auto & e : m_Entries)
     {
-        //c->Release();
+        e.second->Release();
     }
     // Release script objects held by the manager
     Release();
+    // Clear the containers as well
+    m_Classes.clear();
+    m_Units.clear();
+    m_Entries.clear();
 }
 
 // ------------------------------------------------------------------------------------------------
