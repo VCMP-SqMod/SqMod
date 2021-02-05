@@ -64,7 +64,15 @@ struct SQOuter;
 //#define SQUNICODE
 //#endif
 
+#ifdef __cplusplus
+} /*extern "C"*/
+#endif
+
 #include "sqconfig.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define SQUIRREL_VERSION    _SC("Squirrel 3.1 stable")
 #define SQUIRREL_COPYRIGHT  _SC("Copyright (C) 2003-2017 Alberto Demichelis")
