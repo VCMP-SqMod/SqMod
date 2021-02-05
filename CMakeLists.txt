@@ -22,8 +22,7 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES "(GNU)+")
     # Specific flags
     set(CPP_STD_COMPILER_FLAG "-std=c++14")
     # Don't even bother with previous version
-    # While GCC 8 supports some C++20. Some platforms have issues with <cstddef> and std::byte
-    if(CPP_STD_NUMBER LESS 20 AND NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
+    if(CPP_STD_NUMBER LESS 20 AND NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
         check_cxx_compiler_flag(-std=c++20 HAVE_FLAG_STD_CXX20)
         check_cxx_compiler_flag(-std=c++2a HAVE_FLAG_STD_CXX2A)
         if(HAVE_FLAG_STD_CXX20 OR HAVE_FLAG_STD_CXX2A)
