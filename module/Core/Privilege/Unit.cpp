@@ -316,7 +316,7 @@ void PvUnit::AssignClass(const std::shared_ptr< PvClass > & cls)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool PvUnit::Can(SQInteger id) const
+bool PvUnit::Can(SQInteger id, SQInteger req) const
 {
     // Get the current status of the specified entry
     SQInteger current = GetEntryValue(id);
@@ -326,7 +326,7 @@ bool PvUnit::Can(SQInteger id) const
     if (!query.IsNull())
     {
         // Attempt arbitration
-        LightObj r = query.Eval(current);
+        LightObj r = query.Eval(current, req);
         // If NULL or false the request was denied
         if (!r.IsNull() && r.Cast< bool >())
         {
@@ -372,12 +372,12 @@ inline void SqPvUnit::SetClass(const SqPvClass & cls) const
 LightObj SqPvUnit::GetManager() const { return LightObj(ValidCls().mManager); }
 
 // ------------------------------------------------------------------------------------------------
-bool SqPvUnit::Can(LightObj & obj) const
+bool SqPvUnit::Can(LightObj & obj, SQInteger req) const
 {
     // Entry ID?
     if (obj.GetType() == OT_INTEGER)
     {
-        return Valid().Can(obj.Cast< SQInteger >());
+        return Valid().Can(obj.Cast< SQInteger >(), req);
     }
     // Entry tag?
     else if (obj.GetType() == OT_STRING)
@@ -400,12 +400,12 @@ bool SqPvUnit::Can(LightObj & obj) const
         // Generate and cache the hash
         tag.CacheHash();
         // Forward request
-        return u.Can(u.ValidManager().GetValidEntryWithTag(tag)->mID);
+        return u.Can(u.ValidManager().GetValidEntryWithTag(tag)->mID, req);
     }
     // Entry instance?
     else if (obj.GetType() == OT_INSTANCE && obj.GetTypeTag() == StaticClassTypeTag< SqPvEntry >::Get())
     {
-        return Valid().Can(obj.CastI< SqPvEntry >()->Valid().mID);
+        return Valid().Can(obj.CastI< SqPvEntry >()->Valid().mID, req);
     }
     STHROWF("Unknown or unsupported entry identification type (%s)", SqTypeName(obj.GetType()));
     SQ_UNREACHABLE

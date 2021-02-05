@@ -248,7 +248,7 @@ struct PvUnit
     /* --------------------------------------------------------------------------------------------
      * Check if this unit has a certain privilege.
     */
-    SQMOD_NODISCARD bool Can(SQInteger id) const;
+    SQMOD_NODISCARD bool Can(SQInteger id, SQInteger req) const;
 
     /* --------------------------------------------------------------------------------------------
      * Invoke a given callback with every owned entry identifier.
@@ -300,7 +300,7 @@ struct SqPvUnit
     // --------------------------------------------------------------------------------------------
     SQMOD_NODISCARD LightObj GetManager() const;
     // --------------------------------------------------------------------------------------------
-    bool Can(LightObj & obj) const;
+    bool Can(LightObj & obj, SQInteger req) const;
     // --------------------------------------------------------------------------------------------
     void AssignPrivilegeWithID(SQInteger id, SQInteger value) { Valid().AssignPrivilege(id, value); }
     void AssignPrivilegeWithTag(StackStrF & tag, SQInteger value) { Valid().AssignPrivilege(tag, value); }

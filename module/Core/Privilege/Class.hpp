@@ -275,7 +275,7 @@ struct PvClass
     /* --------------------------------------------------------------------------------------------
      * Check if this class has a certain privilege.
     */
-    SQMOD_NODISCARD bool Can(SQInteger id) const;
+    SQMOD_NODISCARD bool Can(SQInteger id, SQInteger req) const;
 
     /* --------------------------------------------------------------------------------------------
      * See if a unit with a certain identifier inherits this class.
@@ -354,7 +354,7 @@ struct SqPvClass
         mI.lock()->AssignParent(cls.mI.lock());
     }
     // --------------------------------------------------------------------------------------------
-    bool Can(LightObj & obj) const;
+    bool Can(LightObj & obj, SQInteger req) const;
     // --------------------------------------------------------------------------------------------
     void AssignPrivilegeWithID(SQInteger id, SQInteger value) { Valid().AssignPrivilege(id, value); }
     void AssignPrivilegeWithTag(StackStrF & tag, SQInteger value) { Valid().AssignPrivilege(tag, value); }
