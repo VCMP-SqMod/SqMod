@@ -514,7 +514,7 @@ void Register_POCO_Data(HSQUIRRELVM vm, Table &)
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &SqPcDataStatementResult::Fn)
         // Member Methods
-        .Func(_SC("Bind"), &SqDataStatementResult::Bind)
+        .CbFunc(_SC("Bind"), &SqDataStatementResult::Bind)
     );
     // --------------------------------------------------------------------------------------------
     ns.Bind(_SC("Statement"),
