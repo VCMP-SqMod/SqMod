@@ -48,6 +48,7 @@ extern void TerminatePrivileges();
 extern void TerminateRoutines();
 extern void TerminateCommands();
 extern void TerminateSignals();
+extern void TerminatePocoData();
 
 // ------------------------------------------------------------------------------------------------
 extern Buffer GetRealFilePath(const SQChar * path);
@@ -504,6 +505,8 @@ void Core::Terminate(bool shutdown)
     TerminatePrivileges();
     // Release announcers
     AnnounceTerminate();
+    // Release Poco statement results
+    TerminatePocoData();
     // Release ZMQ sockets
     ZmqTerminate();
     // In case there's a payload for reload

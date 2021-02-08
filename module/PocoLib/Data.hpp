@@ -809,6 +809,83 @@ struct SqDataSession : public Session
 /* ------------------------------------------------------------------------------------------------
  * Statement is used to execute SQL statements.
 */
+struct SqDataStatementResult : public SqChainedInstances< SqDataStatementResult >
+{
+    /* --------------------------------------------------------------------------------------------
+     * Watched result.
+    */
+    Statement::Result mRes;
+
+    /* --------------------------------------------------------------------------------------------
+     * Script callback.
+    */
+    Function mFunc;
+
+    /* --------------------------------------------------------------------------------------------
+     * Reference to the statement.
+    */
+    LightObj mStmt;
+
+    /* --------------------------------------------------------------------------------------------
+     * Reference to self.
+    */
+    LightObj mSelf;
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    explicit SqDataStatementResult(const Statement::Result & r, LightObj && stmt)
+        : mRes(r), mFunc(), mStmt(std::move(stmt)), mSelf()
+    {
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor.
+    */
+    SqDataStatementResult(const SqDataStatementResult &) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    SqDataStatementResult(SqDataStatementResult &&) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Destructor.
+    */
+    ~SqDataStatementResult()
+    {
+        // Forget about this instance
+        UnchainInstance();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Assignment operator.
+    */
+    SqDataStatementResult & operator = (const SqDataStatementResult &) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment.
+    */
+    SqDataStatementResult & operator = (SqDataStatementResult &&) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Bind a callback and wait for completion.
+    */
+    LightObj & Bind(Function & fn)
+    {
+        mFunc = std::move(fn);
+        // Reference self to prevent destruction
+        mSelf = LightObj(this);
+        // Remember this instance
+        ChainInstance();
+        // Return the statement
+        return mStmt;
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Statement is used to execute SQL statements.
+*/
 struct SqDataStatement : public Statement
 {
     /* --------------------------------------------------------------------------------------------
@@ -1057,7 +1134,23 @@ struct SqDataStatement : public Statement
     /* --------------------------------------------------------------------------------------------
      * Executes the statement asynchronously.
     */
-    SqDataStatement & ExecuteAsync()
+    LightObj ExecuteAsync()
+    {
+        return LightObj(SqTypeIdentity< SqDataStatementResult >{}, SqVM(), executeAsync(true), LightObj(this));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Executes the statement asynchronously.
+    */
+    LightObj ExecuteAsync_(bool reset)
+    {
+        return LightObj(SqTypeIdentity< SqDataStatementResult >{}, SqVM(), executeAsync(true), LightObj(this));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Executes the statement asynchronously.
+    */
+    SqDataStatement & ExecuteAsyncChained()
     {
         executeAsync(true);
         return *this;
@@ -1066,7 +1159,7 @@ struct SqDataStatement : public Statement
     /* --------------------------------------------------------------------------------------------
      * Executes the statement asynchronously.
     */
-    SqDataStatement & ExecuteAsync_(bool reset)
+    SqDataStatement & ExecuteAsyncChained_(bool reset)
     {
         executeAsync(reset);
         return *this;

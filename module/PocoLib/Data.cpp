@@ -27,6 +27,7 @@ SQMOD_DECL_TYPENAME(SqBoolBinding, _SC("SqBoolBinding"))
 SQMOD_DECL_TYPENAME(SqPcDataSession, _SC("SqDataSession"))
 SQMOD_DECL_TYPENAME(SqPcDataStatement, _SC("SqDataStatement"))
 SQMOD_DECL_TYPENAME(SqPcDataRecordSet, _SC("SqDataRecordSet"))
+SQMOD_DECL_TYPENAME(SqPcDataStatementResult, _SC("SqDataStatementResult"))
 
 // ------------------------------------------------------------------------------------------------
 static const Poco::Data::NullData g_NullData{Poco::NULL_GENERIC};
@@ -425,6 +426,39 @@ static void Register_POCO_Data_Binding(HSQUIRRELVM vm, Table & ns, const SQChar 
     );
 }
 
+// ------------------------------------------------------------------------------------------------
+static void ProcessPocoData(SQInteger ms)
+{
+    // Go over all statement results and try to update them
+    for (SqDataStatementResult * inst = SqDataStatementResult::sHead; inst && inst->mNext != SqDataStatementResult::sHead; inst = inst->mNext)
+    {
+        if (inst->mRes.tryWait(static_cast< long >(ms)))
+        {
+            // Forward the callback with the result
+            inst->mFunc(inst->mStmt, inst->mRes.data());
+            // Stop processing this result
+            inst->UnchainInstance();
+            // Release script resources
+            inst->mFunc.Release();
+            inst->mStmt.Release();
+            inst->mSelf.Release();
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+void TerminatePocoData()
+{
+    // Go over all statement results and try to update them
+    for (SqDataStatementResult * inst = SqDataStatementResult::sHead; inst && inst->mNext != SqDataStatementResult::sHead; inst = inst->mNext)
+    {
+        // Release associated resources
+        inst->mFunc.Release();
+        inst->mStmt.Release();
+        inst->mSelf.Release();
+    }
+}
+
 // ================================================================================================
 void Register_POCO_Data(HSQUIRRELVM vm, Table &)
 {
@@ -475,6 +509,14 @@ void Register_POCO_Data(HSQUIRRELVM vm, Table &)
         .SetStaticValue(_SC("TransactionSerializable"), static_cast< SQInteger >(Session::TRANSACTION_SERIALIZABLE))
     );
     // --------------------------------------------------------------------------------------------
+    ns.Bind(_SC("StatementResult"),
+        Class< SqDataStatementResult, NoConstructor< SqDataStatementResult > >(vm, SqPcDataStatementResult::Str)
+        // Meta-methods
+        .SquirrelFunc(_SC("_typename"), &SqPcDataStatementResult::Fn)
+        // Member Methods
+        .Func(_SC("Bind"), &SqDataStatementResult::Bind)
+    );
+    // --------------------------------------------------------------------------------------------
     ns.Bind(_SC("Statement"),
         Class< SqDataStatement >(vm, SqPcDataStatement::Str)
         // Constructors
@@ -521,6 +563,8 @@ void Register_POCO_Data(HSQUIRRELVM vm, Table &)
         .Overload(_SC("Execute_"), &SqDataStatement::ExecuteChained_)
         .Overload(_SC("ExecuteAsync"), &SqDataStatement::ExecuteAsync)
         .Overload(_SC("ExecuteAsync"), &SqDataStatement::ExecuteAsync_)
+        .Overload(_SC("ExecuteAsync_"), &SqDataStatement::ExecuteAsyncChained)
+        .Overload(_SC("ExecuteAsync_"), &SqDataStatement::ExecuteAsyncChained_)
         .Overload(_SC("Into"), &SqDataStatement::Into)
         .Overload(_SC("Into"), &SqDataStatement::Into_)
         .Overload(_SC("Limit"), &SqDataStatement::Limit1)
@@ -571,6 +615,8 @@ void Register_POCO_Data(HSQUIRRELVM vm, Table &)
         .Overload(_SC("Value"), &SqDataRecordSet::GetValue)
         .Overload(_SC("Value"), &SqDataRecordSet::GetValueOr)
     );
+    // --------------------------------------------------------------------------------------------
+    ns.Func(_SC("Process"), ProcessPocoData);
     // --------------------------------------------------------------------------------------------
     Register_POCO_Data_Binding< SQInteger, SqIntegerBinding >(vm, ns, _SC("IntBind"));
     Register_POCO_Data_Binding< String, SqStringBinding >(vm, ns, _SC("StrBind"));
