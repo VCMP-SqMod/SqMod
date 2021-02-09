@@ -427,15 +427,18 @@ static void Register_POCO_Data_Binding(HSQUIRRELVM vm, Table & ns, const SQChar 
 }
 
 // ------------------------------------------------------------------------------------------------
-static void ProcessPocoData(SQInteger ms)
+static void ProcessPocoData()
 {
     // Go over all statement results and try to update them
     for (SqDataStatementResult * inst = SqDataStatementResult::sHead; inst && inst->mNext != SqDataStatementResult::sHead; inst = inst->mNext)
     {
-        if (inst->mRes.tryWait(static_cast< long >(ms)))
+        if (inst->mRes.available())
         {
             // Forward the callback with the result
-            inst->mFunc(inst->mStmt, inst->mRes.data());
+            if (!inst->mFunc.IsNull())
+            {
+                inst->mFunc.Execute(inst->mStmt, inst->mRes.data());
+            }
             // Stop processing this result
             inst->UnchainInstance();
             // Release script resources
