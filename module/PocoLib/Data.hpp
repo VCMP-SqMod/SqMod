@@ -437,7 +437,7 @@ protected:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the container with the extracted values.
     */
-    const std::vector<T>& result() const
+    SQMOD_NODISCARD const std::vector<T>& result() const
     {
         return *m_Result;
     }
@@ -447,6 +447,17 @@ private:
     T                   m_Default;
     std::deque< bool >  m_Nulls;
 };
+
+// ------------------------------------------------------------------------------------------------
+template <> std::size_t ReferenceExtraction< std::vector<bool> >::extract(std::size_t pos)
+{
+    AbstractExtractor::Ptr ext = getExtractor();
+    bool tmp = m_Default;
+    TypeHandler<bool>::extract(pos, tmp, m_Default, ext);
+    m_Result->push_back(tmp);
+    m_Nulls.push_back(ext->isNull(pos));
+    return 1u;
+}
 
 } // Namespace:: Data
 } // Namespace:: Poco

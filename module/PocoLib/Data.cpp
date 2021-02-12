@@ -202,9 +202,8 @@ void SqDataStatement::UseInst_(LightObj & obj, const std::string & name, Poco::D
     } // Bool vector reference?
     else if (type == StaticClassTypeTag< SqVector< bool > >::Get())
     {
-        // There is no point in having these
-        // Their usefulness is limited and pointless compared to the number of specializations needed get them to work
-        STHROWF("Boolean vectors are not implemented");
+        auto p = obj.CastI< SqVector< bool > >();
+        addBind(new Poco::Data::ReferenceBinding< std::vector< bool > >(p->ValidRef(), name, dir));
     } // Unknown!
     else
     {
@@ -289,9 +288,7 @@ void SqDataStatement::BindInst_(LightObj & obj, const std::string & name, Poco::
     } // Bool vector reference?
     else if (type == StaticClassTypeTag< SqVector< bool > >::Get())
     {
-        // There is no point in having these
-        // Their usefulness is limited and pointless compared to the number of specializations needed get them to work
-        STHROWF("Boolean vectors are not implemented");
+        addBind(new Poco::Data::CopyBinding< std::vector< bool > >(obj.CastI< SqVector< bool > >()->Valid(), name, dir));
     } // Unknown!
     else
     {
@@ -337,9 +334,7 @@ SqDataStatement & SqDataStatement::Into(LightObj & obj)
     } // Bool vector reference?
     else if (type == StaticClassTypeTag< SqVector< bool > >::Get())
     {
-        // There is no point in having these
-        // Their usefulness is limited and pointless compared to the number of specializations needed get them to work
-        STHROWF("Boolean vectors are not implemented");
+        addExtract(new Poco::Data::ReferenceExtraction< std::vector< bool > >(obj.CastI< SqVector< bool > >()->ValidRef()));
     } // Unknown!
     else
     {
@@ -386,9 +381,7 @@ SqDataStatement & SqDataStatement::Into_(LightObj & obj, LightObj & def)
     } // Bool vector reference?
     else if (type == StaticClassTypeTag< SqVector< bool > >::Get())
     {
-        // There is no point in having these
-        // Their usefulness is limited and pointless compared to the number of specializations needed get them to work
-        STHROWF("Boolean vectors are not implemented");
+        addExtract(new Poco::Data::ReferenceExtraction< std::vector< bool > >(obj.CastI< SqVector< bool > >()->ValidRef(), def.Cast< bool >()));
     } // Unknown!
     else
     {
