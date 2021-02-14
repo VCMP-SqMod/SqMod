@@ -17,6 +17,22 @@
 namespace SqMod {
 namespace Algo {
 
+// ------------------------------------------------------------------------------------------------
+constexpr const SQChar * InstSpec< CBlip >::LcName;
+constexpr const SQChar * InstSpec< CBlip >::UcName;
+constexpr const SQChar * InstSpec< CCheckpoint >::LcName;
+constexpr const SQChar * InstSpec< CCheckpoint >::UcName;
+constexpr const SQChar * InstSpec< CKeyBind >::LcName;
+constexpr const SQChar * InstSpec< CKeyBind >::UcName;
+constexpr const SQChar * InstSpec< CObject >::LcName;
+constexpr const SQChar * InstSpec< CObject >::UcName;
+constexpr const SQChar * InstSpec< CPickup >::LcName;
+constexpr const SQChar * InstSpec< CPickup >::UcName;
+constexpr const SQChar * InstSpec< CPlayer >::LcName;
+constexpr const SQChar * InstSpec< CPlayer >::UcName;
+constexpr const SQChar * InstSpec< CVehicle >::LcName;
+constexpr const SQChar * InstSpec< CVehicle >::UcName;
+
 /* ------------------------------------------------------------------------------------------------
  * Used to fake a string so a raw buffer can be used with search algorithms.
 */
