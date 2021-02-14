@@ -1652,9 +1652,8 @@ protected:
             case Poco::Data::MetaColumn::FDT_DOUBLE:
                 return LightObj(SqInPlace{}, SqVM(), v.convert< double >());
             case Poco::Data::MetaColumn::FDT_STRING:
-                return LightObj(SqInPlace{}, SqVM(), v.convert< std::string >());
             case Poco::Data::MetaColumn::FDT_WSTRING:
-                return LightObj(SqInPlace{}, SqVM(), v.convert< std::wstring >());
+                return LightObj(SqInPlace{}, SqVM(), v.convert< std::string >());
             case Poco::Data::MetaColumn::FDT_BLOB:
             case Poco::Data::MetaColumn::FDT_CLOB:
             case Poco::Data::MetaColumn::FDT_DATE:
