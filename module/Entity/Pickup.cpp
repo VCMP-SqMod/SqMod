@@ -498,8 +498,8 @@ void Register_CPickup(HSQUIRRELVM vm)
         .FmtFunc(_SC("SetTag"), &CPickup::ApplyTag)
         .Func(_SC("CustomEvent"), &CPickup::CustomEvent)
         // Core Overloads
-        .Overload(_SC("Destroy"), &CPickup::Destroy)
-        .Overload(_SC("Destroy"), &CPickup::Destroy)
+        .Overload(_SC("Destroy"), &CPickup::Destroy0)
+        .Overload(_SC("Destroy"), &CPickup::Destroy1)
         .Overload(_SC("Destroy"), &CPickup::Destroy)
         // Properties
         .Prop(_SC("Model"), &CPickup::GetModel)
