@@ -122,6 +122,8 @@ template <class R> struct SqGlobal {
 #endif
             try {
                 return SqGlobalProxy<R>::template Run<A...>(vm, startIdx);
+            } catch (const Poco::Exception& e) {
+                return sq_throwerror(vm, e.displayText().c_str());
             } catch (const std::exception& e) {
                 return sq_throwerror(vm, e.what());
             } catch (...) {
@@ -148,6 +150,8 @@ template <class R> struct SqGlobal<R&> {
 #endif
             try {
                 return SqGlobalProxy<R&>::template Run<A...>(vm, startIdx);
+            } catch (const Poco::Exception& e) {
+                return sq_throwerror(vm, e.displayText().c_str());
             } catch (const std::exception& e) {
                 return sq_throwerror(vm, e.what());
             } catch (...) {
@@ -174,6 +178,8 @@ template <> struct SqGlobal<void> {
 #endif
             try {
                 return SqGlobalProxy<void>::Run<A...>(vm, startIdx);
+            } catch (const Poco::Exception& e) {
+                return sq_throwerror(vm, e.displayText().c_str());
             } catch (const std::exception& e) {
                 return sq_throwerror(vm, e.what());
             } catch (...) {

@@ -391,8 +391,12 @@ template < typename F, typename U, typename... Ts > SQInteger SqDynArgFwd(HSQUIR
     try
     {
         return SqDynArgImpl< U, Ts... >::Try(fn, vm);
+	}
+	catch (const Poco::Exception& e)
+	{
+		return sq_throwerror(vm, e.displayText().c_str());
     }
-    catch (const std::exception & e)
+	catch (const std::exception & e)
     {
         return sq_throwerror(vm, e.what());
     }

@@ -1848,6 +1848,10 @@ void Core::EmitClientScriptData(int32_t player_id, const uint8_t * data, size_t 
         // Get the object from the stack and store it
         o = Var< LightObj >(SqVM(), -1).value;
     }
+    catch (const Poco::Exception & e)
+    {
+        STHROWF("{}", e.displayText()); // Re-package
+    }
     catch (const std::exception & e)
     {
         STHROWF("{}", e.what()); // Re-package

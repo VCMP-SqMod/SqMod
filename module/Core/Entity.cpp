@@ -17,6 +17,11 @@ namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
 #define SQMOD_CATCH_EVENT_EXCEPTION(action) /*
+*/ catch (const Poco::Exception & e) /*
+*/ { /*
+*/  LogErr("Program exception caught " action); /*
+*/  Logger::Get().DebugF(SqVM(), "%s", e.displayText().c_str()); /*
+*/ } /*
 */ catch (const Sqrat::Exception & e) /*
 */ { /*
 */  LogErr("Squirrel exception caught " action); /*

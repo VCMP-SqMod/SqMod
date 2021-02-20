@@ -1348,6 +1348,10 @@ SQInteger Signal::SqEmit(HSQUIRRELVM vm)
             res = signal->Emit(vm, top);
         }
     }
+	catch (const Poco::Exception& e)
+	{
+		return sq_throwerror(vm, e.displayText().c_str());
+	}
     catch (const std::exception & e)
     {
         res = sq_throwerror(vm, e.what());
@@ -1388,6 +1392,10 @@ SQInteger Signal::SqQuery(HSQUIRRELVM vm)
             res = signal->Query(vm, top);
         }
     }
+	catch (const Poco::Exception& e)
+	{
+		return sq_throwerror(vm, e.displayText().c_str());
+	}
     catch (const std::exception & e)
     {
         res = sq_throwerror(vm, e.what());
@@ -1418,6 +1426,10 @@ SQInteger Signal::SqConsume(HSQUIRRELVM vm)
             res = signal->Consume(vm, top);
         }
     }
+	catch (const Poco::Exception& e)
+	{
+		return sq_throwerror(vm, e.displayText().c_str());
+	}
     catch (const std::exception & e)
     {
         res = sq_throwerror(vm, e.what());
@@ -1448,6 +1460,10 @@ SQInteger Signal::SqApprove(HSQUIRRELVM vm)
             res = signal->Approve(vm, top);
         }
     }
+	catch (const Poco::Exception& e)
+	{
+		return sq_throwerror(vm, e.displayText().c_str());
+	}
     catch (const std::exception & e)
     {
         res = sq_throwerror(vm, e.what());
@@ -1478,6 +1494,10 @@ SQInteger Signal::SqRequest(HSQUIRRELVM vm)
             res = signal->Request(vm, top);
         }
     }
+	catch (const Poco::Exception& e)
+	{
+		return sq_throwerror(vm, e.displayText().c_str());
+	}
     catch (const std::exception & e)
     {
         res = sq_throwerror(vm, e.what());

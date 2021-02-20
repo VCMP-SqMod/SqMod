@@ -279,6 +279,11 @@ int32_t Controller::Run(const Guard & guard, const char * command)
     {
         return Exec(ctx);
     }
+	catch (const Poco::Exception& e)
+	{
+        // Tell the script callback to deal with the error
+        SqError(CMDERR_EXECUTION_FAILED, _SC("Exceptions occurred during execution"), e.displayText().c_str());
+	}
     catch (const std::exception & e)
     {
         // Tell the script callback to deal with the error
@@ -425,6 +430,11 @@ int32_t Controller::Exec(Context & ctx)
             {
                 ctx.mInstance->m_OnFail.Execute(ctx.mInvoker, result);
             }
+			catch (const Poco::Exception& e)
+			{
+                // Tell the script callback to deal with the error
+                SqError(CMDERR_UNRESOLVED_FAILURE, _SC("Unable to resolve command failure"), e.displayText().c_str());
+			}
             catch (const std::exception & e)
             {
                 // Tell the script callback to deal with the error
@@ -447,6 +457,11 @@ int32_t Controller::Exec(Context & ctx)
             {
                 ctx.mInstance->m_OnFail.Execute(ctx.mInvoker, result);
             }
+			catch (const Poco::Exception& e)
+			{
+                // Tell the script callback to deal with the error
+                SqError(CMDERR_UNRESOLVED_FAILURE, _SC("Unable to resolve command failure"), e.displayText().c_str());
+			}
             catch (const std::exception & e)
             {
                 // Tell the script callback to deal with the error
@@ -462,6 +477,11 @@ int32_t Controller::Exec(Context & ctx)
             {
                 ctx.mInstance->m_OnPost.Execute(ctx.mInvoker, result);
             }
+			catch (const Poco::Exception& e)
+			{
+                // Tell the script callback to deal with the error
+                SqError(CMDERR_POST_PROCESSING_FAILED, _SC("Unable to complete command post processing"), e.displayText().c_str());
+			}
             catch (const std::exception & e)
             {
                 // Tell the script callback to deal with the error

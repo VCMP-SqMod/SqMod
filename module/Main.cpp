@@ -69,6 +69,11 @@ void DoReload()
 
 // --------------------------------------------------------------------------------------------
 #define SQMOD_CATCH_EVENT_EXCEPTION(ev) /*
+*/ catch (const Poco::Exception & e) /*
+*/ { /*
+*/  LogErr("Squirrel exception caught (" #ev ") event"); /*
+*/  LogSInf("Message: %s", e.displayText().c_str()); /*
+*/ } /*
 */ catch (const std::exception & e) /*
 */ { /*
 */  LogErr("Squirrel exception caught (" #ev ") event"); /*
@@ -981,6 +986,11 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
             // Stop here!
             return SQMOD_FAILURE;
         }
+    }
+    catch (const Poco::Exception & e)
+    {
+        LogErr("Program exception caught during initialization");
+        LogSInf("Message: %s", e.displayText().c_str());
     }
     catch (const Sqrat::Exception & e)
     {

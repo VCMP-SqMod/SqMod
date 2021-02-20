@@ -198,7 +198,7 @@ SQInteger Routine::Create(HSQUIRRELVM vm)
     }
     catch (const std::exception & e)
     {
-        return sq_throwerror(vm, "Unable to create the routine instance");
+        return sq_throwerrorf(vm, "Unable to create the routine instance: %s", e.what());
     }
     // Prepare an object for the routine
     HSQOBJECT obj;
@@ -248,7 +248,7 @@ SQInteger Routine::Create(HSQUIRRELVM vm)
         // Clear extracted arguments
         inst.Clear();
         // Now it's safe to throw the error
-        return sq_throwerror(vm, "Unable to create the routine instance");
+        return sq_throwerrorf(vm, "Unable to create the routine instance: %s", e.what());
     }
 
     // Alright, at this point we can initialize the slot

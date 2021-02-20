@@ -37,6 +37,8 @@
 #include <exception>
 #include <unordered_map>
 
+#include <Poco/Exception.h>
+
 namespace Sqrat {
 
 #if defined(__GNUC__)

@@ -37,6 +37,10 @@ static SQInteger SqGetHash(HSQUIRRELVM vm)
         // Push the result on the stack
         Var< String >::push(vm, hex);
     }
+	catch (const Poco::Exception& e)
+	{
+        return sq_throwerrorf(vm, _SC("Failed to hash: %s"), e.displayText().c_str());
+	}
     catch (const std::exception & e)
     {
         return sq_throwerrorf(vm, _SC("Failed to hash: %s"), e.what());
@@ -69,6 +73,10 @@ static SQInteger SqEncodeBase32(HSQUIRRELVM vm)
         // Push the resulted string on the stack
         Var< String >::push(vm, out.str());
     }
+	catch (const Poco::Exception& e)
+	{
+        return sq_throwerrorf(vm, _SC("Failed to encode: %s"), e.displayText().c_str());
+	}
     catch (const std::exception & e)
     {
         return sq_throwerrorf(vm, _SC("Failed to encode: %s"), e.what());
@@ -102,6 +110,10 @@ static SQInteger SqDecodeBase32(HSQUIRRELVM vm)
         // Push the resulted string on the stack
         Var< String >::push(vm, out);
     }
+	catch (const Poco::Exception& e)
+	{
+        return sq_throwerrorf(vm, _SC("Failed to decode: %s"), e.displayText().c_str());
+	}
     catch (const std::exception & e)
     {
         return sq_throwerrorf(vm, _SC("Failed to decode: %s"), e.what());
@@ -134,6 +146,10 @@ static SQInteger SqEncodeBase64(HSQUIRRELVM vm)
         // Push the resulted string on the stack
         Var< String >::push(vm, out.str());
     }
+	catch (const Poco::Exception& e)
+	{
+        return sq_throwerrorf(vm, _SC("Failed to encode: %s"), e.displayText().c_str());
+	}
     catch (const std::exception & e)
     {
         return sq_throwerrorf(vm, _SC("Failed to encode: %s"), e.what());
@@ -167,6 +183,10 @@ static SQInteger SqDecodeBase64(HSQUIRRELVM vm)
         // Push the resulted string on the stack
         Var< String >::push(vm, out);
     }
+	catch (const Poco::Exception& e)
+	{
+        return sq_throwerrorf(vm, _SC("Failed to decode: %s"), e.displayText().c_str());
+	}
     catch (const std::exception & e)
     {
         return sq_throwerrorf(vm, _SC("Failed to decode: %s"), e.what());
@@ -195,6 +215,10 @@ static SQInteger SqGetCRC32(HSQUIRRELVM vm)
         // Push the result on the stack
         sq_pushinteger(vm, static_cast< SQInteger >(c.checksum()));
     }
+	catch (const Poco::Exception& e)
+	{
+        return sq_throwerrorf(vm, _SC("Failed to compute checksum: %s"), e.displayText().c_str());
+	}
     catch (const std::exception & e)
     {
         return sq_throwerrorf(vm, _SC("Failed to compute checksum: %s"), e.what());
@@ -223,6 +247,10 @@ static SQInteger SqGetADLER32(HSQUIRRELVM vm)
         // Push the result on the stack
         sq_pushinteger(vm, static_cast< SQInteger >(c.checksum()));
     }
+	catch (const Poco::Exception& e)
+	{
+        return sq_throwerrorf(vm, _SC("Failed to compute checksum: %s"), e.displayText().c_str());
+	}
     catch (const std::exception & e)
     {
         return sq_throwerrorf(vm, _SC("Failed to compute checksum: %s"), e.what());

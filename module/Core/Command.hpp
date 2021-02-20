@@ -390,6 +390,11 @@ protected:
         {
             m_OnFail.Execute(type, msg, data);
         }
+		catch (const Poco::Exception& e)
+		{
+            // The debugger probably took care of reporting the details
+            LogErr("Command error callback failed [%s]", e.displayText().c_str());
+		}
         catch (const std::exception & e)
         {
             // The debugger probably took care of reporting the details
