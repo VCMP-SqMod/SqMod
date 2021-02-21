@@ -1481,7 +1481,7 @@ void Core::EmitPlayerUpdate(int32_t player_id, vcmpPlayerUpdate update_type)
         // Should we check for distance traveled?
         if (inst.mFlags & ENF_DIST_TRACK)
         {
-        	inst.mDistance += inst.mLastPosition.GetDistanceTo(pos);
+            inst.mDistance += inst.mLastPosition.GetDistanceTo(pos);
         }
         // Should we check for area collision?
         if (inst.mFlags & ENF_AREA_TRACK)
@@ -1721,7 +1721,7 @@ void Core::EmitVehicleUpdate(int32_t vehicle_id, vcmpVehicleUpdate update_type)
             // Should we check for distance traveled?
             if (inst.mFlags & ENF_DIST_TRACK)
             {
-            	inst.mDistance += inst.mLastPosition.GetDistanceTo(pos);
+                inst.mDistance += inst.mLastPosition.GetDistanceTo(pos);
             }
             // Should we check for area collision?
             if (inst.mFlags & ENF_AREA_TRACK)
@@ -1812,14 +1812,14 @@ void Core::EmitVehicleUpdate(int32_t vehicle_id, vcmpVehicleUpdate update_type)
         {
             // Obtain the current health of this instance
             float health = _Func->GetVehicleHealth(vehicle_id);
-			// Server is actually dumb and never triggers vcmpVehicleUpdateHealth
-			if (!EpsEq(health, inst.mLastHealth))
-			{
-				// Trigger the event specific to this change
-				EmitVehicleHealth(vehicle_id, inst.mLastHealth, health);
-				// Update the tracked value
-				inst.mLastHealth = health;
-			}
+            // Server is actually dumb and never triggers vcmpVehicleUpdateHealth
+            if (!EpsEq(health, inst.mLastHealth))
+            {
+                // Trigger the event specific to this change
+                EmitVehicleHealth(vehicle_id, inst.mLastHealth, health);
+                // Update the tracked value
+                inst.mLastHealth = health;
+            }
             // Finally, forward the call to the update callback
             (*inst.mOnUpdate.first)(static_cast< int32_t >(update_type));
             (*mOnVehicleUpdate.first)(inst.mObj, static_cast< int32_t >(update_type));
