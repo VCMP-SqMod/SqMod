@@ -514,11 +514,11 @@ struct VehicleInst
     SQInteger       mTrackRotation{0}; // The number of times to track rotation changes.
 
     // ----------------------------------------------------------------------------------------
-    int32_t         mLastPrimaryColor{-1}; // Last known secondary-color of the player entity.
-    int32_t         mLastSecondaryColor{-1}; // Last known primary-color of the player entity.
-    float           mLastHealth{0}; // Last known health of the player entity.
-    Vector3         mLastPosition{}; // Last known position of the player entity.
-    Quaternion      mLastRotation{}; // Last known rotation of the player entity.
+    int32_t         mLastPrimaryColor{-1}; // Last known secondary-color of the vehicle entity.
+    int32_t         mLastSecondaryColor{-1}; // Last known primary-color of the vehicle entity.
+    float           mLastHealth{0}; // Last known health of the vehicle entity.
+    Vector3         mLastPosition{}; // Last known position of the vehicle entity.
+    Quaternion      mLastRotation{}; // Last known rotation of the vehicle entity.
 
     // ----------------------------------------------------------------------------------------
     LightObj        mEvents{}; // Table containing the emitted entity events.
