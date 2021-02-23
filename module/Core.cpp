@@ -2456,7 +2456,11 @@ void Register_Core(HSQUIRRELVM vm)
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &CoreStateTypename::Fn)
         // Member Properties
-        .Prop(_SC("Value"), &CoreState::GetValue)
+        .Prop(_SC("Value"), &CoreState::GetState, &CoreState::SetState)
+        .Prop(_SC("Init"), &CoreState::GetStart)
+        // Member Methods
+        .Func(_SC("Propose"), &CoreState::SetState)
+        .Func(_SC("Regress"), &CoreState::Regress)
     );
 
     corens

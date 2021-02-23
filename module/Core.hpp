@@ -849,7 +849,7 @@ struct CoreState
      * Backup the current core state.
     */
     CoreState()
-        : m_State(Core::Get().GetState())
+        : m_State(Core::Get().GetState()), m_Start(m_Start)
     {
         //...
     }
@@ -858,7 +858,7 @@ struct CoreState
      * Backup the current core state and set the given state.
     */
     explicit CoreState(int s)
-        : m_State(Core::Get().GetState())
+        : CoreState()
     {
         Core::Get().SetState(s);
     }
@@ -892,16 +892,43 @@ struct CoreState
     CoreState & operator = (CoreState && o) = delete;
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the initial state.
+    */
+    SQMOD_NODISCARD int GetStart() const
+    {
+        return m_Start;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the guarded state.
     */
-    SQMOD_NODISCARD int GetValue() const
+    SQMOD_NODISCARD int GetState() const
     {
         return m_State;
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Modify the guarded state.
+    */
+    CoreState & SetState(int s)
+    {
+        m_State = s;
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Restore the guarded state. I.e the original state value at the time of construction.
+    */
+    CoreState & Regress()
+    {
+        m_State = m_Start;
+        return *this;
+    }
+
 protected:
 
-    int m_State; // The core state at the time when this instance was created.
+    int m_State; // The core state to be applied by destructor.
+    int m_Start; // The core state at the time when this instance was created.
 };
 
 } // Namespace:: SqMod
