@@ -27,6 +27,7 @@ SQMOD_DECL_TYPENAME(SqBoolBinding, _SC("SqBoolBinding"))
 SQMOD_DECL_TYPENAME(SqPcDataSession, _SC("SqDataSession"))
 SQMOD_DECL_TYPENAME(SqPcDataStatement, _SC("SqDataStatement"))
 SQMOD_DECL_TYPENAME(SqPcDataRecordSet, _SC("SqDataRecordSet"))
+SQMOD_DECL_TYPENAME(SqPcDataSessionPool, _SC("SqDataSessionPool"))
 SQMOD_DECL_TYPENAME(SqPcDataStatementResult, _SC("SqDataStatementResult"))
 
 // ------------------------------------------------------------------------------------------------
@@ -394,6 +395,45 @@ SqDataStatement & SqDataStatement::Into_(LightObj & obj, LightObj & def)
 }
 
 // ------------------------------------------------------------------------------------------------
+LightObj SqDataSessionPool::GetProperty(StackStrF & name)
+{
+    HSQUIRRELVM vm = name.mVM;
+    // Preserve stack
+    const StackGuard sg(vm);
+    // Retrieve the property value
+    Poco::Any a = getProperty(name.ToStr());
+    // Retrieve the value type
+    const auto & ti = a.type();
+    // Identify the stored value
+    if (a.empty() || ti == typeid(void) || ti == typeid(nullptr)) sq_pushnull(vm);
+    else if (ti == typeid(bool)) sq_pushbool(vm, Poco::AnyCast< bool >(a));
+    else if (ti == typeid(char)) sq_pushinteger(vm, ConvTo< SQInteger >::From(Poco::AnyCast< char >(a)));
+    else if (ti == typeid(wchar_t)) sq_pushinteger(vm, ConvTo< SQInteger >::From(Poco::AnyCast< wchar_t >(a)));
+    else if (ti == typeid(signed char)) sq_pushinteger(vm, ConvTo< SQInteger >::From(Poco::AnyCast< signed char >(a)));
+    else if (ti == typeid(unsigned char)) sq_pushinteger(vm, ConvTo< SQInteger >::From(Poco::AnyCast< unsigned char >(a)));
+    else if (ti == typeid(short int)) sq_pushinteger(vm, ConvTo< SQInteger >::From(Poco::AnyCast< short int >(a)));
+    else if (ti == typeid(unsigned short int)) sq_pushinteger(vm, ConvTo< SQInteger >::From(Poco::AnyCast< unsigned short int >(a)));
+    else if (ti == typeid(int)) sq_pushinteger(vm, ConvTo< SQInteger >::From(Poco::AnyCast< int >(a)));
+    else if (ti == typeid(unsigned int)) sq_pushinteger(vm, ConvTo< SQInteger >::From(Poco::AnyCast< unsigned int >(a)));
+    else if (ti == typeid(long int)) sq_pushinteger(vm, ConvTo< SQInteger >::From(Poco::AnyCast< long int >(a)));
+    else if (ti == typeid(unsigned long int)) sq_pushinteger(vm, ConvTo< SQInteger >::From(Poco::AnyCast< unsigned long int >(a)));
+    else if (ti == typeid(long long int)) sq_pushinteger(vm, ConvTo< SQInteger >::From(Poco::AnyCast< long long int >(a)));
+    else if (ti == typeid(unsigned long long int)) sq_pushinteger(vm, ConvTo< SQInteger >::From(Poco::AnyCast< unsigned long long int >(a)));
+    else if (ti == typeid(float)) sq_pushfloat(vm, ConvTo< SQFloat >::From(Poco::AnyCast< float >(a)));
+    else if (ti == typeid(double)) sq_pushfloat(vm, ConvTo< SQFloat >::From(Poco::AnyCast< double >(a)));
+    else if (ti == typeid(long double)) sq_pushfloat(vm, ConvTo< SQFloat >::From(Poco::AnyCast< long double >(a)));
+    else if (ti == typeid(std::string)) {
+        const auto & s = Poco::RefAnyCast< std::string >(a);
+        sq_pushstring(vm, s.data(), ConvTo< SQFloat >::From(s.size()));
+    } else {
+        sq_throwerrorf(vm, "Unable to convert value of type (%s) to squirrel.", a.type().name());
+        sq_pushnull(vm);
+    }
+    // Return the object from the stack
+    return Var< LightObj >(vm, -1).value;
+}
+
+// ------------------------------------------------------------------------------------------------
 template < class T, class U >
 static void Register_POCO_Data_Binding(HSQUIRRELVM vm, Table & ns, const SQChar * name)
 {
@@ -611,6 +651,35 @@ void Register_POCO_Data(HSQUIRRELVM vm, Table &)
         .Overload(_SC("ValueAt"), &SqDataRecordSet::GetValueAtOr)
         .Overload(_SC("Value"), &SqDataRecordSet::GetValue)
         .Overload(_SC("Value"), &SqDataRecordSet::GetValueOr)
+    );
+    // --------------------------------------------------------------------------------------------
+    ns.Bind(_SC("SessionPool"),
+        Class< SqDataSessionPool, NoCopy< SqDataSessionPool > >(vm, SqPcDataSessionPool::Str)
+        // Constructors
+        .Ctor< StackStrF &, StackStrF & >()
+        .Ctor< StackStrF &, int, int, int, StackStrF & >()
+        // Meta-methods
+        .SquirrelFunc(_SC("_typename"), &SqPcDataSessionPool::Fn)
+        // Properties
+        .Prop(_SC("Capacity"), &SqDataSessionPool::GetCapacity)
+        .Prop(_SC("Used"), &SqDataSessionPool::GetUsed)
+        .Prop(_SC("Idle"), &SqDataSessionPool::GetIdle)
+        .Prop(_SC("Dead"), &SqDataSessionPool::GetDead)
+        .Prop(_SC("Allocated"), &SqDataSessionPool::GetAllocated)
+        .Prop(_SC("Available"), &SqDataSessionPool::GetAvailable)
+        .Prop(_SC("Name"), &SqDataSessionPool::GetName)
+        .Prop(_SC("IsActive"), &SqDataSessionPool::IsActive)
+        // Member Methods
+        .Func(_SC("Get"), &SqDataSessionPool::Get)
+        .FmtFunc(_SC("GetWithProperty"), &SqDataSessionPool::GetWithProperty)
+        .FmtFunc(_SC("GetWithFeature"), &SqDataSessionPool::GetWithFeature)
+        .FmtFunc(_SC("SetFeature"), &SqDataSessionPool::SetFeature)
+        .FmtFunc(_SC("GetFeature"), &SqDataSessionPool::GetFeature)
+        .FmtFunc(_SC("SetProperty"), &SqDataSessionPool::SetProperty)
+        .FmtFunc(_SC("GetProperty"), &SqDataSessionPool::GetProperty)
+        .Func(_SC("Shutdown"), &SqDataSessionPool::Shutdown)
+        // Static Functions
+        .StaticFunc(_SC("GetName"), &SqDataSessionPool::GetName_)
     );
     // --------------------------------------------------------------------------------------------
     ns.Func(_SC("Process"), ProcessPocoData);

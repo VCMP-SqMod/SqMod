@@ -8,6 +8,7 @@
 #include <Poco/Data/Session.h>
 #include <Poco/Data/Statement.h>
 #include <Poco/Data/RecordSet.h>
+#include <Poco/Data/SessionPool.h>
 
 // ------------------------------------------------------------------------------------------------
 namespace std { // NOLINT(cert-dcl58-cpp)
@@ -471,6 +472,7 @@ using namespace Poco::Data::Keywords;
 using Poco::Data::Session;
 using Poco::Data::Statement;
 using Poco::Data::RecordSet;
+using Poco::Data::SessionPool;
 using Poco::Data::ReferenceBinding;
 
 // ------------------------------------------------------------------------------------------------
@@ -651,6 +653,22 @@ struct SqDataSession : public Session
      * Creates a session by moving another one.
     */
 	SqDataSession(SqDataSession &&) noexcept = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Creates a session by copying another one.
+    */
+    SqDataSession(const Session & s)
+        : Session(s)
+    {
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Creates a session by moving another one.
+    */
+    SqDataSession(Session && s) noexcept
+        : Session(std::move(s))
+    {
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Destroys the Session.
@@ -1674,6 +1692,227 @@ protected:
         SQ_UNREACHABLE
         // Unreachable
         return LightObj();
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * SessionPool implements session pooling for POCO Data.
+*/
+struct SqDataSessionPool : public SessionPool
+{
+
+    /* --------------------------------------------------------------------------------------------
+     * Creates the SessionPool for sessions with the given connector and connection string.
+    */
+    SqDataSessionPool(StackStrF & connector, StackStrF & connection)
+        : SessionPool(connector.ToStr(), connection.ToStr())
+    {
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Creates the SessionPool for sessions with the given connector and connection string.
+    */
+    SqDataSessionPool(StackStrF & connector, int min_ses, int max_ses, int idle_time, StackStrF & connection)
+        : SessionPool(connector.ToStr(), connection.ToStr(), min_ses, max_ses, idle_time)
+    {
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor (disabled).
+    */
+    SqDataSessionPool(const SqDataSessionPool &) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor (disabled).
+    */
+    SqDataSessionPool(SqDataSessionPool &&) noexcept = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Destroys the SessionPool.
+    */
+    ~SqDataSessionPool() = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Assignment operator (disabled).
+    */
+    SqDataSessionPool & operator = (const SqDataSessionPool &) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment (disabled).
+    */
+    SqDataSessionPool & operator = (SqDataSessionPool &&) noexcept = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve a Session.
+    */
+    LightObj Get()
+    {
+        return LightObj(SqTypeIdentity< SqDataSession >{}, SqVM(), get());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve a Session with requested property set.
+    */
+    LightObj GetWithProperty(const LightObj & value, StackStrF & name)
+    {
+        switch (value.GetType())
+        {
+            case OT_NULL: {
+                return LightObj(SqTypeIdentity< SqDataSession >{}, SqVM(), get(name.ToStr(), nullptr));
+            } break;
+            case OT_INTEGER: {
+                return LightObj(SqTypeIdentity< SqDataSession >{}, SqVM(), get(name.ToStr(), value.Cast< SQInteger >()));
+            } break;
+            case OT_FLOAT: {
+                return LightObj(SqTypeIdentity< SqDataSession >{}, SqVM(), get(name.ToStr(), value.Cast< SQFloat >()));
+            } break;
+            case OT_BOOL: {
+                return LightObj(SqTypeIdentity< SqDataSession >{}, SqVM(), get(name.ToStr(), value.Cast< bool >()));
+            } break;
+            case OT_STRING: {
+                return LightObj(SqTypeIdentity< SqDataSession >{}, SqVM(), get(name.ToStr(), value.Cast< std::string >()));
+            } break;
+            default: STHROWF("Unsupported property value type");
+        }
+        // Should never get here
+        SQ_UNREACHABLE
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve a Session with requested feature set.
+    */
+    LightObj GetWithFeature(bool value, StackStrF & name)
+    {
+        return LightObj(SqTypeIdentity< SqDataSession >{}, SqVM(), get(name.ToStr(), value));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns the maximum number of sessions the SessionPool will manage.
+    */
+    SQInteger GetCapacity() const
+    {
+        return capacity();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns the number of sessions currently in use.
+    */
+    SQInteger GetUsed() const
+    {
+        return used();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns the number of idle sessions.
+    */
+    SQInteger GetIdle() const
+    {
+        return idle();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns the number of not connected active sessions.
+    */
+    SQInteger GetDead()
+    {
+        return dead();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns the number of allocated sessions.
+    */
+    SQInteger GetAllocated() const
+    {
+        return allocated();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns the number of available (idle + remaining capacity) sessions.
+    */
+    SQInteger GetAvailable() const
+    {
+        return available();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns the name for this pool.
+    */
+    String GetName() const
+    {
+        return name();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns the name formatted from supplied arguments as "connector:///connection".
+    */
+    static String GetName_(StackStrF & connector, StackStrF & connection)
+    {
+        return name(connector.ToStr(), connection.ToStr());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Sets feature for all the sessions.
+    */
+    SqDataSessionPool & SetFeature(StackStrF & name, bool state)
+    {
+        setFeature(name.ToStr(), state);
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns the requested feature.
+    */
+    bool GetFeature(StackStrF & name)
+    {
+        return getFeature(name.ToStr());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Sets property for all sessions.
+    */
+    SqDataSessionPool & SetProperty(const LightObj & value, StackStrF & name)
+    {
+        switch (value.GetType())
+        {
+            case OT_NULL: {
+                setProperty(name.ToStr(), Poco::Any(nullptr));
+            } break;
+            case OT_INTEGER: {
+                setProperty(name.ToStr(), Poco::Any(value.Cast< SQInteger >()));
+            } break;
+            case OT_FLOAT: {
+                setProperty(name.ToStr(), Poco::Any(value.Cast< SQFloat >()));
+            } break;
+            case OT_BOOL: {
+                setProperty(name.ToStr(), Poco::Any(value.Cast<bool>()));
+            } break;
+            case OT_STRING: {
+                setProperty(name.ToStr(), Poco::Any(value.Cast<std::string>()));
+            } break;
+            default: STHROWF("Unsupported property value type");
+        }
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns the requested property.
+    */
+    LightObj GetProperty(StackStrF & name);
+
+    /* --------------------------------------------------------------------------------------------
+     * Shuts down the session pool.
+    */
+    void Shutdown()
+    {
+        shutdown();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns true if session pool is active (not shut down).
+    */
+    bool IsActive() const
+    {
+        return isActive();
     }
 };
 
