@@ -581,6 +581,7 @@ void Register_POCO_Data(HSQUIRRELVM vm, Table &)
     ns.Bind(_SC("RecordSet"),
         Class< SqDataRecordSet >(vm, SqPcDataRecordSet::Str)
         // Constructors
+        .Ctor< SqDataStatement & >()
         .Ctor< SqDataSession &, StackStrF & >()
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &SqPcDataRecordSet::Fn)

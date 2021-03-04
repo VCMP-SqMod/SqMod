@@ -1230,7 +1230,7 @@ struct SqDataStatement : public Statement
     void UseInst_(LightObj & obj, const std::string & name, Poco::Data::AbstractBinding::Direction dir);
 
     /* --------------------------------------------------------------------------------------------
-     * Bind a value to the statement and mark it as input (i.e alias of Use).
+     * Bind a reference to the statement and mark it as input (i.e alias of Use).
     */
     SqDataStatement & In(LightObj & obj)
     {
@@ -1238,7 +1238,7 @@ struct SqDataStatement : public Statement
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Bind a named value to the statement mark it as input (i.e alias of UseAs).
+     * Bind a named reference to the statement mark it as input (i.e alias of UseAs).
     */
     SqDataStatement & InAs(LightObj & obj, StackStrF & name)
     {
@@ -1292,7 +1292,7 @@ struct SqDataStatement : public Statement
     void BindInst_(LightObj & obj, const std::string & name, Poco::Data::AbstractBinding::Direction dir);
 
     /* --------------------------------------------------------------------------------------------
-     * Bind a value to the statement and mark it as input/output.
+     * Bind a value/reference to the statement and mark it as input/output.
     */
     SqDataStatement & Io(LightObj & obj)
     {
@@ -1373,6 +1373,14 @@ template < class T > inline SqDataBinding< T > & SqDataBinding< T >::BindAs(SqDa
 */
 struct SqDataRecordSet : public RecordSet
 {
+    /* --------------------------------------------------------------------------------------------
+     * Creates the RecordSet for the given statement.
+    */
+    SqDataRecordSet(SqDataStatement & stmt)
+        : RecordSet(stmt)
+    {
+    }
+
     /* --------------------------------------------------------------------------------------------
      * Creates the RecordSet for the given query.
     */
