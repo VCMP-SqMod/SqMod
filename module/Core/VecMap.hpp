@@ -189,10 +189,10 @@ template < class Key, class T, class Pred = std::equal_to< Key > > struct VecMap
         if (itr != m_Storage.end())
         {
             itr->second = mapped_type(std::forward< Args >(args)...);
-            return *itr;
+            return itr->second;
         }
         m_Storage.emplace_back(k, std::forward< Args >(args)...);
-        return m_Storage.back();
+        return m_Storage.back().second;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -204,10 +204,10 @@ template < class Key, class T, class Pred = std::equal_to< Key > > struct VecMap
         if (itr != m_Storage.end())
         {
             itr->second = mapped_type(std::forward< Args >(args)...);
-            return *itr;
+            return itr->second;
         }
         m_Storage.emplace_back(std::move(k), std::forward< Args >(args)...);
-        return m_Storage.back();
+        return m_Storage.back().second;
     }
 
     /* --------------------------------------------------------------------------------------------
