@@ -647,12 +647,12 @@ struct SqDataSession : public Session
     /* --------------------------------------------------------------------------------------------
      * Creates a session by copying another one.
     */
-	SqDataSession(const SqDataSession &) = default;
+    SqDataSession(const SqDataSession &) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Creates a session by moving another one.
     */
-	SqDataSession(SqDataSession &&) noexcept = default;
+    SqDataSession(SqDataSession &&) noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Creates a session by copying another one.
@@ -673,43 +673,43 @@ struct SqDataSession : public Session
     /* --------------------------------------------------------------------------------------------
      * Destroys the Session.
     */
-	~SqDataSession() = default;
+    ~SqDataSession() = default;
 
     /* --------------------------------------------------------------------------------------------
      * Assignment operator.
     */
-	SqDataSession & operator = (const SqDataSession &) = default;
+    SqDataSession & operator = (const SqDataSession &) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move assignment.
     */
-	SqDataSession & operator = (SqDataSession &&) noexcept = default;
+    SqDataSession & operator = (SqDataSession &&) noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
      * Opens the session using the supplied string.
      * Can also be used with default empty string to reconnect a disconnected session.
     */
-	void Open(StackStrF & connect) { open(connect.ToStr()); }
+    void Open(StackStrF & connect) { open(connect.ToStr()); }
 
     /* --------------------------------------------------------------------------------------------
      * Closes the session.
     */
-	void Close() { close(); }
+    void Close() { close(); }
 
     /* --------------------------------------------------------------------------------------------
      * Returns true if session is connected, false otherwise.
     */
-	bool IsConnected() { return isConnected(); }
+    bool IsConnected() { return isConnected(); }
 
     /* --------------------------------------------------------------------------------------------
      * Closes the session and opens it.
     */
-	void Reconnect() { return reconnect(); }
+    void Reconnect() { return reconnect(); }
 
     /* --------------------------------------------------------------------------------------------
      * Returns true if the session is good and can be used, false otherwise.
     */
-	SQMOD_NODISCARD bool IsGood() { return isGood(); }
+    SQMOD_NODISCARD bool IsGood() { return isGood(); }
 
     /* --------------------------------------------------------------------------------------------
      * Sets the session login timeout value.
@@ -719,100 +719,100 @@ struct SqDataSession : public Session
     /* --------------------------------------------------------------------------------------------
      * Returns the session login timeout value.
     */
-	SQMOD_NODISCARD SQInteger GetLoginTimeout() const { return static_cast< SQInteger >(getLoginTimeout()); }
+    SQMOD_NODISCARD SQInteger GetLoginTimeout() const { return static_cast< SQInteger >(getLoginTimeout()); }
 
     /* --------------------------------------------------------------------------------------------
      * Sets the session connection timeout value.
     */
-	void SetConnectionTimeout(SQInteger timeout) { setConnectionTimeout(ConvTo< size_t >::From(timeout)); }
+    void SetConnectionTimeout(SQInteger timeout) { setConnectionTimeout(ConvTo< size_t >::From(timeout)); }
 
     /* --------------------------------------------------------------------------------------------
      * Returns the session connection timeout value.
     */
-	SQInteger GetConnectionTimeout() { return static_cast< SQInteger >(getConnectionTimeout()); }
+    SQInteger GetConnectionTimeout() { return static_cast< SQInteger >(getConnectionTimeout()); }
 
     /* --------------------------------------------------------------------------------------------
      * Starts a transaction.
     */
-	void Begin() { begin(); }
+    void Begin() { begin(); }
 
     /* --------------------------------------------------------------------------------------------
      * Commits and ends a transaction.
     */
-	void Commit() { commit(); }
+    void Commit() { commit(); }
 
     /* --------------------------------------------------------------------------------------------
      * Rolls back and ends a transaction.
     */
-	void Rollback() { rollback(); }
+    void Rollback() { rollback(); }
 
     /* --------------------------------------------------------------------------------------------
      * Returns true if session has transaction capabilities.
     */
-	SQMOD_NODISCARD bool CanTransact() { return canTransact(); }
+    SQMOD_NODISCARD bool CanTransact() { return canTransact(); }
 
     /* --------------------------------------------------------------------------------------------
      * Returns true if a transaction is in progress, false otherwise.
     */
-	SQMOD_NODISCARD bool IsTransaction() { return isTransaction(); }
+    SQMOD_NODISCARD bool IsTransaction() { return isTransaction(); }
 
     /* --------------------------------------------------------------------------------------------
      * Sets the transaction isolation level.
     */
-	void SetTransactionIsolation(SQInteger ti) { setTransactionIsolation(static_cast< uint32_t >(ti)); }
+    void SetTransactionIsolation(SQInteger ti) { setTransactionIsolation(static_cast< uint32_t >(ti)); }
 
     /* --------------------------------------------------------------------------------------------
      * Returns the transaction isolation level.
     */
-	SQMOD_NODISCARD SQInteger GetTransactionIsolation() { return static_cast< SQInteger >(getTransactionIsolation()); }
+    SQMOD_NODISCARD SQInteger GetTransactionIsolation() { return static_cast< SQInteger >(getTransactionIsolation()); }
 
     /* --------------------------------------------------------------------------------------------
      * Returns true if the transaction isolation level corresponding to the supplied bitmask is supported.
     */
-	bool HasTransactionIsolation(SQInteger ti) { return hasTransactionIsolation(static_cast< uint32_t >(ti)); }
+    bool HasTransactionIsolation(SQInteger ti) { return hasTransactionIsolation(static_cast< uint32_t >(ti)); }
 
     /* --------------------------------------------------------------------------------------------
      * Returns true if the transaction isolation level corresponds to the supplied bitmask.
     */
-	bool IsTransactionIsolation(SQInteger ti) { return isTransactionIsolation(static_cast< uint32_t >(ti)); }
+    bool IsTransactionIsolation(SQInteger ti) { return isTransactionIsolation(static_cast< uint32_t >(ti)); }
 
     /* --------------------------------------------------------------------------------------------
      * Returns the connector name for this session.
     */
-	SQMOD_NODISCARD std::string GetConnector() const { return connector(); }
+    SQMOD_NODISCARD std::string GetConnector() const { return connector(); }
 
     /* --------------------------------------------------------------------------------------------
      * Returns the URI for this session.
     */
-	SQMOD_NODISCARD std::string GetURI() const { return uri(); }
+    SQMOD_NODISCARD std::string GetURI() const { return uri(); }
 
     /* --------------------------------------------------------------------------------------------
      * Utility function that teturns the URI formatted from supplied arguments as "connector:///info".
     */
-	SQMOD_NODISCARD static std::string BuildURI(StackStrF & connector, StackStrF & info)
-	{
-	    return uri(connector.ToStr(), info.ToStr());
-	}
+    SQMOD_NODISCARD static std::string BuildURI(StackStrF & connector, StackStrF & info)
+    {
+        return uri(connector.ToStr(), info.ToStr());
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Set the state of a feature.
     */
-	void SetFeature(bool state, StackStrF & name) { setFeature(name.ToStr(), state); }
+    void SetFeature(bool state, StackStrF & name) { setFeature(name.ToStr(), state); }
 
     /* --------------------------------------------------------------------------------------------
      * Look up the state of a feature.
     */
-	SQMOD_NODISCARD bool GetFeature(StackStrF & name) const { return getFeature(name.ToStr()); }
+    SQMOD_NODISCARD bool GetFeature(StackStrF & name) const { return getFeature(name.ToStr()); }
 
     /* --------------------------------------------------------------------------------------------
      * Set the value of a property.
     */
-	void SetProperty(const LightObj & value, StackStrF & name);
+    void SetProperty(const LightObj & value, StackStrF & name);
 
     /* --------------------------------------------------------------------------------------------
      * Look up the value of a property.
     */
-	SQMOD_NODISCARD LightObj GetProperty(StackStrF & name) const;
+    SQMOD_NODISCARD LightObj GetProperty(StackStrF & name) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve a statement from this session.
