@@ -123,7 +123,7 @@ template < class T > struct RegisterStream
             .Func(_SC("TellP"), &T::TellP)
             .Func(_SC("Put"), &T::Put)
             .Func(_SC("Flush"), &T::Flush)
-            .Func(_SC("Write"), &T::WriteString)
+            .FmtFunc(_SC("Write"), &T::WriteString)
             .Func(_SC("WriteBuffer"), &T::WriteBuffer)
             // Member Overloads
             .Overload(_SC("SeekP"), &T::SeekP)
