@@ -68,6 +68,7 @@ add_library(SqModule MODULE SqBase.hpp Main.cpp
     Library/IO/Buffer.cpp Library/IO/Buffer.hpp
     Library/IO/File.cpp Library/IO/File.hpp
     Library/IO/INI.cpp Library/IO/INI.hpp
+    Library/IO/Stream.cpp Library/IO/Stream.hpp
     Library/MMDB.cpp Library/MMDB.hpp
     Library/Numeric.cpp Library/Numeric.hpp
     Library/Numeric/Long.cpp Library/Numeric/Long.hpp
