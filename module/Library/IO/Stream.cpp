@@ -176,7 +176,8 @@ template < class T > struct RegisterStream
         mCls
             // Constructors
             .template Ctor()
-            .template Ctor< SQInteger >()
+            .template Ctor< StackStrF & >()
+            .template Ctor< SQInteger, StackStrF & >()
             // Properties
             .Prop(_SC("Str"), &T::GetStr, &T::SetStr)
         ;

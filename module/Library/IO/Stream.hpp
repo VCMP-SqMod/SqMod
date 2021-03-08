@@ -211,13 +211,49 @@ protected:
 };
 
 /* ------------------------------------------------------------------------------------------------
+ * Helper used to extract the string from the constructor to the proper type.
+*/
+template < class T > struct StreamConstructorStr
+{
+    static auto Get(StackStrF & str)
+    {
+        return str.ToStr();
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Specializations of `StreamConstructorStr` that return the raw string pointer instead,
+*/
+template < > struct StreamConstructorStr< std::fstream >
+{
+    static const SQChar * Get(StackStrF & str)
+    {
+        return str.mPtr;
+    }
+};
+template < > struct StreamConstructorStr< std::ofstream >
+{
+    static const SQChar * Get(StackStrF & str)
+    {
+        return str.mPtr;
+    }
+};
+template < > struct StreamConstructorStr< std::ifstream >
+{
+    static const SQChar * Get(StackStrF & str)
+    {
+        return str.mPtr;
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
  * Stream-based input/output class.
 */
 template < class T > struct SqStream : public SqStreamStorage< T >
 {
     using SqStreamStorage< T >::Stream;
     // --------------------------------------------------------------------------------------------
-    using Type = SqStreamStorage< T >::Type;
+    using Type = typename SqStreamStorage< T >::Type;
     /* --------------------------------------------------------------------------------------------
      * Default string constructor.
     */
@@ -237,16 +273,16 @@ template < class T > struct SqStream : public SqStreamStorage< T >
     /* --------------------------------------------------------------------------------------------
      * Base file constructor.
     */
-    explicit SqStream(StackStrF & name)
-        : SqStreamStorage< T >(name.mPtr), m_Buffer()
+    explicit SqStream(StackStrF & str)
+        : SqStreamStorage< T >(StreamConstructorStr< Type >::Get(str)), m_Buffer()
     {
     }
 
     /* --------------------------------------------------------------------------------------------
      * Explicit file constructor.
     */
-    SqStream(SQInteger m, StackStrF & name)
-        : SqStreamStorage< T >(name.mPtr, static_cast< std::ios_base::openmode >(m)), m_Buffer()
+    SqStream(SQInteger m, StackStrF & str)
+        : SqStreamStorage< T >(StreamConstructorStr< Type >::Get(str), static_cast< std::ios_base::openmode >(m)), m_Buffer()
     {
     }
 
