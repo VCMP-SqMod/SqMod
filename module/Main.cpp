@@ -329,7 +329,7 @@ static void OnPlayerDeath(int32_t player_id, int32_t killer_id, int32_t reason, 
         }
         else
         {
-            Core::Get().EmitPlayerWasted(player_id, reason);
+            Core::Get().EmitPlayerWasted(player_id, reason, body_part);
         }
         SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerDeath")
     }
@@ -605,7 +605,7 @@ static void OnPlayerAwayChange(int32_t player_id, uint8_t is_away)
     try
     {
         SQMOD_SV_EV_TRACEBACK("[TRACE<] OnPlayerAwayChange")
-        Core::Get().EmitPlayerAway(player_id, is_away);
+        Core::Get().EmitPlayerAway(player_id, is_away >= 1);
         SQMOD_SV_EV_TRACEBACK("[TRACE>] OnPlayerAwayChange")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnPlayerAwayChange)

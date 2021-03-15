@@ -53,6 +53,20 @@ extern void TerminatePocoData();
 // ------------------------------------------------------------------------------------------------
 extern Buffer GetRealFilePath(const SQChar * path);
 
+// ------------------------------------------------------------------------------------------------
+#ifdef VCMP_ENABLE_OFFICIAL
+    extern void LgCheckpointSetID(LgCheckpoint * inst, int32_t id);
+    extern void LgObjectSetID(LgObject * inst, int32_t id);
+    extern void LgPickupSetID(LgPickup * inst, int32_t id);
+    extern void LgPlayerSetID(LgPlayer * inst, int32_t id);
+    extern void LgVehicleSetID(LgVehicle * inst, int32_t id);
+    extern LightObj LgCheckpointObj(HSQUIRRELVM vm, int32_t id);
+    extern LightObj LgObjectObj(HSQUIRRELVM vm, int32_t id);
+    extern LightObj LgPickupObj(HSQUIRRELVM vm, int32_t id);
+    extern LightObj LgPlayerObj(HSQUIRRELVM vm, int32_t id);
+    extern LightObj LgVehicleObj(HSQUIRRELVM vm, int32_t id);
+#endif
+
 /* ------------------------------------------------------------------------------------------------
  * Loader used to process a section from the configuration file and look for scripts to load.
 */
@@ -137,6 +151,9 @@ Core Core::s_Inst;
 // ------------------------------------------------------------------------------------------------
 Core::Core() noexcept
     : m_State(0)
+#ifdef VCMP_ENABLE_OFFICIAL
+    , m_Official(false)
+#endif
     , m_VM(nullptr)
     , m_Scripts()
     , m_PendingScripts()
@@ -219,6 +236,10 @@ bool Core::Initialize()
         return false;
     }
 
+#ifdef VCMP_ENABLE_OFFICIAL
+    // See if debugging options should be enabled
+    m_Official = conf.GetBoolValue("Squirrel", "OfficialCompatibility", m_Official);
+#endif
     // See if debugging options should be enabled
     m_Debugging = conf.GetBoolValue("Squirrel", "Debugging", m_Debugging);
     // Configure the empty initialization
@@ -1109,6 +1130,16 @@ BlipInst & Core::AllocBlip(int32_t id, bool owned, int32_t header, LightObj & pa
     if (!inst.mInst || inst.mObj.IsNull())
     {
         inst.ResetInstance();
+        // Make sure that if an instance was created, it points to nothing
+        if (inst.mInst)
+        {
+            inst.mInst->m_ID = -1;
+        }
+        // Make sure that if an object was created, it is released
+        if (!inst.mObj.IsNull())
+        {
+            inst.mObj.Release();
+        }
         // Now we can throw the error
         STHROWF("Unable to create a blip instance for: {}", id);
     }
@@ -1146,6 +1177,33 @@ CheckpointInst & Core::AllocCheckpoint(int32_t id, bool owned, int32_t header, L
     {
         return inst; // Return the existing instance
     }
+#ifdef VCMP_ENABLE_OFFICIAL
+    // Do we need to support legacy API?
+    if (IsOfficial())
+    {
+        // Create the legacy wrapper object
+        inst.mLgObj = LgCheckpointObj(m_VM, id);
+        // Obtain the legacy wrapper instance
+        inst.mLgInst = inst.mLgObj.CastI< LgCheckpoint >();
+        // Make sure that both the instance and script object could be created
+        if (!inst.mLgInst || inst.mLgObj.IsNull())
+        {
+            inst.ResetInstance();
+            // Make sure that if an instance was created, it points to nothing
+            if (inst.mLgInst)
+            {
+                LgCheckpointSetID(inst.mLgInst, -1);
+            }
+            // Make sure that if an object was created, it is released
+            if (!inst.mLgObj.IsNull())
+            {
+                inst.mLgObj.Release();
+            }
+            // Now we can throw the error
+            STHROWF("Unable to create a checkpoint wrapper instance for: {}", id);
+        }
+    }
+#endif
     // Instantiate the entity manager
     DeleteGuard< CCheckpoint > dg(new CCheckpoint(id));
     // Create the script object
@@ -1158,6 +1216,25 @@ CheckpointInst & Core::AllocCheckpoint(int32_t id, bool owned, int32_t header, L
     if (!inst.mInst || inst.mObj.IsNull())
     {
         inst.ResetInstance();
+#ifdef VCMP_ENABLE_OFFICIAL
+        // Discard legacy wrapper instance
+        if (IsOfficial())
+        {
+            LgCheckpointSetID(inst.mLgInst, -1);
+            inst.mLgObj.Release();
+            inst.mLgInst = nullptr;
+        }
+#endif
+        // Make sure that if an instance was created, it points to nothing
+        if (inst.mInst)
+        {
+            inst.mInst->m_ID = -1;
+        }
+        // Make sure that if an object was created, it is released
+        if (!inst.mObj.IsNull())
+        {
+            inst.mObj.Release();
+        }
         // Now we can throw the error
         STHROWF("Unable to create a checkpoint instance for: {}", id);
     }
@@ -1207,6 +1284,16 @@ KeyBindInst & Core::AllocKeyBind(int32_t id, bool owned, int32_t header, LightOb
     if (!inst.mInst || inst.mObj.IsNull())
     {
         inst.ResetInstance();
+        // Make sure that if an instance was created, it points to nothing
+        if (inst.mInst)
+        {
+            inst.mInst->m_ID = -1;
+        }
+        // Make sure that if an object was created, it is released
+        if (!inst.mObj.IsNull())
+        {
+            inst.mObj.Release();
+        }
         // Now we can throw the error
         STHROWF("Unable to create a keybind instance for: {}", id);
     }
@@ -1244,6 +1331,33 @@ ObjectInst & Core::AllocObject(int32_t id, bool owned, int32_t header, LightObj 
     {
         return inst; // Return the existing instance
     }
+#ifdef VCMP_ENABLE_OFFICIAL
+    // Do we need to support legacy API?
+    if (IsOfficial())
+    {
+        // Create the legacy wrapper object
+        inst.mLgObj = LgObjectObj(m_VM, id);
+        // Obtain the legacy wrapper instance
+        inst.mLgInst = inst.mLgObj.CastI< LgObject >();
+        // Make sure that both the instance and script object could be created
+        if (!inst.mLgInst || inst.mLgObj.IsNull())
+        {
+            inst.ResetInstance();
+            // Make sure that if an instance was created, it points to nothing
+            if (inst.mLgInst)
+            {
+                LgObjectSetID(inst.mLgInst, -1);
+            }
+            // Make sure that if an object was created, it is released
+            if (!inst.mLgObj.IsNull())
+            {
+                inst.mLgObj.Release();
+            }
+            // Now we can throw the error
+            STHROWF("Unable to create a object wrapper instance for: {}", id);
+        }
+    }
+#endif
     // Instantiate the entity manager
     DeleteGuard< CObject > dg(new CObject(id));
     // Create the script object
@@ -1256,6 +1370,25 @@ ObjectInst & Core::AllocObject(int32_t id, bool owned, int32_t header, LightObj 
     if (!inst.mInst || inst.mObj.IsNull())
     {
         inst.ResetInstance();
+#ifdef VCMP_ENABLE_OFFICIAL
+        // Discard legacy wrapper instance
+        if (IsOfficial())
+        {
+            LgObjectSetID(inst.mLgInst, -1);
+            inst.mLgObj.Release();
+            inst.mLgInst = nullptr;
+        }
+#endif
+        // Make sure that if an instance was created, it points to nothing
+        if (inst.mInst)
+        {
+            inst.mInst->m_ID = -1;
+        }
+        // Make sure that if an object was created, it is released
+        if (!inst.mObj.IsNull())
+        {
+            inst.mObj.Release();
+        }
         // Now we can throw the error
         STHROWF("Unable to create a object instance for: {}", id);
     }
@@ -1293,6 +1426,33 @@ PickupInst & Core::AllocPickup(int32_t id, bool owned, int32_t header, LightObj 
     {
         return inst; // Return the existing instance
     }
+#ifdef VCMP_ENABLE_OFFICIAL
+    // Do we need to support legacy API?
+    if (IsOfficial())
+    {
+        // Create the legacy wrapper object
+        inst.mLgObj = LgPickupObj(m_VM, id);
+        // Obtain the legacy wrapper instance
+        inst.mLgInst = inst.mLgObj.CastI< LgPickup >();
+        // Make sure that both the instance and script object could be created
+        if (!inst.mLgInst || inst.mLgObj.IsNull())
+        {
+            inst.ResetInstance();
+            // Make sure that if an instance was created, it points to nothing
+            if (inst.mLgInst)
+            {
+                LgPickupSetID(inst.mLgInst, -1);
+            }
+            // Make sure that if an object was created, it is released
+            if (!inst.mLgObj.IsNull())
+            {
+                inst.mLgObj.Release();
+            }
+            // Now we can throw the error
+            STHROWF("Unable to create a pickup wrapper instance for: {}", id);
+        }
+    }
+#endif
     // Instantiate the entity manager
     DeleteGuard< CPickup > dg(new CPickup(id));
     // Create the script object
@@ -1305,6 +1465,25 @@ PickupInst & Core::AllocPickup(int32_t id, bool owned, int32_t header, LightObj 
     if (!inst.mInst || inst.mObj.IsNull())
     {
         inst.ResetInstance();
+#ifdef VCMP_ENABLE_OFFICIAL
+        // Discard legacy wrapper instance
+        if (IsOfficial())
+        {
+            LgPickupSetID(inst.mLgInst, -1);
+            inst.mLgObj.Release();
+            inst.mLgInst = nullptr;
+        }
+#endif
+        // Make sure that if an instance was created, it points to nothing
+        if (inst.mInst)
+        {
+            inst.mInst->m_ID = -1;
+        }
+        // Make sure that if an object was created, it is released
+        if (!inst.mObj.IsNull())
+        {
+            inst.mObj.Release();
+        }
         // Now we can throw the error
         STHROWF("Unable to create a pickup instance for: {}", id);
     }
@@ -1342,6 +1521,33 @@ VehicleInst & Core::AllocVehicle(int32_t id, bool owned, int32_t header, LightOb
     {
         return inst; // Return the existing instance
     }
+#ifdef VCMP_ENABLE_OFFICIAL
+    // Do we need to support legacy API?
+    if (IsOfficial())
+    {
+        // Create the legacy wrapper object
+        inst.mLgObj = LgVehicleObj(m_VM, id);
+        // Obtain the legacy wrapper instance
+        inst.mLgInst = inst.mLgObj.CastI< LgVehicle >();
+        // Make sure that both the instance and script object could be created
+        if (!inst.mLgInst || inst.mLgObj.IsNull())
+        {
+            inst.ResetInstance();
+            // Make sure that if an instance was created, it points to nothing
+            if (inst.mLgInst)
+            {
+                LgVehicleSetID(inst.mLgInst, -1);
+            }
+            // Make sure that if an object was created, it is released
+            if (!inst.mLgObj.IsNull())
+            {
+                inst.mLgObj.Release();
+            }
+            // Now we can throw the error
+            STHROWF("Unable to create a vehicle wrapper instance for: {}", id);
+        }
+    }
+#endif
     // Instantiate the entity manager
     DeleteGuard< CVehicle > dg(new CVehicle(id));
     // Create the script object
@@ -1354,6 +1560,25 @@ VehicleInst & Core::AllocVehicle(int32_t id, bool owned, int32_t header, LightOb
     if (!inst.mInst || inst.mObj.IsNull())
     {
         inst.ResetInstance();
+#ifdef VCMP_ENABLE_OFFICIAL
+        // Discard legacy wrapper instance
+        if (IsOfficial())
+        {
+            LgVehicleSetID(inst.mLgInst, -1);
+            inst.mLgObj.Release();
+            inst.mLgInst = nullptr;
+        }
+#endif
+        // Make sure that if an instance was created, it points to nothing
+        if (inst.mInst)
+        {
+            inst.mInst->m_ID = -1;
+        }
+        // Make sure that if an object was created, it is released
+        if (!inst.mObj.IsNull())
+        {
+            inst.mObj.Release();
+        }
         // Now we can throw the error
         STHROWF("Unable to create a vehicle instance for: {}", id);
     }
@@ -1732,6 +1957,33 @@ void Core::ConnectPlayer(int32_t id, int32_t header, LightObj & payload)
     {
         return; // Nothing to allocate!
     }
+#ifdef VCMP_ENABLE_OFFICIAL
+    // Do we need to support legacy API?
+    if (IsOfficial())
+    {
+        // Create the legacy wrapper object
+        inst.mLgObj = LgPlayerObj(m_VM, id);
+        // Obtain the legacy wrapper instance
+        inst.mLgInst = inst.mLgObj.CastI< LgPlayer >();
+        // Make sure that both the instance and script object could be created
+        if (!inst.mLgInst || inst.mLgObj.IsNull())
+        {
+            inst.ResetInstance();
+            // Make sure that if an instance was created, it points to nothing
+            if (inst.mLgInst)
+            {
+                LgPlayerSetID(inst.mLgInst, -1);
+            }
+            // Make sure that if an object was created, it is released
+            if (!inst.mLgObj.IsNull())
+            {
+                inst.mLgObj.Release();
+            }
+            // Now we can throw the error
+            STHROWF("Unable to create a player wrapper instance for: {}", id);
+        }
+    }
+#endif
     // Instantiate the entity manager
     DeleteGuard< CPlayer > dg(new CPlayer(id));
     // Create the script object
@@ -1744,6 +1996,26 @@ void Core::ConnectPlayer(int32_t id, int32_t header, LightObj & payload)
     if (!inst.mInst || inst.mObj.IsNull())
     {
         inst.ResetInstance();
+#ifdef VCMP_ENABLE_OFFICIAL
+        // Discard legacy wrapper instance
+        if (IsOfficial())
+        {
+            LgPlayerSetID(inst.mLgInst, -1);
+            inst.mLgObj.Release();
+            inst.mLgInst = nullptr;
+        }
+#endif
+        // Make sure that if an instance was created, it points to nothing
+        if (inst.mInst)
+        {
+            inst.mInst->m_ID = -1;
+        }
+        // Make sure that if an object was created, it is released
+        if (!inst.mObj.IsNull())
+        {
+            inst.mObj.Release();
+        }
+        // Now we can throw the error
         STHROWF("Unable to create a player instance for: {}", id);
     }
     // Assign the specified entity identifier

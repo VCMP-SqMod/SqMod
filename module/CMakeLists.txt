@@ -109,8 +109,17 @@ add_library(SqModule MODULE SqBase.hpp Main.cpp
     Logger.cpp Logger.hpp
     Register.cpp
 )
-# Various definitions required by the plugin
+# Various definitions required by the plug-in
 target_compile_definitions(SqModule PRIVATE SCRAT_USE_EXCEPTIONS=1)
+# SDK targeting
+if(ENABLE_API21)
+    target_compile_definitions(SqModule PRIVATE VCMP_SDK_2_1=1)
+endif()
+# Legacy compatibility with official plug-in
+if(ENABLE_OFFICIAL)
+    target_compile_definitions(SqModule PRIVATE VCMP_ENABLE_OFFICIAL=1)
+    target_sources(SqModule PRIVATE Misc/Official.cpp Misc/Official.hpp)
+endif()
 # Link to windows libraries if on windows
 if(WIN32 OR MINGW)
     target_compile_definitions(SqModule PRIVATE _WIN32_WINNT=0x0601)
@@ -124,7 +133,7 @@ target_link_libraries(SqModule Poco::Foundation Poco::Crypto Poco::Data Poco::Ne
 if(ENABLE_DATA_SQLITE)
     # Link the libraries
     target_link_libraries(SqModule Poco::DataSQLite)
-    # Inform the plugin that it can make use of this library
+    # Inform the plug-in that it can make use of this library
     target_compile_definitions(SqModule PRIVATE SQMOD_POCO_HAS_SQLITE=1)
 endif()
 # Does POCO have MySLQ support?
@@ -132,7 +141,7 @@ find_package(MySQL)
 if(MYSQL_FOUND)
     # Link the libraries
     target_link_libraries(SqModule Poco::DataMySQL)
-    # Inform the plugin that it can make use of this library
+    # Inform the plug-in that it can make use of this library
     target_compile_definitions(SqModule PRIVATE SQMOD_POCO_HAS_MYSQL=1)
 endif()
 # Does POCO have PostgreSQL support?
@@ -140,7 +149,7 @@ find_package(PostgreSQL)
 if(POSTGRESQL_FOUND)
     # Link the libraries
     target_link_libraries(SqModule Poco::DataPostgreSQL)
-    # Inform the plugin that it can make use of this library
+    # Inform the plug-in that it can make use of this library
     target_compile_definitions(SqModule PRIVATE SQMOD_POCO_HAS_POSTGRESQL=1)
 endif()
 # Determine if build mode

@@ -15,6 +15,15 @@ namespace SqMod {
 // --------------------------------------------------------------------------------------------
 typedef std::vector< std::pair< Area *, LightObj > > AreaList; // List of collided areas.
 
+// --------------------------------------------------------------------------------------------
+#ifdef VCMP_ENABLE_OFFICIAL
+    struct LgCheckpoint;
+    struct LgObject;
+    struct LgPickup;
+    struct LgPlayer;
+    struct LgVehicle;
+#endif
+
 /* --------------------------------------------------------------------------------------------
  * Helper structure used to identify a blip entity instance on the server.
 */
@@ -117,6 +126,12 @@ struct CheckpointInst
 
     // ----------------------------------------------------------------------------------------
     LightObj        mEvents{}; // Table containing the emitted entity events.
+
+    // ----------------------------------------------------------------------------------------
+#ifdef VCMP_ENABLE_OFFICIAL
+    LgCheckpoint *  mLgInst{nullptr}; // Pointer to the actual instance used to interact this entity.
+    LightObj        mLgObj{}; // Script object of the instance used to interact this entity.
+#endif
 
     // ----------------------------------------------------------------------------------------
     SignalPair      mOnDestroyed{};
@@ -235,6 +250,12 @@ struct ObjectInst
     LightObj        mEvents{}; // Table containing the emitted entity events.
 
     // ----------------------------------------------------------------------------------------
+#ifdef VCMP_ENABLE_OFFICIAL
+    LgObject *      mLgInst{nullptr}; // Pointer to the actual instance used to interact this entity.
+    LightObj        mLgObj{}; // Script object of the instance used to interact this entity.
+#endif
+
+    // ----------------------------------------------------------------------------------------
     SignalPair      mOnDestroyed{};
     SignalPair      mOnCustom{};
 #if SQMOD_SDK_LEAST(2, 1)
@@ -291,6 +312,12 @@ struct PickupInst
 
     // ----------------------------------------------------------------------------------------
     LightObj        mEvents{}; // Table containing the emitted entity events.
+
+    // ----------------------------------------------------------------------------------------
+#ifdef VCMP_ENABLE_OFFICIAL
+    LgPickup *      mLgInst{nullptr}; // Pointer to the actual instance used to interact this entity.
+    LightObj        mLgObj{}; // Script object of the instance used to interact this entity.
+#endif
 
     // ----------------------------------------------------------------------------------------
     SignalPair      mOnDestroyed{};
@@ -378,6 +405,12 @@ struct PlayerInst
 
     // ----------------------------------------------------------------------------------------
     LightObj        mEvents{}; // Table containing the emitted entity events.
+
+    // ----------------------------------------------------------------------------------------
+#ifdef VCMP_ENABLE_OFFICIAL
+    LgPlayer *      mLgInst{nullptr}; // Pointer to the actual instance used to interact this entity.
+    LightObj        mLgObj{}; // Script object of the instance used to interact this entity.
+#endif
 
     // ----------------------------------------------------------------------------------------
     SignalPair      mOnDestroyed{};
@@ -522,6 +555,12 @@ struct VehicleInst
 
     // ----------------------------------------------------------------------------------------
     LightObj        mEvents{}; // Table containing the emitted entity events.
+
+    // ----------------------------------------------------------------------------------------
+#ifdef VCMP_ENABLE_OFFICIAL
+    LgVehicle *     mLgInst{nullptr}; // Pointer to the actual instance used to interact this entity.
+    LightObj        mLgObj{}; // Script object of the instance used to interact this entity.
+#endif
 
     // ----------------------------------------------------------------------------------------
     SignalPair      mOnDestroyed{};

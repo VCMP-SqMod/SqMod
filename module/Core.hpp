@@ -61,6 +61,9 @@ private:
 
     // --------------------------------------------------------------------------------------------
     int32_t                         m_State; // Current plug-in state.
+#ifdef VCMP_ENABLE_OFFICIAL
+    bool                            m_Official; // Whether official support is enabked.
+#endif
     HSQUIRRELVM                     m_VM; // Script virtual machine.
     Scripts                         m_Scripts; // Loaded scripts objects.
     Scripts                         m_PendingScripts; // Pending scripts objects.
@@ -180,6 +183,16 @@ public:
     {
         return m_State;
     }
+
+#ifdef VCMP_ENABLE_OFFICIAL
+    /* --------------------------------------------------------------------------------------------
+     * See whether official support option was enabled in the plug-in.
+    */
+    SQMOD_NODISCARD bool IsOfficial() const
+    {
+        return m_Official;
+    }
+#endif
 
     /* --------------------------------------------------------------------------------------------
      * See whether debugging option was enabled in the plug-in.
@@ -471,6 +484,7 @@ public:
     SQMOD_NODISCARD BlipInst & GetBlip(int32_t id) { return m_Blips.at(static_cast< size_t >(id)); }
     SQMOD_NODISCARD CheckpointInst & GetCheckpoint(int32_t id) { return m_Checkpoints.at(static_cast< size_t >(id)); }
     SQMOD_NODISCARD KeyBindInst & GetKeyBind(int32_t id) { return m_KeyBinds.at(static_cast< size_t >(id)); }
+    // Windows API is retarded. That's why this isn't named `GetObject` like the others
     SQMOD_NODISCARD ObjectInst & GetObj(int32_t id) { return m_Objects.at(static_cast< size_t >(id)); }
     SQMOD_NODISCARD PickupInst & GetPickup(int32_t id) { return m_Pickups.at(static_cast< size_t >(id)); }
     SQMOD_NODISCARD PlayerInst & GetPlayer(int32_t id) { return m_Players.at(static_cast< size_t >(id)); }
@@ -556,7 +570,7 @@ public:
     void EmitPlayerRequestClass(int32_t player_id, int32_t offset);
     void EmitPlayerRequestSpawn(int32_t player_id);
     void EmitPlayerSpawn(int32_t player_id);
-    void EmitPlayerWasted(int32_t player_id, int32_t reason);
+    void EmitPlayerWasted(int32_t player_id, int32_t reason, vcmpBodyPart body_part);
     void EmitPlayerKilled(int32_t player_id, int32_t killer_id, int32_t reason, vcmpBodyPart body_part, bool team_kill);
     void EmitPlayerEmbarking(int32_t player_id, int32_t vehicle_id, int32_t slot_index);
     void EmitPlayerEmbarked(int32_t player_id, int32_t vehicle_id, int32_t slot_index);

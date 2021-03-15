@@ -33,6 +33,15 @@ namespace SqMod {
 extern void CleanupTasks(int32_t id, int32_t type);
 
 // ------------------------------------------------------------------------------------------------
+#ifdef VCMP_ENABLE_OFFICIAL
+    extern void LgCheckpointSetID(LgCheckpoint * inst, int32_t id);
+    extern void LgObjectSetID(LgObject * inst, int32_t id);
+    extern void LgPickupSetID(LgPickup * inst, int32_t id);
+    extern void LgPlayerSetID(LgPlayer * inst, int32_t id);
+    extern void LgVehicleSetID(LgVehicle * inst, int32_t id);
+#endif
+
+// ------------------------------------------------------------------------------------------------
 BlipInst::~BlipInst()
 {
     if (VALID_ENTITY(mID))
@@ -161,6 +170,18 @@ void CheckpointInst::Destroy(bool destroy, int32_t header, LightObj & payload)
     mInst = nullptr;
     // Release the script object, if any
     mObj.Release();
+#ifdef VCMP_ENABLE_OFFICIAL
+    // Is there a manager instance associated with this entity?
+    if (mLgInst)
+    {
+        // Prevent further use of this entity
+        LgCheckpointSetID(mLgInst, -1);
+    }
+    // Prevent further use of the manager instance
+    mLgInst = nullptr;
+    // Release the script object, if any
+    mLgObj.Release();
+#endif
     // Release tasks, if any
     CleanupTasks(mID, ENT_CHECKPOINT);
     // Are we supposed to clean up this entity? (only at reload)
@@ -243,6 +264,18 @@ void ObjectInst::Destroy(bool destroy, int32_t header, LightObj & payload)
     mInst = nullptr;
     // Release the script object, if any
     mObj.Release();
+#ifdef VCMP_ENABLE_OFFICIAL
+    // Is there a manager instance associated with this entity?
+    if (mLgInst)
+    {
+        // Prevent further use of this entity
+        LgObjectSetID(mLgInst, -1);
+    }
+    // Prevent further use of the manager instance
+    mLgInst = nullptr;
+    // Release the script object, if any
+    mLgObj.Release();
+#endif
     // Release tasks, if any
     CleanupTasks(mID, ENT_OBJECT);
     // Are we supposed to clean up this entity? (only at reload)
@@ -284,6 +317,18 @@ void PickupInst::Destroy(bool destroy, int32_t header, LightObj & payload)
     mInst = nullptr;
     // Release the script object, if any
     mObj.Release();
+#ifdef VCMP_ENABLE_OFFICIAL
+    // Is there a manager instance associated with this entity?
+    if (mLgInst)
+    {
+        // Prevent further use of this entity
+        LgPickupSetID(mLgInst, -1);
+    }
+    // Prevent further use of the manager instance
+    mLgInst = nullptr;
+    // Release the script object, if any
+    mLgObj.Release();
+#endif
     // Release tasks, if any
     CleanupTasks(mID, ENT_PICKUP);
     // Are we supposed to clean up this entity? (only at reload)
@@ -327,6 +372,18 @@ void PlayerInst::Destroy(bool /*destroy*/, int32_t header, LightObj & payload)
     mInst = nullptr;
     // Release the script object, if any
     mObj.Release();
+#ifdef VCMP_ENABLE_OFFICIAL
+    // Is there a manager instance associated with this entity?
+    if (mLgInst)
+    {
+        // Prevent further use of this entity
+        LgPlayerSetID(mLgInst, -1);
+    }
+    // Prevent further use of the manager instance
+    mLgInst = nullptr;
+    // Release the script object, if any
+    mLgObj.Release();
+#endif
     // Release tasks, if any
     CleanupTasks(mID, ENT_PLAYER);
     // Reset the instance to it's initial state
@@ -360,6 +417,18 @@ void VehicleInst::Destroy(bool destroy, int32_t header, LightObj & payload)
     mInst = nullptr;
     // Release the script object, if any
     mObj.Release();
+#ifdef VCMP_ENABLE_OFFICIAL
+    // Is there a manager instance associated with this entity?
+    if (mLgInst)
+    {
+        // Prevent further use of this entity
+        LgVehicleSetID(mLgInst, -1);
+    }
+    // Prevent further use of the manager instance
+    mLgInst = nullptr;
+    // Release the script object, if any
+    mLgObj.Release();
+#endif
     // Release tasks, if any
     CleanupTasks(mID, ENT_VEHICLE);
     // Are we supposed to clean up this entity? (only at reload)

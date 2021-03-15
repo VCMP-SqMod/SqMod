@@ -56,6 +56,9 @@ extern void Register_Tasks(HSQUIRRELVM vm);
 extern void Register_Misc(HSQUIRRELVM vm);
 extern void Register_Areas(HSQUIRRELVM vm);
 extern void Register_Signal(HSQUIRRELVM vm);
+#ifdef VCMP_ENABLE_OFFICIAL
+    extern void Register_Official(HSQUIRRELVM vm);
+#endif
 
 // ------------------------------------------------------------------------------------------------
 bool RegisterAPI(HSQUIRRELVM vm)
@@ -103,6 +106,9 @@ bool RegisterAPI(HSQUIRRELVM vm)
     Register_Misc(vm);
     Register_Areas(vm);
     Register_Signal(vm);
+#ifdef VCMP_ENABLE_OFFICIAL
+    Register_Official(vm);
+#endif
 
     return true;
 }

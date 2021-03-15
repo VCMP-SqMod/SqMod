@@ -5,6 +5,47 @@ namespace SqMod {
 #define NULL_SQOBJ_(o) (o.IsNull() ? "NULL" : "OBJ")
 
 // ------------------------------------------------------------------------------------------------
+#ifdef VCMP_ENABLE_OFFICIAL
+// ------------------------------------------------------------------------------------------------
+// Invoke a script function from the root table with no return value
+template < class... Args > static void ExecuteLegacyEvent(HSQUIRRELVM vm, const SQChar * name, Args &&... args)
+{
+    StackGuard sqsg(vm);
+    // Push the root table on the stack
+    sq_pushroottable(vm);
+    // Grab the function from the table
+    Function fn(vm, sq_gettop(vm), name);
+    // Was there a callback with that name?
+    if (fn.IsNull())
+    {
+        return; // Nothing to invoke
+    }
+    // Forward the call to the function
+    fn.Execute(std::forward< Args >(args)...);
+}
+// ------------------------------------------------------------------------------------------------
+// Invoke a script function from the root table with a return value
+template < class... Args > static LightObj EvaluateLegacyEvent(HSQUIRRELVM vm, const SQChar * name, Args &&... args)
+{
+    StackGuard sqsg(vm);
+    // Push the root table on the stack
+    sq_pushroottable(vm);
+    // Grab the function from the table
+    Function fn(vm, sq_gettop(vm), name);
+    // Was there a callback with that name?
+    if (fn.IsNull())
+    {
+        return LightObj{}; // Nothing to invoke
+    }
+    // Forward the call to the function
+    return fn.Eval(std::forward< Args >(args)...);
+}
+// ------------------------------------------------------------------------------------------------
+static int32_t g_LastHour = 0;
+static int32_t g_LastMinute = 0;
+#endif
+
+// ------------------------------------------------------------------------------------------------
 void Core::EmitCustomEvent(int32_t group, int32_t header, LightObj & payload) const
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::CustomEvent(%d, %d, %s)", group, header, NULL_SQOBJ_(payload))
@@ -58,6 +99,12 @@ void Core::EmitPlayerCreated(int32_t player, int32_t header, LightObj & payload)
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerCreated(%d, %d, %s)", player, header, NULL_SQOBJ_(payload))
     (*mOnPlayerCreated.first)(m_Players.at(static_cast< size_t >(player)).mObj, header, payload);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerCreated")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onPlayerJoin"), m_Players.at(static_cast< size_t >(player)).mLgObj);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -126,6 +173,12 @@ void Core::EmitPlayerDestroyed(int32_t player, int32_t header, LightObj & payloa
     (*_player.mOnDestroyed.first)(header, payload);
     (*mOnPlayerDestroyed.first)(_player.mObj, header, payload);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerDestroyed")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onPlayerPart"), _player.mLgObj);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -214,6 +267,12 @@ void Core::EmitServerStartup() const
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ServerStartup()")
     (*mOnServerStartup.first)();
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::ServerStartup")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onServerStart"));
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -222,6 +281,13 @@ void Core::EmitServerShutdown() const
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ServerShutdown()")
     (*mOnServerShutdown.first)();
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::ServerShutdown")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onServerStop"));
+        ExecuteLegacyEvent(m_VM, _SC("onScriptUnload"));
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -230,6 +296,20 @@ void Core::EmitServerFrame(float elapsed_time) const
     //SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ServerFrame(%f)", elapsed_time)
     (*mOnServerFrame.first)(elapsed_time);
     //SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::ServerFrame")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        const int32_t hour = _Func->GetHour(), minute = _Func->GetMinute();
+        // Check for onTimeChange triggers
+        if(g_LastHour != hour || g_LastMinute != minute)
+        {
+            ExecuteLegacyEvent(m_VM, _SC("onTimeChange"), g_LastHour, g_LastMinute, hour, minute);
+            // Update values
+            g_LastHour = hour;
+            g_LastMinute = minute;
+        }
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -253,11 +333,14 @@ void Core::EmitIncomingConnection(char * player_name, size_t name_buffer_size, c
     // Save the buffer information so that we can write to it from the string
     m_IncomingNameBuffer = player_name;
     m_IncomingNameCapacity = name_buffer_size;
+    // Create reusable objects from parameters
+    LightObj player_name_obj(player_name, -1);
+    LightObj user_password_obj(user_password, -1);
+    LightObj ip_address_obj(ip_address, -1);
     // Attempt to forward the event to the script callback
     try
     {
-        (*mOnIncomingConnection.first)(LightObj(player_name, -1), name_buffer_size,
-                                        LightObj(user_password, -1), LightObj(ip_address, -1));
+        (*mOnIncomingConnection.first)(player_name_obj, name_buffer_size, user_password_obj, ip_address_obj);
     }
     catch (...)
     {
@@ -271,6 +354,13 @@ void Core::EmitIncomingConnection(char * player_name, size_t name_buffer_size, c
     m_IncomingNameBuffer = nullptr;
     m_IncomingNameCapacity = 0;
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::IncomingConnection")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        LightObj r = EvaluateLegacyEvent(m_VM, _SC("onLoginAttempt"), player_name_obj, user_password_obj, ip_address_obj);
+        SetState(r.IsNull() ? 1 : r.Cast< int32_t >());
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -281,6 +371,14 @@ void Core::EmitPlayerRequestClass(int32_t player_id, int32_t offset)
     (*_player.mOnRequestClass.first)(offset);
     (*mOnPlayerRequestClass.first)(_player.mObj, offset);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerRequestClass")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        LightObj r = EvaluateLegacyEvent(m_VM, _SC("onPlayerRequestClass"),
+                        _player.mLgObj, offset, _Func->GetPlayerTeam(player_id), _Func->GetPlayerSkin(player_id));
+        SetState(r.IsNull() ? 1 : r.Cast< int32_t >());
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -291,6 +389,12 @@ void Core::EmitPlayerRequestSpawn(int32_t player_id)
     (*_player.mOnRequestSpawn.first)();
     (*mOnPlayerRequestSpawn.first)(_player.mObj);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerRequestSpawn")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onPlayerRequestSpawn"), _player.mLgObj);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -301,16 +405,31 @@ void Core::EmitPlayerSpawn(int32_t player_id)
     (*_player.mOnSpawn.first)();
     (*mOnPlayerSpawn.first)(_player.mObj);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerSpawn")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onPlayerSpawn"), _player.mLgObj);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitPlayerWasted(int32_t player_id, int32_t reason)
+void Core::EmitPlayerWasted(int32_t player_id, int32_t reason, vcmpBodyPart SQ_UNUSED_ARG(body_part))
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerWasted(%d, %d)", player_id, reason)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
     (*_player.mOnWasted.first)(reason);
     (*mOnPlayerWasted.first)(_player.mObj, reason);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerWasted")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        if (reason == 43 || reason == 50) reason = 43; // drowned
+        else if (reason == 39 && body_part == 7) reason = 39; // car crash
+        else if (reason == 39 || reason == 40 || reason == 44) reason = 44; // fell
+        ExecuteLegacyEvent(m_VM, _SC("onPlayerDeath"), _player.mLgObj, reason);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -322,6 +441,19 @@ void Core::EmitPlayerKilled(int32_t player_id, int32_t killer_id, int32_t reason
     (*_player.mOnKilled.first)(_killer.mObj, reason, static_cast< int32_t >(body_part), team_kill);
     (*mOnPlayerKilled.first)(_player.mObj, _killer.mObj, reason, static_cast< int32_t >(body_part), team_kill);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerKilled")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        if (!team_kill)
+        {
+            ExecuteLegacyEvent(m_VM, _SC("onPlayerTeamKill"), _killer.mLgObj, _player.mLgObj, reason, static_cast< int32_t >(body_part));
+        }
+        else
+        {
+            ExecuteLegacyEvent(m_VM, _SC("onPlayerKill"), _killer.mLgObj, _player.mLgObj, reason, static_cast< int32_t >(body_part));
+        }
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -334,6 +466,14 @@ void Core::EmitPlayerEmbarking(int32_t player_id, int32_t vehicle_id, int32_t sl
     (*_vehicle.mOnEmbarking.first)(_player.mObj, slot_index);
     (*mOnPlayerEmbarking.first)(_player.mObj, _vehicle.mObj, slot_index);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerEmbarking")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        LightObj r = EvaluateLegacyEvent(m_VM, _SC("onPlayerEnteringVehicle"),
+                        _player.mLgObj, _vehicle.mLgObj, slot_index);
+        SetState(r.IsNull() ? 1 : r.Cast< int32_t >());
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -346,6 +486,12 @@ void Core::EmitPlayerEmbarked(int32_t player_id, int32_t vehicle_id, int32_t slo
     (*_vehicle.mOnEmbarked.first)(_player.mObj, slot_index);
     (*mOnPlayerEmbarked.first)(_player.mObj, _vehicle.mObj, slot_index);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerEmbarked")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onPlayerEnterVehicle"), _player.mLgObj, _vehicle.mLgObj, slot_index);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -358,6 +504,12 @@ void Core::EmitPlayerDisembark(int32_t player_id, int32_t vehicle_id)
     (*_vehicle.mOnDisembark.first)(_player.mObj);
     (*mOnPlayerDisembark.first)(_player.mObj, _vehicle.mObj);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerDisembark")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onPlayerExitVehicle"), _player.mLgObj, _vehicle.mLgObj);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -369,6 +521,12 @@ void Core::EmitPlayerRename(int32_t player_id, const char * old_name, const char
     (*_player.mOnRename.first)(oname, nname);
     (*mOnPlayerRename.first)(_player.mObj, oname, nname);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerRename")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onPlayerNameChange"), _player.mLgObj, oname, nname);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -379,6 +537,12 @@ void Core::EmitPlayerState(int32_t player_id, int32_t old_state, int32_t new_sta
     (*_player.mOnState.first)(old_state, new_state);
     (*mOnPlayerState.first)(_player.mObj, old_state, new_state);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerState")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onPlayerActionChange"), _player.mLgObj, old_state, new_state);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -479,6 +643,12 @@ void Core::EmitPlayerAction(int32_t player_id, int32_t old_action, int32_t new_a
     (*_player.mOnAction.first)(old_action, new_action);
     (*mOnPlayerAction.first)(_player.mObj, old_action, new_action);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerAction")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onPlayerActionChange"), _player.mLgObj, old_action, new_action);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -619,6 +789,12 @@ void Core::EmitPlayerBurning(int32_t player_id, bool is_on_fire)
     (*_player.mOnBurning.first)(is_on_fire);
     (*mOnPlayerBurning.first)(_player.mObj, is_on_fire);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerBurning")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onPlayerOnFireChange"), _player.mLgObj, is_on_fire);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -629,6 +805,12 @@ void Core::EmitPlayerCrouching(int32_t player_id, bool is_crouching)
     (*_player.mOnCrouching.first)(is_crouching);
     (*mOnPlayerCrouching.first)(_player.mObj, is_crouching);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerCrouching")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onPlayerCrouchChange"), _player.mLgObj, is_crouching);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -639,6 +821,12 @@ void Core::EmitPlayerGameKeys(int32_t player_id, uint32_t old_keys, uint32_t new
     (*_player.mOnGameKeys.first)(old_keys, new_keys);
     (*mOnPlayerGameKeys.first)(_player.mObj, old_keys, new_keys);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerGameKeys")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onPlayerGameKeysChange"), _player.mLgObj, old_keys, new_keys);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -649,6 +837,12 @@ void Core::EmitPlayerStartTyping(int32_t player_id)
     (*_player.mOnStartTyping.first)();
     (*mOnPlayerStartTyping.first)(_player.mObj);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerStartTyping")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onPlayerBeginTyping"), _player.mLgObj);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -659,6 +853,12 @@ void Core::EmitPlayerStopTyping(int32_t player_id)
     (*_player.mOnStopTyping.first)();
     (*mOnPlayerStopTyping.first)(_player.mObj);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerStopTyping")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onPlayerEndTyping"), _player.mLgObj);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -669,6 +869,12 @@ void Core::EmitPlayerAway(int32_t player_id, bool is_away)
     (*_player.mOnAway.first)(is_away);
     (*mOnPlayerAway.first)(_player.mObj, is_away);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerAway")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onPlayerAwayChange"), _player.mLgObj, is_away);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -680,6 +886,13 @@ void Core::EmitPlayerMessage(int32_t player_id, const char * message)
     (*_player.mOnMessage.first)(msg);
     (*mOnPlayerMessage.first)(_player.mObj, msg);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerMessage")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        LightObj r = EvaluateLegacyEvent(m_VM, _SC("onPlayerChat"), _player.mLgObj, msg);
+        SetState(r.IsNull() ? 1 : r.Cast< int32_t >());
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -691,6 +904,31 @@ void Core::EmitPlayerCommand(int32_t player_id, const char * message)
     (*_player.mOnCommand.first)(msg);
     (*mOnPlayerCommand.first)(_player.mObj, msg);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerCommand")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        LightObj text, args;
+        // Find the first space character
+        const char * split = std::strchr(message, ' ');
+        // Do we need to split the command from arguments?
+        if (split)
+        {
+            // Create a string object for the command (don't include the space character)
+            text = LightObj(message, static_cast< SQInteger >(split - message) - 1);
+            // Do we need to create a script object for arguments?
+            if (std::strlen(split + 1) > 0)
+            {
+                args = LightObj(split + 1, -1); // Skip the space character
+            }
+        }
+        else
+        {
+            text = std::move(msg); // Use the existing message object as is
+        }
+        LightObj r = EvaluateLegacyEvent(m_VM, _SC("onPlayerCommand"), _player.mLgObj, text, args);
+        SetState(r.IsNull() ? 1 : r.Cast< int32_t >());
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -703,6 +941,13 @@ void Core::EmitPlayerPrivateMessage(int32_t player_id, int32_t target_player_id,
     (*_player.mOnMessage.first)(_receiver.mObj,  msg);
     (*mOnPlayerPrivateMessage.first)(_player.mObj, _receiver.mObj, msg);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerPrivateMessage")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        LightObj r = EvaluateLegacyEvent(m_VM, _SC("onPlayerPM"), _player.mLgObj, _receiver.mLgObj, msg);
+        SetState(r.IsNull() ? 1 : r.Cast< int32_t >());
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -715,6 +960,12 @@ void Core::EmitPlayerKeyPress(int32_t player_id, int32_t bind_id)
     (*_keybind.mOnKeyPress.first)(_player.mObj);
     (*mOnPlayerKeyPress.first)(_player.mObj, _keybind.mObj);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerKeyPress")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onKeyDown"), _player.mLgObj, bind_id);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -727,6 +978,12 @@ void Core::EmitPlayerKeyRelease(int32_t player_id, int32_t bind_id)
     (*_player.mOnKeyRelease.first)(_keybind.mObj);
     (*mOnPlayerKeyRelease.first)(_player.mObj, _keybind.mObj);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerKeyRelease")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onKeyUp"), _player.mLgObj, bind_id);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -738,6 +995,12 @@ void Core::EmitPlayerSpectate(int32_t player_id, int32_t target_player_id)
     (*_player.mOnSpectate.first)(_target.mObj);
     (*mOnPlayerSpectate.first)(_player.mObj, _target.mObj);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerSpectate")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onPlayerSpectate"), _player.mLgObj, _target.mLgObj);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -755,10 +1018,16 @@ void Core::EmitPlayerCrashReport(int32_t player_id, const char * report)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerCrashreport(%d, %s)", player_id, report)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
-    LightObj rep(report, -1);
-    (*_player.mOnCrashReport.first)(rep);
-    (*mOnPlayerCrashReport.first)(_player.mObj, rep);
+    LightObj report_obj(report, -1);
+    (*_player.mOnCrashReport.first)(report_obj);
+    (*mOnPlayerCrashReport.first)(_player.mObj, report_obj);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerCrashreport")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onPlayerCrashDump"), _player.mLgObj, report_obj);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -766,10 +1035,16 @@ void Core::EmitPlayerModuleList(int32_t player_id, const char * list)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::PlayerModuleList(%d, %s)", player_id, list)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
-    LightObj rep(list, -1);
-    (*_player.mOnModuleList.first)(rep);
-    (*mOnPlayerModuleList.first)(_player.mObj, rep);
+    LightObj list_obj(list, -1);
+    (*_player.mOnModuleList.first)(list_obj);
+    (*mOnPlayerModuleList.first)(_player.mObj, list_obj);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerModuleList")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onPlayerModuleList"), _player.mLgObj, list_obj);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -780,6 +1055,12 @@ void Core::EmitVehicleExplode(int32_t vehicle_id)
     (*_vehicle.mOnExplode.first)();
     (*mOnVehicleExplode.first)(_vehicle.mObj);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::VehicleExplode")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onVehicleExplode"), _vehicle.mLgObj);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -790,6 +1071,12 @@ void Core::EmitVehicleRespawn(int32_t vehicle_id)
     (*_vehicle.mOnRespawn.first)();
     (*mOnVehicleRespawn.first)(_vehicle.mObj);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::VehicleRespawn")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onVehicleRespawn"), _vehicle.mLgObj);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -802,6 +1089,12 @@ void Core::EmitObjectShot(int32_t object_id, int32_t player_id, int32_t weapon_i
     (*_player.mOnObjectShot.first)(_object.mObj, weapon_id);
     (*mOnObjectShot.first)(_player.mObj, _object.mObj, weapon_id);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::ObjectShot")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onObjectShot"), _object.mLgObj, _player.mLgObj, weapon_id);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -814,6 +1107,12 @@ void Core::EmitObjectTouched(int32_t object_id, int32_t player_id)
     (*_player.mOnObjectTouched.first)(_object.mObj);
     (*mOnObjectTouched.first)(_player.mObj, _object.mObj);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::ObjectTouched")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onObjectBump"), _object.mLgObj, _player.mLgObj);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -826,6 +1125,13 @@ void Core::EmitPickupClaimed(int32_t pickup_id, int32_t player_id)
     (*_player.mOnPickupClaimed.first)(_pickup.mObj);
     (*mOnPickupClaimed.first)(_player.mObj, _pickup.mObj);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PickupClaimed")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        LightObj r = EvaluateLegacyEvent(m_VM, _SC("onPickupClaimPicked"), _player.mLgObj, _pickup.mLgObj);
+        SetState(r.IsNull() ? 1 : r.Cast< int32_t >());
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -838,6 +1144,12 @@ void Core::EmitPickupCollected(int32_t pickup_id, int32_t player_id)
     (*_player.mOnPickupCollected.first)(_pickup.mObj);
     (*mOnPickupCollected.first)(_player.mObj, _pickup.mObj);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PickupCollected")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onPickupPickedUp"), _player.mLgObj, _pickup.mLgObj);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -848,6 +1160,12 @@ void Core::EmitPickupRespawn(int32_t pickup_id)
     (*_pickup.mOnRespawn.first)();
     (*mOnPickupRespawn.first)(_pickup.mObj);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PickupRespawn")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onPickupRespawn"), _pickup.mLgObj);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -860,6 +1178,12 @@ void Core::EmitCheckpointEntered(int32_t checkpoint_id, int32_t player_id)
     (*_player.mOnCheckpointEntered.first)(_checkpoint.mObj);
     (*mOnCheckpointEntered.first)(_player.mObj, _checkpoint.mObj);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::CheckpointEntered")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onCheckpointEntered"), _player.mLgObj, _checkpoint.mLgObj);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -872,6 +1196,12 @@ void Core::EmitCheckpointExited(int32_t checkpoint_id, int32_t player_id)
     (*_player.mOnCheckpointExited.first)(_checkpoint.mObj);
     (*mOnCheckpointExited.first)(_player.mObj, _checkpoint.mObj);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::CheckpointExited")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onCheckpointExited"), _player.mLgObj, _checkpoint.mLgObj);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -983,6 +1313,12 @@ void Core::EmitPlayerHealth(int32_t player_id, float old_health, float new_healt
     (*_player.mOnHealth.first)(old_health, new_health);
     (*mOnPlayerHealth.first)(_player.mObj, old_health, new_health);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerHealth")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onPlayerHealthChange"), _player.mLgObj, old_health, new_health);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -993,6 +1329,12 @@ void Core::EmitPlayerArmour(int32_t player_id, float old_armour, float new_armou
     (*_player.mOnArmour.first)(old_armour, new_armour);
     (*mOnPlayerArmour.first)(_player.mObj, old_armour, new_armour);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerArmour")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onPlayerArmourChange"), _player.mLgObj, old_armour, new_armour);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1003,6 +1345,12 @@ void Core::EmitPlayerWeapon(int32_t player_id, int32_t old_weapon, int32_t new_w
     (*_player.mOnWeapon.first)(old_weapon, new_weapon);
     (*mOnPlayerWeapon.first)(_player.mObj, old_weapon, new_weapon);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerWeapon")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onPlayerWeaponChange"), _player.mLgObj, old_weapon, new_weapon);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1023,6 +1371,16 @@ void Core::EmitPlayerPosition(int32_t player_id)
     (*_player.mOnPosition.first)(_player.mTrackPositionHeader, _player.mTrackPositionPayload);
     (*mOnPlayerPosition.first)(_player.mObj, _player.mTrackPositionHeader, _player.mTrackPositionPayload);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::PlayerPosition")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        Vector3 pos;
+        _Func->GetPlayerPosition(player_id, &pos.x, &pos.y, &pos.z);
+        ExecuteLegacyEvent(m_VM, _SC("onPlayerMove"), _player.mLgObj
+            , _player.mLastPosition.x, _player.mLastPosition.y, _player.mLastPosition.z
+            , pos.x, pos.y, pos.z);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1164,6 +1522,12 @@ void Core::EmitVehicleHealth(int32_t vehicle_id, float old_health, float new_hea
     (*_vehicle.mOnHealth.first)(old_health, new_health);
     (*mOnVehicleHealth.first)(_vehicle.mObj, old_health, new_health);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::VehicleHealth")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onVehicleHealthChange"), _vehicle.mLgObj, old_health, new_health);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1174,6 +1538,16 @@ void Core::EmitVehiclePosition(int32_t vehicle_id)
     (*_vehicle.mOnPosition.first)();
     (*mOnVehiclePosition.first)(_vehicle.mObj);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::VehiclePosition")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        Vector3 pos;
+        _Func->GetVehiclePosition(vehicle_id, &pos.x, &pos.y, &pos.z);
+        ExecuteLegacyEvent(m_VM, _SC("onVehicleMove"), _vehicle.mLgObj
+            , _vehicle.mLastPosition.x, _vehicle.mLastPosition.y, _vehicle.mLastPosition.z
+            , pos.x, pos.y, pos.z);
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1875,6 +2249,12 @@ void Core::EmitClientScriptData(int32_t player_id, const uint8_t * data, size_t 
     (*_player.mOnClientScriptData.first)(o, size);
     (*mOnClientScriptData.first)(_player.mObj, o, size);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::ClientScriptData")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onClientScriptData"), _player.mLgObj);
+    }
+#endif
 }
 
 #undef NULL_SQOBJ_ // don't need this anymore

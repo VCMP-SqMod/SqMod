@@ -89,6 +89,21 @@
 #define SQMOD_SDK_PRIOR(MJR, MNR) ((PLUGIN_API_MAJOR < (MJR)) && (PLUGIN_API_MINOR < (MNR)))
 
 /* ------------------------------------------------------------------------------------------------
+ * VCMP OFFICIAL SUPPORT.
+*/
+#ifdef VCMP_ENABLE_OFFICIAL
+    #define SQMOD_OFFICIAL_ONLY(EXPR) EXPR
+    #define SQMOD_EXCEPT_OFFICIAL(EXPR)
+#else
+    #define SQMOD_OFFICIAL_ONLY(EXPR)
+    #define SQMOD_EXCEPT_OFFICIAL(EXPR) EXPR
+#endif
+// --------------------------------------------------------------------------------------------------------------------
+// Select the value according to the selected option.
+#define SQMOD_OFFICIAL_OR(XV, OV) SQMOD_OFFICIAL_ONLY(XV) SQMOD_EXCEPT_OFFICIAL(OV)
+#define SQMOD_NON_OFFICIAL_OR(XV, OV) SQMOD_EXCEPT_OFFICIAL(XV) SQMOD_OFFICIAL_ONLY(OV)
+
+/* ------------------------------------------------------------------------------------------------
  * API EXPORT.
 */
 #if defined(_MSC_VER)
@@ -476,9 +491,9 @@ enum EntityType
  * ATTRIBUTES
 */
 #if defined(__GNUC__) && __GNUC__ >= 7
- #define SQ_FALL_THROUGH __attribute__ ((fallthrough))
+    #define SQ_FALL_THROUGH __attribute__ ((fallthrough))
 #else
- #define SQ_FALL_THROUGH ((void)0)
+    #define SQ_FALL_THROUGH ((void)0)
 #endif // __GNUC__ >= 7
 
 /* ------------------------------------------------------------------------------------------------
