@@ -343,6 +343,28 @@ void CVehicle::Explode() const
 }
 
 // ------------------------------------------------------------------------------------------------
+void CVehicle::FlattenTyres(bool toggle) const
+{
+    // Validate the managed identifier
+    Validate();
+    // Perform the requested operation
+    if(toggle)
+    {
+        _Func->SetVehicleTyreStatus(m_ID, 0, 0);
+        _Func->SetVehicleTyreStatus(m_ID, 1, 0);
+        _Func->SetVehicleTyreStatus(m_ID, 2, 0);
+        _Func->SetVehicleTyreStatus(m_ID, 3, 0);
+    }
+    else
+    {
+        _Func->SetVehicleTyreStatus(m_ID, 0, 1);
+        _Func->SetVehicleTyreStatus(m_ID, 1, 1);
+        _Func->SetVehicleTyreStatus(m_ID, 2, 1);
+        _Func->SetVehicleTyreStatus(m_ID, 3, 1);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 bool CVehicle::IsWrecked() const
 {
     // Validate the managed identifier
@@ -807,6 +829,7 @@ void CVehicle::Fix() const
     // Perform the requested operation
     _Func->SetVehicleHealth(m_ID, 1000);
     _Func->SetVehicleDamageData(m_ID, 0);
+    _Func->SetVehicleLightsData(m_ID, _Func->GetVehicleLightsData(m_ID) & 0xFFFFFF00);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2101,6 +2124,7 @@ void Register_CVehicle(HSQUIRRELVM vm)
         .Func(_SC("HasOccupant"), &CVehicle::HasOccupant)
         .Func(_SC("Respawn"), &CVehicle::Respawn)
         .Func(_SC("Explode"), &CVehicle::Explode)
+        .Func(_SC("FlattenTyres"), &CVehicle::FlattenTyres)
         .Func(_SC("SetRot"), &CVehicle::SetRotationEx)
         .Func(_SC("SetRotation"), &CVehicle::SetRotationEx)
         .Func(_SC("SetEulerRot"), &CVehicle::SetRotationEulerEx)

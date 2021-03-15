@@ -263,6 +263,11 @@ public:
     void Explode() const;
 
     /* --------------------------------------------------------------------------------------------
+     * Flatten the tyres of the managed vehicle entity.
+    */
+    void FlattenTyres(bool toggle) const;
+
+    /* --------------------------------------------------------------------------------------------
      * See whether the managed vehicle entity is wrecked.
     */
     SQMOD_NODISCARD bool IsWrecked() const;
