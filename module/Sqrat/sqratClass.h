@@ -109,7 +109,7 @@ public:
                 //ClassType<C>::getStaticClassData() = cd->staticData;
             } else {
                 //cd->staticData = ClassType<C>::getStaticClassData().Lock();
-                throw Exception("investigate me!");
+                throw Exception("investigate me! [Class]");
             }
 
             HSQOBJECT& classObj = cd->classObj;
@@ -976,15 +976,17 @@ public:
             ClassData<B>* bd = ClassType<B>::getClassData(v);
             ClassData<C>* cd = *ud;
 
-            if (ClassType<C>::getStaticClassData().Expired()) {
+            //if (ClassType<C>::getStaticClassData()->Expired()) {
+            if (ClassType<C>::getStaticClassData()) {
                 cd->staticData.Init(new StaticClassData<C, B>);
                 cd->staticData->copyFunc  = &A::Copy;
                 cd->staticData->className = string(className);
                 cd->staticData->baseClass = bd->staticData.Get();
 
-                ClassType<C>::getStaticClassData() = cd->staticData;
+                //ClassType<C>::getStaticClassData() = cd->staticData;
             } else {
-                cd->staticData = ClassType<C>::getStaticClassData().Lock();
+                //cd->staticData = ClassType<C>::getStaticClassData().Lock();
+                throw Exception("investigate me! [DerivedClass]");
             }
 
             HSQOBJECT& classObj = cd->classObj;
