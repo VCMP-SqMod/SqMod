@@ -87,6 +87,33 @@ struct Function  {
         }
 #endif
     }
+    // Constructs a Function from a table off the stack at the specified index
+    Function(HSQUIRRELVM vm, SQInteger idx, const SQChar* slot) {
+        sq_pushstring(vm, slot, -1);
+#if !defined (SCRAT_NO_ERROR_CHECKING)
+        if(SQ_FAILED(sq_get(vm, idx))) {
+            sq_poptop(vm);
+            sq_resetobject(&mEnv);
+            sq_resetobject(&mObj);
+        } else {
+            sq_getstackobj(vm, -1, &mObj);
+            sq_getstackobj(vm, idx, &mEnv);
+            if (sq_type(mObj) == OT_CLOSURE || sq_type(mObj) == OT_NATIVECLOSURE) {
+                sq_addref(vm, &mEnv);
+                sq_addref(vm, &mObj);
+            } else {
+                sq_resetobject(&mEnv);
+                sq_resetobject(&mObj);
+            }
+            sq_poptop(vm);
+        }
+#else
+        sq_get(vm, idx);
+        sq_getstackobj(vm, -1, &mObj);
+        sq_getstackobj(vm, idx, &mEnv);
+        sq_poptop(vm);
+#endif
+    }
     // Constructs a Function from a value off the stack at the specified index pointed by `idx2`
     // Assumes the Function environment is at index pointed by `idx1`
     // If `idx1` is null, it defaults to root table
