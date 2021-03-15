@@ -34,7 +34,7 @@ struct Color4
     static bool UpperCaseHex;
 
     /* --------------------------------------------------------------------------------------------
-     * The red, green and blue components of this type.
+     * The red, green, blue and alpha components of this type.
     */
     Value r{0}, g{0}, b{0}, a{0};
 
