@@ -15,6 +15,10 @@ namespace SqMod {
 struct LgVector : public Vector3
 {
     /* --------------------------------------------------------------------------------------------
+     * Default constructor.
+    */
+    LgVector() = default;
+    /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
     LgVector(const Vector3 & v)
@@ -117,6 +121,10 @@ struct LgEntityVector : public LgVector
 */
 struct LgQuaternion : public Quaternion
 {
+    /* --------------------------------------------------------------------------------------------
+     * Default constructor.
+    */
+    LgQuaternion() = default;
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
@@ -231,6 +239,10 @@ struct LgEntityQuaternion : public LgQuaternion
 struct LgRGB : public Color3
 {
     /* --------------------------------------------------------------------------------------------
+     * Default constructor.
+    */
+    LgRGB() = default;
+    /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
     LgRGB(const Color3 & c)
@@ -250,6 +262,10 @@ struct LgRGB : public Color3
 struct LgRGBA : public Color4
 {
     /* --------------------------------------------------------------------------------------------
+     * Default constructor.
+    */
+    LgRGBA() = default;
+    /* --------------------------------------------------------------------------------------------
      * Import from base class.
     */
     using Color4::Color4;
@@ -262,11 +278,9 @@ struct LgRGBA : public Color4
 struct LgARGB : public Color4
 {
     /* --------------------------------------------------------------------------------------------
-     * Import from base class.
+     * Default constructor.
     */
-    using Color4::Color4;
-    using Color4::operator =;
-
+    LgARGB() = default;
     /* --------------------------------------------------------------------------------------------
      * Construct with individually specified alpha, red, green and blue colors.
     */
@@ -274,6 +288,11 @@ struct LgARGB : public Color4
         : Color4(rv, gv, bv, av)
     {
     }
+    /* --------------------------------------------------------------------------------------------
+     * Import from base class.
+    */
+    using Color4::Color4;
+    using Color4::operator =;
 };
 
 /* ------------------------------------------------------------------------------------------------
