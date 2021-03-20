@@ -7,6 +7,12 @@
 #include "Core.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include "Misc/Functions.hpp"
+#include "Misc/Player.hpp"
+#include "Misc/Vehicle.hpp"
+#include "Misc/Weapon.hpp"
+
+// ------------------------------------------------------------------------------------------------
 #include "Entity/Blip.hpp"
 #include "Entity/Checkpoint.hpp"
 #include "Entity/KeyBind.hpp"
@@ -14,6 +20,12 @@
 #include "Entity/Pickup.hpp"
 #include "Entity/Player.hpp"
 #include "Entity/Vehicle.hpp"
+
+// ------------------------------------------------------------------------------------------------
+#include <algorithm>
+#include <sstream>
+#include <cctype>
+#include <ctime>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -261,6 +273,7 @@ void LgEntityRGB::Set()
 
 // ------------------------------------------------------------------------------------------------
 void Register_Official_Entity(HSQUIRRELVM vm);
+void Register_Official_Functions(HSQUIRRELVM vm);
 
 // ================================================================================================
 void Register_Official(HSQUIRRELVM vm)
@@ -323,14 +336,9 @@ void Register_Official(HSQUIRRELVM vm)
     );
     // --------------------------------------------------------------------------------------------
     RootTable(vm).Bind(ARGBTn::Str,
-        Class< LgARGB >(vm, ARGBTn::Str)
+        DerivedClass< LgARGB, Color4 >(vm, ARGBTn::Str)
         // Constructors
         .Ctor< LgARGB::Value, LgARGB::Value, LgARGB::Value, LgARGB::Value >()
-        // Member Variables
-        .Var(_SC("a"), &LgARGB::a)
-        .Var(_SC("r"), &LgARGB::r)
-        .Var(_SC("g"), &LgARGB::g)
-        .Var(_SC("b"), &LgARGB::b)
     );
     // --------------------------------------------------------------------------------------------
     RootTable(vm).Bind(EntityRGBTn::Str,
@@ -369,6 +377,7 @@ void Register_Official(HSQUIRRELVM vm)
     );
     // --------------------------------------------------------------------------------------------
     Register_Official_Entity(vm);
+    Register_Official_Functions(vm);
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -421,7 +430,7 @@ struct LgCheckpoint
     }
     // --------------------------------------------------------------------------------------------
     void SetWorld(int world) const { Get().SetWorld(world); }
-    void SetColor(const LgARGB & c) const { Get().SetColorEx4(c.r, c.g, c.b, c.a); }
+    void SetColor(const Color4 & c) const { Get().SetColorEx4(c.r, c.g, c.b, c.a); }
     void SetPos(const Vector3 & pos) const { Get().SetPosition(pos); }
     void SetRadius(float radius) const { Get().SetRadius(radius); }
     // --------------------------------------------------------------------------------------------
@@ -761,7 +770,7 @@ struct LgPlayer
         if (visuals <= 0 && handling <= 0) _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionDrunkEffects, 0);
         else _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionDrunkEffects, 1);
     }
-    void RedirectPlayerToServer(StackStrF & ip, unsigned int port, StackStrF & nick, StackStrF & spass, StackStrF & upass) const
+    void RedirectPlayerToServer(StackStrF & ip, uint32_t port, StackStrF & nick, StackStrF & spass, StackStrF & upass) const
     { Get().Redirect(ip, port, nick, spass, upass); }
     void RequestModuleList() const { Get().GetModuleList(); }
 };
@@ -1217,6 +1226,723 @@ void Register_Official_Entity(HSQUIRRELVM vm)
         .Func( _SC("AddRelTurnSpeed"), &LgVehicle::AddVehicleRelTurnSpeed)
     ;
     RootTable(vm).Bind(_SC("CVehicle"), vehicle);
+}
+
+// ------------------------------------------------------------------------------------------------
+static void LgClientMessage(StackStrF & msg, LgPlayer & player, int r, int g, int b)
+{ _Func->SendClientMessage(player.GetIdentifier(), Color4(r, g, b, 255).GetRGBA(), "%s", msg.mPtr); }
+static void LgClientMessageWithAlpha(StackStrF & msg, LgPlayer & player, int r, int g, int b, int a)
+{ _Func->SendClientMessage(player.GetIdentifier(), Color4(r, g, b, a).GetRGBA(), "%s", msg.mPtr); }
+static void LgClientMessageToAll(StackStrF & msg, int r, int g, int b) {
+    const uint32_t c = Color4(r, g, b, 255).GetRGBA();
+    ForeachActivePlayer([&](auto & p) { _Func->SendClientMessage(p.mID, c, "%s", msg.mPtr); });
+}
+static void LgClientMessageToAllWithAlpha(StackStrF & msg, int r, int g, int b, int a) {
+    const uint32_t c = Color4(r, g, b, a).GetRGBA();
+    ForeachActivePlayer([&](auto & p) { _Func->SendClientMessage(p.mID, c, "%s", msg.mPtr); });
+}
+static void LgGameMessage(StackStrF & msg, LgPlayer & player, int type)
+{ _Func->SendGameMessage(player.GetIdentifier(), type, msg.mPtr); }
+static void LgGameMessageAlternate(StackStrF & msg, LgPlayer & player)
+{ { _Func->SendGameMessage(player.GetIdentifier(), 1, msg.mPtr); } }
+static void LgGameMessageToAll(StackStrF & msg, int type)
+{ _Func->SendGameMessage(-1, type, msg.mPtr); }
+static void LgGameMessageToAllAlternate(StackStrF & msg)
+{ _Func->SendGameMessage(-1, 1, msg.mPtr); }
+// ------------------------------------------------------------------------------------------------
+static void LgShutdownServer() { _Func->ShutdownServer(); }
+static void LgSetServerName(StackStrF & str) { _Func->SetServerName(str.mPtr); }
+static void LgSetMaxPlayers(int newMaxPlayers) { _Func->SetMaxPlayers( newMaxPlayers ); }
+static void LgSetServerPassword(StackStrF & str) { _Func->SetServerPassword(str.mPtr); }
+static void LgSetGameModeText(StackStrF & str) { _Func->SetGameModeText(str.mPtr); }
+static void LgSetTimeRate(uint32_t rate) { _Func->SetTimeRate(rate); }
+static void LgSetHour(int hour) { _Func->SetHour( hour ); }
+static void LgSetMinute(int minute) { _Func->SetMinute(minute); }
+static void LgSetTime(int hour, int minute) { LgSetHour(hour); LgSetMinute(minute); }
+static void LgSetWeather(int weather) { _Func->SetWeather(weather); }
+static void LgSetGravity(float gravity) { _Func->SetGravity(gravity); }
+static void LgSetGamespeed(float speed) { _Func->SetGameSpeed(speed); }
+static void LgSetWaterLevel(float level) { _Func->SetWaterLevel(level); }
+static void LgSetMaxHeight(float height) { _Func->SetMaximumFlightAltitude(height); }
+static void LgSetKillDelay(int delay) { _Func->SetKillCommandDelay(delay); }
+static void LgSetFallTimer(int delay) { _Func->SetFallTimer(delay); }
+// ------------------------------------------------------------------------------------------------
+SQMOD_NODISCARD static SQInteger LgGetServerName(HSQUIRRELVM vm) {
+    char buffer[128]{'\0'};
+    _Func->GetServerName(buffer, sizeof(buffer));
+    sq_pushstring(vm, buffer, -1);
+    return 1;
+}
+SQMOD_NODISCARD static SQInteger LgGetServerPassword(HSQUIRRELVM vm) {
+    char buffer[128]{'\0'};
+    _Func->GetServerPassword(buffer, sizeof(buffer));
+    sq_pushstring(vm, buffer, -1);
+    return 1;
+}
+SQMOD_NODISCARD static SQInteger LgGetGameModeText(HSQUIRRELVM vm) {
+    char buffer[128]{'\0'};
+    _Func->GetGameModeText(buffer, sizeof(buffer));
+    sq_pushstring(vm, buffer, -1);
+    return 1;
+}
+// ------------------------------------------------------------------------------------------------
+SQMOD_NODISCARD static int LgGetMaxPlayers() { return _Func->GetMaxPlayers(); }
+SQMOD_NODISCARD static uint32_t LgGetTimeRate() { return ( _Func->GetTimeRate() ); }
+SQMOD_NODISCARD static int LgGetHour() { return _Func->GetHour(); }
+SQMOD_NODISCARD static int LgGetMinute() { return _Func->GetMinute(); }
+SQMOD_NODISCARD static int LgGetWeather() { return _Func->GetWeather(); }
+SQMOD_NODISCARD static float LgGetGravity() { return _Func->GetGravity(); }
+SQMOD_NODISCARD static float LgGetGamespeed() { return _Func->GetGameSpeed(); }
+SQMOD_NODISCARD static float LgGetWaterLevel() { return _Func->GetWaterLevel(); }
+SQMOD_NODISCARD static float LgGetMaxHeight() { return _Func->GetMaximumFlightAltitude(); }
+SQMOD_NODISCARD static int LgGetKillDelay() { return _Func->GetKillCommandDelay(); }
+SQMOD_NODISCARD static int LgGetFallTimer() { return _Func->GetFallTimer(); }
+// ------------------------------------------------------------------------------------------------
+static void LgToggleSyncFrameLimiter(bool toggle) { _Func->SetServerOption(vcmpServerOptionSyncFrameLimiter, toggle); }
+static void LgToggleFrameLimiter(bool toggle) { _Func->SetServerOption(vcmpServerOptionFrameLimiter, toggle); }
+static void LgToggleTaxiBoostJump(bool toggle) { _Func->SetServerOption(vcmpServerOptionTaxiBoostJump, toggle); }
+static void LgToggleDriveOnWater(bool toggle) { _Func->SetServerOption(vcmpServerOptionDriveOnWater, toggle); }
+static void LgToggleFastSwitch(bool toggle) { _Func->SetServerOption(vcmpServerOptionFastSwitch, toggle); }
+static void LgToggleFriendlyFire(bool toggle) { _Func->SetServerOption(vcmpServerOptionFriendlyFire, toggle); }
+static void LgToggleDisableDriveby(bool toggle) { _Func->SetServerOption(vcmpServerOptionDisableDriveBy, toggle); }
+static void LgTogglePerfectHandling(bool toggle) { _Func->SetServerOption(vcmpServerOptionPerfectHandling, toggle); }
+static void LgToggleFlyingCars(bool toggle) { _Func->SetServerOption(vcmpServerOptionFlyingCars, toggle); }
+static void LgToggleJumpSwitch(bool toggle) { _Func->SetServerOption(vcmpServerOptionJumpSwitch, toggle); }
+static void LgToggleShowOnRadar(bool toggle) { _Func->SetServerOption(vcmpServerOptionShowMarkers, toggle); }
+static void LgToggleStuntBike(bool toggle) { _Func->SetServerOption(vcmpServerOptionStuntBike, toggle); }
+static void LgToggleShootInAir(bool toggle) { _Func->SetServerOption(vcmpServerOptionShootInAir, toggle); }
+static void LgToggleShowNametags(bool toggle) { _Func->SetServerOption(vcmpServerOptionShowNameTags, toggle); }
+static void LgToggleJoinMessages(bool toggle) { _Func->SetServerOption(vcmpServerOptionJoinMessages, toggle); }
+static void LgToggleDeathMessages(bool toggle) { _Func->SetServerOption(vcmpServerOptionDeathMessages, toggle); }
+static void LgToggleChatTagDefault(bool toggle) { _Func->SetServerOption(vcmpServerOptionChatTagsEnabled, toggle); }
+static void LgToggleShowOnlyTeamMarkers(bool toggle) { _Func->SetServerOption(vcmpServerOptionOnlyShowTeamMarkers, toggle); }
+static void LgToggleWallglitch(bool toggle) { _Func->SetServerOption(vcmpServerOptionWallGlitch, toggle); }
+static void LgToggleDisableBackfaceCulling(bool toggle) { _Func->SetServerOption(vcmpServerOptionDisableBackfaceCulling, toggle); }
+static void LgToggleDisableHeliBladeDamage(bool toggle) { _Func->SetServerOption(vcmpServerOptionDisableHeliBladeDamage, toggle); }
+// ------------------------------------------------------------------------------------------------
+SQMOD_NODISCARD static bool LgEnabledSyncFrameLimiter() { return _Func->GetServerOption(vcmpServerOptionSyncFrameLimiter) >= 1; }
+SQMOD_NODISCARD static bool LgEnabledFrameLimiter() { return _Func->GetServerOption(vcmpServerOptionFrameLimiter) >= 1; }
+SQMOD_NODISCARD static bool LgEnabledTaxiBoostJump() { return _Func->GetServerOption(vcmpServerOptionTaxiBoostJump) >= 1; }
+SQMOD_NODISCARD static bool LgEnabledDriveOnWater() { return _Func->GetServerOption(vcmpServerOptionDriveOnWater) >= 1; }
+SQMOD_NODISCARD static bool LgEnabledFastSwitch() { return _Func->GetServerOption(vcmpServerOptionFastSwitch) >= 1; }
+SQMOD_NODISCARD static bool LgEnabledFriendlyFire() { return _Func->GetServerOption(vcmpServerOptionFriendlyFire) >= 1; }
+SQMOD_NODISCARD static bool LgEnabledDisableDriveby() { return _Func->GetServerOption(vcmpServerOptionDisableDriveBy) < 1; }
+SQMOD_NODISCARD static bool LgEnabledPerfectHandling() { return _Func->GetServerOption(vcmpServerOptionPerfectHandling) >= 1; }
+SQMOD_NODISCARD static bool LgEnabledFlyingCars() { return _Func->GetServerOption(vcmpServerOptionFlyingCars) >= 1; }
+SQMOD_NODISCARD static bool LgEnabledJumpSwitch() { return _Func->GetServerOption(vcmpServerOptionJumpSwitch) >= 1; }
+SQMOD_NODISCARD static bool LgEnabledShowOnRadar() { return _Func->GetServerOption(vcmpServerOptionShowMarkers) >= 1; }
+SQMOD_NODISCARD static bool LgEnabledStuntBike() { return _Func->GetServerOption(vcmpServerOptionStuntBike) >= 1; }
+SQMOD_NODISCARD static bool LgEnabledShootInAir() { return _Func->GetServerOption(vcmpServerOptionShootInAir) >= 1; }
+SQMOD_NODISCARD static bool LgEnabledShowNametags() { return _Func->GetServerOption(vcmpServerOptionShowNameTags) >= 1; }
+SQMOD_NODISCARD static bool LgEnabledJoinMessages() { return _Func->GetServerOption(vcmpServerOptionJoinMessages) >= 1; }
+SQMOD_NODISCARD static bool LgEnabledDeathMessages() { return _Func->GetServerOption(vcmpServerOptionDeathMessages) >= 1; }
+SQMOD_NODISCARD static bool LgEnabledChatTagDefault() { return _Func->GetServerOption(vcmpServerOptionChatTagsEnabled) >= 1; }
+SQMOD_NODISCARD static bool LgEnabledShowOnlyTeamMarkers() { return _Func->GetServerOption(vcmpServerOptionOnlyShowTeamMarkers) >= 1; }
+SQMOD_NODISCARD static bool LgEnabledWallglitch() { return _Func->GetServerOption(vcmpServerOptionWallGlitch) >= 1; }
+SQMOD_NODISCARD static bool LgEnabledDisableBackfaceCulling() { return _Func->GetServerOption(vcmpServerOptionDisableBackfaceCulling) >= 1; }
+SQMOD_NODISCARD static bool LgEnabledDisableHeliBladeDamage() { return _Func->GetServerOption(vcmpServerOptionDisableHeliBladeDamage) >= 1; }
+// ------------------------------------------------------------------------------------------------
+SQMOD_NODISCARD static int LgCreateBlip(int world, const Vector3 & pos, int scale, const LgRGBA & color, int sprite)
+{ return _Func->CreateCoordBlip(-1, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprite); }
+static void LgDestroyBlip(int blip) { _Func->DestroyCoordBlip(blip); }
+// ------------------------------------------------------------------------------------------------
+SQMOD_NODISCARD static int LgCreateRadioStream(StackStrF & name, StackStrF & url, bool selectable)
+{ return _Func->AddRadioStream(-1, name.mPtr, url.mPtr, selectable); }
+static void LgCreateRadioStreamWithID(int radio, StackStrF & name, StackStrF & url, bool selectable)
+{ _Func->AddRadioStream(radio, name.mPtr, url.mPtr, selectable); }
+static void LgDestroyRadioStream(int radio) { _Func->RemoveRadioStream(radio); }
+// ------------------------------------------------------------------------------------------------
+static void LgCreateExplosion (int world, int type, const Vector3 & pos, int player, bool ground)
+{ _Func->CreateExplosion(world, type, pos.x, pos.y, pos.z, player, ground); }
+static void LgCreateExplosionExpanded(int world, int type, float x, float y, float z, int player, bool ground)
+{ _Func->CreateExplosion(world, type, x, y, z, player, ground); }
+// ------------------------------------------------------------------------------------------------
+static void LgPlayGameSound(int world, int sound, const Vector3 & pos)
+{ _Func->PlaySound(world, sound, pos.x, pos.y, pos.z); }
+static void LgPlayGameSoundForPlayer(LgPlayer & player, int sound)
+{ _Func->PlaySound(player.Get().GetUniqueWorld(), sound, NAN, NAN, NAN); }
+static void LgPlayGameSoundForWorld(int world, int sound)
+{ _Func->PlaySound(world, sound, NAN, NAN, NAN); }
+static void LgPlayGameSoundExpanded(int player, int sound, float x, float y, float z)
+{ _Func->PlaySound(player, sound, x, y, z); }
+// ------------------------------------------------------------------------------------------------
+static void LgSetUseClasses(bool toggle)
+{ _Func->SetServerOption(vcmpServerOptionUseClasses, toggle); }
+static bool LgUsingClasses()
+{ return _Func->GetServerOption(vcmpServerOptionUseClasses) >= 1; }
+static void LgAddClass(int team, const LgRGB & col, int skin, const Vector3 & pos, float angle,
+                        int wep1, int ammo1, int wep2, int ammo2, int wep3, int ammo3)
+{ _Func->AddPlayerClass(team, col.GetRGBA(), skin, pos.x, pos.y, pos.z, angle, wep1, ammo1, wep2, ammo2, wep3, ammo3); }
+// ------------------------------------------------------------------------------------------------
+static void LgSetSpawnPlayerPos(const Vector3 & pos) { _Func->SetSpawnPlayerPosition(pos.x, pos.y, pos.z); }
+static void LgSetSpawnCameraPos(const Vector3 & pos) { _Func->SetSpawnCameraPosition(pos.x, pos.y, pos.z); }
+static void LgSetSpawnCameraLook(const Vector3 & pos) { _Func->SetSpawnCameraLookAt(pos.x, pos.y, pos.z);  }
+static void LgSetSpawnPlayerPosExpanded(float x, float y, float z) { _Func->SetSpawnPlayerPosition(x, y, z); }
+static void LgSetSpawnCameraPosExpanded(float x, float y, float z) { _Func->SetSpawnCameraPosition(x, y, z); }
+static void LgSetSpawnCameraLookExpanded(float x, float y, float z) { _Func->SetSpawnCameraLookAt(x, y, z);  }
+// ------------------------------------------------------------------------------------------------
+static void LgBanIP(StackStrF & ip) { _Func->BanIP(const_cast< SQChar * >(ip.mPtr)); }
+static void LgUnbanIP(StackStrF & ip) { _Func->UnbanIP(const_cast< SQChar * >(ip.mPtr)); }
+SQMOD_NODISCARD static bool LgIsIPBanned(StackStrF & ip) { return _Func->IsIPBanned(const_cast< SQChar * >(ip.mPtr)) >= 1; }
+// ------------------------------------------------------------------------------------------------
+SQMOD_NODISCARD static int LgGetPlayerIDFromName(StackStrF & name) { return _Func->GetPlayerIdFromName(name.mPtr); }
+SQMOD_NODISCARD static bool LgIsWorldCompatibleWithPlayer (LgPlayer & player, int world)
+{ return _Func->IsPlayerWorldCompatible(player.GetIdentifier(), world) >= 1; }
+// ------------------------------------------------------------------------------------------------
+static LightObj & LgCreatePickupCompat(int model, const Vector3 & pos)
+{ return Core::Get().NewPickup(model, 1, 0, pos.x, pos.y, pos.z, 255, false, SQMOD_CREATE_DEFAULT, NullLightObj()).mLgObj; }
+static LightObj & LgCreateVehicleCompat(int model, const Vector3 & pos, float angle, int col1, int col2 )
+{ return Core::Get().NewVehicle(model, 1, pos.x, pos.y, pos.z, angle, col1, col2, SQMOD_CREATE_DEFAULT, NullLightObj()).mLgObj; }
+// ------------------------------------------------------------------------------------------------
+static LightObj & LgCreateVehicle(int model, int world, const Vector3 & pos, float angle, int col1, int col2)
+{ return Core::Get().NewVehicle(model, world, pos.x, pos.y, pos.z, angle, col1, col2, SQMOD_CREATE_DEFAULT, NullLightObj()).mLgObj; }
+static LightObj & LgCreatePickup(int model, int world, int quantity, const Vector3 & pos, int alpha, bool automatic)
+{ return Core::Get().NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic, SQMOD_CREATE_DEFAULT, NullLightObj()).mLgObj; }
+static LightObj & LgCreateObject(int model, int world, const Vector3 & pos, int alpha)
+{ return Core::Get().NewObject(model, world, pos.x, pos.y, pos.z, alpha, SQMOD_CREATE_DEFAULT, NullLightObj()).mLgObj; }
+static LightObj & LgCreateCheckpoint(LightObj & player, int world, bool sphere, const Vector3 & pos, const Color4 & col, float radius) {
+    const int32_t id = player.IsNull() ? -1 : player.CastI< LgPlayer >()->GetIdentifier();
+    return Core::Get().NewCheckpoint(id, world, sphere, pos.x, pos.y, pos.z, col.r, col.g, col.b, col.a, radius, SQMOD_CREATE_DEFAULT, NullLightObj()).mLgObj;
+}
+// ------------------------------------------------------------------------------------------------
+static LightObj & LgCreateVehicleExpanded(int model, int world, float x, float y, float z, float angle, int col1, int col2)
+{ return Core::Get().NewVehicle(model, world, x, y, z, angle, col1, col2, SQMOD_CREATE_DEFAULT, NullLightObj()).mLgObj; }
+static LightObj & LgCreatePickupExpanded(int model, int world, int quantity, float x, float y, float z, int alpha, bool automatic)
+{ return Core::Get().NewPickup(model, world, quantity, x, y, z, alpha, automatic, SQMOD_CREATE_DEFAULT, NullLightObj()).mLgObj; }
+static LightObj & LgCreateObjectExpanded(int model, int world, float x, float y, float z, int alpha)
+{ return Core::Get().NewObject(model, world, x, y, z, alpha, SQMOD_CREATE_DEFAULT, NullLightObj()).mLgObj; }
+// ------------------------------------------------------------------------------------------------
+static LightObj & LgFindPickup(int id) { return VALID_ENTITYEX(id, SQMOD_PICKUP_POOL) ? Core::Get().GetPickup(id).mLgObj : NullLightObj();  }
+static LightObj & LgFindObject(int id) { return VALID_ENTITYEX(id, SQMOD_OBJECT_POOL) ? Core::Get().GetObj(id).mLgObj : NullLightObj();  }
+static LightObj & LgFindVehicle(int id) { return VALID_ENTITYEX(id, SQMOD_VEHICLE_POOL) ? Core::Get().GetVehicle(id).mLgObj : NullLightObj();  }
+static LightObj & LgFindCheckpoint(int id) { return VALID_ENTITYEX(id, SQMOD_CHECKPOINT_POOL) ? Core::Get().GetCheckpoint(id).mLgObj : NullLightObj();  }
+// ------------------------------------------------------------------------------------------------
+static void LgSetWorldBounds(float maxX, float minX, float maxY, float minY) { _Func->SetWorldBounds(maxX, minX, maxY, minY); }
+SQMOD_NODISCARD static LgBounds LgGetWorldBounds() {
+    LgBounds b;
+    _Func->GetWorldBounds(&b.max_x, &b.min_x, &b.max_y, &b.min_y);
+    return b;
+}
+// ------------------------------------------------------------------------------------------------
+static void LgSetWastedSettings(uint32_t death_time, uint32_t fade_time, float fade_in_speed, float fade_out_speed, const Color3 & colour, uint32_t corpse_fade_delay, uint32_t corpse_fade_time)
+{ _Func->SetWastedSettings(death_time, fade_time, fade_in_speed, fade_out_speed, colour.GetRGBA(), corpse_fade_delay, corpse_fade_time ); }
+SQMOD_NODISCARD static LgWastedSettings LgGetWastedSettings() {
+    uint32_t colour;
+    LgWastedSettings ws;
+    _Func->GetWastedSettings(&ws.mDeathTime, &ws.mFadeTime, &ws.mFadeInSpeed, &ws.mFadeOutSpeed, &colour, &ws.mCorpseFadeDelay, &ws.mCorpseFadeTime );
+    ws.mFadeColour.SetRGB(colour);
+    return ws;
+}
+// ------------------------------------------------------------------------------------------------
+static void LgRawHideMapObject(int model, int x, int y, int z) { _Func->HideMapObject(model, x, y, z); }
+static void LgHideMapObject(int model, float x, float y, float z) { HideMapObjectEx(model, x, y, z); }
+static void LgShowMapObject(int model, float x, float y, float z) { ShowMapObjectEx(model, x, y, z); }
+static void LgShowAllMapObjects() { _Func->ShowAllMapObjects(); }
+static void LgForceAllSelect() { _Func->ForceAllSelect(); }
+// ------------------------------------------------------------------------------------------------
+static void LgResetAllVehicleHandling() { _Func->ResetAllVehicleHandlings(); }
+static bool LgIsHandlingRuleSet(int model, int rule) { return _Func->ExistsHandlingRule(model, rule) >= 1; }
+static void LgSetHandlingRule(int model, int rule, float value) { _Func->SetHandlingRule(model, rule, value); }
+SQMOD_NODISCARD static double LgGetHandlingRule(int model, int rule) { return _Func->GetHandlingRule(model, rule); }
+static void LgResetHandlingRule(int model, int rule) { _Func->ResetHandlingRule(model, rule); }
+static void LgResetVehicleHandling(int model) { _Func->ResetHandling(model); }
+// ------------------------------------------------------------------------------------------------
+SQMOD_NODISCARD static bool LgSetWeaponDataValue(int weapon, int field, double value) { return _Func->SetWeaponDataValue(weapon, field, value) == vcmpErrorNone; }
+SQMOD_NODISCARD static double LgGetWeaponDataValue(int weapon, int field) { return _Func->GetWeaponDataValue(weapon, field); }
+SQMOD_NODISCARD static bool LgResetWeaponDataValue(int weapon, int field) { return _Func->ResetWeaponDataValue(weapon, field) == vcmpErrorNone; }
+SQMOD_NODISCARD static bool LgIsWeaponDataModified(int weapon, int field) { return _Func->IsWeaponDataValueModified(weapon, field) == vcmpErrorNone; }
+SQMOD_NODISCARD static bool LgResetWeaponData(int weapon) { return _Func->ResetWeaponData(weapon) == vcmpErrorNone; }
+static void LgResetAllWeaponData() { return _Func->ResetAllWeaponData(); }
+// ------------------------------------------------------------------------------------------------
+SQMOD_NODISCARD static int LgBindKey(bool down, int key1, int key2, int key3)
+{ return Core::Get().NewKeyBind(-1, down, key1, key2, key3, SQMOD_CREATE_DEFAULT, NullLightObj()).mID; }
+SQMOD_NODISCARD static bool LgRemoveKeybind(int id) { return _Func->RemoveKeyBind(id) == vcmpErrorNone; }
+static void LgRemoveAllKeybinds() { _Func->RemoveAllKeyBinds(); }
+// ------------------------------------------------------------------------------------------------
+SQMOD_NODISCARD static bool LgGetCinematicBorder(LgPlayer & player) { return _Func->GetPlayerOption(player.GetIdentifier(), vcmpPlayerOptionWidescreen) >= 1; }
+SQMOD_NODISCARD static bool LgGetGreenScanLines(LgPlayer & player) { return _Func->GetPlayerOption(player.GetIdentifier(), vcmpPlayerOptionGreenScanlines) >= 1; }
+SQMOD_NODISCARD static bool LgGetWhiteScanLines(LgPlayer & player) { return _Func->GetPlayerOption(player.GetIdentifier(), vcmpPlayerOptionWhiteScanlines) >= 1; }
+static void LgSetCinematicBorder(LgPlayer & player, bool toggle) { _Func->SetPlayerOption(player.GetIdentifier(), vcmpPlayerOptionWidescreen, toggle); }
+static void LgSetGreenScanLines(LgPlayer & player, bool toggle) { _Func->SetPlayerOption(player.GetIdentifier(), vcmpPlayerOptionGreenScanlines, toggle); }
+static void LgSetWhiteScanLines(LgPlayer & player, bool toggle) { _Func->SetPlayerOption(player.GetIdentifier(), vcmpPlayerOptionWhiteScanlines, toggle); }
+// ------------------------------------------------------------------------------------------------
+static void LgKickPlayer(LgPlayer & player) { _Func->KickPlayer(player.GetIdentifier()); }
+static void LgBanPlayer(LgPlayer & player) { _Func->BanPlayer(player.GetIdentifier()); }
+// ------------------------------------------------------------------------------------------------
+static void LgMessage(StackStrF & msg) { _Func->SendClientMessage(-1, 0x0b5fa5ff, "%s", msg.mPtr); }
+static void LgMessagePlayer(StackStrF & msg, LgPlayer & player) { _Func->SendClientMessage(player.GetIdentifier(), 0x0b5fa5ff, "%s", msg.mPtr); }
+static void LgMessageAllExcept(StackStrF & msg, LgPlayer & player) {
+    const int32_t p = player.GetIdentifier();
+    const SQChar * m = msg.mPtr;
+    ForeachConnectedPlayer([=](int32_t id) { if (id != p) _Func->SendClientMessage(id, 0x0b5fa5ff, "%s", m); });
+}
+static void LgPrivMessage(LgPlayer & player, StackStrF & msg) { _Func->SendClientMessage(player.GetIdentifier(), 0x007f16ff, "** pm >> %s", msg.mPtr); }
+static void LgPrivMessageAll(StackStrF & msg) {
+    const SQChar * m = msg.mPtr;
+    ForeachConnectedPlayer([=](int32_t id) { _Func->SendClientMessage(id, 0x007f16ff, "** pm >> %s", m); });
+}
+static void LgSendPlayerMessage(LgPlayer & source, LgPlayer & target, StackStrF & msg) {
+    _Func->SendClientMessage(target.GetIdentifier(), 0x007f16ff, "** pm from %s >> %s", source.Get().GetName(), msg.mPtr);
+}
+// ------------------------------------------------------------------------------------------------
+SQMOD_NODISCARD static const SQChar * LgGetWeaponName(int id) { return GetWeaponName(id); }
+SQMOD_NODISCARD static const SQChar * LgGetDistrictName(float x, float y) { return GetDistrictNameEx(x, y); }
+SQMOD_NODISCARD static const SQChar * LgGetSkinName(int id) { return GetSkinName(id); }
+SQMOD_NODISCARD static int LgGetWeaponID(StackStrF & name) { return GetWeaponID(name); }
+SQMOD_NODISCARD static size_t LgSQGetTickCount() {
+#ifdef SQMOD_OS_WINDOWS
+    return GetTickCount();
+#else
+    struct timespec now;
+    if (clock_gettime(CLOCK_MONOTONIC, &now) != 0) return 0;
+    return static_cast< size_t >(now.tv_sec) * 1000u + now.tv_nsec / 1000000u;
+#endif
+}
+// ------------------------------------------------------------------------------------------------
+extern bool GetReloadStatus();
+extern void SetReloadStatus(bool toggle);
+// ------------------------------------------------------------------------------------------------
+SQMOD_NODISCARD static float LgDistanceFromPoint (float x1, float y1, float x2, float y2) { return sqrtf((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)); }
+static void LgReloadScripts() { SetReloadStatus(true); }
+// ------------------------------------------------------------------------------------------------
+SQMOD_NODISCARD static int LgGetVehicleModelFromName(StackStrF & name) { return GetAutomobileID(name); }
+SQMOD_NODISCARD static String & LgGetVehicleNameFromModel(int model) { return GetAutomobileName(model); }
+static void LgLoadVCMPModule(StackStrF & name) { OutputError("LoadModule() cannot be used by scripts. This functionality is not allowed."); }
+SQMOD_NODISCARD static bool LgIsNum(StackStrF & s) {
+    if (!s.mLen) return false;
+    char * p = nullptr;
+    strtol(s.mPtr, &p, 10);
+    return (p - s.mPtr) > 0;
+}
+// ------------------------------------------------------------------------------------------------
+SQMOD_NODISCARD static SQInteger LgGetVehicleCount() {
+    int count = 0, i = 0;
+    while (i < SQMOD_VEHICLE_POOL) {
+        if (_Func->CheckEntityExists(vcmpEntityPoolVehicle, i++) >= 1) ++ count;
+    }
+    return count;
+}
+SQMOD_NODISCARD SQInteger LgGetPickupCount() {
+    int count = 0, i = 0;
+    while (i < SQMOD_VEHICLE_POOL) {
+        if (_Func->CheckEntityExists(vcmpEntityPoolPickup, i++) >= 1) ++ count;
+    }
+    return count;
+}
+SQMOD_NODISCARD SQInteger LgGetObjectCount() {
+    int count = 0, i = 0;
+    while (i < SQMOD_VEHICLE_POOL) {
+        if (_Func->CheckEntityExists(vcmpEntityPoolObject, i++) >= 1) ++ count;
+    }
+    return count;
+}
+SQMOD_NODISCARD SQInteger LgGetPlayers() { return ForeachConnectedPlayerCount([](int32_t) { return true; }); }
+// ------------------------------------------------------------------------------------------------
+static void LgSetVehiclesForcedRespawnHeight(SQFloat height) { _Func->SetVehiclesForcedRespawnHeight(height); }
+SQMOD_NODISCARD static SQFloat LgGetVehiclesForcedRespawnHeight() { return _Func->GetVehiclesForcedRespawnHeight(); }
+// ------------------------------------------------------------------------------------------------
+SQMOD_NODISCARD static SQInteger LgFindPlayer(HSQUIRRELVM vm) {
+    if (sq_gettop(vm) >= 2) {
+        if (sq_gettype(vm, 2) == OT_INTEGER) {
+            SQInteger id;
+            sq_getinteger(vm, 2, &id);
+            if (VALID_ENTITYEX(id, SQMOD_PLAYER_POOL)) {
+                Var< LightObj >::push(vm, Core::Get().GetPlayer(static_cast< int32_t >(id)).mLgObj);
+            } else {
+                sq_pushnull(vm);
+                return 1;
+            }
+        } else if (sq_gettype(vm, 2 ) == OT_STRING) {
+            StackStrF val(vm, 2);
+            if (SQ_FAILED(val.Proc(true))) { return val.mRes; }
+            String name(val.mPtr, static_cast< size_t >(val.mLen));
+            std::transform(name.begin(), name.end(), name.begin(), [](unsigned char c){ return std::tolower(c); });
+            char name_buf[SQMOD_NAMELENGTH];
+            const int32_t id = ForeachConnectedPlayerUntil([&](int32_t id) -> bool {
+                _Func->GetPlayerName(id, name_buf, 64);
+                std::transform(name_buf, name_buf + strlen(name_buf), name_buf, [](unsigned char c){ return std::tolower(c); });
+                return name.compare(name_buf) == 0; // NOLINT(readability-string-compare)
+            });
+            if (VALID_ENTITYEX(id, SQMOD_PLAYER_POOL)) Var< LightObj >::push(vm, Core::Get().GetPlayer(id).mLgObj);
+            else sq_pushnull(vm);
+        } else {
+            return sq_throwerror(vm, "Unexpected argument in FindPlayer: must be integer or string");
+        }
+    } else {
+        return sq_throwerror(vm, "Unexpected number of parameters for FindPlayer [integer or string]");
+    }
+    return 1;
+}
+// ------------------------------------------------------------------------------------------------
+SQMOD_NODISCARD static int LgGetSkinID(StackStrF & name) { return GetSkinID(name); }
+// ------------------------------------------------------------------------------------------------
+SQMOD_NODISCARD static bool LgInternal_InPoly(float fX, float fY, size_t points_n, const Vector2 * points)
+{
+    // http://sidvind.com/wiki/Point-in-polygon:_Jordan_Curve_Theorem
+    // The points creating the polygon
+    float x1, x2;
+    // How many times the ray crosses a line segment
+    int crossings = 0;
+    // Iterate through each line
+    for (unsigned int i = 0; i < points_n; i++)
+    {
+        // This is done to ensure that we get the same result when
+        // the line goes from left to right and right to left.
+        if (points[i].x < points[(i + 1) % points_n].x) {
+            x1 = points[i].x;
+            x2 = points[(i + 1) % points_n].x;
+        } else {
+            x1 = points[(i + 1) % points_n].x;
+            x2 = points[i].x;
+        }
+        // First check if the ray is able to cross the line
+        if (fX > x1 && fX <= x2 && (fY < points[i].y || fY <= points[(i + 1) % points_n].y)) {
+            static const float eps = 0.000001f;
+            // Calculate the equation of the line
+            float dx = points[(i + 1) % points_n].x - points[i].x;
+            float dy = points[(i + 1) % points_n].y - points[i].y;
+            float k;
+            if (fabsf(dx) < eps) {
+                k = static_cast< float >(0xffffffff);
+            } else {
+                k = dy / dx;
+            }
+            float m = points[i].y - k * points[i].x;
+            // Find if the ray crosses the line
+            float y2 = k * fX + m;
+            if (fY <= y2) {
+                crossings++;
+            }
+        }
+    }
+    return (crossings % 2 == 1);
+}
+// ------------------------------------------------------------------------------------------------
+SQMOD_NODISCARD static SQInteger LgInPolyProcStack(HSQUIRRELVM vm) {
+    SQFloat x = PopStackFloat(vm, 2), y = PopStackFloat(vm, 3);
+    SQInteger top = sq_gettop(vm);
+    std::vector< Vector2 > points;
+    points.reserve((top - 1) / 2);
+    for (SQInteger idx = 4; idx < top;) {
+        points.emplace_back();
+        points.back().x = PopStackFloat(vm, idx++);
+        points.back().y = PopStackFloat(vm, idx++);
+    }
+    sq_pushbool(vm, LgInternal_InPoly(x, y, points.size(), points.data()));
+    return 1;
+}
+SQMOD_NODISCARD static SQInteger LgInPolyProcString(HSQUIRRELVM vm) {
+    SQFloat x = PopStackFloat(vm, 2), y = PopStackFloat(vm, 3);
+    StackStrF sq_str(vm, 4);
+    if (SQ_FAILED(sq_str.Proc(true))) return sq_str.mRes; // Propagate the error
+    std::vector< Vector2 > points;
+    points.reserve(static_cast< size_t >(sq_str.mLen) / 8 + 1);
+    std::stringstream ss(String(sq_str.mPtr, static_cast< size_t >(sq_str.mLen)));
+    for (char c; !ss.eof();) {
+        points.emplace_back();
+        ss >> points.back().x >> c;
+        if (!ss.eof())
+            ss >> points.back().y >> c;
+        else break;
+    }
+    sq_pushbool(vm, LgInternal_InPoly(x, y, points.size(), points.data()));
+    return 1;
+}
+SQMOD_NODISCARD static SQInteger LgInPolyProcArray(HSQUIRRELVM vm) {
+    SQFloat x = PopStackFloat(vm, 2), y = PopStackFloat(vm, 3);
+    Array arr(LightObj(4, vm));
+    std::vector< Vector2 > points;
+    points.reserve(arr.Length() / 2 + 1);
+    arr.Foreach([&](HSQUIRRELVM vm, SQInteger i) -> SQRESULT {
+        if ((i & 1) == 0) {
+            points.emplace_back();
+            points.back().x = PopStackFloat(vm, -1);
+        } else {
+            points.back().y = PopStackFloat(vm, -1);
+        }
+        return SQ_OK;
+    });
+    sq_pushbool(vm, LgInternal_InPoly(x, y, points.size(), points.data()));
+    return 1;
+}
+SQMOD_NODISCARD static SQInteger LgInPoly(HSQUIRRELVM vm) {
+    try {
+        const SQInteger top = sq_gettop(vm);
+        if(top >= 9 && (top - 1) % 2 == 0) {
+            return LgInPolyProcStack(vm);
+        } else if (top >= 4) {
+            if (sq_gettype(vm, 4) == OT_STRING) {
+                return LgInPolyProcString(vm);
+            } else if (top == 4 && sq_gettype(vm, 4) == OT_ARRAY) {
+                return LgInPolyProcArray(vm);
+            }
+        }
+    } catch (const std::exception & e) {
+        return sq_throwerror(vm, e.what());
+    }
+    return sq_throwerror(vm, "Unexpected number or types of parameters for InPoly");
+}
+// ------------------------------------------------------------------------------------------------
+// These functions are for compatibility, but will be deprecated
+SQMOD_NODISCARD static SQInteger LgSetAmmuWeapon(HSQUIRRELVM SQ_UNUSED_ARG(vm)) { OutputError("SetAmmuWeapon does not exist in 0.4. Ammunations must be scripted."); return 0; }
+SQMOD_NODISCARD static SQInteger LgIsAmmuWeaponEnabled(HSQUIRRELVM vm) { OutputError("IsAmmuWeaponEnabled does not exist in 0.4. Ammunations must be scripted."); sq_pushbool(vm, false);  return 1; }
+SQMOD_NODISCARD static SQInteger LgSetAmmuWeaponEnabled(HSQUIRRELVM SQ_UNUSED_ARG(vm)) { OutputError("SetAmmuWeaponEnabled does not exist in 0.4. Ammunations must be scripted."); return 0; }
+// ------------------------------------------------------------------------------------------------
+SQMOD_NODISCARD static uint32_t LgGetTime() {
+    OutputError("GetTime is deprecated and may be removed in the future.");
+    OutputMessage("Please use Squirrel's time() function instead.");
+    return 0;
+}
+SQMOD_NODISCARD static const SQChar * LgGetFullTime() {
+    OutputError("GetFullTime is deprecated and may be removed in the future.");
+    OutputMessage("Please use Squirrel's date() function instead.");
+    static char date[96];
+    std::time_t rt;
+    std::time(&rt);
+    std::tm * ti = std::localtime(&rt);
+    std::strftime(date, 96, "%A, %B %d, %Y, %H:%M:%S %Z", ti);
+    return date;
+}
+// ------------------------------------------------------------------------------------------------
+SQMOD_NODISCARD static bool LgGetFallEnabled() { OutputError("GetFallEnabled has no effect."); return false; }
+static void LgSetFallEnabled(bool unused) { OutputError("SetFallEnabled has no effect."); }
+SQMOD_NODISCARD static bool LgGetDeathmatchScoreboard() { OutputError("GetDeathmatchScoreboard has no effect. Use scripts to implement it."); return false; }
+static void LgSetDeathmatchScoreboard(bool isDmScoreboard) { OutputError("GetDeathmatchScoreboard has no effect. Use scripts to implement it."); }
+SQMOD_NODISCARD static bool LgGetWeaponSync(int weapon) { OutputError("GetWeaponSync does not exist in 0.4. Rely on the server's anti-hack system and callbacks instead."); return false; }
+static void LgSetWeaponSync(int weapon, bool isSynced) { OutputError("GetWeaponSync does not exist in 0.4. Rely on the server's anti-hack system and callbacks instead."); }
+SQMOD_NODISCARD static bool LgGetWeatherLock() { OutputError("GetWeatherLock has no effect."); return false; }
+static void LgSetWeatherLock(bool isLocked) { OutputError("SetWeatherLock has no effect."); }
+
+// ================================================================================================
+void Register_Official_Functions(HSQUIRRELVM vm)
+{
+    RootTable(vm)
+        .Overload(_SC("ClientMessage"), LgClientMessage)
+        .Overload(_SC("ClientMessage"), LgClientMessageWithAlpha)
+        .Overload(_SC("ClientMessageToAll"), LgClientMessageToAll)
+        .Overload(_SC("ClientMessageToAll"), LgClientMessageToAllWithAlpha)
+        .Overload(_SC("Announce"), LgGameMessage)
+        .Overload(_SC("Announce"), LgGameMessageAlternate)
+        .Overload(_SC("AnnounceAll"), LgGameMessageToAll)
+        .Overload(_SC("AnnounceAll"), LgGameMessageToAllAlternate)
+
+        .Func(_SC("ShutdownServer"), LgShutdownServer)
+        .Func(_SC("SetServerName"), LgSetServerName)
+        .Func(_SC("SetMaxPlayers"), LgSetMaxPlayers)
+        .Func(_SC("SetPassword"), LgSetServerPassword)
+        .Func(_SC("SetGameModeName"), LgSetGameModeText)
+        .Func(_SC("SetTimeRate"), LgSetTimeRate)
+        .Func(_SC("SetHour"), LgSetHour)
+        .Func(_SC("SetMinute"), LgSetMinute)
+        .Func(_SC("SetTime"), LgSetTime)
+        .Func(_SC("SetWeather"), LgSetWeather)
+        .Func(_SC("SetGravity"), LgSetGravity)
+        .Func(_SC("SetGamespeed"), LgSetGamespeed)
+        .Func(_SC("SetWaterLevel"), LgSetWaterLevel)
+        .Func(_SC("SetMaxHeight"), LgSetMaxHeight)
+        .Func(_SC("SetFallTimer"), LgSetFallTimer)
+
+        .Func(_SC("GetServerName"), LgGetServerName)
+        .Func(_SC("GetMaxPlayers"), LgGetMaxPlayers)
+        .Func(_SC("GetPassword"), LgGetServerPassword)
+        .Func(_SC("GetGameModeName"), LgGetGameModeText)
+        .Func(_SC("GetTimeRate"), LgGetTimeRate)
+        .Func(_SC("GetHour"), LgGetHour)
+        .Func(_SC("GetMinute"), LgGetMinute)
+        .Func(_SC("GetWeather"), LgGetWeather)
+        .Func(_SC("GetGravity"), LgGetGravity)
+        .Func(_SC("GetGamespeed"), LgGetGamespeed)
+        .Func(_SC("GetWaterLevel"), LgGetWaterLevel)
+        .Func(_SC("GetMaxHeight"), LgGetMaxHeight)
+        .Func(_SC("GetFallTimer"), LgGetFallTimer)
+
+        .Func(_SC("SetSyncFrameLimiter"), LgToggleSyncFrameLimiter)
+        .Func(_SC("SetFrameLimiter"), LgToggleFrameLimiter)
+        .Func(_SC("SetTaxiBoostJump"), LgToggleTaxiBoostJump)
+        .Func(_SC("SetDriveOnWater"), LgToggleDriveOnWater)
+        .Func(_SC("SetFastSwitch"), LgToggleFastSwitch)
+        .Func(_SC("SetFriendlyFire"), LgToggleFriendlyFire)
+        .Func(_SC("SetDrivebyEnabled"), LgToggleDisableDriveby)
+        .Func(_SC("SetPerfectHandling"), LgTogglePerfectHandling)
+        .Func(_SC("SetFlyingCars"), LgToggleFlyingCars)
+        .Func(_SC("SetJumpSwitch"), LgToggleJumpSwitch)
+        .Func(_SC("SetShowOnRadar"), LgToggleShowOnRadar)
+        .Func(_SC("SetShowOnlyTeamMarkers"), LgToggleShowOnlyTeamMarkers)
+        .Func(_SC("SetStuntBike"), LgToggleStuntBike)
+        .Func(_SC("SetShootInAir"), LgToggleShootInAir)
+        .Func(_SC("SetShowNametags"), LgToggleShowNametags)
+        .Func(_SC("SetJoinMessages"), LgToggleJoinMessages)
+        .Func(_SC("SetDeathMessages"), LgToggleDeathMessages)
+        .Func(_SC("SetChatTagDefault"), LgToggleChatTagDefault)
+        .Func(_SC("SetWallglitch"), LgToggleWallglitch)
+        .Func(_SC("SetBackfaceCullingDisabled"), LgToggleDisableBackfaceCulling)
+        .Func(_SC("SetHeliBladeDamageDisabled"), LgToggleDisableHeliBladeDamage)
+
+        .Func(_SC("GetSyncFrameLimiter"), LgEnabledSyncFrameLimiter)
+        .Func(_SC("GetFrameLimiter"), LgEnabledFrameLimiter)
+        .Func(_SC("GetTaxiBoostJump"), LgEnabledTaxiBoostJump)
+        .Func(_SC("GetDriveOnWater"), LgEnabledDriveOnWater)
+        .Func(_SC("GetFastSwitch"), LgEnabledFastSwitch)
+        .Func(_SC("GetFriendlyFire"), LgEnabledFriendlyFire)
+        .Func(_SC("GetDrivebyEnabled"), LgEnabledDisableDriveby)
+        .Func(_SC("GetPerfectHandling"), LgEnabledPerfectHandling)
+        .Func(_SC("GetFlyingCars"), LgEnabledFlyingCars)
+        .Func(_SC("GetJumpSwitch"), LgEnabledJumpSwitch)
+        .Func(_SC("GetShowOnRadar"), LgEnabledShowOnRadar)
+        .Func(_SC("GetShowOnlyTeamMarkers"), LgEnabledShowOnlyTeamMarkers)
+        .Func(_SC("GetStuntBike"), LgEnabledStuntBike)
+        .Func(_SC("GetShootInAir"), LgEnabledShootInAir)
+        .Func(_SC("GetShowNametags"), LgEnabledShowNametags)
+        .Func(_SC("GetJoinMessages"), LgEnabledJoinMessages)
+        .Func(_SC("GetDeathMessages"), LgEnabledDeathMessages)
+        .Func(_SC("GetChatTagDefault"), LgEnabledChatTagDefault)
+        .Func(_SC("GetWallglitch"), LgEnabledWallglitch)
+        .Func(_SC("GetBackfaceCullingDisabled"), LgEnabledDisableBackfaceCulling)
+        .Func(_SC("GetHeliBladeDamageDisabled"), LgEnabledDisableHeliBladeDamage)
+
+        .Overload(_SC("CreateRadioStream"), LgCreateRadioStreamWithID)
+        .Overload(_SC("CreateRadioStream"), LgCreateRadioStream)
+        .Func(_SC("DestroyRadioStream"), LgDestroyRadioStream)
+
+        .Func(_SC("CreateMarker"), LgCreateBlip)
+        .Func(_SC("DestroyMarker"), LgDestroyBlip)
+
+        .Overload(_SC("CreateExplosion"), LgCreateExplosion)
+        .Overload(_SC("CreateExplosion"), LgCreateExplosionExpanded)
+
+        .Overload(_SC("PlaySound"), LgPlayGameSound)
+        .Overload(_SC("PlaySound"), LgPlayGameSoundExpanded)
+        .Func(_SC("PlaySoundForPlayer"), LgPlayGameSoundForPlayer)
+        .Func(_SC("PlaySoundForWorld"), LgPlayGameSoundForWorld)
+
+        .Func(_SC("SetUseClasses"), LgSetUseClasses)
+        .Func(_SC("UsingClasses"), LgUsingClasses)
+        .Func(_SC("AddClass"), LgAddClass)
+
+        .Overload(_SC("SetSpawnPlayerPos"), LgSetSpawnPlayerPos)
+        .Overload(_SC("SetSpawnCameraPos"), LgSetSpawnCameraPos)
+        .Overload(_SC("SetSpawnCameraLook"), LgSetSpawnCameraLook)
+
+        .Overload(_SC("SetSpawnPlayerPos"), LgSetSpawnPlayerPosExpanded)
+        .Overload(_SC("SetSpawnCameraPos"), LgSetSpawnCameraPosExpanded)
+        .Overload(_SC("SetSpawnCameraLook"), LgSetSpawnCameraLookExpanded)
+
+        .Func(_SC("BanIP"), LgBanIP)
+        .Func(_SC("UnbanIP"), LgUnbanIP)
+        .Func(_SC("IsIPBanned"), LgIsIPBanned)
+
+        .Func(_SC("GetPlayerIDFromName"), LgGetPlayerIDFromName)
+        .Func(_SC("IsWorldCompatibleWithPlayer"), LgIsWorldCompatibleWithPlayer)
+
+        .Func(_SC("CreateCheckpoint"), LgCreateCheckpoint)
+
+        .Overload(_SC("CreateVehicle"), LgCreateVehicleCompat)
+        .Overload(_SC("CreateVehicle"), LgCreateVehicle)
+        .Overload(_SC("CreateVehicle"), LgCreateVehicleExpanded)
+
+        .Overload(_SC("CreatePickup"), LgCreatePickupCompat)
+        .Overload(_SC("CreatePickup"), LgCreatePickup)
+        .Overload(_SC("CreatePickup"), LgCreatePickupExpanded)
+
+        .Overload(_SC("CreateObject"), LgCreateObject)
+        .Overload(_SC("CreateObject"), LgCreateObjectExpanded)
+
+        .Func(_SC("FindPickup"), LgFindPickup)
+        .Func(_SC("FindObject"), LgFindObject)
+        .Func(_SC("FindVehicle"), LgFindVehicle)
+        .Func(_SC("FindCheckpoint"), LgFindCheckpoint)
+
+        .Func(_SC("SetWorldBounds"), LgSetWorldBounds)
+        .Func(_SC("GetWorldBounds"), LgGetWorldBounds)
+
+        .Func(_SC("SetWastedSettings"), LgSetWastedSettings)
+        .Func(_SC("GetWastedSettings"), LgGetWastedSettings)
+        .Func(_SC("SetKillDelay"), LgSetKillDelay)
+        .Func(_SC("GetKillDelay"), LgGetKillDelay)
+
+        .Func(_SC("RawHideMapObject"), LgRawHideMapObject)
+        .Func(_SC("HideMapObject"), LgHideMapObject)
+        .Func(_SC("ShowMapObject"), LgShowMapObject)
+        .Func(_SC("ShowAllMapObjects"), LgShowAllMapObjects)
+
+        .Func(_SC("ForceAllSelect"), LgForceAllSelect)
+
+        .Func(_SC("ResetAllVehicleHandling"), LgResetAllVehicleHandling)
+        .Func(_SC("IsHandlingRuleSet"), LgIsHandlingRuleSet)
+        .Func(_SC("SetHandlingRule"), LgSetHandlingRule)
+        .Func(_SC("GetHandlingRule"), LgGetHandlingRule)
+        .Func(_SC("ResetHandlingRule"), LgResetHandlingRule)
+        .Func(_SC("ResetVehicleHandling"), LgResetVehicleHandling)
+
+        // Compatibility functions
+        .Func(_SC("GetCinematicBorder"), LgGetCinematicBorder)
+        .Func(_SC("GetGreenScanLines"), LgGetGreenScanLines)
+        .Func(_SC("GetWhiteScanLines"), LgGetWhiteScanLines)
+        .Func(_SC("SetCinematicBorder"), LgSetCinematicBorder)
+        .Func(_SC("SetGreenScanLines"), LgSetGreenScanLines)
+        .Func(_SC("SetWhiteScanLines"), LgSetWhiteScanLines)
+        .Func(_SC("KickPlayer"), LgKickPlayer)
+        .Func(_SC("BanPlayer"), LgBanPlayer)
+        .Func(_SC("Message"), LgMessage)
+        .Func(_SC("MessagePlayer"), LgMessagePlayer)
+        .Func(_SC("MessageAllExcept"), LgMessageAllExcept)
+        .Func(_SC("PrivMessage"), LgPrivMessage)
+        .Func(_SC("PrivMessageAll"), LgPrivMessageAll)
+        .Func(_SC("SendPlayerMessage"), LgSendPlayerMessage)
+
+        .Func(_SC("GetWeaponName"), LgGetWeaponName)
+        .Func(_SC("GetDistrictName"), LgGetDistrictName)
+        .Func(_SC("GetSkinName"), LgGetSkinName)
+        .Func(_SC("GetWeaponID"), LgGetWeaponID)
+        .Func(_SC("GetSkinID"), LgGetSkinID)
+        .Func(_SC("GetTickCount"), LgSQGetTickCount)
+
+        .Func(_SC("SetWeaponDataValue"), LgSetWeaponDataValue)
+        .Func(_SC("GetWeaponDataValue"), LgGetWeaponDataValue)
+        .Func(_SC("ResetWeaponDataValue"), LgResetWeaponDataValue)
+        .Func(_SC("IsWeaponDataModified"), LgIsWeaponDataModified)
+        .Func(_SC("ResetWeaponData"), LgResetWeaponData)
+        .Func(_SC("ResetAllWeaponData"), LgResetAllWeaponData)
+
+        .Func(_SC("DistanceFromPoint"), LgDistanceFromPoint)
+        .Func(_SC("ReloadScripts"), LgReloadScripts)
+
+        .Func(_SC("GetVehicleModelFromName"), LgGetVehicleModelFromName)
+        .Func(_SC("GetVehicleNameFromModel"), LgGetVehicleNameFromModel)
+        .Func(_SC("IsNum"), LgIsNum)
+
+        .Func(_SC("GetVehicleCount"), LgGetVehicleCount)
+        .Func(_SC("GetPickupCount"), LgGetPickupCount)
+        .Func(_SC("GetObjectCount"), LgGetObjectCount)
+        .Func(_SC("GetPlayers"), LgGetPlayers)
+
+        .Func(_SC("GetFallEnabled"), LgGetFallEnabled)
+        .Func(_SC("SetFallEnabled"), LgSetFallEnabled)
+        .Func(_SC("GetDeathmatchScoreboard"), LgGetDeathmatchScoreboard)
+        .Func(_SC("SetDeathmatchScoreboard"), LgSetDeathmatchScoreboard)
+        .Func(_SC("GetWeaponSync"), LgGetWeaponSync)
+        .Func(_SC("SetWeaponSync"), LgSetWeaponSync)
+        .Func(_SC("SetWeatherLock"), LgSetWeatherLock)
+        .Func(_SC("GetWeatherLock"), LgGetWeatherLock)
+
+        .Func(_SC("GetTime"), LgGetTime)
+        .Func(_SC("GetFullTime"), LgGetFullTime)
+        .Func(_SC("LoadModule"), LgLoadVCMPModule)
+
+        .Func(_SC("GetVehiclesForcedRespawnHeight"), LgGetVehiclesForcedRespawnHeight)
+        .Func(_SC("SetVehiclesForcedRespawnHeight"), LgSetVehiclesForcedRespawnHeight)
+
+        .SquirrelFunc(_SC("FindPlayer"), LgFindPlayer)
+        .SquirrelFunc(_SC("InPoly"), LgInPoly)
+
+        .SquirrelFunc(_SC("SetAmmuWeapon"), LgSetAmmuWeapon)
+        .SquirrelFunc(_SC("IsAmmuWeaponEnabled"), LgIsAmmuWeaponEnabled)
+        .SquirrelFunc(_SC("SetAmmuWeaponEnabled"), LgSetAmmuWeaponEnabled)
+
+        .Func(_SC("BindKey"), LgBindKey)
+        .Func(_SC("UnbindKey"), LgRemoveKeybind)
+        .Func(_SC("UnbindAll"), LgRemoveAllKeybinds)
+    ;
 }
 
 } // Namespace:: SqMod

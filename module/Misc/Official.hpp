@@ -10,30 +10,6 @@
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
- * Class used to represent a transparent ARGB color.
-*/
-struct LgARGB
-{
-    /* --------------------------------------------------------------------------------------------
-     * The type of value used by components of type.
-    */
-    typedef unsigned char Value;
-
-    /* --------------------------------------------------------------------------------------------
-     * The alpha, red, green and blue components of this type.
-    */
-    Value a{0}, r{0}, g{0}, b{0};
-
-    /* --------------------------------------------------------------------------------------------
-     * Construct with individually specified alpha, red, green and blue colors.
-    */
-    LgARGB(Value av, Value rv, Value gv, Value bv) noexcept
-        : a(av), r(rv), g(gv), b(bv)
-    {
-    }
-};
-
-/* ------------------------------------------------------------------------------------------------
  * Entity vector.
 */
 struct LgVector : public Vector3
@@ -60,17 +36,17 @@ struct LgEntityVector : public LgVector
     /* --------------------------------------------------------------------------------------------
      * Entity identifier.
     */
-    int16_t mID;
+    int16_t mID{-1};
 
     /* --------------------------------------------------------------------------------------------
      * Entity type.
     */
-    uint8_t mType;
+    uint8_t mType{0};
 
     /* --------------------------------------------------------------------------------------------
      * Vector flag.
     */
-    uint8_t mFlag;
+    uint8_t mFlag{0};
 
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
@@ -163,17 +139,17 @@ struct LgEntityQuaternion : public LgQuaternion
     /* --------------------------------------------------------------------------------------------
      * Entity identifier.
     */
-    int16_t mID;
+    int16_t mID{-1};
 
     /* --------------------------------------------------------------------------------------------
      * Entity type.
     */
-    uint8_t mType;
+    uint8_t mType{0};
 
     /* --------------------------------------------------------------------------------------------
      * Quaternion flag.
     */
-    uint8_t mFlag;
+    uint8_t mFlag{0};
 
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
@@ -281,6 +257,26 @@ struct LgRGBA : public Color4
 };
 
 /* ------------------------------------------------------------------------------------------------
+ * Class used to represent a transparent ARGB color.
+*/
+struct LgARGB : public Color4
+{
+    /* --------------------------------------------------------------------------------------------
+     * Import from base class.
+    */
+    using Color4::Color4;
+    using Color4::operator =;
+
+    /* --------------------------------------------------------------------------------------------
+     * Construct with individually specified alpha, red, green and blue colors.
+    */
+    LgARGB(Value av, Value rv, Value gv, Value bv) noexcept
+        : Color4(rv, gv, bv, av)
+    {
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
  * Entity color.
 */
 struct LgEntityRGB : public LgRGB
@@ -288,17 +284,17 @@ struct LgEntityRGB : public LgRGB
     /* --------------------------------------------------------------------------------------------
      * Entity identifier.
     */
-    int16_t mID;
+    int16_t mID{-1};
 
     /* --------------------------------------------------------------------------------------------
      * Entity type.
     */
-    uint8_t mType;
+    uint8_t mType{0};
 
     /* --------------------------------------------------------------------------------------------
      * Color flag.
     */
-    uint8_t mFlag;
+    uint8_t mFlag{0};
 
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
@@ -372,23 +368,21 @@ struct LgBounds
     /* --------------------------------------------------------------------------------------------
      * The type of value used by components of type.
     */
-    typedef unsigned char Value;
+    typedef float Value;
 
     /* --------------------------------------------------------------------------------------------
      * Upper and lower bounds of the area.
     */
-    Value max_x;
-    Value min_x;
-    Value max_y;
-    Value min_y;
+    Value max_x{0};
+    Value min_x{0};
+    Value max_y{0};
+    Value min_y{0};
 
     /* --------------------------------------------------------------------------------------------
      * Construct with default (empty/zero) bounds.
     */
-    LgBounds()
-        : max_x(0), min_x(0), max_y(0), min_y(0)
-    {
-    }
+    LgBounds() = default;
+
     /* --------------------------------------------------------------------------------------------
      * Construct with individually specified bounds.
     */
@@ -406,33 +400,24 @@ struct LgWastedSettings
     /* --------------------------------------------------------------------------------------------
      * Settings values.
     */
-    uint32_t    mDeathTime;
-    uint32_t    mFadeTime;
-    float       mFadeInSpeed;
-    float       mFadeOutSpeed;
-    LgRGB       mFadeColour;
-    uint32_t    mCorpseFadeDelay;
-    uint32_t    mCorpseFadeTime;
+    uint32_t    mDeathTime{0};
+    uint32_t    mFadeTime{0};
+    float       mFadeInSpeed{0.0f};
+    float       mFadeOutSpeed{0.0f};
+    LgRGB       mFadeColour{0};
+    uint32_t    mCorpseFadeDelay{0};
+    uint32_t    mCorpseFadeTime{0};
 
     /* --------------------------------------------------------------------------------------------
      * Construct with default settings.
     */
-    LgWastedSettings()
-        : mDeathTime(0)
-        , mFadeTime(0)
-        , mFadeInSpeed(0.0f)
-        , mFadeOutSpeed(0.0f)
-        , mFadeColour(0)
-        , mCorpseFadeDelay(0)
-        , mCorpseFadeTime(0)
-    {
-    }
+    LgWastedSettings() = default;
 
     /* --------------------------------------------------------------------------------------------
      * Construct with individually specified settings.
     */
     LgWastedSettings(uint32_t death_time, uint32_t fade_time, float fade_in_speed, float fade_out_speed,
-                    LgRGB fade_colour, uint32_t corpse_fade_delay, uint32_t corpse_fade_time)
+                        LgRGB fade_colour, uint32_t corpse_fade_delay, uint32_t corpse_fade_time)
         : mDeathTime(death_time)
         , mFadeTime(fade_time)
         , mFadeInSpeed(fade_in_speed)
