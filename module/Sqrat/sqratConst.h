@@ -65,49 +65,49 @@ struct EnumElement
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Constructors that can identify the type and perform the proper conversion.
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    EnumElement(const SQChar * name, const SQChar * value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
+    constexpr EnumElement(const SQChar * name, const SQChar * value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mSTR(value), Type(SQET_STRING)
     { /* ... */ }
-    EnumElement(const SQChar * name, bool value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
+    constexpr EnumElement(const SQChar * name, bool value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mBOOL(value), Type(SQET_BOOL)
     { /* ... */ }
-    EnumElement(const SQChar * name, signed char value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
+    constexpr EnumElement(const SQChar * name, signed char value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
     { /* ... */ }
-    EnumElement(const SQChar * name, unsigned char value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
+    constexpr EnumElement(const SQChar * name, unsigned char value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
     { /* ... */ }
-    EnumElement(const SQChar * name, signed short value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
+    constexpr EnumElement(const SQChar * name, signed short value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
     { /* ... */ }
-    EnumElement(const SQChar * name, unsigned short value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
+    constexpr EnumElement(const SQChar * name, unsigned short value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
     { /* ... */ }
-    EnumElement(const SQChar * name, signed int value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
+    constexpr EnumElement(const SQChar * name, signed int value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
     { /* ... */ }
-    EnumElement(const SQChar * name, unsigned int value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
+    constexpr EnumElement(const SQChar * name, unsigned int value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
     { /* ... */ }
-    EnumElement(const SQChar * name, signed long value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
+    constexpr EnumElement(const SQChar * name, signed long value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
     { /* ... */ }
-    EnumElement(const SQChar * name, unsigned long value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
+    constexpr EnumElement(const SQChar * name, unsigned long value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
     { /* ... */ }
-    EnumElement(const SQChar * name, signed long long value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
+    constexpr EnumElement(const SQChar * name, signed long long value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
     { /* ... */ }
-    EnumElement(const SQChar * name, unsigned long long value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
+    constexpr EnumElement(const SQChar * name, unsigned long long value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
     { /* ... */ }
-    EnumElement(const SQChar * name, float value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
+    constexpr EnumElement(const SQChar * name, float value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mREAL(static_cast< SQFloat >(value)), Type(SQET_REAL)
     { /* ... */ }
-    EnumElement(const SQChar * name, double value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
+    constexpr EnumElement(const SQChar * name, double value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mREAL(static_cast< SQFloat >(value)), Type(SQET_REAL)
     { /* ... */ }
-    template < typename T > EnumElement(const SQChar * name, T value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
+    template < typename T > constexpr EnumElement(const SQChar * name, T value) noexcept // NOLINT(hicpp-member-init,cppcoreguidelines-pro-type-member-init)
         : Name(name), mINT(static_cast< SQInteger >(value)), Type(SQET_INT)
     { /* ... */ }
 };
@@ -326,8 +326,8 @@ public:
     /// \return The ConstTable itself so the call can be chained
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual ConstTable& Const(const SQChar* name, const int val) {
-        Enumeration::Const(name, val);
+    virtual ConstTable& Const(const SQChar* name, const bool val) {
+        Enumeration::Const(name, val ? 1 : 0);
         return *this;
     }
 
@@ -340,7 +340,35 @@ public:
     /// \return The ConstTable itself so the call can be chained
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual ConstTable& Const(const SQChar* name, const float val) {
+    virtual ConstTable& Const(const SQChar* name, const SQInteger val) {
+        Enumeration::Const(name, val);
+        return *this;
+    }
+#ifdef _SQ64
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Binds a constant value
+    ///
+    /// \param name Name of the value as it will appear in Squirrel
+    /// \param val  Value to bind
+    ///
+    /// \return The ConstTable itself so the call can be chained
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    virtual ConstTable& Const(const SQChar* name, const int val) {
+        Enumeration::Const(name, val);
+        return *this;
+    }
+#endif
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Binds a constant value
+    ///
+    /// \param name Name of the value as it will appear in Squirrel
+    /// \param val  Value to bind
+    ///
+    /// \return The ConstTable itself so the call can be chained
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    virtual ConstTable& Const(const SQChar* name, const SQFloat val) {
         Enumeration::Const(name, val);
         return *this;
     }
