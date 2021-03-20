@@ -278,6 +278,7 @@ void LgEntityRGB::Set()
 void Register_Official_Entity(HSQUIRRELVM vm);
 void Register_Official_Functions(HSQUIRRELVM vm);
 void Register_Official_Constants(HSQUIRRELVM vm);
+void Register_Official_Stream(HSQUIRRELVM vm);
 
 // ================================================================================================
 void Register_Official(HSQUIRRELVM vm)
@@ -383,6 +384,7 @@ void Register_Official(HSQUIRRELVM vm)
     Register_Official_Entity(vm);
     Register_Official_Functions(vm);
     Register_Official_Constants(vm);
+    Register_Official_Stream(vm);
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -2211,6 +2213,170 @@ void Register_Official_Constants(HSQUIRRELVM vm)
             default:            SQTHROW(t.GetVM(), "Unknown constant value type");
         }
     }
+}
+
+// ------------------------------------------------------------------------------------------------
+struct LgStream {
+    static constexpr size_t MAX_SIZE = 4096;
+    // --------------------------------------------------------------------------------------------
+    static void ClearOutput() {
+        m_InputStreamSize = m_InputStreamPosition = 0;
+        m_InputStreamError = false;
+    }
+    static void ClearInput() {
+        m_OutputStreamPosition = m_OutputStreamEnd = 0;
+        m_OutputStreamError = false;
+    }
+    // --------------------------------------------------------------------------------------------
+    static void StartWrite() { ClearOutput(); }
+    static void SetWritePosition(int position) {
+        if (position < 0 || position > m_OutputStreamEnd) m_OutputStreamPosition = m_OutputStreamEnd;
+        else m_OutputStreamPosition = position;
+    }
+    static int GetWritePosition() { return static_cast< int >(m_OutputStreamPosition); }
+    static int GetWriteSize() { return static_cast< int >(m_OutputStreamEnd); }
+    static bool HasWriteError() { return m_OutputStreamError; }
+    static void WriteByte(int value) { WriteValue(static_cast< uint8_t >(value)); }
+    static void WriteInt(int value) { Write(&value, sizeof(value)); }
+    static void WriteFloat(float value) { Write(&value, sizeof(value)); }
+    static void WriteString(StackStrF & value) {
+        uint16_t length = ConvTo< uint16_t >::From(value.mLen);
+        if (CanWrite(sizeof(length))) {
+            if (!CanWrite(length)) {
+                length = static_cast< uint16_t >(sizeof(m_OutputStreamData) - m_OutputStreamPosition);
+                m_OutputStreamError = true;
+            }
+            WriteValue(static_cast< uint16_t >(((length >> 8u) & 0xFFu) | ((length & 0xFFu) << 8u)));
+            Write(value.mPtr, length);
+        }
+    }
+    static void SendStream(LgPlayer * player) {
+        _Func->SendClientScriptData(player != nullptr ? player->GetIdentifier() : -1, m_OutputStreamData, m_OutputStreamEnd);
+        ClearOutput();
+    }
+    // --------------------------------------------------------------------------------------------
+    static void LoadInput(const void * data, size_t size) {
+        ClearInput();
+        m_InputStreamSize = size > sizeof(m_InputStreamData) ? sizeof(m_InputStreamData) : size;
+        memcpy(m_InputStreamData, data, m_InputStreamSize);
+    }
+    static void SetReadPosition(int position) {
+        if (position < 0 || position > m_InputStreamPosition) m_InputStreamPosition = m_InputStreamSize;
+        else m_InputStreamPosition = position;
+    }
+    static int GetReadPosition() { return static_cast< int >(m_InputStreamPosition); }
+    static int GetReadSize() { return static_cast< int >(m_InputStreamSize); }
+    static bool HasReadError() { return m_InputStreamError; }
+    static int ReadByte() {
+        if (m_InputStreamPosition + sizeof(uint8_t) <= m_InputStreamSize) {
+            return m_InputStreamData[m_InputStreamPosition++];
+        } else m_InputStreamError = true;
+        return 0;
+    }
+    static int ReadInt() {
+        if (m_InputStreamPosition + sizeof(int) <= m_InputStreamSize) {
+            int result;
+            memcpy(&result, &m_InputStreamData[m_InputStreamPosition], sizeof(result));
+            m_InputStreamPosition += sizeof(int);
+            return result;
+        } else m_InputStreamError = true;
+        return 0;
+    }
+    static float ReadFloat() {
+        if (m_InputStreamPosition + sizeof(float) <= m_InputStreamSize) {
+            float result;
+            memcpy(&result, &m_InputStreamData[m_InputStreamPosition], sizeof(result));
+            m_InputStreamPosition += sizeof(float);
+            return result;
+        } else m_InputStreamError = true;
+        return 0.0f;
+    }
+    static LightObj ReadString() {
+        uint16_t length = ReadBEInt16();
+        if (m_InputStreamPosition + length > m_InputStreamSize) {
+            length = (m_InputStreamSize - m_InputStreamPosition);
+            m_InputStreamError = true;
+        }
+        length = length > (MAX_SIZE-1) ? (MAX_SIZE-1) : length;
+        memcpy(m_Buffer, &m_InputStreamData[m_InputStreamPosition], length);
+        m_Buffer[length] = '\0';
+        m_InputStreamPosition += length;
+        return LightObj(m_Buffer, static_cast< SQInteger >(length));
+    }
+private:
+    // --------------------------------------------------------------------------------------------
+    static bool CanWrite(size_t size) { return (size <= (sizeof(m_OutputStreamData) - m_OutputStreamPosition)); }
+    template < class T > static void WriteValue(const T & v) { Write(&v, sizeof(v)); }
+    static void Write(const void * value, size_t size) {
+        if (CanWrite(size)) {
+            memcpy(&m_OutputStreamData[m_OutputStreamPosition], value, size);
+            m_OutputStreamPosition += size;
+            if (m_OutputStreamPosition > m_OutputStreamEnd) m_OutputStreamEnd = m_OutputStreamPosition;
+        } else m_OutputStreamError = true;
+    }
+    // --------------------------------------------------------------------------------------------
+    static uint16_t ReadBEInt16() {
+        if (m_InputStreamPosition + sizeof(uint16_t) <= m_InputStreamSize) {
+            uint16_t result;
+            memcpy(&result, &m_InputStreamData[m_InputStreamPosition], sizeof(result));
+            m_InputStreamPosition += sizeof(uint16_t);
+            return ((result >> 8) & 0xFF) | ((result & 0xFF) << 8);
+        } m_InputStreamError = true;
+        return 0;
+    }
+    // --------------------------------------------------------------------------------------------
+    static uint8_t m_InputStreamData[MAX_SIZE];
+    static size_t m_InputStreamSize;
+    static size_t m_InputStreamPosition;
+    static bool m_InputStreamError;
+    // --------------------------------------------------------------------------------------------
+    static uint8_t m_OutputStreamData[MAX_SIZE];
+    static size_t m_OutputStreamPosition;
+    static size_t m_OutputStreamEnd;
+    static bool m_OutputStreamError;
+    // --------------------------------------------------------------------------------------------
+    static SQChar m_Buffer[MAX_SIZE];
+};
+// ------------------------------------------------------------------------------------------------
+uint8_t LgStream::m_InputStreamData[LgStream::MAX_SIZE];
+size_t LgStream::m_InputStreamSize;
+size_t LgStream::m_InputStreamPosition;
+bool LgStream::m_InputStreamError;
+// ------------------------------------------------------------------------------------------------
+uint8_t LgStream::m_OutputStreamData[LgStream::MAX_SIZE];
+size_t LgStream::m_OutputStreamEnd;
+size_t LgStream::m_OutputStreamPosition;
+bool LgStream::m_OutputStreamError;
+// ------------------------------------------------------------------------------------------------
+SQChar LgStream::m_Buffer[LgStream::MAX_SIZE];
+
+// ------------------------------------------------------------------------------------------------
+void LgStreamLoadInput(const void * data, size_t size) { LgStream::LoadInput(data, size); }
+
+// ================================================================================================
+void Register_Official_Stream(HSQUIRRELVM vm)
+{
+    Class< LgStream, NoConstructor< LgStream > > c(vm, "Stream");
+    c
+        .StaticFunc(_SC("StartWrite"), &LgStream::StartWrite)
+        .StaticFunc(_SC("SetWritePosition"), &LgStream::SetWritePosition)
+        .StaticFunc(_SC("GetWritePosition"), &LgStream::GetWritePosition)
+        .StaticFunc(_SC("GetWriteSize"), &LgStream::GetWriteSize)
+        .StaticFunc(_SC("HasWriteError"), &LgStream::HasWriteError)
+        .StaticFunc(_SC("WriteByte"), &LgStream::WriteByte)
+        .StaticFunc(_SC("WriteInt"), &LgStream::WriteInt)
+        .StaticFunc(_SC("WriteFloat"), &LgStream::WriteFloat)
+        .StaticFunc(_SC("WriteString"), &LgStream::WriteString)
+        .StaticFunc(_SC("SendStream"), &LgStream::SendStream)
+        .StaticFunc(_SC("SetReadPosition"), &LgStream::SetReadPosition)
+        .StaticFunc(_SC("GetReadPosition"), &LgStream::GetReadPosition)
+        .StaticFunc(_SC("GetReadSize"), &LgStream::GetReadSize)
+        .StaticFunc(_SC("HasReadError"), &LgStream::HasReadError)
+        .StaticFunc(_SC("ReadByte"), &LgStream::ReadByte)
+        .StaticFunc(_SC("ReadInt"), &LgStream::ReadInt)
+        .StaticFunc(_SC("ReadFloat"), &LgStream::ReadFloat)
+        .StaticFunc(_SC("ReadString"), &LgStream::ReadString)
+    ;
 }
 
 } // Namespace:: SqMod

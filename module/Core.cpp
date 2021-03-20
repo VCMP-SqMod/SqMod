@@ -65,6 +65,7 @@ extern Buffer GetRealFilePath(const SQChar * path);
     extern LightObj LgPickupObj(HSQUIRRELVM vm, int32_t id);
     extern LightObj LgPlayerObj(HSQUIRRELVM vm, int32_t id);
     extern LightObj LgVehicleObj(HSQUIRRELVM vm, int32_t id);
+    extern void LgStreamLoadInput(const void * data, size_t size);
 #endif
 
 /* ------------------------------------------------------------------------------------------------

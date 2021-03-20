@@ -2252,6 +2252,7 @@ void Core::EmitClientScriptData(int32_t player_id, const uint8_t * data, size_t 
 #ifdef VCMP_ENABLE_OFFICIAL
     if (IsOfficial())
     {
+        LgStreamLoadInput(data, size);
         ExecuteLegacyEvent(m_VM, _SC("onClientScriptData"), _player.mLgObj);
     }
 #endif
