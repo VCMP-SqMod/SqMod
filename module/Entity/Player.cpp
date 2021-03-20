@@ -1527,7 +1527,7 @@ LightObj & CPlayer::CreateCheckpointEx1a(int32_t world, bool sphere, float x, fl
     Validate();
     // Perform the requested operation
     return Core::Get().NewCheckpoint(m_ID, world, sphere, x, y, z, r, g, b, a, radius,
-                                        SQMOD_CREATE_DEFAULT, NullLightObj());
+                                        SQMOD_CREATE_DEFAULT, NullLightObj()).mObj;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1539,7 +1539,7 @@ LightObj & CPlayer::CreateCheckpointEx1b(int32_t world, bool sphere, float x, fl
     Validate();
     // Perform the requested operation
     return Core::Get().NewCheckpoint(m_ID, world, sphere, x, y, z, r, g, b, a,
-                                        radius, header, payload);
+                                        radius, header, payload).mObj;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1551,7 +1551,7 @@ LightObj & CPlayer::CreateCheckpoint1a(int32_t world, bool sphere, const Vector3
     // Perform the requested operation
     return Core::Get().NewCheckpoint(m_ID, world, sphere, pos.x, pos.y, pos.z,
                                         color.r, color.g, color.b, color.a, radius,
-                                        SQMOD_CREATE_DEFAULT, NullLightObj());
+                                        SQMOD_CREATE_DEFAULT, NullLightObj()).mObj;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1562,7 +1562,7 @@ LightObj & CPlayer::CreateCheckpoint1b(int32_t world, bool sphere, const Vector3
     Validate();
     // Perform the requested operation
     return Core::Get().NewCheckpoint(m_ID, world, sphere, pos.x, pos.y, pos.z,
-                                        color.r, color.g, color.b, color.a, radius, header, payload);
+                                        color.r, color.g, color.b, color.a, radius, header, payload).mObj;
 }
 
 // ------------------------------------------------------------------------------------------------

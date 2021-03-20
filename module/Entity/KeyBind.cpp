@@ -151,26 +151,26 @@ static LightObj & KeyBind_CreateEx1a(int32_t slot, bool release, int32_t primary
                                    int32_t alternative)
 {
     return Core::Get().NewKeyBind(slot, release, primary, secondary, alternative,
-                                  SQMOD_CREATE_DEFAULT, NullLightObj());
+                                  SQMOD_CREATE_DEFAULT, NullLightObj()).mObj;
 }
 
 static LightObj & KeyBind_CreateEx1b(int32_t slot, bool release, int32_t primary, int32_t secondary,
                                    int32_t alternative, int32_t header, LightObj & payload)
 {
-    return Core::Get().NewKeyBind(slot, release, primary, secondary, alternative, header, payload);
+    return Core::Get().NewKeyBind(slot, release, primary, secondary, alternative, header, payload).mObj;
 }
 
 // ------------------------------------------------------------------------------------------------
 static LightObj & KeyBind_Create1a(bool release, int32_t primary, int32_t secondary, int32_t alternative)
 {
     return Core::Get().NewKeyBind(-1, release, primary, secondary, alternative,
-                                  SQMOD_CREATE_DEFAULT, NullLightObj());
+                                  SQMOD_CREATE_DEFAULT, NullLightObj()).mObj;
 }
 
 static LightObj & KeyBind_Create1b(bool release, int32_t primary, int32_t secondary, int32_t alternative,
                                  int32_t header, LightObj & payload)
 {
-    return Core::Get().NewKeyBind(-1, release, primary, secondary, alternative, header, payload);
+    return Core::Get().NewKeyBind(-1, release, primary, secondary, alternative, header, payload).mObj;
 }
 
 // ------------------------------------------------------------------------------------------------

@@ -223,7 +223,7 @@ static LightObj & Blip_CreateEx1a(int32_t world, float x, float y, float z, int3
                             uint8_t r, uint8_t g, uint8_t b, uint8_t a, int32_t spr_id)
 {
     return Core::Get().NewBlip(-1, world, x, y, z, scale, SQMOD_PACK_RGBA(r, g, b, a), spr_id, // NOLINT(hicpp-signed-bitwise)
-                            SQMOD_CREATE_DEFAULT, NullLightObj());
+                            SQMOD_CREATE_DEFAULT, NullLightObj()).mObj;
 }
 
 static LightObj & Blip_CreateEx1b(int32_t world, float x, float y, float z, int32_t scale,
@@ -231,7 +231,7 @@ static LightObj & Blip_CreateEx1b(int32_t world, float x, float y, float z, int3
                             int32_t header, LightObj & payload)
 {
     return Core::Get().NewBlip(-1, world, x, y, z, scale, SQMOD_PACK_RGBA(r, g, b, a), spr_id, // NOLINT(hicpp-signed-bitwise)
-                            header, payload);
+                            header, payload).mObj;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -239,7 +239,7 @@ static LightObj & Blip_CreateEx2a(int32_t index, int32_t world, float x, float y
                             int32_t scale, uint8_t r, uint8_t g, uint8_t b, uint8_t a, int32_t spr_id)
 {
     return Core::Get().NewBlip(index, world, x, y, z, scale, SQMOD_PACK_RGBA(r, g, b, a), spr_id, // NOLINT(hicpp-signed-bitwise)
-                            SQMOD_CREATE_DEFAULT, NullLightObj());
+                            SQMOD_CREATE_DEFAULT, NullLightObj()).mObj;
 }
 
 static LightObj & Blip_CreateEx2b(int32_t index, int32_t world, float x, float y, float z, int32_t scale,
@@ -247,7 +247,7 @@ static LightObj & Blip_CreateEx2b(int32_t index, int32_t world, float x, float y
                             int32_t header, LightObj & payload)
 {
     return Core::Get().NewBlip(index, world, x, y, z, scale, SQMOD_PACK_RGBA(r, g, b, a), spr_id, // NOLINT(hicpp-signed-bitwise)
-                            header, payload);
+                            header, payload).mObj;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -255,14 +255,14 @@ static LightObj & Blip_Create1a(int32_t world, const Vector3 & pos, int32_t scal
                             int32_t spr_id)
 {
     return Core::Get().NewBlip(-1, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), spr_id,
-                            SQMOD_CREATE_DEFAULT, NullLightObj());
+                            SQMOD_CREATE_DEFAULT, NullLightObj()).mObj;
 }
 
 static LightObj & Blip_Create1b(int32_t world, const Vector3 & pos, int32_t scale, const Color4 & color,
                             int32_t spr_id, int32_t header, LightObj & payload)
 {
     return Core::Get().NewBlip(-1, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), spr_id,
-                            header, payload);
+                            header, payload).mObj;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -270,14 +270,14 @@ static LightObj & Blip_Create2a(int32_t index, int32_t world, const Vector3 & po
                             const Color4 & color, int32_t spr_id)
 {
     return Core::Get().NewBlip(index, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), spr_id,
-                            SQMOD_CREATE_DEFAULT, NullLightObj());
+                            SQMOD_CREATE_DEFAULT, NullLightObj()).mObj;
 }
 
 static LightObj & Blip_Create2b(int32_t index, int32_t world, const Vector3 & pos, int32_t scale,
                             const Color4 & color, int32_t spr_id, int32_t header, LightObj & payload)
 {
     return Core::Get().NewBlip(index, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), spr_id,
-                            header, payload);
+                            header, payload).mObj;
 }
 
 // ================================================================================================

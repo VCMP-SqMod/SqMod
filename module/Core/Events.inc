@@ -70,10 +70,10 @@ void Core::EmitCheckpointCreated(int32_t checkpoint, int32_t header, LightObj & 
 }
 
 // ------------------------------------------------------------------------------------------------
-void Core::EmitKeyBindCreated(int32_t keybind, int32_t header, LightObj & payload)
+void Core::EmitKeyBindCreated(int32_t key_bind, int32_t header, LightObj & payload)
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::KeyBindCreated(%d, %d, %s)", keybind, header, NULL_SQOBJ_(payload))
-    (*mOnKeyBindCreated.first)(m_KeyBinds.at(static_cast< size_t >(keybind)).mObj, header, payload);
+    (*mOnKeyBindCreated.first)(m_KeyBinds.at(static_cast< size_t >(key_bind)).mObj, header, payload);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::KeyBindCreated")
 }
 

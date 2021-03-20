@@ -453,14 +453,14 @@ static LightObj & Pickup_CreateEx1a(int32_t model, int32_t world, int32_t quanti
                         float x, float y, float z, int32_t alpha, bool automatic)
 {
     return Core::Get().NewPickup(model, world, quantity, x, y, z, alpha, automatic,
-                            SQMOD_CREATE_DEFAULT, NullLightObj());
+                            SQMOD_CREATE_DEFAULT, NullLightObj()).mObj;
 }
 
 static LightObj & Pickup_CreateEx1b(int32_t model, int32_t world, int32_t quantity,
                         float x, float y, float z, int32_t alpha, bool automatic,
                         int32_t header, LightObj & payload)
 {
-    return Core::Get().NewPickup(model, world, quantity, x, y, z, alpha, automatic, header, payload);
+    return Core::Get().NewPickup(model, world, quantity, x, y, z, alpha, automatic, header, payload).mObj;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -468,14 +468,14 @@ static LightObj & Pickup_Create1a(int32_t model, int32_t world, int32_t quantity
                             int32_t alpha, bool automatic)
 {
     return Core::Get().NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
-                            SQMOD_CREATE_DEFAULT, NullLightObj());
+                            SQMOD_CREATE_DEFAULT, NullLightObj()).mObj;
 }
 
 static LightObj & Pickup_Create1b(int32_t model, int32_t world, int32_t quantity, const Vector3 & pos,
                             int32_t alpha, bool automatic, int32_t header, LightObj & payload)
 {
     return Core::Get().NewPickup(model, world, quantity, pos.x, pos.y, pos.z, alpha, automatic,
-                            header, payload);
+                            header, payload).mObj;
 }
 
 // ================================================================================================

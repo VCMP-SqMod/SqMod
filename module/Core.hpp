@@ -62,7 +62,7 @@ private:
     // --------------------------------------------------------------------------------------------
     int32_t                         m_State; // Current plug-in state.
 #ifdef VCMP_ENABLE_OFFICIAL
-    bool                            m_Official; // Whether official support is enabked.
+    bool                            m_Official; // Whether official support is enabled.
 #endif
     HSQUIRRELVM                     m_VM; // Script virtual machine.
     Scripts                         m_Scripts; // Loaded scripts objects.
@@ -219,7 +219,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * See whether area tracking should be enabled on newlly created entities.
+     * See whether area tracking should be enabled on newly created entities.
     */
     SQMOD_NODISCARD bool AreasEnabled() const
     {
@@ -227,7 +227,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Toggle whether area tracking should be enabled on newlly created entities.
+     * Toggle whether area tracking should be enabled on newly created entities.
     */
     void AreasEnabled(bool toggle)
     {
@@ -308,7 +308,7 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the postload signal if not complete.
+     * Retrieve the post-load signal if not complete.
     */
     SQMOD_NODISCARD LightObj & GetPostLoadEvent()
     {
@@ -431,7 +431,7 @@ protected:
     VehicleInst & AllocVehicle(int32_t id, bool owned, int32_t header, LightObj & payload);
 
     /* --------------------------------------------------------------------------------------------
-     * Entity deallocator.
+     * Entity de-allocator.
     */
     void DeallocBlip(int32_t id, bool destroy, int32_t header, LightObj & payload);
     void DeallocCheckpoint(int32_t id, bool destroy, int32_t header, LightObj & payload);
@@ -445,26 +445,26 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Entity creators.
     */
-    LightObj & NewBlip(int32_t index, int32_t world, float x, float y, float z,
-                        int32_t scale, uint32_t color, int32_t sprid,
+    BlipInst & NewBlip(int32_t index, int32_t world, float x, float y, float z,
+                        int32_t scale, uint32_t color, int32_t spr_id,
                         int32_t header, LightObj & payload);
 
-    LightObj & NewCheckpoint(int32_t player, int32_t world, bool sphere, float x, float y, float z,
+    CheckpointInst & NewCheckpoint(int32_t player, int32_t world, bool sphere, float x, float y, float z,
                         uint8_t r, uint8_t g, uint8_t b, uint8_t a, float radius,
                         int32_t header, LightObj & payload);
 
-    LightObj & NewKeyBind(int32_t slot, bool release,
+    KeyBindInst & NewKeyBind(int32_t slot, bool release,
                           int32_t primary, int32_t secondary, int32_t alternative,
                           int32_t header, LightObj & payload);
 
-    LightObj & NewObject(int32_t model, int32_t world, float x, float y, float z,
+    ObjectInst & NewObject(int32_t model, int32_t world, float x, float y, float z,
                         int32_t alpha, int32_t header, LightObj & payload);
 
-    LightObj & NewPickup(int32_t model, int32_t world, int32_t quantity,
+    PickupInst & NewPickup(int32_t model, int32_t world, int32_t quantity,
                         float x, float y, float z, int32_t alpha, bool automatic,
                         int32_t header, LightObj & payload);
 
-    LightObj & NewVehicle(int32_t model, int32_t world, float x, float y, float z,
+    VehicleInst & NewVehicle(int32_t model, int32_t world, float x, float y, float z,
                         float angle, int32_t primary, int32_t secondary,
                         int32_t header, LightObj & payload);
 
@@ -543,21 +543,21 @@ public:
     */
     void EmitBlipCreated(int32_t blip, int32_t header, LightObj & payload);
     void EmitCheckpointCreated(int32_t checkpoint, int32_t header, LightObj & payload);
-    void EmitKeyBindCreated(int32_t keybind, int32_t header, LightObj & payload);
+    void EmitKeyBindCreated(int32_t key_bind, int32_t header, LightObj & payload);
     void EmitObjectCreated(int32_t object, int32_t header, LightObj & payload);
     void EmitPickupCreated(int32_t pickup, int32_t header, LightObj & payload);
     void EmitPlayerCreated(int32_t player, int32_t header, LightObj & payload);
     void EmitVehicleCreated(int32_t vehicle, int32_t header, LightObj & payload);
     void EmitBlipDestroyed(int32_t blip, int32_t header, LightObj & payload);
     void EmitCheckpointDestroyed(int32_t checkpoint, int32_t header, LightObj & payload);
-    void EmitKeyBindDestroyed(int32_t keybind, int32_t header, LightObj & payload);
+    void EmitKeyBindDestroyed(int32_t key_bind, int32_t header, LightObj & payload);
     void EmitObjectDestroyed(int32_t object, int32_t header, LightObj & payload);
     void EmitPickupDestroyed(int32_t pickup, int32_t header, LightObj & payload);
     void EmitPlayerDestroyed(int32_t player, int32_t header, LightObj & payload);
     void EmitVehicleDestroyed(int32_t vehicle, int32_t header, LightObj & payload);
     void EmitBlipCustom(int32_t blip, int32_t header, LightObj & payload);
     void EmitCheckpointCustom(int32_t checkpoint, int32_t header, LightObj & payload);
-    void EmitKeyBindCustom(int32_t keybind, int32_t header, LightObj & payload);
+    void EmitKeyBindCustom(int32_t key_bind, int32_t header, LightObj & payload);
     void EmitObjectCustom(int32_t object, int32_t header, LightObj & payload);
     void EmitPickupCustom(int32_t pickup, int32_t header, LightObj & payload);
     void EmitPlayerCustom(int32_t player, int32_t header, LightObj & payload);
@@ -863,7 +863,7 @@ struct CoreState
      * Backup the current core state.
     */
     CoreState()
-        : m_State(Core::Get().GetState()), m_Start(m_Start)
+        : m_State(Core::Get().GetState()), m_Start(m_State)
     {
         //...
     }
@@ -944,5 +944,65 @@ protected:
     int m_State; // The core state to be applied by destructor.
     int m_Start; // The core state at the time when this instance was created.
 };
+
+/* ------------------------------------------------------------------------------------------------
+ * Generic implementation of entity iteration.
+*/
+template < class T, class F > inline void ForeachEntity(std::vector< T > & vec, F cb)
+{
+    for (auto & e : vec)
+    {
+        cb(e);
+    }
+}
+// Entity iteration.
+template < class F > inline void ForeachBlip(F f) { ForeachEntity(Core::Get().GetBlips(), std::forward< F >(f)); }
+template < class F > inline void ForeachCheckpoint(F f) { ForeachEntity(Core::Get().GetCheckpoints(), std::forward< F >(f)); }
+template < class F > inline void ForeachObject(F f) { ForeachEntity(Core::Get().GetObjs(), std::forward< F >(f)); }
+template < class F > inline void ForeachPickup(F f) { ForeachEntity(Core::Get().GetPickups(), std::forward< F >(f)); }
+template < class F > inline void ForeachPlayer(F f) { ForeachEntity(Core::Get().GetPlayers(), std::forward< F >(f)); }
+template < class F > inline void ForeachVehicle(F f) { ForeachEntity(Core::Get().GetVehicles(), std::forward< F >(f)); }
+
+/* ------------------------------------------------------------------------------------------------
+ * Generic implementation of active entity iteration.
+*/
+template < class T, class F > inline void ForeachActiveEntity(const std::vector< T > & vec, F cb)
+{
+    for (const auto & e : vec)
+    {
+        if (VALID_ENTITY(e.mID)) cb(e);
+    }
+}
+// Entity iteration.
+template < class F > inline void ForeachActiveBlip(F f) { ForeachActiveEntity(Core::Get().GetBlips(), std::forward< F >(f)); }
+template < class F > inline void ForeachActiveCheckpoint(F f) { ForeachActiveEntity(Core::Get().GetCheckpoints(), std::forward< F >(f)); }
+template < class F > inline void ForeachActiveObject(F f) { ForeachActiveEntity(Core::Get().GetObjs(), std::forward< F >(f)); }
+template < class F > inline void ForeachActivePickup(F f) { ForeachActiveEntity(Core::Get().GetPickups(), std::forward< F >(f)); }
+template < class F > inline void ForeachActivePlayer(F f) { ForeachActiveEntity(Core::Get().GetPlayers(), std::forward< F >(f)); }
+template < class F > inline void ForeachActiveVehicle(F f) { ForeachActiveEntity(Core::Get().GetVehicles(), std::forward< F >(f)); }
+
+/* ------------------------------------------------------------------------------------------------
+ * Process the identifier of each connected player.
+*/
+template < class F > inline void ForeachConnectedPlayer(F f) {
+    for (int32_t i = 0, n = _Func->GetMaxPlayers(); i < n; ++i) f(i);
+}
+/* ------------------------------------------------------------------------------------------------
+ * Process the identifier of each connected player and count processed players.
+*/
+template < class F > SQMOD_NODISCARD inline int32_t ForeachConnectedPlayerCount(F f) {
+    int32_t c = 0;
+    for (int32_t i = 0, n = _Func->GetMaxPlayers(); i < n; ++i)
+        if (f(i)) ++c;
+    return c;
+}
+/* ------------------------------------------------------------------------------------------------
+ * Process the identifier of each connected player until a certain criteria is met.
+*/
+template < class F > SQMOD_NODISCARD inline int32_t ForeachConnectedPlayerUntil(F f) {
+    for (int32_t i = 0, n = _Func->GetMaxPlayers(); i < n; ++i)
+        if (f(i)) return i;
+    return -1;
+}
 
 } // Namespace:: SqMod

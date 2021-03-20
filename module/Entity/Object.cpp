@@ -838,26 +838,26 @@ void CObject::RotateByEulerZ(float z) const
 static LightObj & Object_CreateEx1a(int32_t model, int32_t world, float x, float y, float z,
                                 int32_t alpha)
 {
-    return Core::Get().NewObject(model, world, x, y, z, alpha, SQMOD_CREATE_DEFAULT, NullLightObj());
+    return Core::Get().NewObject(model, world, x, y, z, alpha, SQMOD_CREATE_DEFAULT, NullLightObj()).mObj;
 }
 
 static LightObj & Object_CreateEx1b(int32_t model, int32_t world, float x, float y, float z,
                         int32_t alpha, int32_t header, LightObj & payload)
 {
-    return Core::Get().NewObject(model, world, x, y, z, alpha, header, payload);
+    return Core::Get().NewObject(model, world, x, y, z, alpha, header, payload).mObj;
 }
 
 // ------------------------------------------------------------------------------------------------
 static LightObj & Object_Create1a(int32_t model, int32_t world, const Vector3 & pos, int32_t alpha)
 {
     return Core::Get().NewObject(model, world, pos.x, pos.y, pos.z, alpha,
-                            SQMOD_CREATE_DEFAULT, NullLightObj());
+                            SQMOD_CREATE_DEFAULT, NullLightObj()).mObj;
 }
 
 static LightObj & Object_Create1b(int32_t model, int32_t world, const Vector3 & pos, int32_t alpha,
                             int32_t header, LightObj & payload)
 {
-    return Core::Get().NewObject(model, world, pos.x, pos.y, pos.z, alpha, header, payload);
+    return Core::Get().NewObject(model, world, pos.x, pos.y, pos.z, alpha, header, payload).mObj;
 }
 
 // ================================================================================================

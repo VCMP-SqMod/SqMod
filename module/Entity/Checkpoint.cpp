@@ -474,7 +474,7 @@ static LightObj & Checkpoint_CreateEx1a(int32_t world, bool sphere, float x, flo
                             uint8_t r, uint8_t g, uint8_t b, uint8_t a, float radius)
 {
     return Core::Get().NewCheckpoint(-1, world, sphere, x, y, z, r, g, b, a, radius,
-                                SQMOD_CREATE_DEFAULT, NullLightObj());
+                                SQMOD_CREATE_DEFAULT, NullLightObj()).mObj;
 }
 
 static LightObj & Checkpoint_CreateEx1b(int32_t world, bool sphere, float x, float y, float z,
@@ -482,7 +482,7 @@ static LightObj & Checkpoint_CreateEx1b(int32_t world, bool sphere, float x, flo
                             int32_t header, LightObj & payload)
 {
     return Core::Get().NewCheckpoint(-1, world, sphere, x, y, z, r, g, b, a,
-                                radius, header, payload);
+                                radius, header, payload).mObj;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -491,14 +491,14 @@ static LightObj & Checkpoint_Create1a(int32_t world, bool sphere, const Vector3 
 {
     return Core::Get().NewCheckpoint(-1, world, sphere, pos.x, pos.y, pos.z,
                                 color.r, color.g, color.b, color.a, radius,
-                                SQMOD_CREATE_DEFAULT, NullLightObj());
+                                SQMOD_CREATE_DEFAULT, NullLightObj()).mObj;
 }
 
 static LightObj & Checkpoint_Create1b(int32_t world, bool sphere, const Vector3 & pos,
                             const Color4 & color, float radius, int32_t header, LightObj & payload)
 {
     return Core::Get().NewCheckpoint(-1, world, sphere, pos.x, pos.y, pos.z,
-                                color.r, color.g, color.b, color.a, radius, header, payload);
+                                color.r, color.g, color.b, color.a, radius, header, payload).mObj;
 }
 
 // ================================================================================================

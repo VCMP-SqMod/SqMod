@@ -1709,12 +1709,12 @@ void Core::DeallocVehicle(int32_t id, bool destroy, int32_t header, LightObj & p
 }
 
 // --------------------------------------------------------------------------------------------
-LightObj & Core::NewBlip(int32_t index, int32_t world, float x, float y, float z,
-                            int32_t scale, uint32_t color, int32_t sprid,
+BlipInst & Core::NewBlip(int32_t index, int32_t world, float x, float y, float z,
+                            int32_t scale, uint32_t color, int32_t spr_id,
                             int32_t header, LightObj & payload)
 {
     // Request the server to create this entity
-    const int32_t id = _Func->CreateCoordBlip(index, world, x, y, z, scale, color, sprid);
+    const int32_t id = _Func->CreateCoordBlip(index, world, x, y, z, scale, color, spr_id);
     // See if the entity creation failed on the server
     if (_Func->GetLastError() == vcmpErrorPoolExhausted)
     {
@@ -1733,11 +1733,11 @@ LightObj & Core::NewBlip(int32_t index, int32_t world, float x, float y, float z
         inst.mFlags |= ENF_OWNED;
     }
     // Now we can return the script object
-    return inst.mObj;
+    return inst;
 }
 
 // --------------------------------------------------------------------------------------------
-LightObj & Core::NewCheckpoint(int32_t player, int32_t world, bool sphere, float x, float y, float z,
+CheckpointInst & Core::NewCheckpoint(int32_t player, int32_t world, bool sphere, float x, float y, float z,
                                 uint8_t r, uint8_t g, uint8_t b, uint8_t a, float radius,
                                 int32_t header, LightObj & payload)
 {
@@ -1765,11 +1765,11 @@ LightObj & Core::NewCheckpoint(int32_t player, int32_t world, bool sphere, float
         inst.mFlags |= ENF_OWNED;
     }
     // Now we can return the script object
-    return inst.mObj;
+    return inst;
 }
 
 // --------------------------------------------------------------------------------------------
-LightObj & Core::NewKeyBind(int32_t slot, bool release, int32_t primary, int32_t secondary, int32_t alternative,
+KeyBindInst & Core::NewKeyBind(int32_t slot, bool release, int32_t primary, int32_t secondary, int32_t alternative,
                             int32_t header, LightObj & payload)
 {
     // Should we obtain a new keybind slot automatically?
@@ -1797,11 +1797,11 @@ LightObj & Core::NewKeyBind(int32_t slot, bool release, int32_t primary, int32_t
         inst.mFlags |= ENF_OWNED;
     }
     // Now we can return the script object
-    return inst.mObj;
+    return inst;
 }
 
 // --------------------------------------------------------------------------------------------
-LightObj & Core::NewObject(int32_t model, int32_t world, float x, float y, float z,  int32_t alpha,
+ObjectInst & Core::NewObject(int32_t model, int32_t world, float x, float y, float z,  int32_t alpha,
                             int32_t header, LightObj & payload)
 {
     // Request the server to create this entity
@@ -1824,11 +1824,11 @@ LightObj & Core::NewObject(int32_t model, int32_t world, float x, float y, float
         inst.mFlags |= ENF_OWNED;
     }
     // Now we can return the script object
-    return inst.mObj;
+    return inst;
 }
 
 // --------------------------------------------------------------------------------------------
-LightObj & Core::NewPickup(int32_t model, int32_t world, int32_t quantity,
+PickupInst & Core::NewPickup(int32_t model, int32_t world, int32_t quantity,
                             float x, float y, float z, int32_t alpha, bool automatic,
                             int32_t header, LightObj & payload)
 {
@@ -1852,11 +1852,11 @@ LightObj & Core::NewPickup(int32_t model, int32_t world, int32_t quantity,
         inst.mFlags |= ENF_OWNED;
     }
     // Now we can return the script object
-    return inst.mObj;
+    return inst;
 }
 
 // --------------------------------------------------------------------------------------------
-LightObj & Core::NewVehicle(int32_t model, int32_t world, float x, float y, float z,
+VehicleInst & Core::NewVehicle(int32_t model, int32_t world, float x, float y, float z,
                             float angle, int32_t primary, int32_t secondary,
                             int32_t header, LightObj & payload)
 {
@@ -1885,7 +1885,7 @@ LightObj & Core::NewVehicle(int32_t model, int32_t world, float x, float y, floa
         inst.mFlags |= ENF_OWNED;
     }
     // Now we can return the script object
-    return inst.mObj;
+    return inst;
 }
 
 // --------------------------------------------------------------------------------------------

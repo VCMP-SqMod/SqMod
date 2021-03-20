@@ -1993,14 +1993,14 @@ static LightObj & Vehicle_CreateEx1a(int32_t model, int32_t world, float x, floa
                             int32_t primary, int32_t secondary)
 {
     return Core::Get().NewVehicle(model, world, x, y, z, angle, primary, secondary,
-                            SQMOD_CREATE_DEFAULT, NullLightObj());
+                            SQMOD_CREATE_DEFAULT, NullLightObj()).mObj;
 }
 
 static LightObj & Vehicle_CreateEx1b(int32_t model, int32_t world, float x, float y, float z, float angle,
                             int32_t primary, int32_t secondary, int32_t header, LightObj & payload)
 {
     return Core::Get().NewVehicle(model, world, x, y, z, angle, primary, secondary,
-                            header, payload);
+                            header, payload).mObj;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2008,14 +2008,14 @@ static LightObj & Vehicle_Create1a(int32_t model, int32_t world, const Vector3 &
                         int32_t primary, int32_t secondary)
 {
     return Core::Get().NewVehicle(model, world, pos.x, pos.y, pos.z, angle, primary, secondary,
-                            SQMOD_CREATE_DEFAULT, NullLightObj());
+                            SQMOD_CREATE_DEFAULT, NullLightObj()).mObj;
 }
 
 static LightObj & Vehicle_Create1b(int32_t model, int32_t world, const Vector3 & pos, float angle,
                         int32_t primary, int32_t secondary, int32_t header, LightObj & payload)
 {
     return Core::Get().NewVehicle(model, world, pos.x, pos.y, pos.z, angle, primary, secondary,
-                            header, payload);
+                            header, payload).mObj;
 }
 
 // ================================================================================================
