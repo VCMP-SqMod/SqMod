@@ -67,7 +67,7 @@ struct LgEntityVector : public LgVector
      * Base constructor.
     */
     LgEntityVector(int id, int type, int flag, const Vector3 & v)
-        : LgVector(v)
+        : LgVector{v}
         , mID(static_cast< int16_t >(id))
         , mType(static_cast< uint8_t >(type))
         , mFlag(static_cast< uint8_t >(flag))
@@ -174,7 +174,7 @@ struct LgEntityQuaternion : public LgQuaternion
      * Base constructor.
     */
     LgEntityQuaternion(int id, int type, int flag, const Quaternion & q)
-        : LgQuaternion(q)
+        : LgQuaternion{q}
         , mID(static_cast< int16_t >(id))
         , mType(static_cast< uint8_t >(type))
         , mFlag(static_cast< uint8_t >(flag))
@@ -330,7 +330,7 @@ struct LgEntityRGB : public LgRGB
      * Base constructor.
     */
     LgEntityRGB(int id, int type, int flag, const Color3 & c)
-        : LgRGB(c)
+        : LgRGB{c}
         , mID(static_cast< int16_t >(id))
         , mType(static_cast< uint8_t >(type))
         , mFlag(static_cast< uint8_t >(flag))

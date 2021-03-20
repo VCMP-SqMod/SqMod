@@ -208,16 +208,16 @@ void LgEntityVector::Set()
                     _Func->SetVehicleSpawnRotationEuler(mID, x, y, z);
                 break;
                 case LgVehicleVectorFlag::Speed:
-                    _Func->SetVehicleSpeed(mID, x, y, z, false, false);
+                    _Func->SetVehicleSpeed(mID, x, y, z, static_cast< uint8_t >(false), static_cast< uint8_t >(false));
                 break;
                 case LgVehicleVectorFlag::RelSpeed:
-                    _Func->SetVehicleSpeed(mID, x, y, z, false, true);
+                    _Func->SetVehicleSpeed(mID, x, y, z, static_cast< uint8_t >(false), static_cast< uint8_t >(true));
                 break;
                 case LgVehicleVectorFlag::TurnSpeed:
-                    _Func->SetVehicleTurnSpeed(mID, x, y, z, false, false);
+                    _Func->SetVehicleTurnSpeed(mID, x, y, z, static_cast< uint8_t >(false), static_cast< uint8_t >(false));
                 break;
                 case LgVehicleVectorFlag::RelTurnSpeed:
-                    _Func->SetVehicleTurnSpeed(mID, x, y, z, false, true);
+                    _Func->SetVehicleTurnSpeed(mID, x, y, z, static_cast< uint8_t >(false), static_cast< uint8_t >(true));
                 break;
                 default: break;
             } break;
@@ -442,7 +442,7 @@ struct LgCheckpoint
     void SetRadius(float radius) const { Get().SetRadius(radius); }
     // --------------------------------------------------------------------------------------------
     SQMOD_NODISCARD int GetWorld() const { return Get().GetWorld(); }
-    SQMOD_NODISCARD LgARGB GetColor() const { const Color4 c = Get().GetColor(); return LgARGB(c.a, c.r, c.g, c.b); }
+    SQMOD_NODISCARD LgARGB GetColor() const { const Color4 c = Get().GetColor(); return LgARGB{c.a, c.r, c.g, c.b}; }
     SQMOD_NODISCARD LgEntityVector GetPos() const
     { return LgEntityVector(mID, LgEntityType::Checkpoint, 0, Get().GetPosition()); }
     SQMOD_NODISCARD float GetRadius() const { return Get().GetRadius(); }
@@ -522,13 +522,13 @@ struct LgObject
     SQMOD_NODISCARD bool GetReportingBumps() const { return Get().GetTouchedReport(); }
     // --------------------------------------------------------------------------------------------
     void Delete() const { _Func->DeleteObject(GetIdentifier()); }
-    void MoveTo(const Vector3 & pos, int time) const { Get().MoveTo(pos, time); }
-    void MoveBy(const Vector3 & offset, int time) const { Get().MoveBy(offset, time); }
-    void RotateTo(const Quaternion & rotation, int time) const { Get().RotateTo(rotation, time); }
-    void RotateBy(const Quaternion & rotOffset, int time) const { Get().RotateBy(rotOffset, time); }
-    void RotateToEuler(const Vector3 & rotation, int time) const { Get().RotateToEuler(rotation, time); }
-    void RotateByEuler(const Vector3 & rotOffset, int time) const { Get().RotateByEuler(rotOffset, time); }
-    void SetAlpha(int alpha, int fadeTime) const { Get().SetAlphaEx(alpha, fadeTime); }
+    void MoveTo(const Vector3 & pos, int time) const { Get().MoveTo(pos, static_cast< uint32_t >(time)); }
+    void MoveBy(const Vector3 & offset, int time) const { Get().MoveBy(offset, static_cast< uint32_t >(time)); }
+    void RotateTo(const Quaternion & rotation, int time) const { Get().RotateTo(rotation, static_cast< uint32_t >(time)); }
+    void RotateBy(const Quaternion & rotOffset, int time) const { Get().RotateBy(rotOffset, static_cast< uint32_t >(time)); }
+    void RotateToEuler(const Vector3 & rotation, int time) const { Get().RotateToEuler(rotation, static_cast< uint32_t >(time)); }
+    void RotateByEuler(const Vector3 & rotOffset, int time) const { Get().RotateByEuler(rotOffset, static_cast< uint32_t >(time)); }
+    void SetAlpha(int alpha, int fadeTime) const { Get().SetAlphaEx(alpha, static_cast< uint32_t >(fadeTime)); }
     SQMOD_NODISCARD bool StreamedToPlayer(LgPlayer & player) const;    
 };
 
@@ -586,7 +586,7 @@ struct LgPickup
     void SetAuto(bool toggle) const { Get().SetAutomatic(toggle); }
     void SetAutoTimer(int timer) const { Get().SetAutoTimer(timer); }
     void SetPos(const Vector3 & pos) const { Get().SetPosition(pos); }
-    void SetSingleUse(bool toggle) const { _Func->SetPickupOption(GetIdentifier(), vcmpPickupOptionSingleUse, toggle); }
+    void SetSingleUse(bool toggle) const { _Func->SetPickupOption(GetIdentifier(), vcmpPickupOptionSingleUse, static_cast< uint8_t >(toggle)); }
     // --------------------------------------------------------------------------------------------
     SQMOD_NODISCARD int GetWorld() const { return Get().GetWorld(); }
     SQMOD_NODISCARD int GetAlpha() const { return Get().GetAlpha(); }
@@ -670,19 +670,19 @@ struct LgPlayer
     void SetImmunity(uint32_t immunity) const { Get().SetImmunity(immunity); }
     void SetHeading(float heading) const { Get().SetHeading(heading); }
     void SetVehicle(LgVehicle & vehicle) const;
-    void SetFrozen(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionControllable, !toggle); }
-    void SetDriveByEnabled(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionDriveBy, toggle); }
-    void SetWhiteScanLines(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionWhiteScanlines, toggle); }
-    void SetGreenScanLines(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionGreenScanlines, toggle); }
-    void SetWidescreen(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionWidescreen, toggle); }
-    void SetOnRadar(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionHasMarker, toggle); }
-    void SetCanAttack(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionCanAttack, toggle); }
+    void SetFrozen(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionControllable, static_cast< uint8_t >(!toggle)); }
+    void SetDriveByEnabled(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionDriveBy, static_cast< uint8_t >(toggle)); }
+    void SetWhiteScanLines(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionWhiteScanlines, static_cast< uint8_t >(toggle)); }
+    void SetGreenScanLines(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionGreenScanlines, static_cast< uint8_t >(toggle)); }
+    void SetWidescreen(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionWidescreen, static_cast< uint8_t >(toggle)); }
+    void SetOnRadar(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionHasMarker, static_cast< uint8_t >(toggle)); }
+    void SetCanAttack(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionCanAttack, static_cast< uint8_t >(toggle)); }
     void SetWeaponSlot(int slot) const { Get().SetWeaponSlot(slot); }
-    void ShowMarkers(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionShowMarkers, toggle); }
+    void ShowMarkers(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionShowMarkers, static_cast< uint8_t >(toggle)); }
     void SetSpectateTarget(LgPlayer & player) const { Get().SetSpectator(player.Get()); }
-    void SetMarkerVisible(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionHasMarker, toggle); }
-    void SetCanUseColors(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionChatTagsEnabled, toggle); }
-    void SetDrunkStatus(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionDrunkEffects, toggle); }
+    void SetMarkerVisible(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionHasMarker, static_cast< uint8_t >(toggle)); }
+    void SetCanUseColors(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionChatTagsEnabled, static_cast< uint8_t >(toggle)); }
+    void SetDrunkStatus(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionDrunkEffects, static_cast< uint8_t >(toggle)); }
     void SetWantedLevel(int level) const { Get().SetWantedLevel(level); }
     // --------------------------------------------------------------------------------------------
     SQMOD_NODISCARD LgEntityVector GetPosition() const
@@ -772,7 +772,7 @@ struct LgPlayer
     void Select() const { Get().ForceSelect(); }
     void RestoreCamera() const { Get().RestoreCamera(); }
     void RemoveMarker() const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionHasMarker, 0); }
-    void SetMarker(int toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionShowMarkers, toggle); }
+    void SetMarker(int toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionShowMarkers, static_cast< uint8_t >(toggle)); }
     void SetDrunkLevel(int visuals, int handling) const {
         if (visuals <= 0 && handling <= 0) _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionDrunkEffects, 0);
         else _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionDrunkEffects, 1);
@@ -850,12 +850,12 @@ struct LgVehicle
     void SetHealth(float health) const { Get().SetHealth(health); }
     void SetColour1(int colour1) const { Get().SetPrimaryColor(colour1); }
     void SetColour2(int colour2) const { Get().SetSecondaryColor(colour2); }
-    void SetLocked(bool toggle) const { _Func->SetVehicleOption(GetIdentifier(), vcmpVehicleOptionDoorsLocked, toggle); }
+    void SetLocked(bool toggle) const { _Func->SetVehicleOption(GetIdentifier(), vcmpVehicleOptionDoorsLocked, static_cast< uint8_t >(toggle)); }
     void SetDamage(uint32_t damage) const { Get().SetDamageData(damage); }
     void SetLightFlags(uint32_t flags) const { Get().SetLightsData(flags); }
-    void SetAlarm(bool toggle) const { _Func->SetVehicleOption(GetIdentifier(), vcmpVehicleOptionAlarm, toggle ); }
-    void SetSiren(bool toggle) const { _Func->SetVehicleOption(GetIdentifier(), vcmpVehicleOptionSiren, toggle); }
-    void SetLights(bool toggle) const { _Func->SetVehicleOption(GetIdentifier(), vcmpVehicleOptionLights, toggle ); }
+    void SetAlarm(bool toggle) const { _Func->SetVehicleOption(GetIdentifier(), vcmpVehicleOptionAlarm, static_cast< uint8_t >(toggle)); }
+    void SetSiren(bool toggle) const { _Func->SetVehicleOption(GetIdentifier(), vcmpVehicleOptionSiren, static_cast< uint8_t >(toggle)); }
+    void SetLights(bool toggle) const { _Func->SetVehicleOption(GetIdentifier(), vcmpVehicleOptionLights, static_cast< uint8_t >(toggle)); }
     void SetRotation(const Quaternion & rotation) const { Get().SetRotation(rotation); }
     void SetEulerRotation(const Vector3 & angle) const { Get().SetRotationEuler(angle); }
     void SetSpeed(const Vector3 & speed) const { Get().SetSpeed(speed); }
@@ -863,9 +863,9 @@ struct LgVehicle
     void SetTurnSpeed(const Vector3 & speed) const { Get().SetTurnSpeed(speed); }
     void SetRelativeTurnSpeed(const Vector3 & speed) const { Get().SetRelativeTurnSpeed(speed); }
     void SetRadio(int id) const { Get().SetRadio(id); }
-    void SetRadioLocked(bool toggle) const { _Func->SetVehicleOption(GetIdentifier(), vcmpVehicleOptionRadioLocked, toggle); }
-    void SetGhost(bool toggle) const { _Func->SetVehicleOption(GetIdentifier(), vcmpVehicleOptionGhost, toggle); }
-    void SetSingleUse(bool toggle) const { _Func->SetVehicleOption(GetIdentifier(), vcmpVehicleOptionSingleUse, toggle); }
+    void SetRadioLocked(bool toggle) const { _Func->SetVehicleOption(GetIdentifier(), vcmpVehicleOptionRadioLocked, static_cast< uint8_t >(toggle)); }
+    void SetGhost(bool toggle) const { _Func->SetVehicleOption(GetIdentifier(), vcmpVehicleOptionGhost, static_cast< uint8_t >(toggle)); }
+    void SetSingleUse(bool toggle) const { _Func->SetVehicleOption(GetIdentifier(), vcmpVehicleOptionSingleUse, static_cast< uint8_t >(toggle)); }
     void SetTaxiLight(bool toggle) const {
         if (toggle == (GetTaxiLight() != 0)) return;
         uint32_t data = _Func->GetVehicleLightsData(GetIdentifier());
@@ -891,7 +891,7 @@ struct LgVehicle
     SQMOD_NODISCARD int GetColour2() const { return Get().GetSecondaryColor(); }
     SQMOD_NODISCARD bool GetLocked() const { return _Func->GetVehicleOption(GetIdentifier(), vcmpVehicleOptionDoorsLocked) >= 1; }
     SQMOD_NODISCARD uint32_t GetDamage() const { return Get().GetDamageData(); }
-    SQMOD_NODISCARD uint32_t GetLightFlags() const { return Get().GetLightsData(); }
+    SQMOD_NODISCARD uint32_t GetLightFlags() const { return static_cast< uint32_t >(Get().GetLightsData()); }
     SQMOD_NODISCARD bool GetAlarm() const { return _Func->GetVehicleOption(GetIdentifier(), vcmpVehicleOptionAlarm) >= 1; }
     SQMOD_NODISCARD bool GetSiren() const { return _Func->GetVehicleOption(GetIdentifier(), vcmpVehicleOptionSiren) >= 1; }
     SQMOD_NODISCARD bool GetLights() const { return _Func->GetVehicleOption(GetIdentifier(), vcmpVehicleOptionLights) >= 1; }
@@ -1237,15 +1237,19 @@ void Register_Official_Entity(HSQUIRRELVM vm)
 
 // ------------------------------------------------------------------------------------------------
 static void LgClientMessage(StackStrF & msg, LgPlayer & player, int r, int g, int b)
-{ _Func->SendClientMessage(player.GetIdentifier(), Color4(r, g, b, 255).GetRGBA(), "%s", msg.mPtr); }
+{ _Func->SendClientMessage(player.GetIdentifier(), Color4(static_cast< uint8_t >(r), static_cast< uint8_t >(g),
+                                                          static_cast< uint8_t >(b), 255).GetRGBA(), "%s", msg.mPtr); }
 static void LgClientMessageWithAlpha(StackStrF & msg, LgPlayer & player, int r, int g, int b, int a)
-{ _Func->SendClientMessage(player.GetIdentifier(), Color4(r, g, b, a).GetRGBA(), "%s", msg.mPtr); }
+{ _Func->SendClientMessage(player.GetIdentifier(), Color4(static_cast< uint8_t >(r), static_cast< uint8_t >(g),
+                                                          static_cast< uint8_t >(b), static_cast< uint8_t >(a)).GetRGBA(), "%s", msg.mPtr); }
 static void LgClientMessageToAll(StackStrF & msg, int r, int g, int b) {
-    const uint32_t c = Color4(r, g, b, 255).GetRGBA();
+    const uint32_t c = Color4(static_cast< uint8_t >(r), static_cast< uint8_t >(g),
+                              static_cast< uint8_t >(b), 255).GetRGBA();
     ForeachActivePlayer([&](auto & p) { _Func->SendClientMessage(p.mID, c, "%s", msg.mPtr); });
 }
 static void LgClientMessageToAllWithAlpha(StackStrF & msg, int r, int g, int b, int a) {
-    const uint32_t c = Color4(r, g, b, a).GetRGBA();
+    const uint32_t c = Color4(static_cast< uint8_t >(r), static_cast< uint8_t >(g),
+                              static_cast< uint8_t >(b), static_cast< uint8_t >(a)).GetRGBA();
     ForeachActivePlayer([&](auto & p) { _Func->SendClientMessage(p.mID, c, "%s", msg.mPtr); });
 }
 static void LgGameMessage(StackStrF & msg, LgPlayer & player, int type)
@@ -1259,7 +1263,7 @@ static void LgGameMessageToAllAlternate(StackStrF & msg)
 // ------------------------------------------------------------------------------------------------
 static void LgShutdownServer() { _Func->ShutdownServer(); }
 static void LgSetServerName(StackStrF & str) { _Func->SetServerName(str.mPtr); }
-static void LgSetMaxPlayers(int newMaxPlayers) { _Func->SetMaxPlayers( newMaxPlayers ); }
+static void LgSetMaxPlayers(int newMaxPlayers) { _Func->SetMaxPlayers(static_cast< uint32_t >(newMaxPlayers)); }
 static void LgSetServerPassword(StackStrF & str) { _Func->SetServerPassword(str.mPtr); }
 static void LgSetGameModeText(StackStrF & str) { _Func->SetGameModeText(str.mPtr); }
 static void LgSetTimeRate(uint32_t rate) { _Func->SetTimeRate(rate); }
@@ -1272,7 +1276,7 @@ static void LgSetGamespeed(float speed) { _Func->SetGameSpeed(speed); }
 static void LgSetWaterLevel(float level) { _Func->SetWaterLevel(level); }
 static void LgSetMaxHeight(float height) { _Func->SetMaximumFlightAltitude(height); }
 static void LgSetKillDelay(int delay) { _Func->SetKillCommandDelay(delay); }
-static void LgSetFallTimer(int delay) { _Func->SetFallTimer(delay); }
+static void LgSetFallTimer(int delay) { _Func->SetFallTimer(static_cast< uint16_t >(delay)); }
 // ------------------------------------------------------------------------------------------------
 SQMOD_NODISCARD static SQInteger LgGetServerName(HSQUIRRELVM vm) {
     char buffer[128]{'\0'};
@@ -1294,7 +1298,7 @@ SQMOD_NODISCARD static SQInteger LgGetGameModeText(HSQUIRRELVM vm) {
 }
 // ------------------------------------------------------------------------------------------------
 SQMOD_NODISCARD static int LgGetMaxPlayers() { return _Func->GetMaxPlayers(); }
-SQMOD_NODISCARD static uint32_t LgGetTimeRate() { return ( _Func->GetTimeRate() ); }
+SQMOD_NODISCARD static uint32_t LgGetTimeRate() { return static_cast< uint32_t >(_Func->GetTimeRate()); }
 SQMOD_NODISCARD static int LgGetHour() { return _Func->GetHour(); }
 SQMOD_NODISCARD static int LgGetMinute() { return _Func->GetMinute(); }
 SQMOD_NODISCARD static int LgGetWeather() { return _Func->GetWeather(); }
@@ -1305,27 +1309,27 @@ SQMOD_NODISCARD static float LgGetMaxHeight() { return _Func->GetMaximumFlightAl
 SQMOD_NODISCARD static int LgGetKillDelay() { return _Func->GetKillCommandDelay(); }
 SQMOD_NODISCARD static int LgGetFallTimer() { return _Func->GetFallTimer(); }
 // ------------------------------------------------------------------------------------------------
-static void LgToggleSyncFrameLimiter(bool toggle) { _Func->SetServerOption(vcmpServerOptionSyncFrameLimiter, toggle); }
-static void LgToggleFrameLimiter(bool toggle) { _Func->SetServerOption(vcmpServerOptionFrameLimiter, toggle); }
-static void LgToggleTaxiBoostJump(bool toggle) { _Func->SetServerOption(vcmpServerOptionTaxiBoostJump, toggle); }
-static void LgToggleDriveOnWater(bool toggle) { _Func->SetServerOption(vcmpServerOptionDriveOnWater, toggle); }
-static void LgToggleFastSwitch(bool toggle) { _Func->SetServerOption(vcmpServerOptionFastSwitch, toggle); }
-static void LgToggleFriendlyFire(bool toggle) { _Func->SetServerOption(vcmpServerOptionFriendlyFire, toggle); }
-static void LgToggleDisableDriveby(bool toggle) { _Func->SetServerOption(vcmpServerOptionDisableDriveBy, toggle); }
-static void LgTogglePerfectHandling(bool toggle) { _Func->SetServerOption(vcmpServerOptionPerfectHandling, toggle); }
-static void LgToggleFlyingCars(bool toggle) { _Func->SetServerOption(vcmpServerOptionFlyingCars, toggle); }
-static void LgToggleJumpSwitch(bool toggle) { _Func->SetServerOption(vcmpServerOptionJumpSwitch, toggle); }
-static void LgToggleShowOnRadar(bool toggle) { _Func->SetServerOption(vcmpServerOptionShowMarkers, toggle); }
-static void LgToggleStuntBike(bool toggle) { _Func->SetServerOption(vcmpServerOptionStuntBike, toggle); }
-static void LgToggleShootInAir(bool toggle) { _Func->SetServerOption(vcmpServerOptionShootInAir, toggle); }
-static void LgToggleShowNametags(bool toggle) { _Func->SetServerOption(vcmpServerOptionShowNameTags, toggle); }
-static void LgToggleJoinMessages(bool toggle) { _Func->SetServerOption(vcmpServerOptionJoinMessages, toggle); }
-static void LgToggleDeathMessages(bool toggle) { _Func->SetServerOption(vcmpServerOptionDeathMessages, toggle); }
-static void LgToggleChatTagDefault(bool toggle) { _Func->SetServerOption(vcmpServerOptionChatTagsEnabled, toggle); }
-static void LgToggleShowOnlyTeamMarkers(bool toggle) { _Func->SetServerOption(vcmpServerOptionOnlyShowTeamMarkers, toggle); }
-static void LgToggleWallglitch(bool toggle) { _Func->SetServerOption(vcmpServerOptionWallGlitch, toggle); }
-static void LgToggleDisableBackfaceCulling(bool toggle) { _Func->SetServerOption(vcmpServerOptionDisableBackfaceCulling, toggle); }
-static void LgToggleDisableHeliBladeDamage(bool toggle) { _Func->SetServerOption(vcmpServerOptionDisableHeliBladeDamage, toggle); }
+static void LgToggleSyncFrameLimiter(bool toggle) { _Func->SetServerOption(vcmpServerOptionSyncFrameLimiter, static_cast< uint8_t >(toggle)); }
+static void LgToggleFrameLimiter(bool toggle) { _Func->SetServerOption(vcmpServerOptionFrameLimiter, static_cast< uint8_t >(toggle)); }
+static void LgToggleTaxiBoostJump(bool toggle) { _Func->SetServerOption(vcmpServerOptionTaxiBoostJump, static_cast< uint8_t >(toggle)); }
+static void LgToggleDriveOnWater(bool toggle) { _Func->SetServerOption(vcmpServerOptionDriveOnWater, static_cast< uint8_t >(toggle)); }
+static void LgToggleFastSwitch(bool toggle) { _Func->SetServerOption(vcmpServerOptionFastSwitch, static_cast< uint8_t >(toggle)); }
+static void LgToggleFriendlyFire(bool toggle) { _Func->SetServerOption(vcmpServerOptionFriendlyFire, static_cast< uint8_t >(toggle)); }
+static void LgToggleDisableDriveby(bool toggle) { _Func->SetServerOption(vcmpServerOptionDisableDriveBy, static_cast< uint8_t >(toggle)); }
+static void LgTogglePerfectHandling(bool toggle) { _Func->SetServerOption(vcmpServerOptionPerfectHandling, static_cast< uint8_t >(toggle)); }
+static void LgToggleFlyingCars(bool toggle) { _Func->SetServerOption(vcmpServerOptionFlyingCars, static_cast< uint8_t >(toggle)); }
+static void LgToggleJumpSwitch(bool toggle) { _Func->SetServerOption(vcmpServerOptionJumpSwitch, static_cast< uint8_t >(toggle)); }
+static void LgToggleShowOnRadar(bool toggle) { _Func->SetServerOption(vcmpServerOptionShowMarkers, static_cast< uint8_t >(toggle)); }
+static void LgToggleStuntBike(bool toggle) { _Func->SetServerOption(vcmpServerOptionStuntBike, static_cast< uint8_t >(toggle)); }
+static void LgToggleShootInAir(bool toggle) { _Func->SetServerOption(vcmpServerOptionShootInAir, static_cast< uint8_t >(toggle)); }
+static void LgToggleShowNametags(bool toggle) { _Func->SetServerOption(vcmpServerOptionShowNameTags, static_cast< uint8_t >(toggle)); }
+static void LgToggleJoinMessages(bool toggle) { _Func->SetServerOption(vcmpServerOptionJoinMessages, static_cast< uint8_t >(toggle)); }
+static void LgToggleDeathMessages(bool toggle) { _Func->SetServerOption(vcmpServerOptionDeathMessages, static_cast< uint8_t >(toggle)); }
+static void LgToggleChatTagDefault(bool toggle) { _Func->SetServerOption(vcmpServerOptionChatTagsEnabled, static_cast< uint8_t >(toggle)); }
+static void LgToggleShowOnlyTeamMarkers(bool toggle) { _Func->SetServerOption(vcmpServerOptionOnlyShowTeamMarkers, static_cast< uint8_t >(toggle)); }
+static void LgToggleWallglitch(bool toggle) { _Func->SetServerOption(vcmpServerOptionWallGlitch, static_cast< uint8_t >(toggle)); }
+static void LgToggleDisableBackfaceCulling(bool toggle) { _Func->SetServerOption(vcmpServerOptionDisableBackfaceCulling, static_cast< uint8_t >(toggle)); }
+static void LgToggleDisableHeliBladeDamage(bool toggle) { _Func->SetServerOption(vcmpServerOptionDisableHeliBladeDamage, static_cast< uint8_t >(toggle)); }
 // ------------------------------------------------------------------------------------------------
 SQMOD_NODISCARD static bool LgEnabledSyncFrameLimiter() { return _Func->GetServerOption(vcmpServerOptionSyncFrameLimiter) >= 1; }
 SQMOD_NODISCARD static bool LgEnabledFrameLimiter() { return _Func->GetServerOption(vcmpServerOptionFrameLimiter) >= 1; }
@@ -1354,15 +1358,15 @@ SQMOD_NODISCARD static int LgCreateBlip(int world, const Vector3 & pos, int scal
 static void LgDestroyBlip(int blip) { _Func->DestroyCoordBlip(blip); }
 // ------------------------------------------------------------------------------------------------
 SQMOD_NODISCARD static int LgCreateRadioStream(StackStrF & name, StackStrF & url, bool selectable)
-{ return _Func->AddRadioStream(-1, name.mPtr, url.mPtr, selectable); }
+{ return _Func->AddRadioStream(-1, name.mPtr, url.mPtr, static_cast< uint8_t >(selectable)); }
 static void LgCreateRadioStreamWithID(int radio, StackStrF & name, StackStrF & url, bool selectable)
-{ _Func->AddRadioStream(radio, name.mPtr, url.mPtr, selectable); }
+{ _Func->AddRadioStream(radio, name.mPtr, url.mPtr, static_cast< uint8_t >(selectable)); }
 static void LgDestroyRadioStream(int radio) { _Func->RemoveRadioStream(radio); }
 // ------------------------------------------------------------------------------------------------
 static void LgCreateExplosion (int world, int type, const Vector3 & pos, int player, bool ground)
-{ _Func->CreateExplosion(world, type, pos.x, pos.y, pos.z, player, ground); }
+{ _Func->CreateExplosion(world, type, pos.x, pos.y, pos.z, player, static_cast< uint8_t >(ground)); }
 static void LgCreateExplosionExpanded(int world, int type, float x, float y, float z, int player, bool ground)
-{ _Func->CreateExplosion(world, type, x, y, z, player, ground); }
+{ _Func->CreateExplosion(world, type, x, y, z, player, static_cast< uint8_t >(ground)); }
 // ------------------------------------------------------------------------------------------------
 static void LgPlayGameSound(int world, int sound, const Vector3 & pos)
 { _Func->PlaySound(world, sound, pos.x, pos.y, pos.z); }
@@ -1374,7 +1378,7 @@ static void LgPlayGameSoundExpanded(int player, int sound, float x, float y, flo
 { _Func->PlaySound(player, sound, x, y, z); }
 // ------------------------------------------------------------------------------------------------
 static void LgSetUseClasses(bool toggle)
-{ _Func->SetServerOption(vcmpServerOptionUseClasses, toggle); }
+{ _Func->SetServerOption(vcmpServerOptionUseClasses, static_cast< uint8_t >(toggle)); }
 static bool LgUsingClasses()
 { return _Func->GetServerOption(vcmpServerOptionUseClasses) >= 1; }
 static void LgAddClass(int team, const LgRGB & col, int skin, const Vector3 & pos, float angle,
@@ -1441,7 +1445,7 @@ SQMOD_NODISCARD static LgWastedSettings LgGetWastedSettings() {
     return ws;
 }
 // ------------------------------------------------------------------------------------------------
-static void LgRawHideMapObject(int model, int x, int y, int z) { _Func->HideMapObject(model, x, y, z); }
+static void LgRawHideMapObject(int model, int x, int y, int z) { _Func->HideMapObject(model, static_cast< int16_t >(x), static_cast< int16_t >(y), static_cast< int16_t >(z)); }
 static void LgHideMapObject(int model, float x, float y, float z) { HideMapObjectEx(model, x, y, z); }
 static void LgShowMapObject(int model, float x, float y, float z) { ShowMapObjectEx(model, x, y, z); }
 static void LgShowAllMapObjects() { _Func->ShowAllMapObjects(); }
@@ -1469,9 +1473,9 @@ static void LgRemoveAllKeybinds() { _Func->RemoveAllKeyBinds(); }
 SQMOD_NODISCARD static bool LgGetCinematicBorder(LgPlayer & player) { return _Func->GetPlayerOption(player.GetIdentifier(), vcmpPlayerOptionWidescreen) >= 1; }
 SQMOD_NODISCARD static bool LgGetGreenScanLines(LgPlayer & player) { return _Func->GetPlayerOption(player.GetIdentifier(), vcmpPlayerOptionGreenScanlines) >= 1; }
 SQMOD_NODISCARD static bool LgGetWhiteScanLines(LgPlayer & player) { return _Func->GetPlayerOption(player.GetIdentifier(), vcmpPlayerOptionWhiteScanlines) >= 1; }
-static void LgSetCinematicBorder(LgPlayer & player, bool toggle) { _Func->SetPlayerOption(player.GetIdentifier(), vcmpPlayerOptionWidescreen, toggle); }
-static void LgSetGreenScanLines(LgPlayer & player, bool toggle) { _Func->SetPlayerOption(player.GetIdentifier(), vcmpPlayerOptionGreenScanlines, toggle); }
-static void LgSetWhiteScanLines(LgPlayer & player, bool toggle) { _Func->SetPlayerOption(player.GetIdentifier(), vcmpPlayerOptionWhiteScanlines, toggle); }
+static void LgSetCinematicBorder(LgPlayer & player, bool toggle) { _Func->SetPlayerOption(player.GetIdentifier(), vcmpPlayerOptionWidescreen, static_cast< uint8_t >(toggle)); }
+static void LgSetGreenScanLines(LgPlayer & player, bool toggle) { _Func->SetPlayerOption(player.GetIdentifier(), vcmpPlayerOptionGreenScanlines, static_cast< uint8_t >(toggle)); }
+static void LgSetWhiteScanLines(LgPlayer & player, bool toggle) { _Func->SetPlayerOption(player.GetIdentifier(), vcmpPlayerOptionWhiteScanlines, static_cast< uint8_t >(toggle)); }
 // ------------------------------------------------------------------------------------------------
 static void LgKickPlayer(LgPlayer & player) { _Func->KickPlayer(player.GetIdentifier()); }
 static void LgBanPlayer(LgPlayer & player) { _Func->BanPlayer(player.GetIdentifier()); }
@@ -1492,9 +1496,9 @@ static void LgSendPlayerMessage(LgPlayer & source, LgPlayer & target, StackStrF 
     _Func->SendClientMessage(target.GetIdentifier(), 0x007f16ff, "** pm from %s >> %s", source.Get().GetName(), msg.mPtr);
 }
 // ------------------------------------------------------------------------------------------------
-SQMOD_NODISCARD static const SQChar * LgGetWeaponName(int id) { return GetWeaponName(id); }
+SQMOD_NODISCARD static const SQChar * LgGetWeaponName(int id) { return GetWeaponName(static_cast< uint32_t >(id)); }
 SQMOD_NODISCARD static const SQChar * LgGetDistrictName(float x, float y) { return GetDistrictNameEx(x, y); }
-SQMOD_NODISCARD static const SQChar * LgGetSkinName(int id) { return GetSkinName(id); }
+SQMOD_NODISCARD static const SQChar * LgGetSkinName(int id) { return GetSkinName(static_cast< uint32_t >(id)); }
 SQMOD_NODISCARD static int LgGetWeaponID(StackStrF & name) { return GetWeaponID(name); }
 SQMOD_NODISCARD static size_t LgSQGetTickCount() {
 #ifdef SQMOD_OS_WINDOWS
@@ -1513,7 +1517,8 @@ SQMOD_NODISCARD static float LgDistanceFromPoint (float x1, float y1, float x2, 
 static void LgReloadScripts() { SetReloadStatus(true); }
 // ------------------------------------------------------------------------------------------------
 SQMOD_NODISCARD static int LgGetVehicleModelFromName(StackStrF & name) { return GetAutomobileID(name); }
-SQMOD_NODISCARD static String & LgGetVehicleNameFromModel(int model) { return GetAutomobileName(model); }
+SQMOD_NODISCARD static String & LgGetVehicleNameFromModel(int model) { return GetAutomobileName(
+            static_cast< uint32_t >(model)); }
 static void LgLoadVCMPModule(StackStrF & name) { OutputError("LoadModule() cannot be used by scripts. This functionality is not allowed."); }
 SQMOD_NODISCARD static bool LgIsNum(StackStrF & s) {
     if (!s.mLen) return false;
@@ -1629,13 +1634,13 @@ SQMOD_NODISCARD static SQInteger LgInPolyProcStack(HSQUIRRELVM vm) {
     SQFloat x = PopStackFloat(vm, 2), y = PopStackFloat(vm, 3);
     SQInteger top = sq_gettop(vm);
     std::vector< Vector2 > points;
-    points.reserve((top - 1) / 2);
+    points.reserve(static_cast<unsigned long long int>((top - 1) / 2));
     for (SQInteger idx = 4; idx < top;) {
         points.emplace_back();
         points.back().x = PopStackFloat(vm, idx++);
         points.back().y = PopStackFloat(vm, idx++);
     }
-    sq_pushbool(vm, LgInternal_InPoly(x, y, points.size(), points.data()));
+    sq_pushbool(vm, static_cast< SQBool >(LgInternal_InPoly(x, y, points.size(), points.data())));
     return 1;
 }
 SQMOD_NODISCARD static SQInteger LgInPolyProcString(HSQUIRRELVM vm) {
@@ -1652,14 +1657,14 @@ SQMOD_NODISCARD static SQInteger LgInPolyProcString(HSQUIRRELVM vm) {
             ss >> points.back().y >> c;
         else break;
     }
-    sq_pushbool(vm, LgInternal_InPoly(x, y, points.size(), points.data()));
+    sq_pushbool(vm, static_cast< SQBool >(LgInternal_InPoly(x, y, points.size(), points.data())));
     return 1;
 }
 SQMOD_NODISCARD static SQInteger LgInPolyProcArray(HSQUIRRELVM vm) {
     SQFloat x = PopStackFloat(vm, 2), y = PopStackFloat(vm, 3);
     Array arr(LightObj(4, vm));
     std::vector< Vector2 > points;
-    points.reserve(arr.Length() / 2 + 1);
+    points.reserve(static_cast<unsigned long long int>(arr.Length() / 2 + 1));
     arr.Foreach([&](HSQUIRRELVM vm, SQInteger i) -> SQRESULT {
         if ((i & 1) == 0) {
             points.emplace_back();
@@ -1669,7 +1674,7 @@ SQMOD_NODISCARD static SQInteger LgInPolyProcArray(HSQUIRRELVM vm) {
         }
         return SQ_OK;
     });
-    sq_pushbool(vm, LgInternal_InPoly(x, y, points.size(), points.data()));
+    sq_pushbool(vm, static_cast< SQBool >(LgInternal_InPoly(x, y, points.size(), points.data())));
     return 1;
 }
 SQMOD_NODISCARD static SQInteger LgInPoly(HSQUIRRELVM vm) {
@@ -1692,7 +1697,8 @@ SQMOD_NODISCARD static SQInteger LgInPoly(HSQUIRRELVM vm) {
 // ------------------------------------------------------------------------------------------------
 // These functions are for compatibility, but will be deprecated
 SQMOD_NODISCARD static SQInteger LgSetAmmuWeapon(HSQUIRRELVM SQ_UNUSED_ARG(vm)) { OutputError("SetAmmuWeapon does not exist in 0.4. Ammunations must be scripted."); return 0; }
-SQMOD_NODISCARD static SQInteger LgIsAmmuWeaponEnabled(HSQUIRRELVM vm) { OutputError("IsAmmuWeaponEnabled does not exist in 0.4. Ammunations must be scripted."); sq_pushbool(vm, false);  return 1; }
+SQMOD_NODISCARD static SQInteger LgIsAmmuWeaponEnabled(HSQUIRRELVM vm) { OutputError("IsAmmuWeaponEnabled does not exist in 0.4. Ammunations must be scripted."); sq_pushbool(vm,
+                                                                                                                                                                              static_cast<SQBool>(false));  return 1; }
 SQMOD_NODISCARD static SQInteger LgSetAmmuWeaponEnabled(HSQUIRRELVM SQ_UNUSED_ARG(vm)) { OutputError("SetAmmuWeaponEnabled does not exist in 0.4. Ammunations must be scripted."); return 0; }
 // ------------------------------------------------------------------------------------------------
 SQMOD_NODISCARD static uint32_t LgGetTime() {
@@ -1712,13 +1718,13 @@ SQMOD_NODISCARD static const SQChar * LgGetFullTime() {
 }
 // ------------------------------------------------------------------------------------------------
 SQMOD_NODISCARD static bool LgGetFallEnabled() { OutputError("GetFallEnabled has no effect."); return false; }
-static void LgSetFallEnabled(bool unused) { OutputError("SetFallEnabled has no effect."); }
+static void LgSetFallEnabled(bool) { OutputError("SetFallEnabled has no effect."); }
 SQMOD_NODISCARD static bool LgGetDeathmatchScoreboard() { OutputError("GetDeathmatchScoreboard has no effect. Use scripts to implement it."); return false; }
-static void LgSetDeathmatchScoreboard(bool isDmScoreboard) { OutputError("GetDeathmatchScoreboard has no effect. Use scripts to implement it."); }
-SQMOD_NODISCARD static bool LgGetWeaponSync(int weapon) { OutputError("GetWeaponSync does not exist in 0.4. Rely on the server's anti-hack system and callbacks instead."); return false; }
-static void LgSetWeaponSync(int weapon, bool isSynced) { OutputError("GetWeaponSync does not exist in 0.4. Rely on the server's anti-hack system and callbacks instead."); }
+static void LgSetDeathmatchScoreboard(bool) { OutputError("GetDeathmatchScoreboard has no effect. Use scripts to implement it."); }
+SQMOD_NODISCARD static bool LgGetWeaponSync(int) { OutputError("GetWeaponSync does not exist in 0.4. Rely on the server's anti-hack system and callbacks instead."); return false; }
+static void LgSetWeaponSync(int, bool) { OutputError("GetWeaponSync does not exist in 0.4. Rely on the server's anti-hack system and callbacks instead."); }
 SQMOD_NODISCARD static bool LgGetWeatherLock() { OutputError("GetWeatherLock has no effect."); return false; }
-static void LgSetWeatherLock(bool isLocked) { OutputError("SetWeatherLock has no effect."); }
+static void LgSetWeatherLock(bool) { OutputError("SetWeatherLock has no effect."); }
 
 // ================================================================================================
 void Register_Official_Functions(HSQUIRRELVM vm)
@@ -2231,7 +2237,7 @@ struct LgStream {
     static void StartWrite() { ClearOutput(); }
     static void SetWritePosition(int position) {
         if (position < 0 || position > m_OutputStreamEnd) m_OutputStreamPosition = m_OutputStreamEnd;
-        else m_OutputStreamPosition = position;
+        else m_OutputStreamPosition = static_cast<size_t>(position);
     }
     static int GetWritePosition() { return static_cast< int >(m_OutputStreamPosition); }
     static int GetWriteSize() { return static_cast< int >(m_OutputStreamEnd); }
@@ -2262,7 +2268,7 @@ struct LgStream {
     }
     static void SetReadPosition(int position) {
         if (position < 0 || position > m_InputStreamPosition) m_InputStreamPosition = m_InputStreamSize;
-        else m_InputStreamPosition = position;
+        else m_InputStreamPosition = static_cast<size_t>(position);
     }
     static int GetReadPosition() { return static_cast< int >(m_InputStreamPosition); }
     static int GetReadSize() { return static_cast< int >(m_InputStreamSize); }
@@ -2294,10 +2300,10 @@ struct LgStream {
     static LightObj ReadString() {
         uint16_t length = ReadBEInt16();
         if (m_InputStreamPosition + length > m_InputStreamSize) {
-            length = (m_InputStreamSize - m_InputStreamPosition);
+            length = static_cast< uint16_t >(m_InputStreamSize - m_InputStreamPosition);
             m_InputStreamError = true;
         }
-        length = length > (MAX_SIZE-1) ? (MAX_SIZE-1) : length;
+        length = static_cast< uint16_t >(length > (MAX_SIZE - 1) ? (MAX_SIZE - 1) : length);
         memcpy(m_Buffer, &m_InputStreamData[m_InputStreamPosition], length);
         m_Buffer[length] = '\0';
         m_InputStreamPosition += length;
@@ -2320,7 +2326,7 @@ private:
             uint16_t result;
             memcpy(&result, &m_InputStreamData[m_InputStreamPosition], sizeof(result));
             m_InputStreamPosition += sizeof(uint16_t);
-            return ((result >> 8) & 0xFF) | ((result & 0xFF) << 8);
+            return static_cast< uint16_t >(((result >> 8) & 0xFF) | ((result & 0xFF) << 8));
         } m_InputStreamError = true;
         return 0;
     }
