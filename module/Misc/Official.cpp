@@ -22,6 +22,9 @@
 #include "Entity/Vehicle.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <sqratConst.h>
+
+// ------------------------------------------------------------------------------------------------
 #include <algorithm>
 #include <sstream>
 #include <cctype>
@@ -274,6 +277,7 @@ void LgEntityRGB::Set()
 // ------------------------------------------------------------------------------------------------
 void Register_Official_Entity(HSQUIRRELVM vm);
 void Register_Official_Functions(HSQUIRRELVM vm);
+void Register_Official_Constants(HSQUIRRELVM vm);
 
 // ================================================================================================
 void Register_Official(HSQUIRRELVM vm)
@@ -378,6 +382,7 @@ void Register_Official(HSQUIRRELVM vm)
     // --------------------------------------------------------------------------------------------
     Register_Official_Entity(vm);
     Register_Official_Functions(vm);
+    Register_Official_Constants(vm);
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -1943,6 +1948,269 @@ void Register_Official_Functions(HSQUIRRELVM vm)
         .Func(_SC("UnbindKey"), LgRemoveKeybind)
         .Func(_SC("UnbindAll"), LgRemoveAllKeybinds)
     ;
+}
+
+// ------------------------------------------------------------------------------------------------
+static const EnumElement g_LgConstants[] = {
+    {_SC("WEP_FIST"), 0},
+    {_SC("WEP_BRASSKNUCKLES"), 1},
+    {_SC("WEP_SCREWDRIVER"), 2},
+    {_SC("WEP_GOLFCLUB"), 3},
+    {_SC("WEP_NIGHTSTICK"), 4},
+    {_SC("WEP_KNIFE"), 5},
+    {_SC("WEP_BASEBALLBAT"), 6},
+    {_SC("WEP_HAMMER"), 7},
+    {_SC("WEP_MEATCLEAVER"), 8},
+    {_SC("WEP_MACHETE"), 9},
+    {_SC("WEP_KATANA"), 10},
+    {_SC("WEP_CHAINSAW"), 11},
+    {_SC("WEP_GRENADE"), 12},
+    {_SC("WEP_REMOTE"), 13},
+    {_SC("WEP_TEARGAS"), 14},
+    {_SC("WEP_MOLOTOV"), 15},
+    {_SC("WEP_ROCKET"), 16},
+    {_SC("WEP_COLT"), 17},
+    {_SC("WEP_COLT45"), 17},
+    {_SC("WEP_PYTHON"), 18},
+    {_SC("WEP_SHOTGUN"), 19},
+    {_SC("WEP_SPAZ"), 20},
+    {_SC("WEP_SPAS12"), 20},
+    {_SC("WEP_STUBBY"), 21},
+    {_SC("WEP_TEC9"), 22},
+    {_SC("WEP_UZI"), 23},
+    {_SC("WEP_INGRAM"), 24},
+    {_SC("WEP_MP5"), 25},
+    {_SC("WEP_M4"), 26},
+    {_SC("WEP_RUGER"), 27},
+    {_SC("WEP_SNIPER"), 28},
+    {_SC("WEP_LASERSCOPE"), 29},
+    {_SC("WEP_ROCKETLAUNCHER"), 30},
+    {_SC("WEP_RPG"), 30},
+    {_SC("WEP_FLAMETHROWER"), 31},
+    {_SC("WEP_M60"), 32},
+    {_SC("WEP_MINIGUN"), 33},
+
+    {_SC("WEP_BOMB"), 34},
+    {_SC("WEP_HELICANNON"), 35},
+    {_SC("WEP_CAMERA"), 36},
+    {_SC("WEP_VEHICLE"), 39},
+    {_SC("WEP_DRIVEBY"), 42},
+    {_SC("WEP_DROWNED"), 43},
+    {_SC("WEP_FALL"), 44},
+    {_SC("WEP_EXPLOSION"), 51},
+    {_SC("WEP_SUICIDE"), 70},
+
+    {_SC("WEATHER_MOSTLYCLEAR"), 0},
+    {_SC("WEATHER_OVERCAST"), 1},
+    {_SC("WEATHER_THUNDERSTORM"), 2},
+    {_SC("WEATHER_STORM"), 2},
+    {_SC("WEATHER_STORMY"), 2},
+    {_SC("WEATHER_FOGGY"), 3},
+    {_SC("WEATHER_FOG"), 3},
+    {_SC("WEATHER_CLEAR"), 4},
+    {_SC("WEATHER_SUNNY"), 4},
+    {_SC("WEATHER_RAIN"), 5},
+    {_SC("WEATHER_RAINY"), 5},
+    {_SC("WEATHER_DARKCLOUDY"), 6},
+    {_SC("WEATHER_LIGHTCLOUDY"), 7},
+    {_SC("WEATHER_OVERCASTCLOUDY"), 8},
+    {_SC("WEATHER_BLACKCLOUDS"), 9},
+
+    {_SC("VEH_LANDSTALKER"), 130},
+    {_SC("VEH_IDAHO"), 131},
+    {_SC("VEH_STINGER"), 132},
+    {_SC("VEH_LINERUNNER"), 133},
+    {_SC("VEH_PERENNIAL"), 134},
+    {_SC("VEH_SENTINEL"), 135},
+    {_SC("VEH_RIO"), 136},
+    {_SC("VEH_FIRETRUCK"), 137},
+    {_SC("VEH_TRASHMASTER"), 138},
+    {_SC("VEH_STRETCH"), 139},
+    {_SC("VEH_MANANA"), 140},
+    {_SC("VEH_INFERNUS"), 141},
+    {_SC("VEH_VOODOO"), 142},
+    {_SC("VEH_PONY"), 143},
+    {_SC("VEH_MULE"), 144},
+    {_SC("VEH_CHEETAH"), 145},
+    {_SC("VEH_AMBULANCE"), 146},
+    {_SC("VEH_FBIWASHINGTON"), 147},
+    {_SC("VEH_MOONBEAM"), 148},
+    {_SC("VEH_ESPERANTO"), 149},
+    {_SC("VEH_TAXI"), 150},
+    {_SC("VEH_WASHINGTON"), 151},
+    {_SC("VEH_BOBCAT"), 152},
+    {_SC("VEH_MRWHOOPEE"), 153},
+    {_SC("VEH_BFINJECTION"), 154},
+    {_SC("VEH_HUNTER"), 155},
+    {_SC("VEH_POLICE"), 156},
+    {_SC("VEH_ENFORCER"), 157},
+    {_SC("VEH_SECURICAR"), 158},
+    {_SC("VEH_BANSHEE"), 159},
+    {_SC("VEH_PREDATOR"), 160},
+    {_SC("VEH_BUS"), 161},
+    {_SC("VEH_RHINO"), 162},
+    {_SC("VEH_BARRACKSOL"), 163},
+    {_SC("VEH_BARRACKS"), 163},
+    {_SC("VEH_CUBANHERMES"), 164},
+    {_SC("VEH_HELICOPTER"), 165},
+    {_SC("VEH_ANGEL"), 166},
+    {_SC("VEH_COACH"), 167},
+    {_SC("VEH_CABBIE"), 168},
+    {_SC("VEH_STALLION"), 169},
+    {_SC("VEH_RUMPO"), 170},
+    {_SC("VEH_RCBANDIT"), 171},
+    {_SC("VEH_HEARSE"), 172},
+    {_SC("VEH_PACKER"), 173},
+    {_SC("VEH_SENTINELXS"), 174},
+    {_SC("VEH_ADMIRAL"), 175},
+    {_SC("VEH_SQUALO"), 176},
+    {_SC("VEH_SEASPARROW"), 177},
+    {_SC("VEH_PIZZABOY"), 178},
+    {_SC("VEH_GANGBURRITO"), 179},
+    {_SC("VEH_AIRTRAIN"), 180},
+    {_SC("VEH_DEADDODO"), 181},
+    {_SC("VEH_SPEEDER"), 182},
+    {_SC("VEH_REEFER"), 183},
+    {_SC("VEH_TROPIC"), 184},
+    {_SC("VEH_FLATBED"), 185},
+    {_SC("VEH_YANKEE"), 186},
+    {_SC("VEH_CADDY"), 187},
+    {_SC("VEH_ZEBRA"), 188},
+    {_SC("VEH_ZEBRACAB"), 188},
+    {_SC("VEH_TOPFUN"), 189},
+    {_SC("VEH_SKIMMER"), 190},
+    {_SC("VEH_PCJ600"), 191},
+    {_SC("VEH_PCJ"), 191},
+    {_SC("VEH_FAGGIO"), 192},
+    {_SC("VEH_FREEWAY"), 193},
+    {_SC("VEH_RCBARON"), 194},
+    {_SC("VEH_RCRAIDER"), 195},
+    {_SC("VEH_GLENDALE"), 196},
+    {_SC("VEH_OCEANIC"), 197},
+    {_SC("VEH_SANCHEZ"), 198},
+    {_SC("VEH_SPARROW"), 199},
+    {_SC("VEH_PATRIOT"), 200},
+    {_SC("VEH_LOVEFIST"), 201},
+    {_SC("VEH_COASTGUARD"), 202},
+    {_SC("VEH_DINGHY"), 203},
+    {_SC("VEH_HERMES"), 204},
+    {_SC("VEH_SABRE"), 205},
+    {_SC("VEH_SABRETURBO"), 206},
+    {_SC("VEH_PHOENIX"), 207},
+    {_SC("VEH_WALTON"), 208},
+    {_SC("VEH_REGINA"), 209},
+    {_SC("VEH_COMET"), 210},
+    {_SC("VEH_DELUXO"), 211},
+    {_SC("VEH_BURRITO"), 212},
+    {_SC("VEH_SPANDEX"), 213},
+    {_SC("VEH_SPANDEXPRESS"), 213},
+    {_SC("VEH_MARQUIS"), 214},
+    {_SC("VEH_BAGGAGE"), 215},
+    {_SC("VEH_BAGGAGEHANDLER"), 215},
+    {_SC("VEH_KAUFMAN"), 216},
+    {_SC("VEH_KAUFMANCAB"), 216},
+    {_SC("VEH_MAVERICK"), 217},
+    {_SC("VEH_VCNMAVERICK"), 218},
+    {_SC("VEH_RANCHER"), 219},
+    {_SC("VEH_FBIRANCHER"), 220},
+    {_SC("VEH_VIRGO"), 221},
+    {_SC("VEH_GREENWOOD"), 222},
+    {_SC("VEH_CUBANJETMAX"), 223},
+    {_SC("VEH_HOTRING1"), 224},
+    {_SC("VEH_HOTRINGRACER1"), 224},
+    {_SC("VEH_SANDKING"), 225},
+    {_SC("VEH_BLISTA"), 226},
+    {_SC("VEH_BLISTAC"), 226},
+    {_SC("VEH_BLISTACOMPACT"), 226},
+    {_SC("VEH_COMPACT"), 226},
+    {_SC("VEH_POLICEMAV"), 227},
+    {_SC("VEH_POLICEMAVERICK"), 227},
+    {_SC("VEH_BOXVILLE"), 228},
+    {_SC("VEH_BENSON"), 229},
+    {_SC("VEH_MESA"), 230},
+    {_SC("VEH_MESAGRANDE"), 230},
+    {_SC("VEH_RCGOBLIN"), 231},
+    {_SC("VEH_HOTRING2"), 232},
+    {_SC("VEH_HOTRINGRACER2"), 232},
+    {_SC("VEH_HOTRING3"), 233},
+    {_SC("VEH_HOTRINGRACER3"), 233},
+    {_SC("VEH_BLOODRING1"), 234},
+    {_SC("VEH_BLOODRINGBANGER1"), 234},
+    {_SC("VEH_BLOODRING2"), 235},
+    {_SC("VEH_BLOODRINGBANGER2"), 235},
+    {_SC("VEH_VICECHEE"), 236},
+    {_SC("VEH_POLICECHEETAH"), 236},
+    {_SC("VEH_FBICHEETAH"), 236},
+    {_SC("VEH_CHEETAH2"), 236},
+
+    {_SC("UPDATE_PLAYER_ONFOOT"), 0},
+    {_SC("UPDATE_PLAYER_FOOT"), 0},
+    {_SC("UPDATE_PLAYER_AIM"), 1},
+    {_SC("UPDATE_PLAYER_DRIVER"), 2},
+    {_SC("UPDATE_PLAYER_PASSENGER"), 3},
+
+    {_SC("UPDATE_VEHICLE_DRIVER"), 0},
+    {_SC("UPDATE_VEHICLE_OTHER"), 1},
+
+    {_SC("BODYPART_BODY"), 0},
+    {_SC("BODYPART_TORSO"), 1},
+    {_SC("BODYPART_LEFTARM"), 2},
+    {_SC("BODYPART_LARM"), 2},
+    {_SC("BODYPART_RIGHTARM"), 3},
+    {_SC("BODYPART_RARM"), 3},
+    {_SC("BODYPART_LEFTLEG"), 4},
+    {_SC("BODYPART_LLEG"), 4},
+    {_SC("BODYPART_RIGHTLEG"), 5},
+    {_SC("BODYPART_RLEG"), 5},
+    {_SC("BODYPART_HEAD"), 6},
+
+    {_SC("PARTREASON_QUIT"), 1},
+    {_SC("PARTREASON_DISCONNECTED"), 1},
+    {_SC("PARTREASON_TIMEOUT"), 0},
+    {_SC("PARTREASON_KICKEDBANNED"), 2},
+    {_SC("PARTREASON_KICKED"), 2},
+    {_SC("PARTREASON_BANNED"), 2},
+    {_SC("PARTREASON_CRASHED"), 3},
+
+    {_SC("KEY_ONFOOT_FORWARD"), 32768},
+    {_SC("KEY_ONFOOT_BACKWARD"), 16384},
+    {_SC("KEY_ONFOOT_LEFT"), 8192},
+    {_SC("KEY_ONFOOT_RIGHT"), 4096},
+    {_SC("KEY_ONFOOT_JUMP"), 2176},
+    {_SC("KEY_ONFOOT_SPRINT"), 1024},
+    {_SC("KEY_ONFOOT_FIRE"), 576},
+    {_SC("KEY_ONFOOT_CROUCH"), 288},
+    {_SC("KEY_ONFOOT_PUNCH"), 64},
+    {_SC("KEY_ONFOOT_NEXTWEP"), 2},
+    {_SC("KEY_ONFOOT_PREVWEP"), 4},
+    {_SC("KEY_ONFOOT_AIM"), 1},
+
+    {_SC("KEY_INCAR_LEFT"), 8192},
+    {_SC("KEY_INCAR_RIGHT"), 4096},
+    {_SC("KEY_INCAR_BACKWARD"), 2176},
+    {_SC("KEY_INCAR_FORWARD"), 1024},
+    {_SC("KEY_INCAR_HORN"), 288},
+    {_SC("KEY_INCAR_LEANUP"), 16},
+    {_SC("KEY_INCAR_LEANDOWN"), 8},
+    {_SC("KEY_INCAR_LOOKLEFT"), 4},
+    {_SC("KEY_INCAR_LOOKRIGHT"), 2},
+    // 0.4-squirrel version 3.99 (up to 4.00 on final release)
+    {_SC("SQUIRREL_VERSION"), 399}
+};
+
+// ================================================================================================
+void Register_Official_Constants(HSQUIRRELVM vm)
+{
+    ConstTable t(vm);
+    for (const auto & c : g_LgConstants) {
+        switch (c.Type) {
+            case SQET_STRING:   t.Const(c.Name, c.mSTR); break;
+            case SQET_INT:      t.Const(c.Name, c.mINT); break;
+            case SQET_REAL:     t.Const(c.Name, c.mREAL); break;
+            case SQET_BOOL:     t.Const(c.Name, c.mBOOL); break;
+            default:            SQTHROW(t.GetVM(), "Unknown constant value type");
+        }
+    }
 }
 
 } // Namespace:: SqMod
