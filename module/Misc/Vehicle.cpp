@@ -82,7 +82,7 @@ struct InitCustomVehicleNames
 } g_InitCustomVehicleNames{};
 
 // ------------------------------------------------------------------------------------------------
-String GetAutomobileName(uint32_t id)
+String & GetAutomobileName(uint32_t id)
 {
     if (id > 129 && id < 237)
     {
