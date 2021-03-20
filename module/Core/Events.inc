@@ -176,7 +176,7 @@ void Core::EmitPlayerDestroyed(int32_t player, int32_t header, LightObj & payloa
 #ifdef VCMP_ENABLE_OFFICIAL
     if (IsOfficial())
     {
-        ExecuteLegacyEvent(m_VM, _SC("onPlayerPart"), _player.mLgObj);
+        ExecuteLegacyEvent(m_VM, _SC("onPlayerPart"), _player.mLgObj, header);
     }
 #endif
 }
