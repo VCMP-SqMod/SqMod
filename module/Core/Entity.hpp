@@ -33,10 +33,31 @@ struct BlipInst
      * Default constructor.
     */
     BlipInst() = default;
+
+    /* ----------------------------------------------------------------------------------------
+     * Copy constructor (disabled).
+    */
+    BlipInst(const BlipInst & o) = delete;
+
+    /* ----------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    BlipInst(BlipInst && o) noexcept = default;
+
     /* ----------------------------------------------------------------------------------------
      * Destructor.
     */
     ~BlipInst();
+
+    /* ----------------------------------------------------------------------------------------
+     * Copy assignment operator (disabled).
+    */
+    BlipInst & operator = (const BlipInst & o) = delete;
+
+    /* ----------------------------------------------------------------------------------------
+     * Move assignment operator (disabled).
+    */
+    BlipInst & operator = (BlipInst && o) = delete;
 
     /* ----------------------------------------------------------------------------------------
      * Destroy the entity instance from the server, if necessary.
@@ -94,9 +115,29 @@ struct CheckpointInst
     CheckpointInst() = default;
 
     /* ----------------------------------------------------------------------------------------
+     * Copy constructor (disabled).
+    */
+    CheckpointInst(const CheckpointInst & o) = delete;
+
+    /* ----------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    CheckpointInst(CheckpointInst && o) noexcept = default;
+
+    /* ----------------------------------------------------------------------------------------
      * Destructor.
     */
     ~CheckpointInst();
+
+    /* ----------------------------------------------------------------------------------------
+     * Copy assignment operator (disabled).
+    */
+    CheckpointInst & operator = (const CheckpointInst & o) = delete;
+
+    /* ----------------------------------------------------------------------------------------
+     * Move assignment operator (disabled).
+    */
+    CheckpointInst & operator = (CheckpointInst && o) = delete;
 
     /* ----------------------------------------------------------------------------------------
      * Destroy the entity instance from the server, if necessary.
@@ -157,9 +198,29 @@ struct KeyBindInst
     KeyBindInst() = default;
 
     /* ----------------------------------------------------------------------------------------
+     * Copy constructor (disabled).
+    */
+    KeyBindInst(const KeyBindInst & o) = delete;
+
+    /* ----------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    KeyBindInst(KeyBindInst && o) noexcept = default;
+
+    /* ----------------------------------------------------------------------------------------
      * Destructor.
     */
     ~KeyBindInst();
+
+    /* ----------------------------------------------------------------------------------------
+     * Copy assignment operator (disabled).
+    */
+    KeyBindInst & operator = (const KeyBindInst & o) = delete;
+
+    /* ----------------------------------------------------------------------------------------
+     * Move assignment operator (disabled).
+    */
+    KeyBindInst & operator = (KeyBindInst && o) = delete;
 
     /* ----------------------------------------------------------------------------------------
      * Destroy the entity instance from the server, if necessary.
@@ -216,9 +277,29 @@ struct ObjectInst
     ObjectInst() = default;
 
     /* ----------------------------------------------------------------------------------------
+     * Copy constructor (disabled).
+    */
+    ObjectInst(const ObjectInst & o) = delete;
+
+    /* ----------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    ObjectInst(ObjectInst && o) noexcept = default;
+
+    /* ----------------------------------------------------------------------------------------
      * Destructor.
     */
     ~ObjectInst();
+
+    /* ----------------------------------------------------------------------------------------
+     * Copy assignment operator (disabled).
+    */
+    ObjectInst & operator = (const ObjectInst & o) = delete;
+
+    /* ----------------------------------------------------------------------------------------
+     * Move assignment operator (disabled).
+    */
+    ObjectInst & operator = (ObjectInst && o) = delete;
 
     /* ----------------------------------------------------------------------------------------
      * Destroy the entity instance from the server, if necessary.
@@ -280,9 +361,29 @@ struct PickupInst
     PickupInst() = default;
 
     /* ----------------------------------------------------------------------------------------
+     * Copy constructor (disabled).
+    */
+    PickupInst(const PickupInst & o) = delete;
+
+    /* ----------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    PickupInst(PickupInst && o) noexcept = default;
+
+    /* ----------------------------------------------------------------------------------------
      * Destructor.
     */
     ~PickupInst();
+
+    /* ----------------------------------------------------------------------------------------
+     * Copy assignment operator (disabled).
+    */
+    PickupInst & operator = (const PickupInst & o) = delete;
+
+    /* ----------------------------------------------------------------------------------------
+     * Move assignment operator (disabled).
+    */
+    PickupInst & operator = (PickupInst && o) = delete;
 
     /* ----------------------------------------------------------------------------------------
      * Destroy the entity instance from the server, if necessary.
@@ -347,9 +448,29 @@ struct PlayerInst
     PlayerInst() = default;
 
     /* ----------------------------------------------------------------------------------------
+     * Copy constructor (disabled).
+    */
+    PlayerInst(const PlayerInst & o) = delete;
+
+    /* ----------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    PlayerInst(PlayerInst && o) noexcept = default;
+
+    /* ----------------------------------------------------------------------------------------
      * Destructor.
     */
     ~PlayerInst();
+
+    /* ----------------------------------------------------------------------------------------
+     * Copy assignment operator (disabled).
+    */
+    PlayerInst & operator = (const PlayerInst & o) = delete;
+
+    /* ----------------------------------------------------------------------------------------
+     * Move assignment operator (disabled).
+    */
+    PlayerInst & operator = (PlayerInst && o) = delete;
 
     /* ----------------------------------------------------------------------------------------
      * Destroy the entity instance from the server, if necessary.
@@ -508,9 +629,29 @@ struct VehicleInst
     VehicleInst() = default;
 
     /* ----------------------------------------------------------------------------------------
+     * Copy constructor (disabled).
+    */
+    VehicleInst(const VehicleInst & o) = delete;
+
+    /* ----------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    VehicleInst(VehicleInst && o) noexcept = default;
+
+    /* ----------------------------------------------------------------------------------------
      * Destructor.
     */
     ~VehicleInst();
+
+    /* ----------------------------------------------------------------------------------------
+     * Copy assignment operator (disabled).
+    */
+    VehicleInst & operator = (const VehicleInst & o) = delete;
+
+    /* ----------------------------------------------------------------------------------------
+     * Move assignment operator (disabled).
+    */
+    VehicleInst & operator = (VehicleInst && o) = delete;
 
     /* ----------------------------------------------------------------------------------------
      * Destroy the entity instance from the server, if necessary.
