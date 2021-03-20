@@ -621,7 +621,7 @@ public:
     ///
     /// \tparam F Type of functor (usually doesnt need to be defined explicitly)
     ///
-    /// \return Nothing
+    /// \return Result value returned by squirrel.
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template<class F>
