@@ -977,7 +977,7 @@ public:
             ClassData<C>* cd = *ud;
 
             //if (ClassType<C>::getStaticClassData()->Expired()) {
-            if (ClassType<C>::getStaticClassData()) {
+            if (!ClassType<C>::getStaticClassData()) {
                 cd->staticData.Init(new StaticClassData<C, B>);
                 cd->staticData->copyFunc  = &A::Copy;
                 cd->staticData->className = string(className);
