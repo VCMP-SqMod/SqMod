@@ -318,26 +318,41 @@ SQInteger PopStackInteger(HSQUIRRELVM vm, SQInteger idx)
         }
         case OT_INSTANCE:
         {
-            // Attempt to treat the value as a signed long instance
-            try
+            SQUserPointer tag;
+            // Attempt to retrieve the type tag
+            if (SQ_FAILED(sq_gettypetag(vm, -1, &tag)))
             {
-                return ConvTo< SQInteger >::From(Var< const SLongInt & >(vm, idx).value.GetNum());
+                break;
             }
-            catch (...)
+            // Is the instance SLongInt? (signed long)
+            else if (static_cast< AbstractStaticClassData * >(tag) == StaticClassTypeTag< SLongInt >::Get())
             {
-                // Just ignore it...
+                try
+                {
+                    return ConvTo< SQInteger >::From(Var< const SLongInt & >(vm, idx).value.GetNum());
+                }
+                catch (...)
+                {
+                    // Just ignore it...
+                }
             }
-            // Attempt to treat the value as a unsigned long instance
-            try
+            // Is the instance ULongInt? (unsigned long)
+            else if (static_cast< AbstractStaticClassData * >(tag) == StaticClassTypeTag< ULongInt >::Get())
             {
-                return ConvTo< SQInteger >::From(Var< const ULongInt & >(vm, idx).value.GetNum());
+                try
+                {
+                    return ConvTo< SQInteger >::From(Var< const ULongInt & >(vm, idx).value.GetNum());
+                }
+                catch (...)
+                {
+                    // Just ignore it...
+                }
             }
-            catch (...)
+            else
             {
-                // Just ignore it...
+                // Attempt to get the size of the instance as a fall back
+                return sq_getsize(vm, idx);
             }
-            // Attempt to get the size of the instance as a fall back
-            return sq_getsize(vm, idx);
         }
         default: break;
     }
@@ -391,26 +406,41 @@ SQFloat PopStackFloat(HSQUIRRELVM vm, SQInteger idx)
         }
         case OT_INSTANCE:
         {
-            // Attempt to treat the value as a signed long instance
-            try
+            SQUserPointer tag;
+            // Attempt to retrieve the type tag
+            if (SQ_FAILED(sq_gettypetag(vm, -1, &tag)))
             {
-                return ConvTo< SQFloat >::From(Var< const SLongInt & >(vm, idx).value.GetNum());
+                break;
             }
-            catch (...)
+            // Is the instance SLongInt? (signed long)
+            else if (static_cast< AbstractStaticClassData * >(tag) == StaticClassTypeTag< SLongInt >::Get())
             {
-                // Just ignore it...
+                try
+                {
+                    return ConvTo< SQFloat >::From(Var< const SLongInt & >(vm, idx).value.GetNum());
+                }
+                catch (...)
+                {
+                    // Just ignore it...
+                }
             }
-            // Attempt to treat the value as a unsigned long instance
-            try
+            // Is the instance ULongInt? (unsigned long)
+            else if (static_cast< AbstractStaticClassData * >(tag) == StaticClassTypeTag< ULongInt >::Get())
             {
-                return ConvTo< SQFloat >::From(Var< const ULongInt & >(vm, idx).value.GetNum());
+                try
+                {
+                    return ConvTo< SQFloat >::From(Var< const ULongInt & >(vm, idx).value.GetNum());
+                }
+                catch (...)
+                {
+                    // Just ignore it...
+                }
             }
-            catch (...)
+            else
             {
-                // Just ignore it...
+                // Attempt to get the size of the instance as a fall back
+                return ConvTo< SQFloat >::From(sq_getsize(vm, idx));
             }
-            // Attempt to get the size of the instance as a fall back
-            return ConvTo< SQFloat >::From(sq_getsize(vm, idx));
         }
         default: break;
     }
