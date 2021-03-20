@@ -6,19 +6,23 @@
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
+// ------------------------------------------------------------------------------------------------
+struct RoutineBuilder;
+
 /* ------------------------------------------------------------------------------------------------
  * Execute callbacks after specific intervals of time.
 */
 class Routine
 {
+    friend struct RoutineBuilder;
 public:
 
     /* --------------------------------------------------------------------------------------------
      * Simplify future changes to a single point of change.
     */
-    typedef int64_t                                       Time;
+    typedef int64_t                                     Time;
     typedef SQInteger                                   Interval;
-    typedef uint32_t                                      Iterator;
+    typedef uint32_t                                    Iterator;
     typedef LightObj                                    Argument;
 
 private:
@@ -40,7 +44,7 @@ private:
         bool        mQuiet; // Whether this instance is allowed to handle errors.
         bool        mEndure; // Whether this instance is allowed to terminate itself on errors.
         bool        mExecuting; // Whether this instance is currently being executed.
-        uint8_t       mArgc; // The number of arguments that the routine must forward.
+        uint8_t     mArgc; // The number of arguments that the routine must forward.
         Argument    mArgv[14]; // The arguments that the routine must forward.
 
         /* ----------------------------------------------------------------------------------------
@@ -329,6 +333,7 @@ public:
         }
         // Unable to find such routine
         STHROWF("Unable to find a routine with tag ({})", tag.mPtr);
+        SQ_UNREACHABLE;
         // Should not reach this point but if it did, we have to return something
 #ifdef __clang__
 	#pragma clang diagnostic push
@@ -366,7 +371,12 @@ public:
      * Create a routine with the specified parameters.
     */
     static SQInteger Create(HSQUIRRELVM vm);
-
+#ifdef VCMP_ENABLE_OFFICIAL
+    /* --------------------------------------------------------------------------------------------
+     * Create a routine with the specified parameters using the official compatibility layer.
+    */
+    static SQInteger CreateOfficial(HSQUIRRELVM vm);
+#endif
 protected:
 
     /* --------------------------------------------------------------------------------------------
