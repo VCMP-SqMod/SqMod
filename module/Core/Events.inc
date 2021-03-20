@@ -1690,6 +1690,12 @@ void Core::EmitScriptLoaded() const
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ScriptLoaded()")
     (*mOnScriptLoaded.first)();
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::ScriptLoaded")
+#ifdef VCMP_ENABLE_OFFICIAL
+    if (IsOfficial())
+    {
+        ExecuteLegacyEvent(m_VM, _SC("onScriptLoad"));
+    }
+#endif
 }
 
 // ------------------------------------------------------------------------------------------------
