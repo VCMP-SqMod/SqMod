@@ -406,14 +406,16 @@ void Sphere::SetStr(SQChar delim, StackStrF & values)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Sphere::Generate()
+Sphere & Sphere::Generate()
 {
     pos.Generate();
     rad = GetRandomFloat32();
+    // Allow chaining
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Sphere::Generate(Value min, Value max, bool r)
+Sphere & Sphere::GenerateB(Value min, Value max, bool r)
 {
     if (EpsLt(max, min))
     {
@@ -425,31 +427,37 @@ void Sphere::Generate(Value min, Value max, bool r)
     }
     else
     {
-        pos.Generate(min, max);
+        pos.GenerateB(min, max);
     }
+    // Allow chaining
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Sphere::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax)
+Sphere & Sphere::GenerateR(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin) || EpsLt(zmax, zmin))
     {
         STHROWF("max value is lower than min value");
     }
 
-    pos.Generate(xmin, xmax, ymin, ymax, zmin, zmax);
+    pos.GenerateR(xmin, xmax, ymin, ymax, zmin, zmax);
+    // Allow chaining
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Sphere::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value rmin, Value rmax)
+Sphere & Sphere::GenerateR2(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value rmin, Value rmax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin) || EpsLt(zmax, zmin) || EpsLt(rmax, rmin))
     {
         STHROWF("max value is lower than min value");
     }
 
-    pos.Generate(xmin, xmax, ymin, ymax, zmin, zmax);
+    pos.GenerateR(xmin, xmax, ymin, ymax, zmin, zmax);
     rad = GetRandomFloat32(rmin, rmax);
+    // Allow chaining
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -539,10 +547,10 @@ void Register_Sphere(HSQUIRRELVM vm)
         .Func(_SC("Clear"), &Sphere::Clear)
         .FmtFunc(_SC("Format"), &Sphere::Format)
         // Member Overloads
-        .Overload< void (Sphere::*)(void) >(_SC("Generate"), &Sphere::Generate)
-        .Overload< void (Sphere::*)(Val, Val, bool) >(_SC("Generate"), &Sphere::Generate)
-        .Overload< void (Sphere::*)(Val, Val, Val, Val, Val, Val) >(_SC("Generate"), &Sphere::Generate)
-        .Overload< void (Sphere::*)(Val, Val, Val, Val, Val, Val, Val, Val) >(_SC("Generate"), &Sphere::Generate)
+        .Overload(_SC("Generate"), &Sphere::Generate)
+        .Overload(_SC("Generate"), &Sphere::GenerateB)
+        .Overload(_SC("Generate"), &Sphere::GenerateR)
+        .Overload(_SC("Generate"), &Sphere::GenerateR2)
         // Static Functions
         .StaticFunc(_SC("GetDelimiter"), &SqGetDelimiter< Sphere >)
         .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< Sphere >)

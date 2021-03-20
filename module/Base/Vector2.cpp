@@ -330,14 +330,16 @@ void Vector2::SetStr(SQChar delim, StackStrF & values)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector2::Generate()
+Vector2 & Vector2::Generate()
 {
     x = GetRandomFloat32();
     y = GetRandomFloat32();
+    // Allow chaining
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector2::Generate(Value min, Value max)
+Vector2 & Vector2::GenerateB(Value min, Value max)
 {
     if (EpsLt(max, min))
     {
@@ -346,10 +348,12 @@ void Vector2::Generate(Value min, Value max)
 
     x = GetRandomFloat32(min, max);
     y = GetRandomFloat32(min, max);
+    // Allow chaining
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector2::Generate(Value xmin, Value xmax, Value ymin, Value ymax)
+Vector2 & Vector2::GenerateR(Value xmin, Value xmax, Value ymin, Value ymax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin))
     {
@@ -358,6 +362,8 @@ void Vector2::Generate(Value xmin, Value xmax, Value ymin, Value ymax)
 
     x = GetRandomFloat32(ymin, ymax);
     y = GetRandomFloat32(xmin, xmax);
+    // Allow chaining
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -440,9 +446,9 @@ void Register_Vector2(HSQUIRRELVM vm)
         .Func(_SC("Clear"), &Vector2::Clear)
         .FmtFunc(_SC("Format"), &Vector2::Format)
         // Member Overloads
-        .Overload< void (Vector2::*)(void) >(_SC("Generate"), &Vector2::Generate)
-        .Overload< void (Vector2::*)(Val, Val) >(_SC("Generate"), &Vector2::Generate)
-        .Overload< void (Vector2::*)(Val, Val, Val, Val) >(_SC("Generate"), &Vector2::Generate)
+        .Overload(_SC("Generate"), &Vector2::Generate)
+        .Overload(_SC("Generate"), &Vector2::GenerateB)
+        .Overload(_SC("Generate"), &Vector2::GenerateR)
         // Static Functions
         .StaticFunc(_SC("GetDelimiter"), &SqGetDelimiter< Vector2 >)
         .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< Vector2 >)

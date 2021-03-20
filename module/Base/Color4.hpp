@@ -473,17 +473,17 @@ struct Color4
     /* --------------------------------------------------------------------------------------------
      * Generate random values for all components of this instance.
     */
-    void Generate();
+    Color4 & Generate();
 
     /* --------------------------------------------------------------------------------------------
      * Generate random values for all components of this instance within the specified bounds.
     */
-    void Generate(Value min, Value max);
+    Color4 & GenerateB(Value min, Value max);
 
     /* --------------------------------------------------------------------------------------------
      * Generate random values for all components of this instance within the specified bounds.
     */
-    void Generate(Value rmin, Value rmax, Value gmin, Value gmax, Value bmin, Value bmax, Value amin, Value amax);
+    Color4 & GenerateR(Value rmin, Value rmax, Value gmin, Value gmax, Value bmin, Value bmax, Value amin, Value amax);
 
     /* --------------------------------------------------------------------------------------------
      * Clear the component values to default.

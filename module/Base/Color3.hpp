@@ -473,17 +473,17 @@ struct Color3
     /* --------------------------------------------------------------------------------------------
      * Generate random values for all components of this instance.
     */
-    void Generate();
+    Color3 & Generate();
 
     /* --------------------------------------------------------------------------------------------
      * Generate random values for all components of this instance within the specified bounds.
     */
-    void Generate(Value min, Value max);
+    Color3 & GenerateB(Value min, Value max);
 
     /* --------------------------------------------------------------------------------------------
      * Generate random values for all components of this instance within the specified bounds.
     */
-    void Generate(Value rmin, Value rmax, Value gmin, Value gmax, Value bmin, Value bmax);
+    Color3 & GenerateR(Value rmin, Value rmax, Value gmin, Value gmax, Value bmin, Value bmax);
 
     /* --------------------------------------------------------------------------------------------
      * Clear the component values to default.

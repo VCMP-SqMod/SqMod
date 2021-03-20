@@ -412,15 +412,17 @@ void Vector3::SetStr(SQChar delim, StackStrF & values)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector3::Generate()
+Vector3 & Vector3::Generate()
 {
     x = GetRandomFloat32();
     y = GetRandomFloat32();
     z = GetRandomFloat32();
+    // Allow chaining
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector3::Generate(Value min, Value max)
+Vector3 & Vector3::GenerateB(Value min, Value max)
 {
     if (EpsLt(max, min))
     {
@@ -430,10 +432,12 @@ void Vector3::Generate(Value min, Value max)
     x = GetRandomFloat32(min, max);
     y = GetRandomFloat32(min, max);
     z = GetRandomFloat32(min, max);
+    // Allow chaining
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector3::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax)
+Vector3 & Vector3::GenerateR(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin) || EpsLt(zmax, zmin))
     {
@@ -443,6 +447,8 @@ void Vector3::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmi
     x = GetRandomFloat32(xmin, xmax);
     y = GetRandomFloat32(ymin, ymax);
     z = GetRandomFloat32(zmin, zmax);
+    // Allow chaining
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -732,9 +738,9 @@ void Register_Vector3(HSQUIRRELVM vm)
         .Func(_SC("RotateYZBy"), &Vector3::RotateYZBy)
         .Func(_SC("CenterRotateYZBy"), &Vector3::CenterRotateYZBy)
         // Member Overloads
-        .Overload< void (Vector3::*)(void) >(_SC("Generate"), &Vector3::Generate)
-        .Overload< void (Vector3::*)(Val, Val) >(_SC("Generate"), &Vector3::Generate)
-        .Overload< void (Vector3::*)(Val, Val, Val, Val, Val, Val) >(_SC("Generate"), &Vector3::Generate)
+        .Overload(_SC("Generate"), &Vector3::Generate)
+        .Overload(_SC("Generate"), &Vector3::GenerateB)
+        .Overload(_SC("Generate"), &Vector3::GenerateR)
         // Static Functions
         .StaticFunc(_SC("GetDelimiter"), &SqGetDelimiter< Vector3 >)
         .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< Vector3 >)

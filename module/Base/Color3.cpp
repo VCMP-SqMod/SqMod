@@ -576,15 +576,17 @@ void Color3::SetARGB(uint32_t p)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color3::Generate()
+Color3 & Color3::Generate()
 {
     r = GetRandomUint8();
     g = GetRandomUint8();
     b = GetRandomUint8();
+    // Allow chaining
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color3::Generate(Value min, Value max)
+Color3 & Color3::GenerateB(Value min, Value max)
 {
     if (max < min)
     {
@@ -594,10 +596,12 @@ void Color3::Generate(Value min, Value max)
     r = GetRandomUint8(min, max);
     g = GetRandomUint8(min, max);
     b = GetRandomUint8(min, max);
+    // Allow chaining
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Color3::Generate(Value rmin, Value rmax, Value gmin, Value gmax, Value bmin, Value bmax)
+Color3 & Color3::GenerateR(Value rmin, Value rmax, Value gmin, Value gmax, Value bmin, Value bmax)
 {
     if (rmax < rmin || gmax < gmin || bmax < bmin)
     {
@@ -607,6 +611,8 @@ void Color3::Generate(Value rmin, Value rmax, Value gmin, Value gmax, Value bmin
     r = GetRandomUint8(rmin, rmax);
     g = GetRandomUint8(gmin, gmax);
     b = GetRandomUint8(bmin, bmax);
+    // Allow chaining
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -761,9 +767,9 @@ void Register_Color3(HSQUIRRELVM vm)
         .Func(_SC("Random"), &Color3::Random)
         .Func(_SC("Inverse"), &Color3::Inverse)
         // Member Overloads
-        .Overload< void (Color3::*)(void) >(_SC("Generate"), &Color3::Generate)
-        .Overload< void (Color3::*)(Val, Val) >(_SC("Generate"), &Color3::Generate)
-        .Overload< void (Color3::*)(Val, Val, Val, Val, Val, Val) >(_SC("Generate"), &Color3::Generate)
+        .Overload(_SC("Generate"), &Color3::Generate)
+        .Overload(_SC("Generate"), &Color3::GenerateB)
+        .Overload(_SC("Generate"), &Color3::GenerateR)
         // Static Functions
         .StaticFunc(_SC("GetDelimiter"), &SqGetDelimiter< Color3 >)
         .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< Color3 >)

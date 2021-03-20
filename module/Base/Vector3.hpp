@@ -340,17 +340,17 @@ struct Vector3
     /* --------------------------------------------------------------------------------------------
      * Generate random values for all components of this instance.
     */
-    void Generate();
+    Vector3 & Generate();
 
     /* --------------------------------------------------------------------------------------------
      * Generate random values for all components of this instance within the specified bounds.
     */
-    void Generate(Value min, Value max);
+    Vector3 & GenerateB(Value min, Value max);
 
     /* --------------------------------------------------------------------------------------------
      * Generate random values for all components of this instance within the specified bounds.
     */
-    void Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax);
+    Vector3 & GenerateR(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax);
 
     /* --------------------------------------------------------------------------------------------
      * Clear the component values to default.

@@ -379,22 +379,22 @@ struct Circle
     /* --------------------------------------------------------------------------------------------
      * Generate a randomly sized and positioned circle.
     */
-    void Generate();
+    Circle & Generate();
 
     /* --------------------------------------------------------------------------------------------
      * Generate a randomly sized or positioned circle within the specified bounds.
     */
-    void Generate(Value min, Value max, bool r);
+    Circle & GenerateB(Value min, Value max, bool r);
 
     /* --------------------------------------------------------------------------------------------
      * Generate a randomly positioned circle within the specified bounds.
     */
-    void Generate(Value xmin, Value xmax, Value ymin, Value ymax);
+    Circle & GenerateR(Value xmin, Value xmax, Value ymin, Value ymax);
 
     /* --------------------------------------------------------------------------------------------
      * Generate a randomly sized and positioned circle within the specified bounds.
     */
-    void Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value rmin, Value rmax);
+    Circle & GenerateR2(Value xmin, Value xmax, Value ymin, Value ymax, Value rmin, Value rmax);
 
     /* --------------------------------------------------------------------------------------------
      * Clear the component values to default.

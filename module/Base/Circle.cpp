@@ -406,14 +406,16 @@ void Circle::SetStr(SQChar delim, StackStrF & values)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Circle::Generate()
+Circle & Circle::Generate()
 {
     pos.Generate();
     rad = GetRandomFloat32();
+    // Allow chaining
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Circle::Generate(Value min, Value max, bool r)
+Circle & Circle::GenerateB(Value min, Value max, bool r)
 {
     if (EpsLt(max, min))
     {
@@ -425,31 +427,37 @@ void Circle::Generate(Value min, Value max, bool r)
     }
     else
     {
-        pos.Generate(min, max);
+        pos.GenerateB(min, max);
     }
+    // Allow chaining
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Circle::Generate(Value xmin, Value xmax, Value ymin, Value ymax)
+Circle & Circle::GenerateR(Value xmin, Value xmax, Value ymin, Value ymax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin))
     {
         STHROWF("max value is lower than min value");
     }
 
-    pos.Generate(xmin, xmax, ymin, ymax);
+    pos.GenerateR(xmin, xmax, ymin, ymax);
+    // Allow chaining
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Circle::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value rmin, Value rmax)
+Circle & Circle::GenerateR2(Value xmin, Value xmax, Value ymin, Value ymax, Value rmin, Value rmax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin) || EpsLt(rmax, rmin))
     {
         STHROWF("max value is lower than min value");
     }
 
-    pos.Generate(xmin, xmax, ymin, ymax);
+    pos.GenerateR(xmin, xmax, ymin, ymax);
     rad = GetRandomFloat32(rmin, rmax);
+    // Allow chaining
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -567,10 +575,10 @@ void Register_Circle(HSQUIRRELVM vm)
         .FmtFunc(_SC("Format"), &Circle::Format)
         .Func(_SC("ToPointsArray"), &Circle::ToPointsArray)
         // Member Overloads
-        .Overload< void (Circle::*)(void) >(_SC("Generate"), &Circle::Generate)
-        .Overload< void (Circle::*)(Val, Val, bool) >(_SC("Generate"), &Circle::Generate)
-        .Overload< void (Circle::*)(Val, Val, Val, Val) >(_SC("Generate"), &Circle::Generate)
-        .Overload< void (Circle::*)(Val, Val, Val, Val, Val, Val) >(_SC("Generate"), &Circle::Generate)
+        .Overload(_SC("Generate"), &Circle::Generate)
+        .Overload(_SC("Generate"), &Circle::GenerateB)
+        .Overload(_SC("Generate"), &Circle::GenerateR)
+        .Overload(_SC("Generate"), &Circle::GenerateR2)
         // Static Functions
         .StaticFunc(_SC("GetDelimiter"), &SqGetDelimiter< Circle >)
         .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< Circle >)

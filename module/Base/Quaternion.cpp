@@ -428,16 +428,18 @@ void Quaternion::SetStr(SQChar delim, StackStrF & values)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Quaternion::Generate()
+Quaternion & Quaternion::Generate()
 {
     x = GetRandomFloat32();
     y = GetRandomFloat32();
     z = GetRandomFloat32();
     w = GetRandomFloat32();
+    // Allow chaining
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Quaternion::Generate(Value min, Value max)
+Quaternion & Quaternion::GenerateB(Value min, Value max)
 {
     if (EpsLt(max, min))
     {
@@ -448,10 +450,12 @@ void Quaternion::Generate(Value min, Value max)
     y = GetRandomFloat32(min, max);
     z = GetRandomFloat32(min, max);
     y = GetRandomFloat32(min, max);
+    // Allow chaining
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Quaternion::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value wmin, Value wmax)
+Quaternion & Quaternion::GenerateR(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value wmin, Value wmax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin) || EpsLt(zmax, zmin) || EpsLt(wmax, wmin))
     {
@@ -462,6 +466,8 @@ void Quaternion::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value 
     y = GetRandomFloat32(ymin, ymax);
     z = GetRandomFloat32(zmin, zmax);
     y = GetRandomFloat32(ymin, ymax);
+    // Allow chaining
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -805,9 +811,9 @@ void Register_Quaternion(HSQUIRRELVM vm)
         .Func(_SC("Nlerp"), &Quaternion::Nlerp)
         .Func(_SC("NlerpEx"), &Quaternion::NlerpEx)
         // Member Overloads
-        .Overload< void (Quaternion::*)(void) >(_SC("Generate"), &Quaternion::Generate)
-        .Overload< void (Quaternion::*)(Val, Val) >(_SC("Generate"), &Quaternion::Generate)
-        .Overload< void (Quaternion::*)(Val, Val, Val, Val, Val, Val, Val, Val) >(_SC("Generate"), &Quaternion::Generate)
+        .Overload(_SC("Generate"), &Quaternion::Generate)
+        .Overload(_SC("Generate"), &Quaternion::GenerateB)
+        .Overload(_SC("Generate"), &Quaternion::GenerateR)
         // Static Functions
         .StaticFunc(_SC("GetDelimiter"), &SqGetDelimiter< Quaternion >)
         .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< Quaternion >)

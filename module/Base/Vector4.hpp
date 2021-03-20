@@ -338,17 +338,17 @@ struct Vector4
     /* --------------------------------------------------------------------------------------------
      * Generate random values for all components of this instance.
     */
-    void Generate();
+    Vector4 & Generate();
 
     /* --------------------------------------------------------------------------------------------
      * Generate random values for all components of this instance within the specified bounds.
     */
-    void Generate(Value min, Value max);
+    Vector4 & GenerateB(Value min, Value max);
 
     /* --------------------------------------------------------------------------------------------
      * Generate random values for all components of this instance within the specified bounds.
     */
-    void Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value wmin, Value wmax);
+    Vector4 & GenerateR(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value wmin, Value wmax);
 
     /* --------------------------------------------------------------------------------------------
      * Clear the component values to default.

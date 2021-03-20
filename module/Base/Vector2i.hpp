@@ -418,17 +418,17 @@ struct Vector2i
     /* --------------------------------------------------------------------------------------------
      * Generate random values for all components of this instance.
     */
-    void Generate();
+    Vector2i & Generate();
 
     /* --------------------------------------------------------------------------------------------
      * Generate random values for all components of this instance within the specified bounds.
     */
-    void Generate(Value min, Value max);
+    Vector2i & GenerateB(Value min, Value max);
 
     /* --------------------------------------------------------------------------------------------
      * Generate random values for all components of this instance within the specified bounds.
     */
-    void Generate(Value xmin, Value xmax, Value ymin, Value ymax);
+    Vector2i & GenerateR(Value xmin, Value xmax, Value ymin, Value ymax);
 
     /* --------------------------------------------------------------------------------------------
      * Clear the component values to default.

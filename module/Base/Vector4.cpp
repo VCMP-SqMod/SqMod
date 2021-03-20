@@ -413,16 +413,18 @@ void Vector4::SetStr(SQChar delim, StackStrF & values)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector4::Generate()
+Vector4 & Vector4::Generate()
 {
     x = GetRandomFloat32();
     y = GetRandomFloat32();
     z = GetRandomFloat32();
     w = GetRandomFloat32();
+    // Allow chaining
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector4::Generate(Value min, Value max)
+Vector4 & Vector4::GenerateB(Value min, Value max)
 {
     if (max < min)
     {
@@ -433,10 +435,12 @@ void Vector4::Generate(Value min, Value max)
     y = GetRandomFloat32(min, max);
     z = GetRandomFloat32(min, max);
     y = GetRandomFloat32(min, max);
+    // Allow chaining
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Vector4::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value wmin, Value wmax)
+Vector4 & Vector4::GenerateR(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value wmin, Value wmax)
 {
     if (EpsLt(xmax, xmin) || EpsLt(ymax, ymin) || EpsLt(zmax, zmin) || EpsLt(wmax, wmin))
     {
@@ -447,6 +451,8 @@ void Vector4::Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmi
     y = GetRandomFloat32(ymin, ymax);
     z = GetRandomFloat32(zmin, zmax);
     y = GetRandomFloat32(ymin, ymax);
+    // Allow chaining
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -541,9 +547,9 @@ void Register_Vector4(HSQUIRRELVM vm)
         .Func(_SC("Clear"), &Vector4::Clear)
         .FmtFunc(_SC("Format"), &Vector4::Format)
         // Member Overloads
-        .Overload< void (Vector4::*)(void) >(_SC("Generate"), &Vector4::Generate)
-        .Overload< void (Vector4::*)(Val, Val) >(_SC("Generate"), &Vector4::Generate)
-        .Overload< void (Vector4::*)(Val, Val, Val, Val, Val, Val, Val, Val) >(_SC("Generate"), &Vector4::Generate)
+        .Overload(_SC("Generate"), &Vector4::Generate)
+        .Overload(_SC("Generate"), &Vector4::GenerateB)
+        .Overload(_SC("Generate"), &Vector4::GenerateR)
         // Static Functions
         .StaticFunc(_SC("GetDelimiter"), &SqGetDelimiter< Vector4 >)
         .StaticFunc(_SC("SetDelimiter"), &SqSetDelimiter< Vector4 >)

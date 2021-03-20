@@ -379,22 +379,22 @@ struct Sphere
     /* --------------------------------------------------------------------------------------------
      * Generate a randomly sized and positioned sphere.
     */
-    void Generate();
+    Sphere & Generate();
 
     /* --------------------------------------------------------------------------------------------
      * Generate a randomly sized or positioned sphere within the specified bounds.
     */
-    void Generate(Value min, Value max, bool r);
+    Sphere & GenerateB(Value min, Value max, bool r);
 
     /* --------------------------------------------------------------------------------------------
      * Generate a randomly positioned sphere within the specified bounds.
     */
-    void Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax);
+    Sphere & GenerateR(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax);
 
     /* --------------------------------------------------------------------------------------------
      * Generate a randomly sized and positioned sphere within the specified bounds.
     */
-    void Generate(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value rmin, Value rmax);
+    Sphere & GenerateR2(Value xmin, Value xmax, Value ymin, Value ymax, Value zmin, Value zmax, Value rmin, Value rmax);
 
     /* --------------------------------------------------------------------------------------------
      * Clear the component values to default.
