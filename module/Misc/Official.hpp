@@ -21,7 +21,7 @@ struct LgVector : public Vector3
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    LgVector(const Vector3 & v)
+    explicit LgVector(const Vector3 & v)
         : Vector3(v)
     {
     }
@@ -128,7 +128,7 @@ struct LgQuaternion : public Quaternion
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    LgQuaternion(const Quaternion & q)
+    explicit LgQuaternion(const Quaternion & q)
         : Quaternion(q)
     {
     }
@@ -245,7 +245,7 @@ struct LgRGB : public Color3
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    LgRGB(const Color3 & c)
+    explicit LgRGB(const Color3 & c)
         : Color3(c)
     {
     }
