@@ -2353,27 +2353,28 @@ void LgStreamLoadInput(const void * data, size_t size) { LgStream::LoadInput(dat
 // ================================================================================================
 void Register_Official_Stream(HSQUIRRELVM vm)
 {
-    Class< LgStream, NoConstructor< LgStream > > c(vm, "Stream");
-    c
-        .StaticFunc(_SC("StartWrite"), &LgStream::StartWrite)
-        .StaticFunc(_SC("SetWritePosition"), &LgStream::SetWritePosition)
-        .StaticFunc(_SC("GetWritePosition"), &LgStream::GetWritePosition)
-        .StaticFunc(_SC("GetWriteSize"), &LgStream::GetWriteSize)
-        .StaticFunc(_SC("HasWriteError"), &LgStream::HasWriteError)
-        .StaticFunc(_SC("WriteByte"), &LgStream::WriteByte)
-        .StaticFunc(_SC("WriteInt"), &LgStream::WriteInt)
-        .StaticFunc(_SC("WriteFloat"), &LgStream::WriteFloat)
-        .StaticFunc(_SC("WriteString"), &LgStream::WriteString)
-        .StaticFunc(_SC("SendStream"), &LgStream::SendStream)
-        .StaticFunc(_SC("SetReadPosition"), &LgStream::SetReadPosition)
-        .StaticFunc(_SC("GetReadPosition"), &LgStream::GetReadPosition)
-        .StaticFunc(_SC("GetReadSize"), &LgStream::GetReadSize)
-        .StaticFunc(_SC("HasReadError"), &LgStream::HasReadError)
-        .StaticFunc(_SC("ReadByte"), &LgStream::ReadByte)
-        .StaticFunc(_SC("ReadInt"), &LgStream::ReadInt)
-        .StaticFunc(_SC("ReadFloat"), &LgStream::ReadFloat)
-        .StaticFunc(_SC("ReadString"), &LgStream::ReadString)
-    ;
+    // --------------------------------------------------------------------------------------------
+    RootTable(vm).Bind(_SC("Stream"),
+        Class< LgStream, NoConstructor< LgStream > >(vm, "Stream")
+            .StaticFunc(_SC("StartWrite"), &LgStream::StartWrite)
+            .StaticFunc(_SC("SetWritePosition"), &LgStream::SetWritePosition)
+            .StaticFunc(_SC("GetWritePosition"), &LgStream::GetWritePosition)
+            .StaticFunc(_SC("GetWriteSize"), &LgStream::GetWriteSize)
+            .StaticFunc(_SC("HasWriteError"), &LgStream::HasWriteError)
+            .StaticFunc(_SC("WriteByte"), &LgStream::WriteByte)
+            .StaticFunc(_SC("WriteInt"), &LgStream::WriteInt)
+            .StaticFunc(_SC("WriteFloat"), &LgStream::WriteFloat)
+            .StaticFunc(_SC("WriteString"), &LgStream::WriteString)
+            .StaticFunc(_SC("SendStream"), &LgStream::SendStream)
+            .StaticFunc(_SC("SetReadPosition"), &LgStream::SetReadPosition)
+            .StaticFunc(_SC("GetReadPosition"), &LgStream::GetReadPosition)
+            .StaticFunc(_SC("GetReadSize"), &LgStream::GetReadSize)
+            .StaticFunc(_SC("HasReadError"), &LgStream::HasReadError)
+            .StaticFunc(_SC("ReadByte"), &LgStream::ReadByte)
+            .StaticFunc(_SC("ReadInt"), &LgStream::ReadInt)
+            .StaticFunc(_SC("ReadFloat"), &LgStream::ReadFloat)
+            .StaticFunc(_SC("ReadString"), &LgStream::ReadString)
+    );
 }
 
 } // Namespace:: SqMod
