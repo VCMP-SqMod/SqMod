@@ -119,30 +119,7 @@ struct LgEntityVector : public LgVector
 /* ------------------------------------------------------------------------------------------------
  * Entity quaternion.
 */
-struct LgQuaternion : public Quaternion
-{
-    /* --------------------------------------------------------------------------------------------
-     * Default constructor.
-    */
-    LgQuaternion() = default;
-    /* --------------------------------------------------------------------------------------------
-     * Copy constructor.
-    */
-    explicit LgQuaternion(const Quaternion & q)
-        : Quaternion(q)
-    {
-    }
-    /* --------------------------------------------------------------------------------------------
-     * Import from base class.
-    */
-    using Quaternion::Quaternion;
-    using Quaternion::operator =;
-};
-
-/* ------------------------------------------------------------------------------------------------
- * Entity quaternion.
-*/
-struct LgEntityQuaternion : public LgQuaternion
+struct LgEntityQuaternion : public Quaternion
 {
     /* --------------------------------------------------------------------------------------------
      * Entity identifier.
@@ -163,7 +140,7 @@ struct LgEntityQuaternion : public LgQuaternion
      * Base constructor.
     */
     LgEntityQuaternion(int id, int type, int flag, Value x, Value y, Value z, Value w)
-        : LgQuaternion(x, y, z, w)
+        : Quaternion(x, y, z, w)
         , mID(static_cast< int16_t >(id))
         , mType(static_cast< uint8_t >(type))
         , mFlag(static_cast< uint8_t >(flag))
@@ -174,7 +151,7 @@ struct LgEntityQuaternion : public LgQuaternion
      * Base constructor.
     */
     LgEntityQuaternion(int id, int type, int flag, const Quaternion & q)
-        : LgQuaternion{q}
+        : Quaternion{q}
         , mID(static_cast< int16_t >(id))
         , mType(static_cast< uint8_t >(type))
         , mFlag(static_cast< uint8_t >(flag))
@@ -184,42 +161,42 @@ struct LgEntityQuaternion : public LgQuaternion
     /* --------------------------------------------------------------------------------------------
      * Retrieve the X component of the quaternion.
     */
-    SQMOD_NODISCARD Value GetX() const { return LgQuaternion::x; }
+    SQMOD_NODISCARD Value GetX() const { return Quaternion::x; }
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the Y component of the quaternion.
     */
-    SQMOD_NODISCARD Value GetY() const { return LgQuaternion::y; }
+    SQMOD_NODISCARD Value GetY() const { return Quaternion::y; }
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the Z component of the quaternion.
     */
-    SQMOD_NODISCARD Value GetZ() const { return LgQuaternion::z; }
+    SQMOD_NODISCARD Value GetZ() const { return Quaternion::z; }
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the W component of the quaternion.
     */
-    SQMOD_NODISCARD Value GetW() const { return LgQuaternion::w; }
+    SQMOD_NODISCARD Value GetW() const { return Quaternion::w; }
 
     /* --------------------------------------------------------------------------------------------
      * Modify the X component of the quaternion.
     */
-    void SetX(Value v) { LgQuaternion::x = v; Set(); }
+    void SetX(Value v) { Quaternion::x = v; Set(); }
 
     /* --------------------------------------------------------------------------------------------
      * Modify the Y component of the quaternion.
     */
-    void SetY(Value v) { LgQuaternion::y = v; Set(); }
+    void SetY(Value v) { Quaternion::y = v; Set(); }
 
     /* --------------------------------------------------------------------------------------------
      * Modify the Z component of the quaternion.
     */
-    void SetZ(Value v) { LgQuaternion::z = v; Set(); }
+    void SetZ(Value v) { Quaternion::z = v; Set(); }
 
     /* --------------------------------------------------------------------------------------------
      * Modify the W component of the quaternion.
     */
-    void SetW(Value v) { LgQuaternion::w = v; Set(); }
+    void SetW(Value v) { Quaternion::w = v; Set(); }
 
     /* --------------------------------------------------------------------------------------------
      * Modify the X, Y, Z and W component of the quaternion.
@@ -229,8 +206,8 @@ struct LgEntityQuaternion : public LgQuaternion
     /* --------------------------------------------------------------------------------------------
      * Import from base class.
     */
-    using LgQuaternion::LgQuaternion;
-    using LgQuaternion::operator =;
+    using Quaternion::Quaternion;
+    using Quaternion::operator =;
 };
 
 /* ------------------------------------------------------------------------------------------------

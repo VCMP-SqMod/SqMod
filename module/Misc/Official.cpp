@@ -39,7 +39,6 @@ SQMOD_DECL_TYPENAME(EntityRGBTn, _SC("LgEntityRGB"))
 SQMOD_DECL_TYPENAME(RGBATn, _SC("RGBA"))
 SQMOD_DECL_TYPENAME(ARGBTn, _SC("ARGB"))
 SQMOD_DECL_TYPENAME(VectorTn, _SC("Vector"))
-SQMOD_DECL_TYPENAME(QuaternionTn, _SC("Quaternion"))
 SQMOD_DECL_TYPENAME(EntityVectorTn, _SC("LgEntityVector"))
 SQMOD_DECL_TYPENAME(EntityQuaternionTn, _SC("LgEntityQuaternion"))
 SQMOD_DECL_TYPENAME(BoundsTn, _SC("Bounds"))
@@ -156,7 +155,7 @@ static SQInteger QuaternionToString(HSQUIRRELVM vm)
 {
     try
     {
-        Var< LgQuaternion * > v(SqVM(), 1);
+        Var< Quaternion * > v(SqVM(), 1);
         // Validate the instance, just to be sure
         if (!v.value)
         {
@@ -309,16 +308,8 @@ void Register_Official(HSQUIRRELVM vm)
         .Prop(_SC("z"), &LgEntityVector::GetZ, &LgEntityVector::SetZ)
     );
     // --------------------------------------------------------------------------------------------
-    RootTable(vm).Bind(QuaternionTn::Str,
-        DerivedClass< LgQuaternion, Quaternion >(vm, QuaternionTn::Str)
-        // Constructors
-        .Ctor< Quaternion::Value, Quaternion::Value, Quaternion::Value >()
-        // Global Member Methods
-        .SquirrelFunc(_SC("_tostring"), &QuaternionToString)
-    );
-    // --------------------------------------------------------------------------------------------
     RootTable(vm).Bind(EntityQuaternionTn::Str,
-        DerivedClass< LgEntityQuaternion, LgQuaternion >(vm, EntityQuaternionTn::Str)
+        DerivedClass< LgEntityQuaternion, Quaternion >(vm, EntityQuaternionTn::Str)
         // Constructors
         .Ctor< int, int, int, Quaternion::Value, Quaternion::Value, Quaternion::Value, Quaternion::Value >()
         // Properties
