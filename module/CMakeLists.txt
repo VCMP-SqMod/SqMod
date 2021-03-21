@@ -131,6 +131,10 @@ target_link_libraries(SqModule Squirrel FmtLib SimpleINI TinyDir ConcurrentQueue
 target_link_libraries(SqModule Poco::Foundation Poco::Crypto Poco::Data Poco::Net Poco::JSON Poco::XML)
 # Does POCO have SQLite support?
 if(ENABLE_DATA_SQLITE)
+    if(NOT POCO_UNBUNDLED)
+        # We need to make sqlite3.h available for include. Ugly but POCO doesn't expose this directly.
+        target_include_directories(SqModule PRIVATE "${PROJECT_SOURCE_DIR}/vendor/POCO/Data/SQLite/src")
+    endif()
     # Link the libraries
     target_link_libraries(SqModule Poco::DataSQLite)
     # Inform the plug-in that it can make use of this library
