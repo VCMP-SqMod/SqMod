@@ -2248,8 +2248,14 @@ struct LgStream {
             Write(value.mPtr, length);
         }
     }
-    static void SendStream(LgPlayer * player) {
-        _Func->SendClientScriptData(player != nullptr ? player->GetIdentifier() : -1, m_OutputStreamData, m_OutputStreamEnd);
+    static void SendStream(LightObj & target) {
+        int32_t id;
+        if (target.IsNull()) id = -1;
+        else if (target.GetType() == OT_INTEGER || target.GetType() == OT_FLOAT) id = target.Cast< int32_t >();
+        else if (static_cast< AbstractStaticClassData * >(target.GetTypeTag()) == StaticClassTypeTag< LgPlayer >::Get()) {
+            id = target.CastI< LgPlayer >()->GetIdentifier();
+        } else STHROWF("Invalid target");
+        _Func->SendClientScriptData(id, m_OutputStreamData, m_OutputStreamEnd);
         ClearOutput();
     }
     // --------------------------------------------------------------------------------------------
