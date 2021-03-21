@@ -35,21 +35,21 @@ namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
 SQMOD_DECL_TYPENAME(RGBTn, _SC("RGB"))
-SQMOD_DECL_TYPENAME(EntityRGBTn, _SC("LgEntityRGB"))
+SQMOD_DECL_TYPENAME(EntityRGBTn, _SC("EntityRGB"))
 SQMOD_DECL_TYPENAME(RGBATn, _SC("RGBA"))
 SQMOD_DECL_TYPENAME(ARGBTn, _SC("ARGB"))
 SQMOD_DECL_TYPENAME(VectorTn, _SC("Vector"))
-SQMOD_DECL_TYPENAME(EntityVectorTn, _SC("LgEntityVector"))
-SQMOD_DECL_TYPENAME(EntityQuaternionTn, _SC("LgEntityQuaternion"))
+SQMOD_DECL_TYPENAME(EntityVectorTn, _SC("EntityVector"))
+SQMOD_DECL_TYPENAME(EntityQuaternionTn, _SC("EntityQuaternion"))
 SQMOD_DECL_TYPENAME(BoundsTn, _SC("Bounds"))
 SQMOD_DECL_TYPENAME(WastedSettingsTn, _SC("WastedSettings"))
 
 // ------------------------------------------------------------------------------------------------
-SQMOD_DECL_TYPENAME(CCheckpointTn, _SC("CCheckpoint_INTERNAL"))
-SQMOD_DECL_TYPENAME(CObjectTn, _SC("CObject_INTERNAL"))
-SQMOD_DECL_TYPENAME(CPickupTn, _SC("CPickup_INTERNAL"))
-SQMOD_DECL_TYPENAME(CPlayerTn, _SC("CPlayer_INTERNAL"))
-SQMOD_DECL_TYPENAME(CVehicleTn, _SC("CVehicle_INTERNAL"))
+SQMOD_DECL_TYPENAME(CCheckpointTn, _SC("CCheckpoint"))
+SQMOD_DECL_TYPENAME(CObjectTn, _SC("CObject"))
+SQMOD_DECL_TYPENAME(CPickupTn, _SC("CPickup"))
+SQMOD_DECL_TYPENAME(CPlayerTn, _SC("CPlayer"))
+SQMOD_DECL_TYPENAME(CVehicleTn, _SC("CVehicle"))
 
 /* ------------------------------------------------------------------------------------------------
  * Entity type enumeration.
@@ -960,7 +960,7 @@ LightObj LgVehicleObj(HSQUIRRELVM vm, int32_t id) { return LightObj(SqTypeIdenti
 void Register_Official_Entity(HSQUIRRELVM vm)
 {
     // --------------------------------------------------------------------------------------------
-    Class< LgCheckpoint, NoConstructor< LgCheckpoint > > checkpoint(vm, "CCheckpoint_INTERNAL");
+    Class< LgCheckpoint, NoConstructor< LgCheckpoint > > checkpoint(vm, CCheckpointTn::Str);
     // Read-write properties
     checkpoint
         .Prop(_SC("World"), &LgCheckpoint::GetWorld, &LgCheckpoint::SetWorld)
@@ -982,7 +982,7 @@ void Register_Official_Entity(HSQUIRRELVM vm)
     ;
     RootTable(vm).Bind(_SC("CCheckpoint"), checkpoint);
     // --------------------------------------------------------------------------------------------
-    Class< LgObject, NoConstructor< LgObject > > object(vm, "CObject_INTERNAL");
+    Class< LgObject, NoConstructor< LgObject > > object(vm, CObjectTn::Str);
     // Read-write properties
     object
         .Prop(_SC("World"), &LgObject::GetWorld, &LgObject::SetWorld)
@@ -1014,7 +1014,7 @@ void Register_Official_Entity(HSQUIRRELVM vm)
     ;
     RootTable(vm).Bind(_SC("CObject"), object);
     // --------------------------------------------------------------------------------------------
-    Class< LgPickup, NoConstructor< LgPickup > > pickup(vm, "CPickup_INTERNAL");
+    Class< LgPickup, NoConstructor< LgPickup > > pickup(vm, CPickupTn::Str);
     // Read-write properties
     pickup
         .Prop(_SC("World"), &LgPickup::GetWorld, &LgPickup::SetWorld)
@@ -1041,7 +1041,7 @@ void Register_Official_Entity(HSQUIRRELVM vm)
     ;
     RootTable(vm).Bind(_SC("CPickup"), pickup);
     // --------------------------------------------------------------------------------------------
-    Class< LgPlayer, NoConstructor< LgPlayer > > player(vm, "CPlayer_INTERNAL");
+    Class< LgPlayer, NoConstructor< LgPlayer > > player(vm, CPlayerTn::Str);
     // Read-write properties
     player
         .Prop(_SC("Admin"), &LgPlayer::GetAdmin, &LgPlayer::SetAdmin)
@@ -1151,7 +1151,7 @@ void Register_Official_Entity(HSQUIRRELVM vm)
     ;
     RootTable(vm).Bind(_SC("CPlayer"), player);
     // --------------------------------------------------------------------------------------------
-    Class< LgVehicle, NoConstructor< LgVehicle > > vehicle(vm, "CVehicle_INTERNAL");
+    Class< LgVehicle, NoConstructor< LgVehicle > > vehicle(vm, CVehicleTn::Str);
     // Read-write properties
     vehicle
         .Prop(_SC("Immunity"), &LgVehicle::GetImmunity, &LgVehicle::SetImmunity)
