@@ -2214,46 +2214,18 @@ void Core::EmitClientScriptData(int32_t player_id, const uint8_t * data, size_t 
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ClientScriptData(%d, [byte stream], %" PRINT_SZ_FMT ")", player_id, size)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
     // Don't even bother if there's no one listening
-    if (_player.mOnClientScriptData.first->IsEmpty() && mOnClientScriptData.first->IsEmpty())
+    if (!(_player.mOnClientScriptData.first->IsEmpty()) || !(mOnClientScriptData.first->IsEmpty()))
     {
-        return;
+        // Allocate a buffer with the received size
+        Buffer b(static_cast< Buffer::SzType >(size));
+        // Replicate the data to the allocated buffer
+        b.Write(0, reinterpret_cast< Buffer::ConstPtr >(data), static_cast< Buffer::SzType >(size));
+        // Prepare an object for the obtained buffer
+        LightObj o(SqTypeIdentity< SqBuffer >{}, m_VM, std::move(b));
+        // Forward the event call
+        (*_player.mOnClientScriptData.first)(o, size);
+        (*mOnClientScriptData.first)(_player.mObj, o, size);
     }
-    // Allocate a buffer with the received size
-    Buffer b(static_cast< Buffer::SzType >(size));
-    // Replicate the data to the allocated buffer
-    b.Write(0, reinterpret_cast< Buffer::ConstPtr >(data), static_cast< Buffer::SzType >(size));
-    // Prepare an object for the obtained buffer
-    LightObj o;
-    // Attempt to create the requested buffer
-    try
-    {
-        // Remember the current stack size
-        const StackGuard sg;
-        // Create a protected instance of a buffer wrapper
-        DeleteGuard< SqBuffer > ad(new SqBuffer(std::move(b)));
-        // Transform the pointer into a script object
-        PushVar< SqBuffer * >(SqVM(), ad.Get());
-        // The script took over the instance now
-        ad.Release();
-        // Get the object from the stack and store it
-        o = Var< LightObj >(SqVM(), -1).value;
-    }
-    catch (const Poco::Exception & e)
-    {
-        STHROWF("{}", e.displayText()); // Re-package
-    }
-    catch (const std::exception & e)
-    {
-        STHROWF("{}", e.what()); // Re-package
-    }
-    // Make sure the buffer cannot be null at this point
-    if (o.IsNull())
-    {
-        STHROWF("Unable to transform script data into buffer");
-    }
-    // Forward the event call
-    (*_player.mOnClientScriptData.first)(o, size);
-    (*mOnClientScriptData.first)(_player.mObj, o, size);
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::ClientScriptData")
 #ifdef VCMP_ENABLE_OFFICIAL
     if (IsOfficial())
