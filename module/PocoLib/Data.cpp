@@ -7,6 +7,8 @@
 // ------------------------------------------------------------------------------------------------
 #ifdef SQMOD_POCO_HAS_SQLITE
     #include <Poco/Data/SQLite/Connector.h>
+    // Used for string escape functionality
+    #include <sqlite3.h>
 #endif
 #ifdef SQMOD_POCO_HAS_MYSQL
     #include <Poco/Data/MySQL/Connector.h>
@@ -46,6 +48,51 @@ void InitializePocoDataConnectors()
     Poco::Data::PostgreSQL::Connector::registerConnector();
 #endif
 }
+
+// ------------------------------------------------------------------------------------------------
+#ifdef SQMOD_POCO_HAS_SQLITE
+
+// ------------------------------------------------------------------------------------------------
+static LightObj SQLiteEscapeString(StackStrF & str)
+{
+    // Is there even a string to escape?
+    if (str.mLen <= 0)
+    {
+        return LightObj("", 0); // Default to empty string
+    }
+    // Allocate a memory buffer
+    Buffer b(static_cast< Buffer::SzType >(str.mLen * 2));
+    // Attempt to escape the specified string
+    sqlite3_snprintf(b.Capacity(), b.Get< char >(), "%q", str.mPtr);
+    // Return the resulted string
+    return LightObj(b.Get< SQChar >(), -1);
+}
+// ------------------------------------------------------------------------------------------------
+static LightObj SQLiteEscapeStringEx(SQChar spec, StackStrF & str)
+{
+    // Utility that allows changing the format specifier temporarily
+    SQChar fs[3]{'%', 'q', '\0'};
+    // Validate the specified format specifier
+    if ((spec != 'q') && (spec != 'Q') && (spec != 'w') && (spec != 's'))
+    {
+        STHROWF("Unknown format specifier: '%c'", spec);
+    }
+    // Is there even a string to escape?
+    else if (!str.mLen)
+    {
+        return LightObj("", 0); // Default to empty string
+    }
+    // Apply the format specifier
+    fs[1] = spec;
+    // Allocate a memory buffer
+    Buffer b(static_cast< Buffer::SzType >(str.mLen * 2));
+    // Attempt to escape the specified string
+    sqlite3_snprintf(b.Capacity(), b.Get< char >(), fs, str.mPtr);
+    // Return the resulted string
+    return LightObj(b.Get< SQChar >(), -1);
+}
+
+#endif
 
 // ------------------------------------------------------------------------------------------------
 void SqDataSession::SetProperty(const LightObj & value, StackStrF & name)
@@ -683,6 +730,11 @@ void Register_POCO_Data(HSQUIRRELVM vm, Table &)
     );
     // --------------------------------------------------------------------------------------------
     ns.Func(_SC("Process"), ProcessPocoData);
+    // --------------------------------------------------------------------------------------------
+    #ifdef SQMOD_POCO_HAS_SQLITE
+        ns.Func(_SC("SQLiteEscapeString"), SQLiteEscapeString);
+        ns.Func(_SC("SQLiteEscapeStringEx"), SQLiteEscapeStringEx);
+    #endif
     // --------------------------------------------------------------------------------------------
     Register_POCO_Data_Binding< SQInteger, SqIntegerBinding >(vm, ns, _SC("IntBind"));
     Register_POCO_Data_Binding< String, SqStringBinding >(vm, ns, _SC("StrBind"));

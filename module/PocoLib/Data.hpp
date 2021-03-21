@@ -1,6 +1,7 @@
 #pragma once
 
 // ------------------------------------------------------------------------------------------------
+#include "Core/Buffer.hpp"
 #include "Core/Utility.hpp"
 #include "Library/Utils/Vector.hpp"
 
