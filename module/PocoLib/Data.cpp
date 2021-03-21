@@ -12,6 +12,8 @@
 #endif
 #ifdef SQMOD_POCO_HAS_MYSQL
     #include <Poco/Data/MySQL/Connector.h>
+    // Used for string escape functionality
+    #include <mysql.h>
 #endif
 #ifdef SQMOD_POCO_HAS_POSTGRESQL
     #include <Poco/Data/PostgreSQL/Connector.h>
@@ -58,10 +60,10 @@ static LightObj SQLiteEscapeString(StackStrF & str)
     // Is there even a string to escape?
     if (str.mLen <= 0)
     {
-        return LightObj("", 0); // Default to empty string
+        return LightObj(_SC(""), 0, str.mVM); // Default to empty string
     }
     // Allocate a memory buffer
-    Buffer b(static_cast< Buffer::SzType >(str.mLen * 2));
+    Buffer b(static_cast< Buffer::SzType >(str.mLen * 2 + 1));
     // Attempt to escape the specified string
     sqlite3_snprintf(b.Capacity(), b.Get< char >(), "%q", str.mPtr);
     // Return the resulted string
@@ -80,16 +82,42 @@ static LightObj SQLiteEscapeStringEx(SQChar spec, StackStrF & str)
     // Is there even a string to escape?
     else if (!str.mLen)
     {
-        return LightObj("", 0); // Default to empty string
+        return LightObj(_SC(""), 0, str.mVM); // Default to empty string
     }
     // Apply the format specifier
     fs[1] = spec;
     // Allocate a memory buffer
-    Buffer b(static_cast< Buffer::SzType >(str.mLen * 2));
+    Buffer b(static_cast< Buffer::SzType >(str.mLen * 2 + 1));
     // Attempt to escape the specified string
     sqlite3_snprintf(b.Capacity(), b.Get< char >(), fs, str.mPtr);
     // Return the resulted string
     return LightObj(b.Get< SQChar >(), -1);
+}
+
+#endif
+
+// ------------------------------------------------------------------------------------------------
+#ifdef SQMOD_POCO_HAS_MYSQL
+
+LightObj SqDataSession::MySQLEscapeString(StackStrF & str)
+{
+    // Is there even a string to escape?
+    if (str.mLen <= 0)
+    {
+        return LightObj(_SC(""), 0, str.mVM); // Default to empty string
+    }
+    else if (Session::connector() != "mysql")
+    {
+        STHROWF("'mysql' session expected, got '{}'", Session::connector());
+    }
+    // Retrieve the internal handle property
+    auto * handle = Poco::AnyCast< MYSQL * >(Session::getProperty("handle"));
+    // Allocate a buffer for the given string
+    Buffer b(static_cast< Buffer::SzType >(str.mLen * 2 + 1));
+    // Attempt to escape the specified string
+    const unsigned long len = mysql_real_escape_string(handle, b.Get< char >(), str.mPtr, str.mLen);
+    // Return the resulted string
+    return LightObj(b.Get< SQChar >(), static_cast< SQInteger >(len), str.mVM);
 }
 
 #endif
@@ -582,6 +610,9 @@ void Register_POCO_Data(HSQUIRRELVM vm, Table &)
         .FmtFunc(_SC("GetProperty"), &SqDataSession::GetProperty)
         .FmtFunc(_SC("Execute"), &SqDataSession::Execute)
         .FmtFunc(_SC("ExecuteAsync"), &SqDataSession::ExecuteAsync)
+        #ifdef SQMOD_POCO_HAS_MYSQL
+        .FmtFunc(_SC("MySQLEscapeString"), &SqDataSession::MySQLEscapeString)
+        #endif
         // Static Functions
         .StaticFunc(_SC("GetURI"), &SqDataSession::BuildURI)
         // Static Values
@@ -732,8 +763,8 @@ void Register_POCO_Data(HSQUIRRELVM vm, Table &)
     ns.Func(_SC("Process"), ProcessPocoData);
     // --------------------------------------------------------------------------------------------
     #ifdef SQMOD_POCO_HAS_SQLITE
-        ns.Func(_SC("SQLiteEscapeString"), SQLiteEscapeString);
-        ns.Func(_SC("SQLiteEscapeStringEx"), SQLiteEscapeStringEx);
+        ns.FmtFunc(_SC("SQLiteEscapeString"), SQLiteEscapeString);
+        ns.FmtFunc(_SC("SQLiteEscapeStringEx"), SQLiteEscapeStringEx);
     #endif
     // --------------------------------------------------------------------------------------------
     Register_POCO_Data_Binding< SQInteger, SqIntegerBinding >(vm, ns, _SC("IntBind"));

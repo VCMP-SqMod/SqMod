@@ -685,7 +685,12 @@ struct SqDataSession : public Session
      * Move assignment.
     */
     SqDataSession & operator = (SqDataSession &&) noexcept = default;
-
+#ifdef SQMOD_POCO_HAS_MYSQL
+    /* --------------------------------------------------------------------------------------------
+     * Implements string escape in MySQL.
+    */
+    LightObj MySQLEscapeString(StackStrF & str);
+#endif
     /* --------------------------------------------------------------------------------------------
      * Opens the session using the supplied string.
      * Can also be used with default empty string to reconnect a disconnected session.
