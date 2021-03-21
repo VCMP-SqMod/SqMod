@@ -2226,24 +2226,25 @@ struct LgStream {
     }
     // --------------------------------------------------------------------------------------------
     static void StartWrite() { ClearOutput(); }
-    static void SetWritePosition(int position) {
-        if (position < 0 || position > m_OutputStreamEnd) m_OutputStreamPosition = m_OutputStreamEnd;
-        else m_OutputStreamPosition = static_cast<size_t>(position);
+    static void SetWritePosition(size_t position) {
+        if (position < m_OutputStreamEnd) m_OutputStreamPosition = position;
+        else m_OutputStreamPosition = m_OutputStreamEnd;
     }
-    static int GetWritePosition() { return static_cast< int >(m_OutputStreamPosition); }
-    static int GetWriteSize() { return static_cast< int >(m_OutputStreamEnd); }
+    static size_t GetWritePosition() { return m_OutputStreamPosition; }
+    static size_t GetWriteSize() { return m_OutputStreamEnd; }
     static bool HasWriteError() { return m_OutputStreamError; }
-    static void WriteByte(int value) { WriteValue(static_cast< uint8_t >(value)); }
-    static void WriteInt(int value) { Write(&value, sizeof(value)); }
+    static void WriteByte(uint8_t value) { Write(&value, sizeof(value)); }
+    static void WriteInt(int32_t value) { Write(&value, sizeof(value)); }
     static void WriteFloat(float value) { Write(&value, sizeof(value)); }
     static void WriteString(StackStrF & value) {
         uint16_t length = ConvTo< uint16_t >::From(value.mLen);
         if (CanWrite(sizeof(length))) {
             if (!CanWrite(length)) {
-                length = static_cast< uint16_t >(sizeof(m_OutputStreamData) - m_OutputStreamPosition);
+                length = static_cast< uint16_t >(MAX_SIZE - m_OutputStreamPosition);
                 m_OutputStreamError = true;
             }
-            WriteValue(static_cast< uint16_t >(((length >> 8u) & 0xFFu) | ((length & 0xFFu) << 8u)));
+            uint16_t lengthBE = static_cast< uint16_t >(((length >> 8u) & 0xFFu) | ((length & 0xFFu) << 8u));
+            Write(&lengthBE, sizeof(lengthBE));
             Write(value.mPtr, length);
         }
     }
@@ -2254,33 +2255,33 @@ struct LgStream {
     // --------------------------------------------------------------------------------------------
     static void LoadInput(const void * data, size_t size) {
         ClearInput();
-        m_InputStreamSize = size > sizeof(m_InputStreamData) ? sizeof(m_InputStreamData) : size;
+        m_InputStreamSize = (size < sizeof(m_InputStreamData)) ? size : sizeof(m_InputStreamData);
         memcpy(m_InputStreamData, data, m_InputStreamSize);
     }
-    static void SetReadPosition(int position) {
-        if (position < 0 || position > m_InputStreamPosition) m_InputStreamPosition = m_InputStreamSize;
-        else m_InputStreamPosition = static_cast<size_t>(position);
+    static void SetReadPosition(size_t position) {
+        if (position <= m_InputStreamPosition) m_InputStreamPosition = position;
+        else m_InputStreamPosition = m_InputStreamSize;
     }
-    static int GetReadPosition() { return static_cast< int >(m_InputStreamPosition); }
-    static int GetReadSize() { return static_cast< int >(m_InputStreamSize); }
+    static size_t GetReadPosition() { return m_InputStreamPosition; }
+    static size_t GetReadSize() { return m_InputStreamSize; }
     static bool HasReadError() { return m_InputStreamError; }
-    static int ReadByte() {
-        if (m_InputStreamPosition + sizeof(uint8_t) <= m_InputStreamSize) {
+    static uint8_t ReadByte() {
+        if ((m_InputStreamPosition + sizeof(uint8_t)) <= m_InputStreamSize) {
             return m_InputStreamData[m_InputStreamPosition++];
         } else m_InputStreamError = true;
         return 0;
     }
-    static int ReadInt() {
-        if (m_InputStreamPosition + sizeof(int) <= m_InputStreamSize) {
-            int result;
+    static int32_t ReadInt() {
+        if ((m_InputStreamPosition + sizeof(int32_t)) <= m_InputStreamSize) {
+            int32_t result;
             memcpy(&result, &m_InputStreamData[m_InputStreamPosition], sizeof(result));
-            m_InputStreamPosition += sizeof(int);
+            m_InputStreamPosition += sizeof(int32_t);
             return result;
         } else m_InputStreamError = true;
         return 0;
     }
     static float ReadFloat() {
-        if (m_InputStreamPosition + sizeof(float) <= m_InputStreamSize) {
+        if ((m_InputStreamPosition + sizeof(float)) <= m_InputStreamSize) {
             float result;
             memcpy(&result, &m_InputStreamData[m_InputStreamPosition], sizeof(result));
             m_InputStreamPosition += sizeof(float);
@@ -2290,11 +2291,11 @@ struct LgStream {
     }
     static LightObj ReadString() {
         uint16_t length = ReadBEInt16();
-        if (m_InputStreamPosition + length > m_InputStreamSize) {
+        if ((m_InputStreamPosition + length) > m_InputStreamSize) {
             length = static_cast< uint16_t >(m_InputStreamSize - m_InputStreamPosition);
             m_InputStreamError = true;
         }
-        length = static_cast< uint16_t >(length > (MAX_SIZE - 1) ? (MAX_SIZE - 1) : length);
+        length = static_cast< uint16_t >(length < (MAX_SIZE - 1) ? length : (MAX_SIZE - 1));
         memcpy(m_Buffer, &m_InputStreamData[m_InputStreamPosition], length);
         m_Buffer[length] = '\0';
         m_InputStreamPosition += length;
@@ -2302,8 +2303,7 @@ struct LgStream {
     }
 private:
     // --------------------------------------------------------------------------------------------
-    static bool CanWrite(size_t size) { return (size <= (sizeof(m_OutputStreamData) - m_OutputStreamPosition)); }
-    template < class T > static void WriteValue(const T & v) { Write(&v, sizeof(v)); }
+    static bool CanWrite(size_t size) { return (size <= (MAX_SIZE - m_OutputStreamPosition)); }
     static void Write(const void * value, size_t size) {
         if (CanWrite(size)) {
             memcpy(&m_OutputStreamData[m_OutputStreamPosition], value, size);
@@ -2313,11 +2313,11 @@ private:
     }
     // --------------------------------------------------------------------------------------------
     static uint16_t ReadBEInt16() {
-        if (m_InputStreamPosition + sizeof(uint16_t) <= m_InputStreamSize) {
+        if ((m_InputStreamPosition + sizeof(uint16_t)) <= m_InputStreamSize) {
             uint16_t result;
             memcpy(&result, &m_InputStreamData[m_InputStreamPosition], sizeof(result));
             m_InputStreamPosition += sizeof(uint16_t);
-            return static_cast< uint16_t >(((result >> 8) & 0xFF) | ((result & 0xFF) << 8));
+            return static_cast< uint16_t >(((result >> 8u) & 0xFFu) | ((result & 0xFFu) << 8u));
         } m_InputStreamError = true;
         return 0;
     }
