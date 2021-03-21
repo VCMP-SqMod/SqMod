@@ -2254,7 +2254,8 @@ struct LgStream {
         else if (target.GetType() == OT_INTEGER || target.GetType() == OT_FLOAT) id = target.Cast< int32_t >();
         else if (static_cast< AbstractStaticClassData * >(target.GetTypeTag()) == StaticClassTypeTag< LgPlayer >::Get()) {
             id = target.CastI< LgPlayer >()->GetIdentifier();
-        } else STHROWF("Invalid target");
+        } else STHROWF("Invalid target type");
+        if (id > SQMOD_PLAYER_POOL) STHROWF("Invalid player ID");
         _Func->SendClientScriptData(id, m_OutputStreamData, m_OutputStreamEnd);
         ClearOutput();
     }
