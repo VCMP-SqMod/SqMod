@@ -400,7 +400,7 @@ struct LgWastedSettings
     uint32_t    mFadeTime{0};
     float       mFadeInSpeed{0.0f};
     float       mFadeOutSpeed{0.0f};
-    LgRGB       mFadeColour{0};
+    Color3      mFadeColour{0};
     uint32_t    mCorpseFadeDelay{0};
     uint32_t    mCorpseFadeTime{0};
 
@@ -413,7 +413,7 @@ struct LgWastedSettings
      * Construct with individually specified settings.
     */
     LgWastedSettings(uint32_t death_time, uint32_t fade_time, float fade_in_speed, float fade_out_speed,
-                        LgRGB fade_colour, uint32_t corpse_fade_delay, uint32_t corpse_fade_time)
+                        const Color3 & fade_colour, uint32_t corpse_fade_delay, uint32_t corpse_fade_time)
         : mDeathTime(death_time)
         , mFadeTime(fade_time)
         , mFadeInSpeed(fade_in_speed)

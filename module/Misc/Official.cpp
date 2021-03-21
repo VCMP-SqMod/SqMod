@@ -329,11 +329,13 @@ void Register_Official(HSQUIRRELVM vm)
         DerivedClass< LgRGBA, Color4 >(vm, RGBATn::Str)
         // Constructors
         .Ctor< LgRGBA::Value, LgRGBA::Value, LgRGBA::Value >()
+        .Ctor< LgRGBA::Value, LgRGBA::Value, LgRGBA::Value, LgRGBA::Value >()
     );
     // --------------------------------------------------------------------------------------------
     RootTable(vm).Bind(ARGBTn::Str,
         DerivedClass< LgARGB, Color4 >(vm, ARGBTn::Str)
         // Constructors
+        .Ctor< LgARGB::Value, LgARGB::Value, LgARGB::Value >()
         .Ctor< LgARGB::Value, LgARGB::Value, LgARGB::Value, LgARGB::Value >()
     );
     // --------------------------------------------------------------------------------------------
@@ -361,7 +363,7 @@ void Register_Official(HSQUIRRELVM vm)
     RootTable(vm).Bind(WastedSettingsTn::Str,
         Class< LgWastedSettings >(vm, WastedSettingsTn::Str)
         // Constructors
-        .Ctor< uint32_t, uint32_t, float, float, LgRGB, uint32_t, uint32_t >()
+        .Ctor< uint32_t, uint32_t, float, float, const Color3 &, uint32_t, uint32_t >()
         // Member Variables
         .Var(_SC("DeathTime"), &LgWastedSettings::mDeathTime)
         .Var(_SC("FadeTime"), &LgWastedSettings::mFadeTime)
@@ -655,7 +657,7 @@ struct LgPlayer
     void SetSecWorld(int world) const { Get().SetSecondaryWorld(world); }
     void SetTeam(int team) const { Get().SetTeam(team); }
     void SetSkin(int skin) const { Get().SetSkin(skin); }
-    void SetColour(const LgRGB & colour) const { Get().SetColor(colour); }
+    void SetColour(const Color3 & colour) const { Get().SetColor(colour); }
     void SetMoney(int money) const { Get().SetMoney(money); }
     void SetScore(int score) const { Get().SetScore(score); }
     void SetImmunity(uint32_t immunity) const { Get().SetImmunity(immunity); }
@@ -1344,7 +1346,7 @@ SQMOD_NODISCARD static bool LgEnabledWallglitch() { return _Func->GetServerOptio
 SQMOD_NODISCARD static bool LgEnabledDisableBackfaceCulling() { return _Func->GetServerOption(vcmpServerOptionDisableBackfaceCulling) >= 1; }
 SQMOD_NODISCARD static bool LgEnabledDisableHeliBladeDamage() { return _Func->GetServerOption(vcmpServerOptionDisableHeliBladeDamage) >= 1; }
 // ------------------------------------------------------------------------------------------------
-SQMOD_NODISCARD static int LgCreateBlip(int world, const Vector3 & pos, int scale, const LgRGBA & color, int sprite)
+SQMOD_NODISCARD static int LgCreateBlip(int world, const Vector3 & pos, int scale, const Color4 & color, int sprite)
 { return _Func->CreateCoordBlip(-1, world, pos.x, pos.y, pos.z, scale, color.GetRGBA(), sprite); }
 static void LgDestroyBlip(int blip) { _Func->DestroyCoordBlip(blip); }
 // ------------------------------------------------------------------------------------------------
@@ -1372,7 +1374,7 @@ static void LgSetUseClasses(bool toggle)
 { _Func->SetServerOption(vcmpServerOptionUseClasses, static_cast< uint8_t >(toggle)); }
 static bool LgUsingClasses()
 { return _Func->GetServerOption(vcmpServerOptionUseClasses) >= 1; }
-static void LgAddClass(int team, const LgRGB & col, int skin, const Vector3 & pos, float angle,
+static void LgAddClass(int team, const Color3 & col, int skin, const Vector3 & pos, float angle,
                         int wep1, int ammo1, int wep2, int ammo2, int wep3, int ammo3)
 { _Func->AddPlayerClass(team, col.GetRGBA(), skin, pos.x, pos.y, pos.z, angle, wep1, ammo1, wep2, ammo2, wep3, ammo3); }
 // ------------------------------------------------------------------------------------------------
