@@ -2217,12 +2217,12 @@ struct LgStream {
     static constexpr size_t MAX_SIZE = 4096;
     // --------------------------------------------------------------------------------------------
     static void ClearOutput() {
-        m_InputStreamSize = m_InputStreamPosition = 0;
-        m_InputStreamError = false;
-    }
-    static void ClearInput() {
         m_OutputStreamPosition = m_OutputStreamEnd = 0;
         m_OutputStreamError = false;
+    }
+    static void ClearInput() {
+        m_InputStreamSize = m_InputStreamPosition = 0;
+        m_InputStreamError = false;
     }
     // --------------------------------------------------------------------------------------------
     static void StartWrite() { ClearOutput(); }
