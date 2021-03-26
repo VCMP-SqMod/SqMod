@@ -7,7 +7,7 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/vendor/POCO/cmake)
 
 # Several plugin options
 option(ENABLE_API21 "Build for 2.1 API." OFF)
-option(ENABLE_OFFICIAL "Enable compatibility with official legacy plug-in" OFF)
+option(ENABLE_OFFICIAL "Enable compatibility with official legacy plug-in" ON)
 option(FORCE_32BIT_BIN "Create a 32-bit executable binary if the compiler defaults to 64-bit." OFF)
 # This option should only be available in certain conditions
 if(WIN32 AND MINGW)
