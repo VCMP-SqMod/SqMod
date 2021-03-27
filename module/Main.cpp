@@ -108,6 +108,8 @@ static uint8_t OnServerInitialise()
         {
             SQMOD_SV_EV_TRACEBACK("[TRACE>] OnServerInitialise")
             OutputError("Unable to load the plug-in resources properly");
+            // The server may not invoke the shutdown callback
+            Core::Get().Terminate(true);
             // Failed to initialize
             return SQMOD_FAILURE;
         }
