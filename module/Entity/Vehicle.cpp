@@ -293,7 +293,7 @@ bool CVehicle::HasOccupant(int32_t slot) const
     // Use the server errors to see if there was an occupant
     const vcmpError err = _Func->GetLastError();
     // Return whether there was no error and the returned ID is valid
-    return (err == vcmpErrorNone) && INVALID_ENTITYEX(id, SQMOD_PLAYER_POOL);
+    return (err == vcmpErrorNone) && VALID_ENTITYEX(id, SQMOD_PLAYER_POOL);
 }
 
 // ------------------------------------------------------------------------------------------------
