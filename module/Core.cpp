@@ -4,6 +4,7 @@
 #include "Core/Areas.hpp"
 #include "Core/Signal.hpp"
 #include "Core/Buffer.hpp"
+#include "Core/ThreadPool.hpp"
 #include "Library/IO/Buffer.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -37,7 +38,6 @@ namespace SqMod {
 extern bool RegisterAPI(HSQUIRRELVM vm);
 
 // ------------------------------------------------------------------------------------------------
-extern void ZmqProcess();
 extern void ZmqTerminate();
 extern void AnnounceTerminate();
 extern void InitializeTasks();
@@ -236,7 +236,13 @@ bool Core::Initialize()
         // Failed to load the configuration file
         return false;
     }
-
+    // Attempt to initialize the thread pool
+    if (!ThreadPool::Get().Initialize(conf.GetLongValue("General", "WorkerThreads",
+                                                                static_cast< long >(std::thread::hardware_concurrency()))))
+    {
+        ThreadPool::Get().Terminate();
+        return false;
+    }
 #ifdef VCMP_ENABLE_OFFICIAL
     // See if debugging options should be enabled
     m_Official = conf.GetBoolValue("Squirrel", "OfficialCompatibility", m_Official);
@@ -531,6 +537,8 @@ void Core::Terminate(bool shutdown)
     TerminatePocoData();
     // Release ZMQ sockets
     ZmqTerminate();
+    // Terminate the thread pool
+    ThreadPool::Get().Terminate();
     // In case there's a payload for reload
     m_ReloadPayload.Release();
     // Release null objects in case any reference to valid objects is stored in them
@@ -701,7 +709,7 @@ bool Core::LoadScript(const SQChar * filepath, bool delay)
     if (std::find_if(m_Scripts.cbegin(), m_Scripts.cend(), [&path](Scripts::const_reference s) {
         return (s.mPath == path);
     }) != m_Scripts.end())
-    {
+    { // NOLINT(bugprone-branch-clone)
         LogWrn("Script was specified before: %s", path.c_str());
     }
     // Also check the pending scripts container

@@ -47,6 +47,7 @@ add_library(SqModule MODULE SqBase.hpp Main.cpp
     Core/Script.cpp Core/Script.hpp
     Core/Signal.cpp Core/Signal.hpp
     Core/Tasks.cpp Core/Tasks.hpp
+    Core/ThreadPool.cpp Core/ThreadPool.hpp
     Core/Utility.cpp Core/Utility.hpp
     Core/VecMap.hpp
     # Entity
