@@ -19,8 +19,9 @@ static bool g_Reload = false;
 // ------------------------------------------------------------------------------------------------
 //extern void InitExports();
 extern void InitializePocoDataConnectors();
-extern void ProcessTasks();
 extern void ProcessRoutines();
+extern void ProcessTasks();
+extern void ProcessThreads();
 
 /* ------------------------------------------------------------------------------------------------
  * Will the scripts be reloaded at the end of the current event?
@@ -163,6 +164,8 @@ static void OnServerFrame(float elapsed_time)
     // Process routines and tasks, if any
     ProcessRoutines();
     ProcessTasks();
+    // Process threads
+    ProcessThreads();
     // Process log messages from other threads
     Logger::Get().ProcessQueue();
     // See if a reload was requested

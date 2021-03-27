@@ -2,6 +2,7 @@
 
 // ------------------------------------------------------------------------------------------------
 #include "Core/Common.hpp"
+#include "Core/ThreadPool.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cpr/cpr.h>
@@ -1608,10 +1609,22 @@ struct CpProxies : public cpr::Proxies
 */
 struct CpSession : public cpr::Session
 {
+    // Pointer to the pending action associated with this session, if any.
+    ThreadPoolItem * mPending{nullptr};
+
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
     CpSession() = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * URL constructor.
+    */
+    CpSession(StackStrF & url)
+        : cpr::Session()
+    {
+        cpr::Session::SetUrl(cpr::Url(url.mPtr, url.GetSize()));
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor (disabled).
@@ -1639,10 +1652,30 @@ struct CpSession : public cpr::Session
     CpSession & operator = (CpSession &&) noexcept = default;
 
     /* --------------------------------------------------------------------------------------------
+     * Throw exception if the session is locked.
+    */
+    void LockCheck()
+    {
+        if (mPending)
+        {
+            STHROWF("Session is currently locked by pending action.");
+        }
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Check if the session is locked.
+    */
+    SQMOD_NODISCARD bool IsLocked() const
+    {
+        return mPending != nullptr;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Modify URL option.
     */
     CpSession & SetURL_(StackStrF & url)
     {
+        LockCheck();
         cpr::Session::SetUrl(cpr::Url(url.mPtr, url.GetSize()));
         return *this; // Allow chaining
     }
@@ -1652,6 +1685,7 @@ struct CpSession : public cpr::Session
     */
     CpSession & SetParameters_(const CpParameters & parameters)
     {
+        LockCheck();
         cpr::Session::SetParameters(parameters);
         return *this; // Allow chaining
     }
@@ -1661,6 +1695,7 @@ struct CpSession : public cpr::Session
     */
     CpSession & YieldParameters(CpParameters & parameters)
     {
+        LockCheck();
         cpr::Session::SetParameters(std::move(static_cast< cpr::Parameters & >(parameters)));
         return *this; // Allow chaining
     }
@@ -1670,6 +1705,7 @@ struct CpSession : public cpr::Session
     */
     CpSession & SetHeader_(const CpHeader & header)
     {
+        LockCheck();
         cpr::Session::SetHeader(header.mMap);
         return *this; // Allow chaining
     }
@@ -1679,6 +1715,7 @@ struct CpSession : public cpr::Session
     */
     CpSession & SetTimeout_(SQInteger ms)
     {
+        LockCheck();
         cpr::Session::SetTimeout(cpr::Timeout(std::chrono::milliseconds{ms}));
         return *this; // Allow chaining
     }
@@ -1688,6 +1725,7 @@ struct CpSession : public cpr::Session
     */
     CpSession & SetConnectTimeout_(SQInteger ms)
     {
+        LockCheck();
         cpr::Session::SetConnectTimeout(cpr::ConnectTimeout(std::chrono::milliseconds{ms}));
         return *this; // Allow chaining
     }
@@ -1697,6 +1735,7 @@ struct CpSession : public cpr::Session
     */
     CpSession & SetAuth_(StackStrF & username, StackStrF & password)
     {
+        LockCheck();
         cpr::Session::SetAuth(cpr::Authentication(username.ToStr(), password.ToStr()));
         return *this; // Allow chaining
     }
@@ -1706,6 +1745,7 @@ struct CpSession : public cpr::Session
     */
     CpSession & SetDigest_(StackStrF & username, StackStrF & password)
     {
+        LockCheck();
         cpr::Session::SetAuth(cpr::Digest(username.ToStr(), password.ToStr()));
         return *this; // Allow chaining
     }
@@ -1715,6 +1755,7 @@ struct CpSession : public cpr::Session
     */
     CpSession & SetUserAgent_(StackStrF & agent)
     {
+        LockCheck();
         cpr::Session::SetUserAgent(cpr::UserAgent(agent.mPtr, agent.GetSize()));
         return *this; // Allow chaining
     }
@@ -1724,6 +1765,7 @@ struct CpSession : public cpr::Session
     */
     CpSession & SetPayload_(const CpPayload & payload)
     {
+        LockCheck();
         cpr::Session::SetPayload(payload);
         return *this; // Allow chaining
     }
@@ -1733,6 +1775,7 @@ struct CpSession : public cpr::Session
     */
     CpSession & YieldPayload(CpPayload & payload)
     {
+        LockCheck();
         cpr::Session::SetPayload(std::move(static_cast< cpr::Payload & >(payload)));
         return *this; // Allow chaining
     }
@@ -1742,6 +1785,7 @@ struct CpSession : public cpr::Session
     */
     CpSession & SetProxies_(const CpProxies & proxies)
     {
+        LockCheck();
         cpr::Session::SetProxies(proxies);
         return *this; // Allow chaining
     }
@@ -1751,6 +1795,7 @@ struct CpSession : public cpr::Session
     */
     CpSession & YieldProxies(CpProxies & proxies)
     {
+        LockCheck();
         cpr::Session::SetProxies(std::move(static_cast< cpr::Proxies & >(proxies)));
         return *this; // Allow chaining
     }
@@ -1774,6 +1819,7 @@ struct CpSession : public cpr::Session
     */
     CpSession & SetNTLM_(StackStrF & username, StackStrF & password)
     {
+        LockCheck();
         cpr::Session::SetNTLM(cpr::NTLM(username.ToStr(), password.ToStr()));
         return *this; // Allow chaining
     }
@@ -1783,6 +1829,7 @@ struct CpSession : public cpr::Session
     */
     CpSession & SetRedirect_(bool redirect)
     {
+        LockCheck();
         cpr::Session::SetRedirect(redirect);
         return *this; // Allow chaining
     }
@@ -1792,6 +1839,7 @@ struct CpSession : public cpr::Session
     */
     CpSession & SetMaxRedirects_(SQInteger max_redirects)
     {
+        LockCheck();
         cpr::Session::SetMaxRedirects(cpr::MaxRedirects(static_cast< int32_t >(max_redirects)));
         return *this; // Allow chaining
     }
@@ -1801,6 +1849,7 @@ struct CpSession : public cpr::Session
     */
     CpSession & SetCookies_(const CpCookies & cookies)
     {
+        LockCheck();
         cpr::Session::SetCookies(cookies);
         return *this; // Allow chaining
     }
@@ -1810,6 +1859,7 @@ struct CpSession : public cpr::Session
     */
     CpSession & SetBody_(StackStrF & body)
     {
+        LockCheck();
         cpr::Session::SetBody(cpr::Body(body.mPtr, body.GetSize()));
         return *this; // Allow chaining
     }
@@ -1819,6 +1869,7 @@ struct CpSession : public cpr::Session
     */
     CpSession & SetLowSpeed_(SQInteger limit, SQInteger time)
     {
+        LockCheck();
         cpr::Session::SetLowSpeed(cpr::LowSpeed(static_cast< int32_t >(limit), static_cast< int32_t >(time)));
         return *this; // Allow chaining
     }
@@ -1828,6 +1879,7 @@ struct CpSession : public cpr::Session
     */
     CpSession & SetVerifySsl_(bool verify)
     {
+        LockCheck();
         cpr::Session::SetVerifySsl(cpr::VerifySsl(verify));
         return *this; // Allow chaining
     }
@@ -1837,6 +1889,7 @@ struct CpSession : public cpr::Session
     */
     CpSession & SetUnixSocket_(StackStrF & socket)
     {
+        LockCheck();
         cpr::Session::SetUnixSocket(cpr::UnixSocket(socket.ToStr()));
         return *this; // Allow chaining
     }
@@ -1846,6 +1899,7 @@ struct CpSession : public cpr::Session
     */
     CpSession & SetSslOptions_(const CpSslOptions & options)
     {
+        LockCheck();
         cpr::Session::SetSslOptions(options);
         return *this; // Allow chaining
     }
@@ -1890,6 +1944,7 @@ struct CpSession : public cpr::Session
     */
     CpSession & SetVerbose_(bool verbose)
     {
+        LockCheck();
         cpr::Session::SetVerbose(cpr::Verbose(verbose));
         return *this; // Allow chaining
     }
@@ -1899,6 +1954,7 @@ struct CpSession : public cpr::Session
     */
     CpResponse DoDelete()
     {
+        LockCheck();
         return CpResponse(cpr::Session::Delete());
     }
 
@@ -1907,6 +1963,7 @@ struct CpSession : public cpr::Session
     */
     CpResponse DoGet()
     {
+        LockCheck();
         return CpResponse(cpr::Session::Get());
     }
 
@@ -1915,6 +1972,7 @@ struct CpSession : public cpr::Session
     */
     CpResponse DoHead()
     {
+        LockCheck();
         return CpResponse(cpr::Session::Head());
     }
 
@@ -1923,6 +1981,7 @@ struct CpSession : public cpr::Session
     */
     CpResponse DoOptions()
     {
+        LockCheck();
         return CpResponse(cpr::Session::Options());
     }
 
@@ -1931,6 +1990,7 @@ struct CpSession : public cpr::Session
     */
     CpResponse DoPatch()
     {
+        LockCheck();
         return CpResponse(cpr::Session::Patch());
     }
 
@@ -1939,6 +1999,7 @@ struct CpSession : public cpr::Session
     */
     CpResponse DoPost()
     {
+        LockCheck();
         return CpResponse(cpr::Session::Post());
     }
 
@@ -1947,12 +2008,47 @@ struct CpSession : public cpr::Session
     */
     CpResponse DoPut()
     {
+        LockCheck();
         return CpResponse(cpr::Session::Put());
     }
 
     //CpResponse Download(const WriteCallback& write);
     //CpResponse Download(std::ofstream& file);
 
+    /* --------------------------------------------------------------------------------------------
+     * Delete async request.
+    */
+    void DoDelete_(Function & cb);
+
+    /* --------------------------------------------------------------------------------------------
+     * Get async request.
+    */
+    void DoGet_(Function & cb);
+
+    /* --------------------------------------------------------------------------------------------
+     * Head async request.
+    */
+    void DoHead_(Function & cb);
+
+    /* --------------------------------------------------------------------------------------------
+     * Options async request.
+    */
+    void DoOptions_(Function & cb);
+
+    /* --------------------------------------------------------------------------------------------
+     * Patch async request.
+    */
+    void DoPatch_(Function & cb);
+
+    /* --------------------------------------------------------------------------------------------
+     * Post async request.
+    */
+    void DoPost_(Function & cb);
+
+    /* --------------------------------------------------------------------------------------------
+     * Put async request.
+    */
+    void DoPut_(Function & cb);
 };
 
 } // Namespace:: SqMod

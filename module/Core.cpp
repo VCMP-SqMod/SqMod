@@ -242,7 +242,7 @@ bool Core::Initialize()
     {
         ThreadPool::Get().Terminate();
         return false;
-    }
+    } else cLogDbg(m_Verbosity >= 1, "Initialized %zu worker threads", ThreadPool::Get().GetThreadCount());
 #ifdef VCMP_ENABLE_OFFICIAL
     // See if debugging options should be enabled
     m_Official = conf.GetBoolValue("Squirrel", "OfficialCompatibility", m_Official);
@@ -517,28 +517,36 @@ void Core::Terminate(bool shutdown)
     const ContainerCleaner cc_checkpoints(m_Checkpoints, ENT_CHECKPOINT, !shutdown);
     const ContainerCleaner cc_blips(m_Blips, ENT_BLIP, !shutdown);
     const ContainerCleaner cc_keybinds(m_KeyBinds, ENT_KEYBIND, !shutdown);
-    cLogDbg(m_Verbosity >= 1, "Terminating routines an commands");
-    // Release third-party
 
-    // Release all resources from routines and tasks
-    TerminateRoutines();
-    TerminateTasks();
-    // Release all resources from command managers
-    TerminateCommands();
-    // Release all resources from signals
-    TerminateSignals();
-    // Release all managed areas
-    TerminateAreas();
-    // Release privilege managers
-    TerminatePrivileges();
-    // Release announcers
-    AnnounceTerminate();
-    // Release Poco statement results
-    TerminatePocoData();
-    // Release ZMQ sockets
-    ZmqTerminate();
     // Terminate the thread pool
     ThreadPool::Get().Terminate();
+    cLogDbg(m_Verbosity >= 1, "Thread pool terminated");
+    // Release all resources from routines and tasks
+    TerminateRoutines();
+    cLogDbg(m_Verbosity >= 2, "Routines terminated");
+    TerminateTasks();
+    cLogDbg(m_Verbosity >= 2, "Tasks terminated");
+    // Release all resources from command managers
+    TerminateCommands();
+    cLogDbg(m_Verbosity >= 2, "Commands terminated");
+    // Release all resources from signals
+    TerminateSignals();
+    cLogDbg(m_Verbosity >= 2, "Signals terminated");
+    // Release all managed areas
+    TerminateAreas();
+    cLogDbg(m_Verbosity >= 2, "Areas terminated");
+    // Release privilege managers
+    TerminatePrivileges();
+    cLogDbg(m_Verbosity >= 2, "Privileges terminated");
+    // Release announcers
+    AnnounceTerminate();
+    cLogDbg(m_Verbosity >= 1, "Announcer terminated");
+    // Release Poco statement results
+    TerminatePocoData();
+    cLogDbg(m_Verbosity >= 1, "Poco terminated");
+    // Release ZMQ sockets
+    ZmqTerminate();
+    cLogDbg(m_Verbosity >= 1, "ZMQ terminated");
     // In case there's a payload for reload
     m_ReloadPayload.Release();
     // Release null objects in case any reference to valid objects is stored in them
@@ -555,6 +563,7 @@ void Core::Terminate(bool shutdown)
     m_NullPickup.Release();
     m_NullPlayer.Release();
     m_NullVehicle.Release();
+    cLogDbg(m_Verbosity >= 2, "Temporary script objects released");
     // Is there a VM to close?
     if (m_VM)
     {

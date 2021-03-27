@@ -11,9 +11,17 @@ namespace SqMod {
 ThreadPool ThreadPool::s_Inst;
 
 // ------------------------------------------------------------------------------------------------
+void ProcessThreads()
+{
+    ThreadPool::Get().Process();
+}
+
+// ------------------------------------------------------------------------------------------------
 ThreadPool::ThreadPool() noexcept
     : m_Running(false)
-    , m_Pending()
+    , m_Mutex()
+    , m_CV()
+    , m_Queue()
     , m_Finished()
     , m_Threads()
 {
@@ -31,6 +39,8 @@ ThreadPool::~ThreadPool()
             t.join(); // Will block until work is finished!
         }
     }
+    // Clear all thread instances
+    m_Threads.clear();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -46,21 +56,12 @@ bool ThreadPool::Initialize(uint32_t count)
     {
         count = MAX_WORKER_THREADS; // Hard coded worker limit
     }
-    // See if any of the threads are active
-    for (auto & t : m_Threads)
-    {
-        if (t.joinable())
-        {
-            return false; // Something is not right!
-        }
-    }
     // Make sure the threads don't stop after creation
     m_Running = true;
     // Create the specified amount of worker threads
     for (uint32_t i = 0; i < count; ++i)
     {
-        // Pass the container index to the worker thread so it knows to find itself
-        m_Threads.emplace_back(&ThreadPool::WorkerProc, this, i);
+        m_Threads.emplace_back(&ThreadPool::WorkerProc, this);
     }
     // Thread pool initialized
     return m_Running;
@@ -76,10 +77,15 @@ void ThreadPool::Terminate(bool SQ_UNUSED_ARG(shutdown))
     }
     // Tell the threads to stop
     m_Running = false;
-    // Enqueue dummy items to wake the threads and allow them to stop
-    for (size_t n = 0; n < m_Threads.size(); ++n)
     {
-        m_Pending.enqueue(Item());
+        std::lock_guard< std::mutex > lg(m_Mutex);
+        // Enqueue dummy items to wake the threads and allow them to stop
+        for (size_t n = 0; n < m_Threads.size(); ++n)
+        {
+            m_Queue.push(Item());
+        }
+        // Allow threads to process the dummy items and stop
+        m_CV.notify_all();
     }
     // Attempt to join the threads
     for (auto & t : m_Threads)
@@ -89,6 +95,8 @@ void ThreadPool::Terminate(bool SQ_UNUSED_ARG(shutdown))
             t.join(); // Will block until work is finished!
         }
     }
+    // Clear all thread instances
+    m_Threads.clear();
     // Retrieve each item individually and process it
     for (Item item; m_Finished.try_dequeue(item);)
     {
@@ -124,7 +132,7 @@ void ThreadPool::Process()
 }
 
 // ------------------------------------------------------------------------------------------------
-void ThreadPool::WorkerProc(uint32_t SQ_UNUSED_ARG(idx))
+void ThreadPool::WorkerProc()
 {
     // Whether this item wants to try again
     bool retry = false;
@@ -147,7 +155,17 @@ void ThreadPool::WorkerProc(uint32_t SQ_UNUSED_ARG(idx))
         // Attempt to get an item from the queue
         if (!retry)
         {
-            m_Pending.wait_dequeue(item);
+            // Acquire a lock on the mutex
+            std::unique_lock< std::mutex > lock(m_Mutex);
+            // Wait until there are items in the queue
+            while (m_Queue.empty())
+            {
+                m_CV.wait(lock);
+            }
+            // Retrieve top item the queue
+            item = std::move(m_Queue.front());
+            // Remove it from the queue
+            m_Queue.pop();
         }
         // Do we have to stop?
         if (!m_Running)

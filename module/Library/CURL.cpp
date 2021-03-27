@@ -18,6 +18,291 @@ SQMOD_DECL_TYPENAME(SqCpPayload, _SC("SqCprPayload"))
 SQMOD_DECL_TYPENAME(SqCpProxies, _SC("SqCprProxies"))
 SQMOD_DECL_TYPENAME(SqCpSession, _SC("SqCprSession"))
 
+/* ------------------------------------------------------------------------------------------------
+ * Common session action implementation.
+*/
+struct CpBaseAction : public ThreadPoolItem
+{
+    // --------------------------------------------------------------------------------------------
+    CpSession *     mInstance{nullptr}; // Associated session.
+    Function        mCallback{}; // Function to call when completed.
+    LightObj        mObject{}; // Prevent the session from being destroyed.
+    cpr::Response   mResponse{};
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    CpBaseAction(CpSession * session, Function & cb, LightObj && obj)
+        : mInstance(session)
+        , mCallback(std::move(cb))
+        , mObject(std::move(obj))
+        , mResponse()
+    {
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Destructor.
+    */
+    ~CpBaseAction() override = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Task completed callback.
+    */
+    void OnCompleted() override
+    {
+        // Is there a callback?
+        if (!mCallback.IsNull())
+        {
+            mCallback(mObject, CpResponse(std::move(mResponse))); // Invoke it
+        }
+        // Unlock the session
+        mInstance->mPending = nullptr;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Task process callback.
+    */
+    SQMOD_NODISCARD bool OnProcess() override { return false; }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Delete action implementation.
+*/
+struct CpDeleteAction : public CpBaseAction
+{
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    CpDeleteAction(CpSession * session, Function & cb, LightObj && obj)
+        : CpBaseAction(session, cb, std::move(obj))
+    {
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Task process callback.
+    */
+    SQMOD_NODISCARD bool OnProcess() override
+    {
+        mResponse = mInstance->Delete();
+        return false; // We do this once
+    }
+};
+
+// ------------------------------------------------------------------------------------------------
+void CpSession::DoDelete_(Function & cb)
+{
+    LockCheck();
+    // Create the task and lock session
+    mPending = new CpDeleteAction(this, cb, LightObj(1, SqVM()));
+    // Queue the task to be processed
+    ThreadPool::Get().Enqueue(mPending);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Get action implementation.
+*/
+struct CpGetAction : public CpBaseAction
+{
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    CpGetAction(CpSession * session, Function & cb, LightObj && obj)
+        : CpBaseAction(session, cb, std::move(obj))
+    {
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Task process callback.
+    */
+    SQMOD_NODISCARD bool OnProcess() override
+    {
+        mResponse = mInstance->Get();
+        return false; // We do this once
+    }
+};
+
+// ------------------------------------------------------------------------------------------------
+void CpSession::DoGet_(Function & cb)
+{
+    LockCheck();
+    // Create the task and lock session
+    mPending = new CpGetAction(this, cb, LightObj(1, SqVM()));
+    // Queue the task to be processed
+    ThreadPool::Get().Enqueue(mPending);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Head action implementation.
+*/
+struct CpHeadAction : public CpBaseAction
+{
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    CpHeadAction(CpSession * session, Function & cb, LightObj && obj)
+        : CpBaseAction(session, cb, std::move(obj))
+    {
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Task process callback.
+    */
+    SQMOD_NODISCARD bool OnProcess() override
+    {
+        mResponse = mInstance->Head();
+        return false; // We do this once
+    }
+};
+
+// ------------------------------------------------------------------------------------------------
+void CpSession::DoHead_(Function & cb)
+{
+    LockCheck();
+    // Create the task and lock session
+    mPending = new CpHeadAction(this, cb, LightObj(1, SqVM()));
+    // Queue the task to be processed
+    ThreadPool::Get().Enqueue(mPending);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Options action implementation.
+*/
+struct CpOptionsAction : public CpBaseAction
+{
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    CpOptionsAction(CpSession * session, Function & cb, LightObj && obj)
+        : CpBaseAction(session, cb, std::move(obj))
+    {
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Task process callback.
+    */
+    SQMOD_NODISCARD bool OnProcess() override
+    {
+        mResponse = mInstance->Options();
+        return false; // We do this once
+    }
+};
+
+// ------------------------------------------------------------------------------------------------
+void CpSession::DoOptions_(Function & cb)
+{
+    LockCheck();
+    // Create the task and lock session
+    mPending = new CpOptionsAction(this, cb, LightObj(1, SqVM()));
+    // Queue the task to be processed
+    ThreadPool::Get().Enqueue(mPending);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Patch action implementation.
+*/
+struct CpPatchAction : public CpBaseAction
+{
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    CpPatchAction(CpSession * session, Function & cb, LightObj && obj)
+        : CpBaseAction(session, cb, std::move(obj))
+    {
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Task process callback.
+    */
+    SQMOD_NODISCARD bool OnProcess() override
+    {
+        mResponse = mInstance->Patch();
+        return false; // We do this once
+    }
+};
+
+// ------------------------------------------------------------------------------------------------
+void CpSession::DoPatch_(Function & cb)
+{
+    LockCheck();
+    // Create the task and lock session
+    mPending = new CpPatchAction(this, cb, LightObj(1, SqVM()));
+    // Queue the task to be processed
+    ThreadPool::Get().Enqueue(mPending);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Post action implementation.
+*/
+struct CpPostAction : public CpBaseAction
+{
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    CpPostAction(CpSession * session, Function & cb, LightObj && obj)
+        : CpBaseAction(session, cb, std::move(obj))
+    {
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Task process callback.
+    */
+    SQMOD_NODISCARD bool OnProcess() override
+    {
+        mResponse = mInstance->Post();
+        return false; // We do this once
+    }
+};
+
+// ------------------------------------------------------------------------------------------------
+void CpSession::DoPost_(Function & cb)
+{
+    LockCheck();
+    // Create the task and lock session
+    mPending = new CpPostAction(this, cb, LightObj(1, SqVM()));
+    // Queue the task to be processed
+    ThreadPool::Get().Enqueue(mPending);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Put action implementation.
+*/
+struct CpPutAction : public CpBaseAction
+{
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    CpPutAction(CpSession * session, Function & cb, LightObj && obj)
+        : CpBaseAction(session, cb, std::move(obj))
+    {
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Task process callback.
+    */
+    SQMOD_NODISCARD bool OnProcess() override
+    {
+        mResponse = mInstance->Put();
+        return false; // We do this once
+    }
+};
+
+// ------------------------------------------------------------------------------------------------
+void CpSession::DoPut_(Function & cb)
+{
+    LockCheck();
+    // Create the task and lock session
+    mPending = new CpPutAction(this, cb, LightObj(1, SqVM()));
+    // Queue the task to be processed
+    ThreadPool::Get().Enqueue(mPending);
+}
+
 // ------------------------------------------------------------------------------------------------
 static const EnumElement g_ErrorCodes[] = {
     {_SC("OK"),                             SQInteger(cpr::ErrorCode::OK)},
@@ -325,8 +610,11 @@ void Register_CURL(HSQUIRRELVM vm)
         Class< CpSession, NoCopy< CpSession > >(vm, SqCpSession::Str)
         // Constructors
         .Ctor()
+        .Ctor< StackStrF & >()
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &SqCpSession::Fn)
+        // Member Properties
+        .Prop(_SC("Locked"), &CpSession::IsLocked)
         // Member Methods
         .FmtFunc(_SC("SetURL"), &CpSession::SetURL_)
         .Func(_SC("SetParameters"), &CpSession::SetParameters_)
@@ -358,6 +646,13 @@ void Register_CURL(HSQUIRRELVM vm)
         .Func(_SC("Patch"), &CpSession::DoPatch)
         .Func(_SC("Post"), &CpSession::DoPost)
         .Func(_SC("Put"), &CpSession::DoPut)
+        .Func(_SC("AsyncDelete"), &CpSession::DoDelete_)
+        .Func(_SC("AsyncGet"), &CpSession::DoGet_)
+        .Func(_SC("AsyncHead"), &CpSession::DoHead_)
+        .Func(_SC("AsyncOptions"), &CpSession::DoOptions_)
+        .Func(_SC("AsyncPatch"), &CpSession::DoPatch_)
+        .Func(_SC("AsyncPost"), &CpSession::DoPost_)
+        .Func(_SC("AsyncPut"), &CpSession::DoPut_)
     );
 
     RootTable(vm).Bind(_SC("SqCPR"), cpns);
