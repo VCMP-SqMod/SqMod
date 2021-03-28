@@ -32,6 +32,7 @@
 #include <typeinfo>
 
 #include "sqratUtil.h"
+#include "Core/VecMap.hpp"
 
 namespace Sqrat
 {
@@ -82,15 +83,55 @@ struct StaticClassData : public AbstractStaticClassData, public StaticClassTypeT
     }
 };
 
-// Every Squirrel class object created by Sqrat in every VM has its own unique ClassData object stored in the registry table of the VM
-template<class C>
-struct ClassData {
+// Base class for ClassData to provide a common interface
+struct AbstractClassData {
     HSQOBJECT classObj{};
     HSQOBJECT getTable{};
     HSQOBJECT setTable{};
-    SharedPtr<std::unordered_map<C*, HSQOBJECT>> instances;
-    SharedPtr<AbstractStaticClassData> staticData;
+    AbstractClassData() = default;
+    virtual ~AbstractClassData() { Release(); }
+    virtual size_t InstanceCount() = 0;
+    // This should be called before closing the VM
+    void Release() {
+        // Should we release class object?
+        if (!sq_isnull(classObj)) {
+            sq_release(SqVM(), &classObj);
+        }
+        // Should we release get table object?
+        if (!sq_isnull(getTable)) {
+            sq_release(SqVM(), &getTable);
+        }
+        // Should we release set table object?
+        if (!sq_isnull(setTable)) {
+            sq_release(SqVM(), &setTable);
+        }
+    }
+    void Reset() {
+        sq_resetobject(&classObj);
+        sq_resetobject(&getTable);
+        sq_resetobject(&setTable);
+    }
 };
+
+// Every Squirrel class object created by Sqrat in every VM has its own unique ClassData object stored in the registry table of the VM
+template<class C>
+struct ClassData : public AbstractClassData {
+    SharedPtr<std::unordered_map<C*, HSQOBJECT>> instances{};
+    SharedPtr<AbstractStaticClassData> staticData{};
+    ClassData() = default;
+    ~ClassData() override = default;
+    size_t InstanceCount() override { return instances->size(); }
+};
+
+// Inrternal structure used to keep track of created objects.
+struct VMContext {
+    using ClsPtr = std::unique_ptr<AbstractClassData>;
+    VecMap<std::string, ClsPtr> classes{};
+    VMContext() = default;
+    ~VMContext() = default;
+};
+// Retrieve the associated context from VM
+inline VMContext* GetVMContext(HSQUIRRELVM vm) { return reinterpret_cast<VMContext*>(sq_getforeignptr(vm)); }
 
 // Lookup static class data by type_info rather than a template because C++ cannot export generic templates
 /*
@@ -118,6 +159,9 @@ class ClassType {
 public:
 
     static inline ClassData<C>* getClassData(HSQUIRRELVM vm) {
+        auto* ctx = reinterpret_cast<VMContext*>(sq_getforeignptr(vm));
+        return static_cast<ClassData<C>*>(ctx->classes[ClassName()].get());
+/*
         sq_pushregistrytable(vm);
         sq_pushstring(vm, "__classes", -1);
 #ifndef NDEBUG
@@ -137,6 +181,7 @@ public:
         sq_getuserdata(vm, -1, (SQUserPointer*)&ud, nullptr);
         sq_pop(vm, 3);
         return *ud;
+*/
     }
 
     //static WeakPtr<AbstractStaticClassData>& getStaticClassData() {
@@ -149,6 +194,9 @@ public:
     static inline bool hasClassData(HSQUIRRELVM vm) {
         //if (!getStaticClassData().Expired()) {
         if (StaticClassTypeTag<C>::Get()!=nullptr) {
+            VMContext* ctx = reinterpret_cast<VMContext*>(sq_getforeignptr(vm));
+            return ctx->classes.exists(ClassName());
+/*
             sq_pushregistrytable(vm);
             sq_pushstring(vm, "__classes", -1);
             if (SQ_SUCCEEDED(sq_rawget(vm, -2))) {
@@ -160,6 +208,7 @@ public:
                 sq_pop(vm, 1);
             }
             sq_pop(vm, 1);
+*/
         }
         return false;
     }

@@ -307,6 +307,8 @@ bool Core::Initialize()
     DefaultVM::Set(m_VM);
     // Configure error handling
     ErrorHandling::Enable(conf.GetBoolValue("Squirrel", "ErrorHandling", true));
+    // Create VM context instance
+    sq_setforeignptr(m_VM, new VMContext());
 
     // Prevent common null objects from using dead virtual machines
     NullArray() = Array();
@@ -575,6 +577,8 @@ void Core::Terminate(bool shutdown)
         m_PendingScripts.clear(); // Just in case
         // Specify that no scripts are left executed
         m_Executed = false;
+        // Retrieve the VM context before closing
+        VMContext * ctx = GetVMContext(m_VM);
         // Assertions during close may cause double delete/close!
         HSQUIRRELVM sq_vm = m_VM;
         m_VM = nullptr;
@@ -584,8 +588,33 @@ void Core::Terminate(bool shutdown)
         //_Func->SendPluginCommand(0xBAAAAAAD, "");
         // Release any callbacks from the logger
         Logger::Get().Release();
+        cLogDbg(m_Verbosity >= 2, "Closing Virtual Machine");
+        // Release class object references before closing the VM
+        for (auto & c : ctx->classes)
+        {
+            c.second->Release();
+        }
         // Attempt to close the VM
         sq_close(sq_vm);
+        // Reset class objects before destructor is invoked
+        for (auto & c : ctx->classes)
+        {
+            c.second->Reset();
+        }
+        // Go through each class and check for leftover objects
+        for (auto & c : ctx->classes)
+        {
+            // Retrieve the number of elements left in the container
+            size_t n = c.second->InstanceCount();
+            // Log however many are left, if any
+            if (n != 0)
+            {
+                cLogDbg(m_Verbosity >= 1, "%zu leaked (%s) objects", n, c.first.c_str());
+            }
+        }
+        cLogDbg(m_Verbosity >= 2, "Destroying VM Context");
+        // Destroy the VM context, if any
+        delete ctx;
 
         //cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins to release the virtual machine");
         // Tell modules to do their monkey business

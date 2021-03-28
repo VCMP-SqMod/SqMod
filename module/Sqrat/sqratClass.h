@@ -82,6 +82,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     Class(HSQUIRRELVM v, const string& className, bool createClass = true) : Object(false) {
         if (createClass && !ClassType<C>::hasClassData(v)) {
+/*
             sq_pushregistrytable(v);
             sq_pushstring(v, "__classes", -1);
             if (SQ_FAILED(sq_rawget(v, -2))) {
@@ -96,8 +97,11 @@ public:
             sq_setreleasehook(v, -1, &cleanup_hook);
             sq_rawset(v, -3);
             sq_pop(v, 2);
-
-            ClassData<C>* cd = *ud;
+*/
+            //ClassData<C>* cd = *ud;
+            auto* cd = new ClassData<C>();
+            VMContext::ClsPtr ptr(static_cast<AbstractClassData*>(cd));
+            GetVMContext(v)->classes.try_emplace(className, std::move(ptr));
 
             //if (ClassType<C>::getStaticClassData().Expired()) {
             if (!ClassType<C>::getStaticClassData()) {
@@ -958,6 +962,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     DerivedClass(HSQUIRRELVM v, const string& className) : Class<C, A>(v, string(), false) {
         if (!ClassType<C>::hasClassData(v)) {
+/*
             sq_pushregistrytable(v);
             sq_pushstring(v, "__classes", -1);
             if (SQ_FAILED(sq_rawget(v, -2))) {
@@ -972,9 +977,12 @@ public:
             sq_setreleasehook(v, -1, &cleanup_hook);
             sq_rawset(v, -3);
             sq_pop(v, 2);
-
+*/
             ClassData<B>* bd = ClassType<B>::getClassData(v);
-            ClassData<C>* cd = *ud;
+            //ClassData<C>* cd = *ud;
+            auto* cd = new ClassData<C>();
+            VMContext::ClsPtr ptr(static_cast<AbstractClassData*>(cd));
+            GetVMContext(v)->classes.try_emplace(className, std::move(ptr));
 
             //if (ClassType<C>::getStaticClassData()->Expired()) {
             if (!ClassType<C>::getStaticClassData()) {
