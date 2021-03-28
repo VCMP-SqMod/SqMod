@@ -216,7 +216,7 @@ template < class T > struct SqVector
     const Reference & ValidRef() const { Validate(); return mC; }
 
     /* --------------------------------------------------------------------------------------------
-     * Make sure an index is within rance and return the container it. Container must exist.
+     * Make sure an index is within range and return the container. Container must exist.
     */
     Container & ValidIdx(SQInteger i)
     {
@@ -228,7 +228,7 @@ template < class T > struct SqVector
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Make sure an index is within rance and return the container it. Container must exist.
+     * Make sure an index is within range and return the container. Container must exist.
     */
     const Container & ValidIdx(SQInteger i) const
     {
@@ -292,7 +292,7 @@ template < class T > struct SqVector
     /* --------------------------------------------------------------------------------------------
      * Retrieve the first element in the container.
     */
-    SQMOD_NODISCARD typename std::add_const< ReturnType >::type  Front()
+    SQMOD_NODISCARD typename std::add_const< ReturnType >::type Front()
     {
         return ValidPop().front();
     }
@@ -300,7 +300,7 @@ template < class T > struct SqVector
     /* --------------------------------------------------------------------------------------------
      * Retrieve the last element in the container.
     */
-    SQMOD_NODISCARD typename std::add_const< ReturnType >::type  Back()
+    SQMOD_NODISCARD typename std::add_const< ReturnType >::type Back()
     {
         return ValidPop().back();
     }
@@ -578,7 +578,7 @@ template < class T > struct SqVector
     */
     SqVector & Reverse()
     {
-         std::reverse(Valid().begin(), Valid().end());
+        std::reverse(Valid().begin(), Valid().end());
         return *this;
     }
 
@@ -623,7 +623,7 @@ template < class T > struct SqVector
         Validate();
         if (static_cast< size_t >(p) >= mC->size())
         {
-            STHROWF("Invalid container index ({})", p);
+            STHROWF("Invalid container index ({} >= {})", p, mC->size());
         }
         for (auto i = static_cast< size_t >(p); n--; ++i)
         {
@@ -642,11 +642,11 @@ template < class T > struct SqVector
         Validate();
         if (static_cast< size_t >(p) >= mC->size())
         {
-            STHROWF("Invalid container index (" PRINT_INT_FMT ")", p);
+            STHROWF("Invalid container index ({} >= {})", p, mC->size());
         }
         else if (static_cast< size_t >(p + n) >= mC->size())
         {
-            STHROWF("Invalid container index ({})", p + n);
+            STHROWF("Invalid container index ({} >= {})", p + n, mC->size());
         }
         for (n = (p + n); p <= n; ++p)
         {
