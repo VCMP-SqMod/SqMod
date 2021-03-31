@@ -519,8 +519,16 @@ inline string LastErrorString(HSQUIRRELVM vm) {
         sq_pop(vm, 1);
         return string();
     }
-    sq_tostring(vm, -1);
-    sq_getstringandsize(vm, -1, &sqErr, &size);
+    if (SQ_SUCCEEDED(sq_tostring(vm, -1)))
+    {
+        sq_getstringandsize(vm, -1, &sqErr, &size);
+    }
+    else
+    {
+        sqErr = _SC("unknown error");
+        size = strlen(sqErr);
+        sq_pushnull(vm);
+    }
     sq_pop(vm, 2);
     return string(sqErr, static_cast< size_t >(size));
 }
