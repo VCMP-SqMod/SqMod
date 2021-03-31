@@ -48,14 +48,11 @@ add_library(CPR STATIC
 target_include_directories(CPR PRIVATE ${CMAKE_CURRENT_LIST_DIR}/cpr)
 target_include_directories(CPR PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 # Find CURK
-find_package(CURL REQUIRED COMPONENTS HTTP HTTPS SSL)
+find_package(CURL REQUIRED)
 if (CURL_FOUND)
     set(SSL_ENABLED ON CACHE INTERNAL "" FORCE)
 else()
-    find_package(CURL REQUIRED COMPONENTS HTTP)
-    if(CURL_FOUND)
-        set(SSL_ENABLED OFF CACHE INTERNAL "" FORCE)
-    endif()
+    message(FATAL_ERROR "Unable to find CURL library.")
 endif()
 # Link to CURL
 target_link_libraries(CPR PUBLIC curl)
