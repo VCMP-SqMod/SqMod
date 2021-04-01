@@ -50,6 +50,7 @@ extern void Register_Constants(HSQUIRRELVM vm);
 extern void Register_Log(HSQUIRRELVM vm);
 extern void Register_Core(HSQUIRRELVM vm);
 extern void Register_Command(HSQUIRRELVM vm);
+extern void Register_Inventory(HSQUIRRELVM vm);
 extern void Register_Loot(HSQUIRRELVM vm);
 extern void Register_Privilege(HSQUIRRELVM vm);
 extern void Register_Routine(HSQUIRRELVM vm);
@@ -104,6 +105,7 @@ bool RegisterAPI(HSQUIRRELVM vm)
     Register_Log(vm);
     Register_Core(vm);
     Register_Command(vm);
+    Register_Inventory(vm);
     Register_Loot(vm);
     Register_Privilege(vm);
     Register_Routine(vm);
