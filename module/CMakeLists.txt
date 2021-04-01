@@ -38,6 +38,7 @@ add_library(SqModule MODULE SqBase.hpp Main.cpp
     Core/Command.cpp Core/Command.hpp
     Core/Common.cpp Core/Common.hpp
     Core/Entity.cpp Core/Entity.hpp
+    Core/Loot.cpp Core/Loot.hpp
     Core/Privilege.cpp Core/Privilege.hpp
     Core/Privilege/Base.cpp Core/Privilege/Base.hpp
     Core/Privilege/Class.cpp Core/Privilege/Class.hpp
