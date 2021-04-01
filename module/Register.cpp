@@ -33,6 +33,7 @@ extern void Register_CVehicle(HSQUIRRELVM vm);
 // ------------------------------------------------------------------------------------------------
 extern void Register_Chrono(HSQUIRRELVM vm);
 extern void Register_CURL(HSQUIRRELVM vm);
+extern void Register_Format(HSQUIRRELVM vm);
 extern void Register_IO(HSQUIRRELVM vm);
 extern void Register_MMDB(HSQUIRRELVM vm);
 extern void Register_Numeric(HSQUIRRELVM vm);
@@ -87,6 +88,7 @@ bool RegisterAPI(HSQUIRRELVM vm)
 
     Register_Chrono(vm);
     Register_CURL(vm);
+    Register_Format(vm);
     Register_IO(vm);
     Register_MMDB(vm);
     Register_Numeric(vm);

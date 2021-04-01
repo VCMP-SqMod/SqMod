@@ -66,6 +66,7 @@ add_library(SqModule MODULE SqBase.hpp Main.cpp
     Library/Chrono/Timer.cpp Library/Chrono/Timer.hpp
     Library/Chrono/Timestamp.cpp Library/Chrono/Timestamp.hpp
     Library/CURL.cpp Library/CURL.hpp
+    Library/Format.cpp Library/Format.hpp
     Library/IO.cpp Library/IO.hpp
     Library/IO/Buffer.cpp Library/IO/Buffer.hpp
     Library/IO/File.cpp Library/IO/File.hpp
