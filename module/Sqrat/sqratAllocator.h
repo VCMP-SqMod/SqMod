@@ -125,6 +125,8 @@ public:
             SetInstance(vm, 1, ArgFwd<A...>{}.Call(vm, 2, [](HSQUIRRELVM /*vm*/, A... a) -> C * {
                 return new C(a...);
             }));
+        } catch (const Poco::Exception& e) {
+            return sq_throwerror(vm, e.displayText().c_str());
         } catch (const std::exception& e) {
             return sq_throwerror(vm, e.what());
         } catch (...) {
@@ -497,6 +499,8 @@ public:
             SetInstance(vm, 1, ArgFwd<A...>{}.Call(vm, 2, [](HSQUIRRELVM /*vm*/, A... a) -> C * {
                 return new C(a...);
             }));
+        } catch (const Poco::Exception& e) {
+            return sq_throwerror(vm, e.displayText().c_str());
         } catch (const std::exception& e) {
             return sq_throwerror(vm, e.what());
         } catch (...) {
