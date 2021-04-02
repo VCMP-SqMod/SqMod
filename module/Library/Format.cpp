@@ -134,10 +134,11 @@ SQInteger FormatContext::Proc(HSQUIRRELVM vm, SQInteger text, SQInteger args, SQ
     if (SQ_FAILED(mRes))
     {
         return mRes;
-    }
+    // Drop previous arguments, if any
+    } else mArgs.clear();
     // Remember the format string and assume it lives on the stack
     fmt::basic_string_view< SQChar > f_str(s, static_cast< size_t >(i));
-    //
+    // Process the arguments in the specified range
     for(SQInteger idx = args; SQ_SUCCEEDED(mRes) && idx <= end; ++idx)
     {
         switch(sq_gettype(vm, idx))
@@ -406,7 +407,38 @@ inline auto FormatObjectInContext(HSQUIRRELVM vm, SQInteger idx, SQInteger src, 
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger SqFormat(HSQUIRRELVM vm)
+void ExtendedFormatProcess(StackStrF & ss, SQInteger top)
+{
+    FormatContext ctx;
+    // Attempt to perform the format
+    ss.mRes = ctx.Proc(ss.mVM, ss.mIdx, ss.mIdx + 1, top);
+    // Did format succeed?
+    if (SQ_SUCCEEDED(ss.mRes))
+    {
+        // Transform the string into a script object
+        sq_pushstring(ss.mVM, ctx.mOut.data(), static_cast<SQInteger>(ctx.mOut.size()));
+        // At this point we have a new object on the stack that must be removed
+        SqPopTopGuard spg(ss.mVM);
+        // Obtain a reference to the string object
+        ss.mRes = sq_getstackobj(ss.mVM, -1, &ss.mObj);
+        // Could we retrieve the object from the stack?
+        if (SQ_SUCCEEDED(ss.mRes))
+        {
+            // Keep a strong reference to the object
+            sq_addref(ss.mVM, &ss.mObj);
+            // Attempt to retrieve the string value from the stack
+            ss.mRes = sq_getstringandsize(ss.mVM, -1, &ss.mPtr, &ss.mLen);
+        }
+        // Did the retrieval succeeded but ended up with a null string pointer?
+        if (SQ_SUCCEEDED(ss.mRes) && !ss.mPtr)
+        {
+            ss.mRes = sq_throwerror(ss.mVM, "Unable to retrieve the string");
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqFormat(HSQUIRRELVM vm)
 {
     FormatContext ctx;
     // Attempt to generate the formatted string

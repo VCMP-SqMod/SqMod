@@ -159,6 +159,39 @@ struct SqString
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the internal string container.
+    */
+    SQMOD_NODISCARD String & ToString()
+    {
+        return mS;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the internal string container.
+    */
+    SQMOD_NODISCARD const String & ToString() const
+    {
+        return mS;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the internal string container.
+    */
+    SQMOD_NODISCARD const String & GetString() const
+    {
+        return mS;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the internal string container.
+    */
+    SQMOD_NODISCARD SqString & SetString(StackStrF & str)
+    {
+        mS.assign(str.mPtr, static_cast< size_t >(str.mLen));
+        return *this; // Allow chaining
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve a value from the container.
     */
     SQMOD_NODISCARD SQInteger Get(SQInteger i) const

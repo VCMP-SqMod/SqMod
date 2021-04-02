@@ -39,6 +39,10 @@
 
 #include <Poco/Exception.h>
 
+namespace SqMod {
+extern void ExtendedFormatProcess(StackStrF & ss, SQInteger top);
+} // Namespace:: SqMod
+
 namespace Sqrat {
 
 #if defined(__GNUC__)
@@ -1980,19 +1984,7 @@ struct StackStrF
         // Do we have enough values to call the format function and are we allowed to?
         else if (fmt && (top - 1) >= mIdx)
         {
-            // Pointer to the generated string
-            SQChar * str = nullptr;
-            // Attempt to generate the specified string format
-            mRes = sqstd_format(mVM, mIdx, &mLen, &str);
-            // Did the format succeeded but ended up with a null string pointer?
-            if (SQ_SUCCEEDED(mRes) && !str)
-            {
-                mRes = sq_throwerror(mVM, "Unable to generate the string");
-            }
-            else
-            {
-                mPtr = const_cast< const SQChar * >(str);
-            }
+            ::SqMod::ExtendedFormatProcess(*this, top);
         }
         // Is the value on the stack an actual string?
         else if (sq_gettype(mVM, mIdx) == OT_STRING)
@@ -2040,6 +2032,7 @@ struct StackStrF
                 mRes = sq_throwerror(mVM, "Unable to retrieve the value");
             }
         }
+        // Return last known result
         return mRes;
     }
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

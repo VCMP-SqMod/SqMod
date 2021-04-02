@@ -1,11 +1,31 @@
 // ------------------------------------------------------------------------------------------------
 #include "Library/Utils/String.hpp"
+#include "Library/Format.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
 SQMOD_DECL_TYPENAME(Typename, _SC("SqString"))
+
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqStringFormat(HSQUIRRELVM vm)
+{
+    FormatContext ctx;
+    // Attempt to generate the formatted string
+    if (SQ_FAILED(ctx.Proc(vm, 2, 3, sq_gettop(vm))))
+    {
+        return ctx.mRes;
+    }
+    // Create the instance and guard it to make sure it gets deleted in case of exceptions
+    DeleteGuard< SqString > instance(new SqString(std::move(ctx.mOut)));
+    // Push the instance on the stack
+    ClassType< SqString >::PushInstance(vm, instance);
+    // Stop guarding the instance
+    instance.Release();
+    // Specify that we returned a value
+    return 1;
+}
 
 // ================================================================================================
 void Register_Native_String(HSQUIRRELVM vm, Table & ns)
@@ -17,7 +37,9 @@ void Register_Native_String(HSQUIRRELVM vm, Table & ns)
         .Ctor< StackStrF & >()
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
+        .Func(_SC("_tostring"), &SqString::GetString)
         // Properties
+        .Prop(_SC("Str"), &SqString::GetString, &SqString::SetString)
         .Prop(_SC("Front"), &SqString::Front)
         .Prop(_SC("Back"), &SqString::Back)
         .Prop(_SC("Empty"), &SqString::Empty)
@@ -58,7 +80,10 @@ void Register_Native_String(HSQUIRRELVM vm, Table & ns)
         .Func(_SC("GenerateBetween"), &SqString::GenerateBetween)
         .Func(_SC("Sort"), &SqString::Sort)
         .Func(_SC("Shuffle"), &SqString::Shuffle)
+        .Func(_SC("Assign"), &SqString::SetString)
     );
+    // --------------------------------------------------------------------------------------------
+    RootTable(vm).SquirrelFunc(_SC("SqStringF"), SqStringFormat);
 }
 
 } // Namespace:: SqMod

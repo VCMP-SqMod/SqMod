@@ -71,4 +71,9 @@ struct FormatContext
     SQMOD_NODISCARD SQInteger Proc(HSQUIRRELVM vm, SQInteger text, SQInteger args, SQInteger end = -1);
 };
 
+/* ------------------------------------------------------------------------------------------------
+ * Helper function used to process a formatted string into the specified StackStrF instance.
+*/
+void ExtendedFormatProcess(StackStrF & ss, SQInteger top);
+
 } // Namespace:: SqMod
