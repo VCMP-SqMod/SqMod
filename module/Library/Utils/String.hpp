@@ -54,6 +54,14 @@ struct SqString
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Construct with forwarded native arguments.
+    */
+    template < class... Args > SqString(SqInPlace SQ_UNUSED_ARG(x), Args&&... args)
+        : mS(std::forward< Args >(args)...)
+    {
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Copy constructor from reference.
     */
     explicit SqString(const String & s) // NOLINT(modernize-pass-by-value)

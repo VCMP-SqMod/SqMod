@@ -1,8 +1,8 @@
 #pragma once
 
 // ------------------------------------------------------------------------------------------------
-#include "Core/Buffer.hpp"
-#include "Core/Utility.hpp"
+#include "Library/IO/Buffer.hpp"
+#include "Library/Utils/String.hpp"
 #include "Library/Utils/Vector.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -10,6 +10,7 @@
 #include <Poco/Data/Statement.h>
 #include <Poco/Data/RecordSet.h>
 #include <Poco/Data/SessionPool.h>
+#include <Poco/Data/LOB.h>
 
 // ------------------------------------------------------------------------------------------------
 namespace std { // NOLINT(cert-dcl58-cpp)
@@ -1686,8 +1687,15 @@ protected:
             case Poco::Data::MetaColumn::FDT_STRING:
             case Poco::Data::MetaColumn::FDT_WSTRING:
                 return LightObj(SqInPlace{}, SqVM(), v.convert< std::string >());
-            case Poco::Data::MetaColumn::FDT_BLOB:
-            case Poco::Data::MetaColumn::FDT_CLOB:
+            case Poco::Data::MetaColumn::FDT_BLOB: {
+                auto & b = v.extract< Poco::Data::BLOB >();
+                return LightObj(SqTypeIdentity< SqBuffer >{}, SqVM(),
+                                reinterpret_cast< Buffer::ConstPtr >(b.rawContent()), static_cast< SQInteger >(b.size()));
+            }
+            case Poco::Data::MetaColumn::FDT_CLOB: {
+                auto & b = v.extract< Poco::Data::CLOB >();
+                return LightObj(SqTypeIdentity< SqString >{}, SqVM(), SqInPlace{}, b.rawContent(), b.size());
+            }
             case Poco::Data::MetaColumn::FDT_DATE:
             case Poco::Data::MetaColumn::FDT_TIME:
             case Poco::Data::MetaColumn::FDT_TIMESTAMP:
