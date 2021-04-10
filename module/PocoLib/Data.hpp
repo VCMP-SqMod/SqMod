@@ -9,6 +9,7 @@
 #include <Poco/Data/Session.h>
 #include <Poco/Data/Statement.h>
 #include <Poco/Data/RecordSet.h>
+#include <Poco/Data/Transaction.h>
 #include <Poco/Data/SessionPool.h>
 #include <Poco/Data/LOB.h>
 
@@ -474,6 +475,7 @@ using namespace Poco::Data::Keywords;
 using Poco::Data::Session;
 using Poco::Data::Statement;
 using Poco::Data::RecordSet;
+using Poco::Data::Transaction;
 using Poco::Data::SessionPool;
 using Poco::Data::ReferenceBinding;
 
@@ -1927,6 +1929,144 @@ struct SqDataSessionPool : public SessionPool
     bool IsActive() const
     {
         return isActive();
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Helps with transactions in domain logic.
+*/
+struct SqDataTransaction : public Transaction
+{
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    explicit SqDataTransaction(SqDataSession & session)
+        : Transaction(session)
+    {
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Base constructor.
+    */
+    SqDataTransaction(SqDataSession & session, bool start)
+        : Transaction(session, start)
+    {
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor.
+    */
+    SqDataTransaction(const SqDataTransaction &) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    SqDataTransaction(SqDataTransaction &&) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Destructor.
+    */
+    ~SqDataTransaction() = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Assignment operator.
+    */
+    SqDataTransaction & operator = (const SqDataTransaction &) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment.
+    */
+    SqDataTransaction & operator = (SqDataTransaction &&) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns false after the transaction has been committed or rolled back,
+     * true if the transaction is ongoing.
+    */
+    SQMOD_NODISCARD bool IsActive()
+    {
+        return Transaction::isActive();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Sets the transaction isolation level.
+    */
+    void SetIsolation(SQInteger ti)
+    {
+        Transaction::setIsolation(static_cast< Poco::UInt32 >(ti));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns the transaction isolation level.
+    */
+    SQMOD_NODISCARD SQInteger GetIsolation()
+    {
+        return static_cast< SQInteger >(Transaction::getIsolation());
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns true iff the transaction isolation level corresponding to the supplied bitmask is supported.
+    */
+    SQMOD_NODISCARD bool HasIsolation(SQInteger ti)
+    {
+        return Transaction::hasIsolation(static_cast< Poco::UInt32 >(ti));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Returns true iff the transaction isolation level corresponds to the supplied bitmask.
+    */
+    SQMOD_NODISCARD bool IsIsolation(SQInteger ti)
+    {
+        return Transaction::isIsolation(static_cast< Poco::UInt32 >(ti));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Executes and, if do_commit is true, commits the transaction.
+     * Passing true value for commit disables rollback during destruction of this Transaction object.
+    */
+    SqDataTransaction & Execute(bool do_commit, StackStrF & sql)
+    {
+        Transaction::execute(sql.ToStr(), do_commit);
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Executes all the SQL statements supplied in the vector and,
+     * after the last one is sucesfully executed, commits the transaction.
+    */
+    SqDataTransaction & ExecuteList(const SqVector< std::string > & sql)
+    {
+        Transaction::execute(sql.Valid());
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Executes the transactor and, unless transactor throws an exception, commits the transaction.
+    */
+    SqDataTransaction & Transact(Function & cb)
+    {
+        auto t = [&](Session & s) {
+            cb(LightObj(reinterpret_cast< SqDataSession * >(&s), nullptr));
+        };
+        Transaction::transact(t);
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Commits the current transaction.
+    */
+    SqDataTransaction & Commit()
+    {
+        Transaction::commit();
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Rolls back the current transaction.
+    */
+    SqDataTransaction & Rollback()
+    {
+        Transaction::rollback();
+        return *this;
     }
 };
 

@@ -31,6 +31,7 @@ SQMOD_DECL_TYPENAME(SqBoolBinding, _SC("SqBoolBinding"))
 SQMOD_DECL_TYPENAME(SqPcDataSession, _SC("SqDataSession"))
 SQMOD_DECL_TYPENAME(SqPcDataStatement, _SC("SqDataStatement"))
 SQMOD_DECL_TYPENAME(SqPcDataRecordSet, _SC("SqDataRecordSet"))
+SQMOD_DECL_TYPENAME(SqPcDataTransaction, _SC("SqDataTransaction"))
 SQMOD_DECL_TYPENAME(SqPcDataSessionPool, _SC("SqDataSessionPool"))
 SQMOD_DECL_TYPENAME(SqPcDataStatementResult, _SC("SqDataStatementResult"))
 
@@ -545,7 +546,13 @@ static void ProcessPocoData()
             // Forward the callback with the result
             if (!inst->mFunc.IsNull())
             {
-                inst->mFunc.Execute(inst->mStmt, inst->mRes.data());
+                try {
+                    inst->mFunc.Execute(inst->mStmt, inst->mRes.data());
+                } catch (const Poco::Exception & e) {
+                    LogErr("SqData.Process: %s", e.displayText().c_str());
+                } catch (const std::exception & e) {
+                    LogErr("SqData.Process: %s", e.what());
+                }
             }
             // Stop processing this result
             inst->UnchainInstance();
@@ -760,12 +767,32 @@ void Register_POCO_Data(HSQUIRRELVM vm, Table &)
         .StaticFunc(_SC("GetName"), &SqDataSessionPool::GetName_)
     );
     // --------------------------------------------------------------------------------------------
+    ns.Bind(_SC("Transaction"),
+        Class< SqDataTransaction, NoCopy< SqDataTransaction > >(vm, SqPcDataTransaction::Str)
+        // Constructors
+        .Ctor< SqDataSession & >()
+        .Ctor< SqDataSession &, bool >()
+        // Meta-methods
+        .SquirrelFunc(_SC("_typename"), &SqPcDataTransaction::Fn)
+        // Properties
+        .Prop(_SC("Active"), &SqDataTransaction::IsActive)
+        .Prop(_SC("Isolation"), &SqDataTransaction::GetIsolation, &SqDataTransaction::SetIsolation)
+        // Member Methods
+        .Func(_SC("HasIsolation"), &SqDataTransaction::HasIsolation)
+        .Func(_SC("IsIsolation"), &SqDataTransaction::IsIsolation)
+        .FmtFunc(_SC("Execute"), &SqDataTransaction::Execute)
+        .FmtFunc(_SC("ExecuteList"), &SqDataTransaction::ExecuteList)
+        .CbFunc(_SC("Transact"), &SqDataTransaction::Transact)
+        .Func(_SC("Commit"), &SqDataTransaction::Commit)
+        .Func(_SC("Rollback"), &SqDataTransaction::Rollback)
+    );
+    // --------------------------------------------------------------------------------------------
     ns.Func(_SC("Process"), ProcessPocoData);
     // --------------------------------------------------------------------------------------------
-    #ifdef SQMOD_POCO_HAS_SQLITE
-        ns.FmtFunc(_SC("SQLiteEscapeString"), SQLiteEscapeString);
-        ns.FmtFunc(_SC("SQLiteEscapeStringEx"), SQLiteEscapeStringEx);
-    #endif
+#ifdef SQMOD_POCO_HAS_SQLITE
+    ns.FmtFunc(_SC("SQLiteEscapeString"), SQLiteEscapeString);
+    ns.FmtFunc(_SC("SQLiteEscapeStringEx"), SQLiteEscapeStringEx);
+#endif
     // --------------------------------------------------------------------------------------------
     Register_POCO_Data_Binding< SQInteger, SqIntegerBinding >(vm, ns, _SC("IntBind"));
     Register_POCO_Data_Binding< String, SqStringBinding >(vm, ns, _SC("StrBind"));
