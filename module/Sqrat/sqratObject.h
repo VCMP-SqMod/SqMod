@@ -160,6 +160,31 @@ public:
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Constructs an Object from a C++ instance only if that instance exists. Otherwise, null is beings used.
+    ///
+    /// \param instance Pointer to a C++ class instance that has been bound already
+    /// \param v        VM that the object will exist in
+    ///
+    /// \tparam T Type of instance
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template<class T>
+    Object(T* instance, std::nullptr_t, HSQUIRRELVM vm = SqVM()) : mRelease(true) {
+        // Preserve the stack state
+        const StackGuard sg(vm);
+        // Push the instance on the stack
+        ClassType<T>::PushInstance(vm, instance, nullptr);
+        // Attempt to retrieve it
+        if (SQ_FAILED(sq_getstackobj(vm, -1, &mObj))) {
+            sq_resetobject(&mObj);
+            // nothing to release anymore
+            mRelease = false;
+        } else {
+            sq_addref(vm, &mObj);
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Constructs an Object from a C++ type
     ///
     /// \param t        Identity of the type to create.
