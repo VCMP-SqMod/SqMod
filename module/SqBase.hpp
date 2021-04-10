@@ -73,7 +73,7 @@
 
 #define SQMOD_NAME "Squirrel Module"
 #define SQMOD_AUTHOR "Sandu Liviu Catalin (S.L.C)"
-#define SQMOD_COPYRIGHT "Copyright (C) 2018 Sandu Liviu Catalin"
+#define SQMOD_COPYRIGHT "Copyright (C) 2021 Sandu Liviu Catalin"
 #define SQMOD_HOST_NAME "SqModHost"
 #define SQMOD_VERSION 001
 #define SQMOD_VERSION_STR "0.0.1"
