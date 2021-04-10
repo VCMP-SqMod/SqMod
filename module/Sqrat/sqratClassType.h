@@ -251,6 +251,20 @@ public:
         return 0;
     }
 
+    static void PushInstance(HSQUIRRELVM vm, C* ptr, std::nullptr_t) {
+        if (!ptr) {
+            sq_pushnull(vm);
+            return;
+        }
+
+        ClassData<C>* cd = getClassData(vm);
+
+        typename std::unordered_map<C*, HSQOBJECT>::iterator it = cd->instances->find(ptr);
+        if (it != cd->instances->end()) {
+            sq_pushobject(vm, it->second);
+        } else sq_pushnull(vm);
+    }
+
     static void PushInstance(HSQUIRRELVM vm, C* ptr) {
         if (!ptr) {
             sq_pushnull(vm);
