@@ -1,6 +1,6 @@
 name: CMake
 
-on: [push]
+on: [push, pull_request]
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -21,6 +21,18 @@ jobs:
       # Some projects don't allow in-source building, so create a separate build directory
       # We'll use this as our working directory for all subsequent commands
       run: cmake -E make_directory ${{github.workspace}}/build
+
+    - name: Install CURL
+      run: sudo apt-get libssl-dev libcurl4-openssl-dev
+
+    - name: Install MySQL
+      run: sudo apt-get libmysqlclient-dev
+
+    - name: Install Postgre SQL
+      run: sudo apt-get libpq-dev
+
+    - name: Install ZLib
+      run: sudo apt-get zlib1g-dev
 
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
