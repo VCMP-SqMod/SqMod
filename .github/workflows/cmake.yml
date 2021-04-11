@@ -23,16 +23,16 @@ jobs:
       run: cmake -E make_directory ${{github.workspace}}/build
 
     - name: Install CURL
-      run: sudo apt-get libssl-dev libcurl4-openssl-dev
+      run: sudo apt-get -y install libssl-dev libcurl4-openssl-dev
 
     - name: Install MySQL
-      run: sudo apt-get libmysqlclient-dev
+      run: sudo apt-get -y install libmysqlclient-dev
 
     - name: Install Postgre SQL
-      run: sudo apt-get libpq-dev
+      run: sudo apt-get -y install libpq-dev
 
     - name: Install ZLib
-      run: sudo apt-get zlib1g-dev
+      run: sudo apt-get -y install zlib1g-dev
 
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
