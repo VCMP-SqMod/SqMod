@@ -425,6 +425,11 @@ static void OnPlayerNameChange(int32_t player_id, const char * old_name, const c
 // ------------------------------------------------------------------------------------------------
 static void OnPlayerStateChange(int32_t player_id, vcmpPlayerState old_state, vcmpPlayerState new_state)
 {
+    // Look for changes
+    if (old_state == new_state)
+    {
+        return; // Nothing changed!
+    }
     // Attempt to forward the event
     try
     {
@@ -472,6 +477,11 @@ static void OnPlayerStateChange(int32_t player_id, vcmpPlayerState old_state, vc
 // ------------------------------------------------------------------------------------------------
 static void OnPlayerActionChange(int32_t player_id, int32_t old_action, int32_t new_action)
 {
+    // Look for changes
+    if (old_action == new_action)
+    {
+        return; // Nothing changed!
+    }
     // Attempt to forward the event
     try
     {
