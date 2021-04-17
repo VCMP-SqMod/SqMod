@@ -1182,7 +1182,7 @@ struct SqDataStatement : public Statement
     */
     LightObj ExecuteAsync_(bool reset)
     {
-        return LightObj(SqTypeIdentity< SqDataStatementResult >{}, SqVM(), executeAsync(true), LightObj(this));
+        return LightObj(SqTypeIdentity< SqDataStatementResult >{}, SqVM(), executeAsync(reset), LightObj(this));
     }
 
     /* --------------------------------------------------------------------------------------------
