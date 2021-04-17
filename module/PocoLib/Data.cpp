@@ -547,7 +547,15 @@ static void ProcessPocoData()
             if (!inst->mFunc.IsNull())
             {
                 try {
-                    inst->mFunc.Execute(inst->mStmt, inst->mRes.data());
+                    // The active method may have failed. In which case we forward the error message instead
+                    if (!inst->mRes.failed())
+                    {
+                        inst->mFunc.Execute(inst->mStmt, inst->mRes.data());
+                    }
+                    else
+                    {
+                        inst->mFunc.Execute(inst->mStmt, inst->mRes.exception()->message());
+                    }
                 } catch (const Poco::Exception & e) {
                     LogErr("SqData.Process: %s", e.displayText().c_str());
                 } catch (const std::exception & e) {
