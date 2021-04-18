@@ -921,4 +921,7 @@ struct SqString
     SQMOD_NODISCARD SQInteger GetLevenshtein(SqString & o) const;
 };
 
+// ------------------------------------------------------------------------------------------------
+constexpr const char SqString::WHITESPACE[];
+
 } // Namespace:: SqMod
