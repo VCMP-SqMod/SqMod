@@ -20,8 +20,6 @@ namespace SqMod {
 */
 struct SqString
 {
-    static constexpr const char WHITESPACE[] = " \n\t\v\b\r\f\a";
-
     /* --------------------------------------------------------------------------------------------
      * String instance.
     */
@@ -598,11 +596,11 @@ struct SqString
     */
     SQMOD_NODISCARD LightObj Trimmed()
     {
-        const auto sb = mS.find_first_not_of(WHITESPACE);
+        const auto sb = mS.find_first_not_of(" \n\t\v\b\r\f\a");
         // Is it all white-space?
         if (sb != String::npos)
         {
-            const auto se = mS.find_last_not_of(WHITESPACE);
+            const auto se = mS.find_last_not_of(" \n\t\v\b\r\f\a");
             // Return the portion of the string that isn't surrounded by white-space
             return LightObj(mS.data() + sb, se - sb);
         }
@@ -920,8 +918,5 @@ struct SqString
     */
     SQMOD_NODISCARD SQInteger GetLevenshtein(SqString & o) const;
 };
-
-// ------------------------------------------------------------------------------------------------
-constexpr const char SqString::WHITESPACE[];
 
 } // Namespace:: SqMod
