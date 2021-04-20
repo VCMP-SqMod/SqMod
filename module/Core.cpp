@@ -770,7 +770,7 @@ bool Core::LoadScript(const SQChar * filepath, bool delay)
         }
         catch (const std::exception & e)
         {
-            LogFtl("Unable to compile: %s", path.c_str());
+            LogFtl("Unable to compile (%s) exception caught: %s", path.c_str(), e.what());
             // Remove the script container since it's invalid
             m_Scripts.pop_back();
             // Failed to compile properly
@@ -786,7 +786,7 @@ bool Core::LoadScript(const SQChar * filepath, bool delay)
         }
         catch (const std::exception & e)
         {
-            LogFtl("Unable to execute: %s", path.c_str());
+            LogFtl("Unable to execute (%s) exception caught: %s", path.c_str(), e.what());
             // Remove the script container since it's invalid
             m_Scripts.pop_back();
             // Failed to execute properly
@@ -884,7 +884,7 @@ bool Core::DoScripts(Scripts::iterator itr, Scripts::iterator end)
         }
         catch (const std::exception & e)
         {
-            LogFtl("Unable to compile: %s", (*itr).mPath.c_str());
+            LogFtl("Unable to compile (%s) exception caught: %s", (*itr).mPath.c_str(), e.what());
             // Failed to execute properly
             return false;
         }
@@ -904,7 +904,7 @@ bool Core::DoScripts(Scripts::iterator itr, Scripts::iterator end)
         }
         catch (const std::exception & e)
         {
-            LogFtl("Unable to execute: %s", (*itr).mPath.c_str());
+            LogFtl("Unable to execute (%s) exception caught: %s", (*itr).mPath.c_str(), e.what());
             // Failed to execute properly
             return false;
         }
