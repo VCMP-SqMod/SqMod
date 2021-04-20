@@ -119,7 +119,7 @@ struct SqWeakReferenceFmt : public SqObjectFmt
 };
 
 // ------------------------------------------------------------------------------------------------
-SQInteger FormatContext::Proc(HSQUIRRELVM vm, SQInteger text, SQInteger args, SQInteger end)
+SQInteger FormatContext::Process(HSQUIRRELVM vm, SQInteger text, SQInteger args, SQInteger end)
 {
     // Is there any argument limit?
     if (end < 0) end = sq_gettop(vm);
@@ -137,7 +137,7 @@ SQInteger FormatContext::Proc(HSQUIRRELVM vm, SQInteger text, SQInteger args, SQ
     // Drop previous arguments, if any
     } else mArgs.clear();
     // Remember the format string and assume it lives on the stack
-    fmt::basic_string_view< SQChar > f_str(s, static_cast< size_t >(i));
+    mStr = fmt::basic_string_view< SQChar >(s, static_cast< size_t >(i));
     // Process the arguments in the specified range
     for(SQInteger idx = args; SQ_SUCCEEDED(mRes) && idx <= end; ++idx)
     {
@@ -217,18 +217,6 @@ SQInteger FormatContext::Proc(HSQUIRRELVM vm, SQInteger text, SQInteger args, SQ
             } break;
             // Unknown!
             default: mRes = sq_throwerror(vm, "Unknown or unsupported object type");
-        }
-    }
-    // Attempt to generate the format string
-    if (SQ_SUCCEEDED(mRes))
-    {
-        try
-        {
-            mOut = fmt::vformat(f_str, mArgs);
-        }
-        catch (const std::exception & e)
-        {
-            mRes = sq_throwerror(vm, e.what());
         }
     }
     // Return result
@@ -440,9 +428,44 @@ void ExtendedFormatProcess(StackStrF & ss, SQInteger top)
 // ------------------------------------------------------------------------------------------------
 static SQInteger SqFormat(HSQUIRRELVM vm)
 {
+	const SQInteger top = sq_gettop(vm);
+	// Make sure we have enough parameters
+	if (top < 2)
+	{
+		return sq_throwerror(vm, "Insufficient parameters");
+	}
+
     FormatContext ctx;
     // Attempt to generate the formatted string
-    if (SQ_FAILED(ctx.Proc(vm, 2, 3, sq_gettop(vm))))
+    if (SQ_FAILED(ctx.Proc(vm, 2, 3, top)) || SQ_FAILED(ctx.Generate(vm)))
+    {
+        return ctx.mRes;
+    }
+    // Push it on the stack
+    sq_pushstring(vm, ctx.mOut.data(), static_cast< SQInteger >(ctx.mOut.size()));
+    // Specify that we returned a value
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqLocaleFormat(HSQUIRRELVM vm)
+{
+	const SQInteger top = sq_gettop(vm);
+	// Make sure we have enough parameters
+	if (top < 3)
+	{
+		return sq_throwerror(vm, "Insufficient parameters");
+	}
+
+    StackStrF loc(vm, 2);
+    // Attempt to generate the locale string
+    if (SQ_FAILED(loc.Proc(false)))
+    {
+        return loc.mRes;
+    }
+    FormatContext ctx;
+    // Attempt to generate the formatted string
+    if (SQ_FAILED(ctx.Proc(vm, 3, 4, top)) || SQ_FAILED(ctx.GenerateLoc(vm, loc.mPtr)))
     {
         return ctx.mRes;
     }
@@ -456,6 +479,7 @@ static SQInteger SqFormat(HSQUIRRELVM vm)
 void Register_Format(HSQUIRRELVM vm)
 {
     RootTable(vm).SquirrelFunc(_SC("fmt"), SqFormat);
+    RootTable(vm).SquirrelFunc(_SC("locale_fmt"), SqLocaleFormat);
 }
 
 } // Namespace:: SqMod

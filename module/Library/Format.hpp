@@ -6,6 +6,7 @@
 // ------------------------------------------------------------------------------------------------
 #include <fmt/args.h>
 #include <fmt/format.h>
+#include <fmt/locale.h>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -29,6 +30,11 @@ struct FormatContext
      * Script result status.
     */
     SQInteger mRes{SQ_OK};
+
+    /* --------------------------------------------------------------------------------------------
+     * Format string.
+    */
+    fmt::basic_string_view< SQChar > mStr{};
 
     /* --------------------------------------------------------------------------------------------
      * Output string buffer.
@@ -68,7 +74,69 @@ struct FormatContext
     /* --------------------------------------------------------------------------------------------
      * Process the formatted string.
     */
-    SQMOD_NODISCARD SQInteger Proc(HSQUIRRELVM vm, SQInteger text, SQInteger args, SQInteger end = -1);
+    SQMOD_NODISCARD SQInteger Proc(HSQUIRRELVM vm, SQInteger text, SQInteger args, SQInteger end = -1)
+    {
+        if (SQ_SUCCEEDED(Process(vm, text, args, end)))
+        {
+            try
+            {
+                mOut = fmt::vformat(mStr, mArgs);
+            }
+            catch (const std::exception & e)
+            {
+                mRes = sq_throwerror(vm, e.what());
+            }
+        }
+        // Return result
+        return mRes;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Process the formatted string.
+    */
+    SQMOD_NODISCARD SQInteger Process(HSQUIRRELVM vm, SQInteger text, SQInteger args, SQInteger end = -1);
+
+    /* --------------------------------------------------------------------------------------------
+     * Process the formatted string.
+    */
+    SQMOD_NODISCARD SQInteger Generate(HSQUIRRELVM vm)
+    {
+        // Attempt to generate the format string
+        if (SQ_SUCCEEDED(mRes))
+        {
+            try
+            {
+                mOut = fmt::vformat(mStr, mArgs);
+            }
+            catch (const std::exception & e)
+            {
+                mRes = sq_throwerror(vm, e.what());
+            }
+        }
+        // Return result
+        return mRes;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Process the formatted string.
+    */
+    SQMOD_NODISCARD SQInteger GenerateLoc(HSQUIRRELVM vm, const SQChar * loc)
+    {
+        // Attempt to generate the format string
+        if (SQ_SUCCEEDED(mRes))
+        {
+            try
+            {
+                mOut = fmt::vformat(std::locale(loc), mStr, mArgs);
+            }
+            catch (const std::exception & e)
+            {
+                mRes = sq_throwerror(vm, e.what());
+            }
+        }
+        // Return result
+        return mRes;
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
