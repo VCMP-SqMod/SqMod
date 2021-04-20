@@ -9,6 +9,7 @@
 #ifdef SQMOD_OS_WINDOWS
     #include <windows.h>
     #include <shlobj.h>
+    #include <Poco/UnicodeConverter.h>
 #else
     #include <linux/limits.h>
     #include <sys/utsname.h>
@@ -1177,6 +1178,70 @@ static Object SqEnv_NullDir()
     return BufferToStrObj(SysEnv::NullDir());
 }
 
+// ------------------------------------------------------------------------------------------------
+#ifdef SQMOD_OS_WINDOWS
+
+#if !defined(WINVER) || (WINVER < 0x0600)
+
+static void EnumerateLocales()
+{
+    STHROWF("Windows version too old. Please set WINVER to a propper value when compiling the plug-in.");
+}
+
+#else
+
+/* ------------------------------------------------------------------------------------------------
+ * Used internally to receive locales from the OS.
+*/
+static BOOL CALLBACK CallbackLocaleEx(LPWSTR pStr, DWORD SQ_UNUSED_ARG(dwFlags), LPARAM lparam) noexcept
+{
+    // Retrieve the vector where we should append the received locale
+    auto loc_vec = reinterpret_cast< std::vector< std::string > * >(lparam);
+    // Create an empty string at the back of the vector
+    loc_vec->emplace_back();
+    // Convert the given wide-string to utf-8 into the created string
+    Poco::UnicodeConverter::convert(pStr, loc_vec->back());
+    // Continue
+    return TRUE;
+}
+/* ------------------------------------------------------------------------------------------------
+ * Retrieve a list of available locale names.
+*/
+static Array EnumerateLocales()
+{
+    std::vector< std::string > loc_vec;
+    // Request a listing of available locales from the OS
+    EnumSystemLocalesEx(CallbackLocaleEx, LOCALE_ALL, reinterpret_cast< LPARAM >(&loc_vec), nullptr);
+    // Initialize an empty array
+    Array arr(SqVM(), 0);
+    // Did the OS give us any locales?
+    if (!loc_vec.empty()) {
+        // Reserve the array space upfront
+        arr.Reserve(static_cast< SQInteger >(loc_vec.size()));
+        // Append the elements from the vector into the array
+        arr.AppendFromCounted([&](HSQUIRRELVM vm, SQInteger i, size_t n) -> bool {
+            Var< std::string >::push(vm, loc_vec[static_cast< size_t >(i)]);
+            return static_cast< size_t >(i) < n;
+        }, loc_vec.size());
+    }
+    // Return the resulted array
+    return arr;
+}
+
+#endif
+
+#else
+
+/* ------------------------------------------------------------------------------------------------
+ * Unavailable. Try doing it via command line.
+*/
+static void EnumerateLocales()
+{
+    STHROWF("This functionality is not available on linux because it cannot be done programmatically. Try using the command line: locale -a");
+}
+
+#endif
+
 // ================================================================================================
 void Register_SysEnv(HSQUIRRELVM vm)
 {
@@ -1204,6 +1269,7 @@ void Register_SysEnv(HSQUIRRELVM vm)
     sens.Func(_SC("ConfigDir"), &SqEnv_ConfigDir);
     sens.Func(_SC("SystemDir"), &SqEnv_SystemDir);
     sens.Func(_SC("NullDir"), &SqEnv_NullDir);
+    sens.Func(_SC("Locales"), &EnumerateLocales);
 
     RootTable(vm).Bind(_SC("SqSysEnv"), sens);
 }
