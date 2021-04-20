@@ -428,12 +428,12 @@ void ExtendedFormatProcess(StackStrF & ss, SQInteger top)
 // ------------------------------------------------------------------------------------------------
 static SQInteger SqFormat(HSQUIRRELVM vm)
 {
-	const SQInteger top = sq_gettop(vm);
-	// Make sure we have enough parameters
-	if (top < 2)
-	{
-		return sq_throwerror(vm, "Insufficient parameters");
-	}
+    const SQInteger top = sq_gettop(vm);
+    // Make sure we have enough parameters
+    if (top < 2)
+    {
+        return sq_throwerror(vm, "Insufficient parameters");
+    }
 
     FormatContext ctx;
     // Attempt to generate the formatted string
@@ -450,12 +450,12 @@ static SQInteger SqFormat(HSQUIRRELVM vm)
 // ------------------------------------------------------------------------------------------------
 static SQInteger SqLocaleFormat(HSQUIRRELVM vm)
 {
-	const SQInteger top = sq_gettop(vm);
-	// Make sure we have enough parameters
-	if (top < 3)
-	{
-		return sq_throwerror(vm, "Insufficient parameters");
-	}
+    const SQInteger top = sq_gettop(vm);
+    // Make sure we have enough parameters
+    if (top < 3)
+    {
+        return sq_throwerror(vm, "Insufficient parameters");
+    }
 
     StackStrF loc(vm, 2);
     // Attempt to generate the locale string
