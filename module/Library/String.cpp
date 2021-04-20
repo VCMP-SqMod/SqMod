@@ -754,37 +754,87 @@ static SQInteger SqStrExplode(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-static const SQChar * StrImplode(SQChar chr, Array & arr)
+static String StrImplode(StackStrF & sep, Array & arr)
 {
+    // String buffer
+    String buf;
     // Determine array size
-    const auto length = static_cast< int32_t >(arr.Length());
+    const auto length = static_cast< size_t >(arr.Length());
     // Is there anything to implode?
     if (length <= 0)
     {
-        return _SC(""); // Default to an empty string
+        return buf; // Default to an empty string
     }
-    // Obtain a temporary buffer
-    Buffer b(length * 32);
+    // Estimate length
+    buf.reserve(length * 32);
     // Process array elements
-    for (SQInteger i = 0; i < length; ++i)
-    {
+    const SQRESULT res = arr.Foreach([&](HSQUIRRELVM vm, SQInteger i) -> SQRESULT {
+        StackStrF str(vm, -1);
         // Retrieve the element value as string
-        SharedPtr< String > str = arr.GetValue< String >(i);
-        // Was there any value retrieved?
-        if (!!str)
+        if (SQ_FAILED(str.Proc(false)))
         {
-            // Append the value to the buffer
-            b.AppendS(str->data(), str->size());
+            return str.mRes; // Failed!
         }
+        // Append the value to the buffer
+        buf.append(str.mPtr, static_cast< size_t >(str.mLen));
         // Append the delimiter
-        b.Push(chr);
+        buf.append(sep.mPtr, static_cast< size_t >(sep.mLen));
+        // Successfully processed
+        return SQ_OK;
+    });
+    // Succeeded?
+    if (SQ_FAILED(res))
+    {
+        buf.clear(); // NO!
     }
-    // Move the cursor back one element
-    b.Retreat(1);
-    // Set that as the null character
-    b.Cursor() = '\0';
+    else
+    {
+        buf.pop_back(); // Remove trailing separator
+    }
     // Return the string
-    return b.Get< SQChar >();
+    return buf;
+}
+
+// ------------------------------------------------------------------------------------------------
+static String StrImplodeChar(SQChar chr, Array & arr)
+{
+    // String buffer
+    String buf;
+    // Determine array size
+    const auto length = static_cast< size_t >(arr.Length());
+    // Is there anything to implode?
+    if (length <= 0)
+    {
+        return buf; // Default to an empty string
+    }
+    // Estimate length
+    buf.reserve(length * 32);
+    // Process array elements
+    const SQRESULT res = arr.Foreach([&](HSQUIRRELVM vm, SQInteger i) -> SQRESULT {
+        StackStrF str(vm, -1);
+        // Retrieve the element value as string
+        if (SQ_FAILED(str.Proc(false)))
+        {
+            return str.mRes; // Failed!
+        }
+        // Append the value to the buffer
+        buf.append(str.mPtr, static_cast< size_t >(str.mLen));
+        // Append the delimiter
+        buf.push_back(chr);
+        // Successfully processed
+        return SQ_OK;
+    });
+    // Succeeded?
+    if (SQ_FAILED(res))
+    {
+        buf.clear(); // NO!
+    }
+    else
+    {
+        buf.pop_back(); // Remove trailing separator
+    }
+    // Return the string
+    return buf;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -873,6 +923,7 @@ void Register_String(HSQUIRRELVM vm)
     strns.Func(_SC("FromArray"), &FromArray)
     .SquirrelFunc(_SC("Explode"), &SqStrExplode)
     .Func(_SC("Implode"), &StrImplode)
+    .Func(_SC("ImplodeChar"), &StrImplodeChar)
     .FmtFunc(_SC("Center"), &SqCenterStr)
     .FmtFunc(_SC("Left"), &SqLeftStr)
     .FmtFunc(_SC("Right"), &SqRightStr)
