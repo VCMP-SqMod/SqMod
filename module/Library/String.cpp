@@ -789,7 +789,10 @@ static String StrImplode(StackStrF & sep, Array & arr)
     }
     else
     {
-        buf.pop_back(); // Remove trailing separator
+        for (SQInteger n = 0; n < sep.mLen; ++n)
+        {
+            buf.pop_back(); // Remove trailing separator
+        }
     }
     // Return the string
     return buf;
