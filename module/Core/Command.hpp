@@ -1109,6 +1109,7 @@ public:
             node->m_Data.Release();
             node->m_OnExec.Release();
             node->m_OnAuth.Release();
+            node->m_OnAudit.Release();
             node->m_OnPost.Release();
             node->m_OnFail.Release();
         }
@@ -1118,6 +1119,7 @@ public:
             node->m_Data.Release();
             node->m_OnExec.Release();
             node->m_OnAuth.Release();
+            node->m_OnAudit.Release();
             node->m_OnPost.Release();
             node->m_OnFail.Release();
         }
@@ -1203,6 +1205,7 @@ public:
         , m_Info()
         , m_OnExec()
         , m_OnAuth()
+        , m_OnAudit()
         , m_OnPost()
         , m_OnFail()
         , m_Authority(ConvTo< int32_t >::From(auth))
@@ -1274,6 +1277,7 @@ public:
         // Release callbacks
         m_OnExec.Release();
         m_OnAuth.Release();
+        m_OnAudit.Release();
         m_OnPost.Release();
         m_OnFail.Release();
         // Is there an element behind us?
@@ -1745,6 +1749,22 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the function that must be called when this command listener needs to validate invocation.
+    */
+    Function & GetOnAudit()
+    {
+        return m_OnAudit;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the function that must be called when this command listener needs to validate invocation.
+    */
+    void SetOnAudit(Function & func)
+    {
+        m_OnAudit = std::move(func);
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the function that must be called when this command listener finished execution.
     */
     Function & GetOnPost()
@@ -1890,23 +1910,23 @@ protected:
     typedef String  ArgTags[SQMOD_MAX_CMD_ARGS];
 
     /* --------------------------------------------------------------------------------------------
-     * Execute the designated callback by passing the arguments in their specified order.
+     * Execute the designated audit callback by passing the arguments in their specified order.
     */
-    SQInteger Execute(const Object & invoker, const Array & args)
+    SQInteger Audit(const Object & invoker, const LightObj & args)
     {
         // Attempt to evaluate the specified executer knowing the manager did the validations
-        SharedPtr< SQInteger > ret = m_OnExec.Evaluate< SQInteger, const Object &, const Array & >(invoker, args);
+        SharedPtr< SQInteger > ret = m_OnAudit.Evaluate< SQInteger, const Object &, const LightObj & >(invoker, args);
         // See if the executer succeeded and return the result or default to failed
         return (!ret ? 0 : *ret);
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Execute the designated callback by passing the arguments using an associative container.
+     * Execute the designated callback by passing the arguments in their specified order.
     */
-    SQInteger Execute(const Object & invoker, const Table & args)
+    SQInteger Execute(const Object & invoker, const LightObj & args)
     {
         // Attempt to evaluate the specified executer knowing the manager did the validations
-        SharedPtr< SQInteger > ret = m_OnExec.Evaluate< SQInteger, const Object &, const Table & >(invoker, args);
+        SharedPtr< SQInteger > ret = m_OnExec.Evaluate< SQInteger, const Object &, const LightObj & >(invoker, args);
         // See if the executer succeeded and return the result or default to failed
         return (!ret ? 0 : *ret);
     }
@@ -1930,8 +1950,8 @@ private:
     ArgTags     m_ArgTags; // List of argument tags/names.
 
     // --------------------------------------------------------------------------------------------
-    uint8_t       m_MinArgc; // Minimum number of arguments supported by this listener.
-    uint8_t       m_MaxArgc; // Maximum number of arguments supported by this listener.
+    uint8_t     m_MinArgc; // Minimum number of arguments supported by this listener.
+    uint8_t     m_MaxArgc; // Maximum number of arguments supported by this listener.
 
     // --------------------------------------------------------------------------------------------
     String      m_Spec; // String used to generate the argument type specification list.
@@ -1941,11 +1961,12 @@ private:
     // --------------------------------------------------------------------------------------------
     Function    m_OnExec; // Function to call when the command is executed.
     Function    m_OnAuth; // Function to call when the invoker must be authenticated.
+    Function    m_OnAudit; // Function to call when the parameters must be validated.
     Function    m_OnPost; // Function to call after the command was successfully executed.
     Function    m_OnFail; // Function to call after the command execution failed.
 
     // --------------------------------------------------------------------------------------------
-    int32_t       m_Authority; // Built-in authority level required to execute this command.
+    int32_t     m_Authority; // Built-in authority level required to execute this command.
 
     // --------------------------------------------------------------------------------------------
     bool        m_Protected; // Whether explicit authentication of the invoker is required.

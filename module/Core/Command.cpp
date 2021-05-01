@@ -363,47 +363,57 @@ int32_t Controller::Exec(Context & ctx)
     ctx.mBuffer.At(0) = '\0';
     // Whether the command execution failed
     bool failed = false;
+    // Object with the command arguments
+    LightObj args;
     // Do we have to call the command with an associative container?
     if (ctx.mInstance->m_Associate)
     {
         // Create the associative container
-        Table args(SqVM());
+        Table tbl(SqVM());
         // Copy the arguments into the table
         for (uint32_t arg = 0; arg < ctx.mArgc; ++arg)
         {
             // Do we have use the argument index as the key?
             if (ctx.mInstance->m_ArgTags[arg].empty())
             {
-                args.SetValue(SQInteger(arg), ctx.mArgv[arg].second);
+                tbl.SetValue(SQInteger(arg), ctx.mArgv[arg].second);
             }
             // Nope, we have a name for this argument!
             else
             {
-                args.SetValue(ctx.mInstance->m_ArgTags[arg].c_str(), ctx.mArgv[arg].second);
+                tbl.SetValue(ctx.mInstance->m_ArgTags[arg].c_str(), ctx.mArgv[arg].second);
             }
         }
-        // Attempt to execute the command with the specified arguments
-        try
-        {
-            result = ctx.mInstance->Execute(ctx.mInvoker, args);
-        }
-        catch (const std::exception & e)
-        {
-            // Let's store the exception message
-            ctx.mBuffer.WriteS(0, e.what());
-            // Specify that the command execution failed
-            failed = true;
-        }
+        // Store the table object into an abstract script object
+        args = LightObj(tbl.GetObj());
     }
     else
     {
         // Reserve an array for the extracted arguments
-        Array args(SqVM(), ctx.mArgc);
+        Array arr(SqVM(), ctx.mArgc);
         // Copy the arguments into the array
         for (uint32_t arg = 0; arg < ctx.mArgc; ++arg)
         {
-            args.Bind(SQInteger(arg), ctx.mArgv[arg].second);
+            arr.Bind(SQInteger(arg), ctx.mArgv[arg].second);
         }
+        // Store the table object into an abstract script object
+        args = LightObj(arr.GetObj());
+    }
+    // Allow the user to audit the command parameters
+    try
+    {
+        result = ctx.mInstance->Audit(ctx.mInvoker, args);
+    }
+    catch (const std::exception & e)
+    {
+        // Let's store the exception message
+        ctx.mBuffer.WriteS(0, e.what());
+        // Specify that the command execution failed
+        failed = true;
+    }
+    // Did parameter audit succeeded?
+    if (result && !failed)
+    {
         // Attempt to execute the command with the specified arguments
         try
         {
@@ -447,15 +457,13 @@ int32_t Controller::Exec(Context & ctx)
     // Was the command aborted explicitly?
     else if (!result)
     {
-        // Tell the script callback to deal with the error
-        SqError(CMDERR_EXECUTION_ABORTED, _SC("Command execution aborted"), result);
         // Is there a script callback that handles failures?
         if (!ctx.mInstance->m_OnFail.IsNull())
         {
             // Then attempt to relay the result to that function
             try
             {
-                ctx.mInstance->m_OnFail.Execute(ctx.mInvoker, result);
+                ctx.mInstance->m_OnFail.Execute(ctx.mInvoker, args, result);
             }
 			catch (const Poco::Exception& e)
 			{
@@ -468,6 +476,11 @@ int32_t Controller::Exec(Context & ctx)
                 SqError(CMDERR_UNRESOLVED_FAILURE, _SC("Unable to resolve command failure"), e.what());
             }
         }
+        else
+        {
+            // Tell the script callback to deal with the error
+            SqError(CMDERR_EXECUTION_ABORTED, _SC("Command execution aborted"), result);
+        }
     }
     // Is there a callback that must be executed after a successful execution?
     else if (!ctx.mInstance->m_OnPost.IsNull())
@@ -475,7 +488,7 @@ int32_t Controller::Exec(Context & ctx)
             // Then attempt to relay the result to that function
             try
             {
-                ctx.mInstance->m_OnPost.Execute(ctx.mInvoker, result);
+                ctx.mInstance->m_OnPost.Execute(ctx.mInvoker, args, result);
             }
 			catch (const Poco::Exception& e)
 			{
@@ -1118,6 +1131,7 @@ void Register(HSQUIRRELVM vm)
         .Prop(_SC("MaxArgs"), &Listener::GetMaxArgC, &Listener::SetMaxArgC)
         .Prop(_SC("OnExec"), &Listener::GetOnExec)
         .Prop(_SC("OnAuth"), &Listener::GetOnAuth)
+        .Prop(_SC("OnAudit"), &Listener::GetOnAudit)
         .Prop(_SC("OnPost"), &Listener::GetOnPost)
         .Prop(_SC("OnFail"), &Listener::GetOnFail)
         // Member Methods
@@ -1129,6 +1143,7 @@ void Register(HSQUIRRELVM vm)
         .FmtFunc(_SC("SetInfo"), &Listener::SetInfo)
         .CbFunc(_SC("BindExec"), &Listener::SetOnExec)
         .CbFunc(_SC("BindAuth"), &Listener::SetOnAuth)
+        .CbFunc(_SC("BindAudit"), &Listener::SetOnAudit)
         .CbFunc(_SC("BindPost"), &Listener::SetOnPost)
         .CbFunc(_SC("BindFail"), &Listener::SetOnFail)
         .Func(_SC("GetArgTag"), &Listener::GetArgTag)
