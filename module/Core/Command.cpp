@@ -400,16 +400,23 @@ int32_t Controller::Exec(Context & ctx)
         args = LightObj(arr.GetObj());
     }
     // Allow the user to audit the command parameters
-    try
+    if (!ctx.mInstance->m_OnAudit.IsNull())
     {
-        result = ctx.mInstance->Audit(ctx.mInvoker, args);
+        try
+        {
+            result = ctx.mInstance->Audit(ctx.mInvoker, args);
+        }
+        catch (const std::exception & e)
+        {
+            // Let's store the exception message
+            ctx.mBuffer.WriteS(0, e.what());
+            // Specify that the command execution failed
+            failed = true;
+        }
     }
-    catch (const std::exception & e)
+    else
     {
-        // Let's store the exception message
-        ctx.mBuffer.WriteS(0, e.what());
-        // Specify that the command execution failed
-        failed = true;
+        result = SQTrue;
     }
     // Did parameter audit succeeded?
     if (result && !failed)
