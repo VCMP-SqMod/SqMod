@@ -1872,7 +1872,10 @@ public:
     bool AuthCheck(const Object & invoker)
     {
         // Do we need explicit authority verification?
-        if (!m_Protected) { /* Anyone can invoke this command */ }
+        if (!m_Protected)
+        {
+            return true; // Anyone can invoke this command
+        }
         // Was there a custom authority inspector specified?
         else if (!m_OnAuth.IsNull())
         {
