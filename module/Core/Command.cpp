@@ -39,7 +39,10 @@ Command::Command(std::size_t hash, String name, Listener * ptr, CtrPtr  ctr)
 {
     if (mPtr)
     {
-        mPtr->m_Controller = mCtr; // Create controller association
+        // Create controller association
+        mPtr->m_Controller = mCtr;
+        // Increment alias count
+        mPtr->AddAliases(1);
     }
 }
 // ------------------------------------------------------------------------------------------------
@@ -48,7 +51,10 @@ Command::Command(std::size_t hash, String name, const Object & obj, CtrPtr  ctr)
 {
     if (mPtr)
     {
-        mPtr->m_Controller = mCtr; // Create controller association
+        // Create controller association
+        mPtr->m_Controller = mCtr;
+        // Increment alias count
+        mPtr->AddAliases(1);
     }
 }
 
@@ -58,7 +64,10 @@ Command::Command(std::size_t hash, String name, Object && obj, CtrPtr  ctr)
 {
     if (mPtr)
     {
-        mPtr->m_Controller = mCtr; // Create controller association
+        // Create controller association
+        mPtr->m_Controller = mCtr;
+        // Increment alias count
+        mPtr->AddAliases(1);
     }
 }
 
@@ -68,7 +77,10 @@ Command::Command(std::size_t hash, String name, Listener * ptr, const Object & o
 {
     if (mPtr)
     {
-        mPtr->m_Controller = mCtr; // Create controller association
+        // Create controller association
+        mPtr->m_Controller = mCtr;
+        // Increment alias count
+        mPtr->AddAliases(1);
     }
 }
 
@@ -78,7 +90,10 @@ Command::Command(std::size_t hash, String name, Listener * ptr, Object && obj, C
 {
     if (mPtr)
     {
-        mPtr->m_Controller = mCtr; // Create controller association
+        // Create controller association
+        mPtr->m_Controller = mCtr;
+        // Increment alias count
+        mPtr->AddAliases(1);
     }
 }
 
@@ -87,7 +102,12 @@ Command::~Command()
 {
     if (mPtr)
     {
-        mPtr->m_Controller.Reset(); // Break controller association
+        // The listener will continue to be associated with the controller as long as an alias points to it
+        if (mPtr->SubAliases(1) == 0)
+        {
+            // Break controller association
+            mPtr->m_Controller.Reset();
+        }
     }
 }
 
@@ -146,6 +166,63 @@ Object & Controller::Attach(Object && obj, Listener * ptr)
     }
     // Attempt to insert the command
     m_Commands.emplace_back(hash, name, ptr, std::move(obj), m_Manager->GetCtr());
+    // Return the script object of the listener
+    return m_Commands.back().mObj;
+}
+
+// ------------------------------------------------------------------------------------------------
+Object & Controller::Attach(Object && obj, Listener * ptr, String name)
+{
+    // Is there anything that we can attach
+    if (obj.IsNull() && ptr == nullptr)
+    {
+        STHROWF("Cannot attach invalid command listener");
+    }
+    // Are we supposed to grab the object?
+    else if (obj.IsNull())
+    {
+        // Obtain the initial stack size
+        const StackGuard sg;
+        // Push the instance on the stack
+        ClassType< Listener >::PushInstance(SqVM(), ptr);
+        // Grab the instance from the stack
+        obj = Var< Object >(SqVM(), -1).value;
+    }
+    // Are we supposed to grab the instance?
+    else if (ptr == nullptr)
+    {
+        // Obtain the initial stack size
+        const StackGuard sg(obj.GetVM());
+        // Push the object on the stack
+        Var< Object & >::push(obj.GetVM(), obj);
+        // Grab the instance from the stack
+        ptr = Var< Listener * >(obj.GetVM(), -1).value;
+    }
+    // At this point we should have both the instance and the object
+    if (obj.IsNull() || ptr == nullptr)
+    {
+        STHROWF("Unable to obtain the command listener");
+    }
+    // Validate the command name
+    if (name.empty())
+    {
+        STHROWF("Cannot attach command without a name");
+    }
+    // Obtain the unique identifier of the specified name
+    const std::size_t hash = std::hash< String >()(name);
+    // Make sure the command doesn't already exist
+    for (const auto & cmd : m_Commands)
+    {
+        // Are the hashes identical?
+        if (cmd.mHash == hash)
+        {
+            // Include information necessary to help identify hash collisions!
+            STHROWF("Command '{}' already exists as '{}' for hash ({})",
+                        name.c_str(), cmd.mName.c_str(), hash);
+        }
+    }
+    // Attempt to insert the command
+    m_Commands.emplace_back(hash, std::move(name), ptr, std::move(obj), m_Manager->GetCtr());
     // Return the script object of the listener
     return m_Commands.back().mObj;
 }
@@ -934,6 +1011,19 @@ void Listener::GenerateInfo(bool full)
 }
 
 // ------------------------------------------------------------------------------------------------
+Listener & Listener::Rebind(StackStrF & name)
+{
+    if (m_Controller.Expired())
+    {
+        STHROWF("Command must be attached to a manager before having an alias.");
+    }
+    // Create an alias for this command listener
+    m_Controller.Lock()->Attach(Object{}, this, name.ToStr());
+    // Allow chaining
+    return *this;
+}
+
+// ------------------------------------------------------------------------------------------------
 void Listener::ProcSpec(const SQChar * str)
 {
     // Reset current argument specifiers
@@ -1136,6 +1226,7 @@ void Register(HSQUIRRELVM vm)
         .Prop(_SC("Associate"), &Listener::GetAssociate, &Listener::SetAssociate)
         .Prop(_SC("MinArgs"), &Listener::GetMinArgC, &Listener::SetMinArgC)
         .Prop(_SC("MaxArgs"), &Listener::GetMaxArgC, &Listener::SetMaxArgC)
+        .Prop(_SC("AliasCount"), &Listener::GetAliases)
         .Prop(_SC("OnExec"), &Listener::GetOnExec)
         .Prop(_SC("OnAuth"), &Listener::GetOnAuth)
         .Prop(_SC("OnAudit"), &Listener::GetOnAudit)
@@ -1159,6 +1250,7 @@ void Register(HSQUIRRELVM vm)
         .Func(_SC("ArgCheck"), &Listener::ArgCheck)
         .Func(_SC("AuthCheck"), &Listener::AuthCheck)
         .Func(_SC("GenerateInfo"), &Listener::GenerateInfo)
+        .FmtFunc(_SC("Rebind"), &Listener::Rebind)
     );
 
     RootTable(vm).Bind(_SC("SqCmd"), cmdns);

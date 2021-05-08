@@ -255,11 +255,11 @@ public:
 struct Command
 {
     // --------------------------------------------------------------------------------------------
-    std::size_t     mHash; // The unique hash that identifies this command.
-    String          mName; // The unique name that identifies this command.
-    Listener*       mPtr; // The listener that reacts to this command.
-    Object          mObj; // A strong reference to the script object.
-    CtrPtr          mCtr; // The associated controller.
+    std::size_t     mHash{0}; // The unique hash that identifies this command.
+    String          mName{}; // The unique name that identifies this command.
+    Listener*       mPtr{nullptr}; // The listener that reacts to this command.
+    Object          mObj{}; // A strong reference to the script object.
+    CtrPtr          mCtr{}; // The associated controller.
 
     /* --------------------------------------------------------------------------------------------
      * Construct a command and the also create a script object from the specified listener.
@@ -418,7 +418,7 @@ protected:
     bool Parse(Context & ctx);
 
     /* --------------------------------------------------------------------------------------------
-     * Attach a command listener to a certain name.
+     * Attach a command listener to the associated name.
     */
     Object & Attach(Object & obj, Listener * ptr)
     {
@@ -426,7 +426,7 @@ protected:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Attach a command listener to a certain name.
+     * Attach a command listener to the associated name.
     */
     Object & Attach(const Object & obj, Listener * ptr)
     {
@@ -434,9 +434,30 @@ protected:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Attach a command listener to a certain name.
+     * Attach a command listener to the associated name.
     */
     Object & Attach(Object && obj, Listener * ptr);
+
+    /* --------------------------------------------------------------------------------------------
+     * Attach a command listener to a certain name.
+    */
+    Object & Attach(Object & obj, Listener * ptr, String name)
+    {
+        return Attach(Object(obj), ptr, std::move(name));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attach a command listener to a certain name.
+    */
+    Object & Attach(const Object & obj, Listener * ptr, String name)
+    {
+        return Attach(Object(obj), ptr, std::move(name));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Attach a command listener to a certain name.
+    */
+    Object & Attach(Object && obj, Listener * ptr, String name);
 
     /* --------------------------------------------------------------------------------------------
      * Detach a command listener from a certain name.
@@ -445,17 +466,10 @@ protected:
     {
         // Obtain the unique identifier of the specified name
         const std::size_t hash = std::hash< String >()(name);
-        // Iterator to the found command, if any
-        auto itr = m_Commands.cbegin();
         // Attempt to find the specified command
-        for (; itr != m_Commands.cend(); ++itr)
-        {
-            // Are the hashes identical?
-            if (itr->mHash == hash)
-            {
-                break; // We found our command!
-            }
-        }
+        auto itr = std::find_if(m_Commands.cbegin(), m_Commands.cend(), [=](Commands::const_reference c) {
+            return (c.mHash == hash);
+        });
         // Make sure the command exist before attempting to remove it
         if (itr != m_Commands.end())
         {
@@ -468,17 +482,10 @@ protected:
     */
     void Detach(Listener * ptr)
     {
-        // Iterator to the found command, if any
-        auto itr = m_Commands.cbegin();
         // Attempt to find the specified command
-        for (; itr != m_Commands.cend(); ++itr)
-        {
-            // Are the instances identical?
-            if (itr->mPtr == ptr)
-            {
-                break; // We found our command!
-            }
-        }
+        auto itr = std::find_if(m_Commands.cbegin(), m_Commands.cend(), [=](Commands::const_reference c) {
+            return (c.mPtr == ptr);
+        });
         // Make sure the command exists before attempting to remove it
         if (itr != m_Commands.end())
         {
@@ -1200,6 +1207,7 @@ public:
         , m_ArgTags()
         , m_MinArgc(0)
         , m_MaxArgc(SQMOD_MAX_CMD_ARGS-1)
+        , m_Aliases(0)
         , m_Spec()
         , m_Help()
         , m_Info()
@@ -1334,6 +1342,42 @@ public:
     SQMOD_NODISCARD const String & ToString() const
     {
         return m_Name;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Increment the number of names that point to this command.
+    */
+    uint16_t AddAliases(uint16_t n)
+    {
+        m_Aliases += n;
+        // Return new alias count
+        return m_Aliases;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Decrement the number of names that point to this command.
+    */
+    uint16_t SubAliases(uint16_t n)
+    {
+        m_Aliases -= n;
+        // Return new alias count
+        return m_Aliases;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the number of names that point to this command.
+    */
+    SQMOD_NODISCARD uint16_t GetAliases() const
+    {
+        return m_Aliases;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the number of names that point to this command.
+    */
+    void SetAliases(uint16_t n)
+    {
+        m_Aliases = n;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1906,6 +1950,11 @@ public:
     */
     void GenerateInfo(bool full);
 
+    /* --------------------------------------------------------------------------------------------
+     * Create an alias for this command listener.
+    */
+    Listener & Rebind(StackStrF & name);
+
 protected:
 
     // --------------------------------------------------------------------------------------------
@@ -1942,7 +1991,7 @@ protected:
 private:
 
     // --------------------------------------------------------------------------------------------
-    CtrPtr     m_Controller; // Manager that controls this command listener.
+    CtrPtr      m_Controller; // Manager that controls this command listener.
 
     // --------------------------------------------------------------------------------------------
     String      m_Name; // Name of the command that triggers this listener.
@@ -1955,6 +2004,7 @@ private:
     // --------------------------------------------------------------------------------------------
     uint8_t     m_MinArgc; // Minimum number of arguments supported by this listener.
     uint8_t     m_MaxArgc; // Maximum number of arguments supported by this listener.
+    uint16_t    m_Aliases; // Number of aliases that point to this command.
 
     // --------------------------------------------------------------------------------------------
     String      m_Spec; // String used to generate the argument type specification list.
