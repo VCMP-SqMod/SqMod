@@ -763,6 +763,22 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the buffer as a string.
+    */
+    String ToStr() const
+    {
+        return m_Ptr ? String(Get< String::value_type >(), Position()) : String();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the buffer as a string.
+    */
+    String ToStr(SzType p) const
+    {
+        return m_Ptr ? String(Get< String::value_type >(), ClampMax(p, m_Cap)) : String();
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Write a portion of a buffer to the internal buffer.
     */
     SzType Write(SzType pos, ConstPtr data, SzType size);
