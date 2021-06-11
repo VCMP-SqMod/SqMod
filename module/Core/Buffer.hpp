@@ -765,7 +765,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the buffer as a string.
     */
-    String ToStr() const
+    SQMOD_NODISCARD String ToStr() const
     {
         return m_Ptr ? String(Get< String::value_type >(), Position()) : String();
     }
@@ -773,9 +773,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the buffer as a string.
     */
-    String ToStr(SzType p) const
+    SQMOD_NODISCARD String ToStr(SzType p) const
     {
-        return m_Ptr ? String(Get< String::value_type >(), ClampMax(p, m_Cap)) : String();
+        return m_Ptr ? String(Get< String::value_type >(), std::min(p, m_Cap)) : String();
     }
 
     /* --------------------------------------------------------------------------------------------
