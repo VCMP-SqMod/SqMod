@@ -141,10 +141,13 @@ if(ENABLE_DATA_SQLITE)
         # We need to make sqlite3.h available for include. Ugly but POCO doesn't expose this directly.
         target_include_directories(SqModule PRIVATE "${PROJECT_SOURCE_DIR}/vendor/POCO/Data/SQLite/src")
     endif()
+    message(STATUS SQLite was enabled)
     # Link the libraries
     target_link_libraries(SqModule Poco::DataSQLite)
     # Inform the plug-in that it can make use of this library
     target_compile_definitions(SqModule PRIVATE SQMOD_POCO_HAS_SQLITE=1)
+    # Include legacy implementation sources
+    target_sources(SqModule PRIVATE Library/SQLite.hpp Library/SQLite.cpp)
 endif()
 # Does POCO have MySLQ support?
 find_package(MySQL)
