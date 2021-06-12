@@ -44,6 +44,9 @@ extern void Register_ZMQ(HSQUIRRELVM vm);
 #ifdef SQMOD_POCO_HAS_SQLITE
     extern void Register_SQLite(HSQUIRRELVM vm);
 #endif
+#ifdef SQMOD_POCO_HAS_MYSQL
+    extern void Register_MySQL(HSQUIRRELVM vm);
+#endif
 
 // ------------------------------------------------------------------------------------------------
 extern void Register_POCO(HSQUIRRELVM vm);
@@ -103,6 +106,9 @@ bool RegisterAPI(HSQUIRRELVM vm)
     Register_ZMQ(vm);
 #ifdef SQMOD_POCO_HAS_SQLITE
     Register_SQLite(vm);
+#endif
+#ifdef SQMOD_POCO_HAS_MYSQL
+    Register_MySQL(vm);
 #endif
 
     Register_POCO(vm);

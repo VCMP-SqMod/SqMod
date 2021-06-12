@@ -152,10 +152,13 @@ endif()
 # Does POCO have MySLQ support?
 find_package(MySQL)
 if(MYSQL_FOUND)
+    message(STATUS MySQL was enabled)
     # Link the libraries
     target_link_libraries(SqModule Poco::DataMySQL)
     # Inform the plug-in that it can make use of this library
     target_compile_definitions(SqModule PRIVATE SQMOD_POCO_HAS_MYSQL=1)
+    # Include legacy implementation sources
+    target_sources(SqModule PRIVATE Library/MySQL.hpp Library/MySQL.cpp)
 endif()
 # Does POCO have PostgreSQL support?
 find_package(PostgreSQL)
