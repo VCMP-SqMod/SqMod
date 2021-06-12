@@ -52,7 +52,7 @@ else()
 	if(WINCE)
 		target_compile_definitions(DataSQLite PRIVATE SQLITE_MSVC_LOCALTIME_API)
 	endif(WINCE)
-	target_compile_definitions(DataSQLite PRIVATE
+	target_compile_definitions(DataSQLite PUBLIC
 		SQLITE_THREADSAFE=1
 		SQLITE_DISABLE_LFS
 		SQLITE_OMIT_UTF16
