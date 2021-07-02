@@ -1,5 +1,6 @@
 # Create library
 add_library(FmtLib STATIC
+	include/fmt/args.h
 	include/fmt/chrono.h
 	include/fmt/color.h
 	include/fmt/compile.h
@@ -12,6 +13,7 @@ add_library(FmtLib STATIC
 	include/fmt/posix.h
 	include/fmt/printf.h
 	include/fmt/ranges.h
+	include/fmt/xchar.h
 	format.cc
 	os.cc
 )
