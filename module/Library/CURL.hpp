@@ -1950,6 +1950,32 @@ struct CpSession : public cpr::Session
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Modify the session cookie file name.
+    */
+    CpSession & SetCookieFile(StackStrF & filename)
+    {
+        LockCheck();
+        if (cpr::Session::GetCurlHolder()->handle)
+        {
+            curl_easy_setopt(cpr::Session::GetCurlHolder()->handle, CURLOPT_COOKIEFILE, filename.mPtr);
+        } else STHROWF("Invalid CURL session");
+        return *this; // Allow chaining
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the session cookie jar name.
+    */
+    CpSession & SetCookieJar(StackStrF & filename)
+    {
+        LockCheck();
+        if (cpr::Session::GetCurlHolder()->handle)
+        {
+            curl_easy_setopt(cpr::Session::GetCurlHolder()->handle, CURLOPT_COOKIEJAR, filename.mPtr);
+        } else STHROWF("Invalid CURL session");
+        return *this; // Allow chaining
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Delete request.
     */
     CpResponse DoDelete()
