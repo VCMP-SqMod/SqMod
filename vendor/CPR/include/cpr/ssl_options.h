@@ -70,7 +70,7 @@ class VerifySsl {
   public:
     VerifySsl() = default;
     // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
-    VerifySsl(bool verify) : verify(verify) {}
+    VerifySsl(bool p_verify) : verify(p_verify) {}
 
     explicit operator bool() const {
         return verify;
@@ -140,6 +140,14 @@ class DerKey : public KeyFile {
     }
 };
 
+class PinnedPublicKey {
+  public:
+    // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
+    PinnedPublicKey(std::string&& p_pinned_public_key) : pinned_public_key(std::move(p_pinned_public_key)) {}
+
+    const std::string pinned_public_key;
+};
+
 #if SUPPORT_ALPN
 // This option enables/disables ALPN in the SSL handshake (if the SSL backend libcurl is built to
 // use supports it), which can be used to negotiate http2.
@@ -147,7 +155,7 @@ class ALPN {
   public:
     ALPN() = default;
     // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
-    ALPN(bool enabled) : enabled(enabled) {}
+    ALPN(bool p_enabled) : enabled(p_enabled) {}
 
     explicit operator bool() const {
         return enabled;
@@ -164,7 +172,7 @@ class NPN {
   public:
     NPN() = default;
     // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
-    NPN(bool enabled) : enabled(enabled) {}
+    NPN(bool p_enabled) : enabled(p_enabled) {}
 
     explicit operator bool() const {
         return enabled;
@@ -180,7 +188,7 @@ class VerifyHost {
   public:
     VerifyHost() = default;
     // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
-    VerifyHost(bool enabled) : enabled(enabled) {}
+    VerifyHost(bool p_enabled) : enabled(p_enabled) {}
 
     explicit operator bool() const {
         return enabled;
@@ -194,7 +202,7 @@ class VerifyPeer {
   public:
     VerifyPeer() = default;
     // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
-    VerifyPeer(bool enabled) : enabled(enabled) {}
+    VerifyPeer(bool p_enabled) : enabled(p_enabled) {}
 
     explicit operator bool() const {
         return enabled;
@@ -208,7 +216,7 @@ class VerifyPeer {
 class VerifyStatus {
   public:
     // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
-    VerifyStatus(bool enabled) : enabled(enabled) {}
+    VerifyStatus(bool p_enabled) : enabled(p_enabled) {}
 
     explicit operator bool() const {
         return enabled;
@@ -318,7 +326,7 @@ class SessionIdCache {
   public:
     SessionIdCache() = default;
     // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
-    SessionIdCache(bool enabled) : enabled(enabled) {}
+    SessionIdCache(bool p_enabled) : enabled(p_enabled) {}
 
     explicit operator bool() const {
         return enabled;
@@ -333,7 +341,7 @@ class SslFastStart {
   public:
     SslFastStart() = default;
     // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
-    SslFastStart(bool enabled) : enabled(enabled) {}
+    SslFastStart(bool p_enabled) : enabled(p_enabled) {}
 
     explicit operator bool() const {
         return enabled;
@@ -347,7 +355,7 @@ class NoRevoke {
 public:
     NoRevoke() = default;
     // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
-    NoRevoke(bool enabled) : enabled(enabled) {}
+    NoRevoke(bool p_enabled) : enabled(p_enabled) {}
 
     explicit operator bool() const {
         return enabled;
@@ -364,6 +372,7 @@ struct SslOptions {
     std::string key_file;
     std::string key_type;
     std::string key_pass;
+    std::string pinned_public_key;
 #if SUPPORT_ALPN
     bool enable_alpn = true;
 #endif // SUPPORT_ALPN
@@ -400,6 +409,10 @@ struct SslOptions {
         key_type = opt.GetKeyType();
         key_pass = opt.password;
     }
+    void SetOption(const ssl::PinnedPublicKey& opt) {
+        pinned_public_key = opt.pinned_public_key;
+    }
+
 #if SUPPORT_ALPN
     void SetOption(const ssl::ALPN& opt) {
         enable_alpn = opt.enabled;

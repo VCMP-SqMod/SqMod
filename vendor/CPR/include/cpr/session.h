@@ -22,6 +22,7 @@
 #include "cpr/parameters.h"
 #include "cpr/payload.h"
 #include "cpr/proxies.h"
+#include "cpr/proxyauth.h"
 #include "cpr/response.h"
 #include "cpr/ssl_options.h"
 #include "cpr/timeout.h"
@@ -34,12 +35,12 @@ namespace cpr {
 class Session {
   public:
     Session();
-    Session(Session&& old) noexcept = default;
+    Session(Session&& old) noexcept;
     Session(const Session& other) = delete;
 
     ~Session();
 
-    Session& operator=(Session&& old) noexcept = default;
+    Session& operator=(Session&& old) noexcept;
     Session& operator=(const Session& other) = delete;
 
     void SetUrl(const Url& url);
@@ -56,6 +57,8 @@ class Session {
     void SetPayload(const Payload& payload);
     void SetProxies(Proxies&& proxies);
     void SetProxies(const Proxies& proxies);
+    void SetProxyAuth(ProxyAuthentication&& proxy_auth);
+    void SetProxyAuth(const ProxyAuthentication& proxy_auth);
     void SetMultipart(Multipart&& multipart);
     void SetMultipart(const Multipart& multipart);
     void SetNTLM(const NTLM& auth);
@@ -95,6 +98,8 @@ class Session {
     void SetOption(const LimitRate& limit_rate);
     void SetOption(Proxies&& proxies);
     void SetOption(const Proxies& proxies);
+    void SetOption(ProxyAuthentication&& proxy_auth);
+    void SetOption(const ProxyAuthentication& proxy_auth);
     void SetOption(Multipart&& multipart);
     void SetOption(const Multipart& multipart);
     void SetOption(const NTLM& auth);
@@ -126,7 +131,16 @@ class Session {
 
     std::shared_ptr<CurlHolder> GetCurlHolder();
 
-  private:
+    void PrepareDelete();
+    void PrepareGet();
+    void PrepareHead();
+    void PrepareOptions();
+    void PreparePatch();
+    void PreparePost();
+    void PreparePut();
+    Response Complete(CURLcode curl_error);
+
+  protected:
     class Impl;
     std::unique_ptr<Impl> pimpl_;
 };
