@@ -10,7 +10,6 @@ add_library(FmtLib STATIC
 	include/fmt/locale.h
 	include/fmt/os.h
 	include/fmt/ostream.h
-	include/fmt/posix.h
 	include/fmt/printf.h
 	include/fmt/ranges.h
 	include/fmt/xchar.h
