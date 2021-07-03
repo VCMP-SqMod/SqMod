@@ -628,7 +628,7 @@ void Vector3::CenterRotateYZBy(Value degrees, const Vector3 & center)
 // ------------------------------------------------------------------------------------------------
 String Vector3::Format(StackStrF & str) const
 {
-    return fmt::format(str.ToStr()
+    return fmt::format(fmt::runtime(str.ToStr())
         , fmt::arg("x", x)
         , fmt::arg("y", y)
         , fmt::arg("z", z)

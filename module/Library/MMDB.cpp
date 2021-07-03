@@ -329,7 +329,7 @@ LightObj GetEntryAsString(const MMDB_entry_data_s & ed)
     switch (ed.type)
     {
         case MMDB_DATA_TYPE_POINTER: {
-            sq_pushstring(vm, fmt::format("{:p}", ed.pointer).c_str(), -1);
+            sq_pushstring(vm, fmt::format(fmt::runtime("{:p}"), ed.pointer).c_str(), -1);
         } break;
         case MMDB_DATA_TYPE_UTF8_STRING: {
             sq_pushstring(vm, ed.utf8_string, ed.data_size);
@@ -452,7 +452,7 @@ void SockAddr::Validate() const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid sockaddr structure handle");
+        SqThrowF(fmt::runtime("Invalid sockaddr structure handle"));
     }
 }
 #endif // _DEBUG
@@ -559,7 +559,7 @@ void Database::Validate() const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid Maxmind database reference");
+        SqThrowF(fmt::runtime("Invalid Maxmind database reference"));
     }
 }
 #endif // _DEBUG
@@ -695,7 +695,7 @@ void Description::Validate() const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid Maxmind database reference");
+        SqThrowF(fmt::runtime("Invalid Maxmind database reference"));
     }
 }
 #endif // _DEBUG
@@ -720,7 +720,7 @@ Description::Pointer Description::GetValid() const
     // Validate the referenced description
     if (!m_Description)
     {
-        SqThrowF("Invalid Maxmind meta-data description reference");
+        SqThrowF(fmt::runtime("Invalid Maxmind meta-data description reference"));
     }
     // Return the description pointer
     return m_Description;
@@ -755,7 +755,7 @@ void EntryData::Validate() const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid Maxmind database reference");
+        SqThrowF(fmt::runtime("Invalid Maxmind database reference"));
     }
 }
 #endif // _DEBUG
@@ -780,7 +780,7 @@ EntryData::ConstRef EntryData::GetValid() const
     // See if the entry has any data
     if (!m_Entry.has_data)
     {
-        SqThrowF("The referenced entry has no data");
+        SqThrowF(fmt::runtime("The referenced entry has no data"));
     }
     // Return the entry
     return m_Entry;
@@ -829,7 +829,7 @@ void EntryDataList::Validate() const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid Maxmind database reference");
+        SqThrowF(fmt::runtime("Invalid Maxmind database reference"));
     }
 }
 #endif // _DEBUG
@@ -854,7 +854,7 @@ EntryDataList::Pointer EntryDataList::GetValid() const
     // Validate the managed list
     if (!m_List)
     {
-        SqThrowF("Invalid Maxmind entry data list reference");
+        SqThrowF(fmt::runtime("Invalid Maxmind entry data list reference"));
     }
     // return the list
     return m_List;
@@ -881,7 +881,7 @@ EntryDataList::Pointer EntryDataList::GetValidElem() const
     // Validate the current element
     if (!m_List)
     {
-        SqThrowF("Invalid Maxmind entry data element reference");
+        SqThrowF(fmt::runtime("Invalid Maxmind entry data element reference"));
     }
     // return the element
     return m_Elem;
@@ -987,7 +987,7 @@ void LookupResult::Validate() const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid Maxmind database reference");
+        SqThrowF(fmt::runtime("Invalid Maxmind database reference"));
     }
 }
 #endif // _DEBUG
@@ -1147,7 +1147,7 @@ void Metadata::Validate() const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid Maxmind database reference");
+        SqThrowF(fmt::runtime("Invalid Maxmind database reference"));
     }
 }
 #endif // _DEBUG
@@ -1172,7 +1172,7 @@ Metadata::Pointer Metadata::GetValid() const
     // Validate the referenced meta-data
     if (!m_Metadata)
     {
-        SqThrowF("Invalid Maxmind meta-data reference");
+        SqThrowF(fmt::runtime("Invalid Maxmind meta-data reference"));
     }
     // Return the meta-data pointer
     return m_Metadata;
@@ -1219,7 +1219,7 @@ void SearchNode::Validate() const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid Maxmind database reference");
+        SqThrowF(fmt::runtime("Invalid Maxmind database reference"));
     }
 }
 #endif // _DEBUG

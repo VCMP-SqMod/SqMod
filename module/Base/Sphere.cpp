@@ -469,7 +469,7 @@ Sphere Sphere::Abs() const
 // ------------------------------------------------------------------------------------------------
 String Sphere::Format(StackStrF & str) const
 {
-    return fmt::format(str.ToStr()
+    return fmt::format(fmt::runtime(str.ToStr())
         , fmt::arg("x", pos.x)
         , fmt::arg("y", pos.y)
         , fmt::arg("z", pos.z)

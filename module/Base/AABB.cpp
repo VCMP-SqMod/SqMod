@@ -730,7 +730,7 @@ int32_t AABB::IsSphereInsideFastEx(Value x, Value y, Value z, Value r) const
 // ------------------------------------------------------------------------------------------------
 String AABB::Format(StackStrF & str) const
 {
-    return fmt::format(str.ToStr()
+    return fmt::format(fmt::runtime(str.ToStr())
         , fmt::arg("min_x", min.x)
         , fmt::arg("min_y", min.y)
         , fmt::arg("min_z", min.z)

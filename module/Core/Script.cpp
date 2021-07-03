@@ -99,7 +99,7 @@ void ScriptSrc::Process()
     // Read completely?
     if (r != static_cast< size_t >(length))
     {
-        return SqThrowF("Failed to read script contents."); // Not cool
+        return SqThrowF(fmt::runtime("Failed to read script contents.")); // Not cool
     }
     // Where the last line ended
     size_t line_start = 0, line_end = 0;

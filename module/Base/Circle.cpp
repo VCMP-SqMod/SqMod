@@ -496,7 +496,7 @@ Array Circle::ToPointsArray(SQInteger num_segments) const
 // ------------------------------------------------------------------------------------------------
 String Circle::Format(StackStrF & str) const
 {
-    return fmt::format(str.ToStr()
+    return fmt::format(fmt::runtime(str.ToStr())
         , fmt::arg("x", pos.x)
         , fmt::arg("y", pos.y)
         , fmt::arg("r", rad)

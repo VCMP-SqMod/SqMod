@@ -693,7 +693,7 @@ LightObj Color4::ToHex3() const
 // ------------------------------------------------------------------------------------------------
 String Color4::Format(StackStrF & str) const
 {
-    return fmt::format(str.ToStr()
+    return fmt::format(fmt::runtime(str.ToStr())
         , fmt::arg("r", r)
         , fmt::arg("g", g)
         , fmt::arg("b", b)

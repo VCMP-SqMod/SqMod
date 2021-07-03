@@ -283,13 +283,13 @@ public:
         // Make sure that the buffer can host at least one element of this type
         if (m_Cap < sizeof(T))
         {
-            ThrowMemExcept("Buffer capacity of (%u) is unable to host an element of size (%u)",
+            ThrowMemExcept(fmt::runtime("Buffer capacity of (%u) is unable to host an element of size (%u)"),
                             m_Cap, sizeof(T));
         }
         // Make sure that the specified element is withing buffer range
         else if (n > (m_Cap - sizeof(T)))
         {
-            ThrowMemExcept("Element of size (%d) at index (%u) is out of buffer capacity (%u)",
+            ThrowMemExcept(fmt::runtime("Element of size (%d) at index (%u) is out of buffer capacity (%u)"),
                             sizeof(T), n, m_Cap);
         }
         // Return the requested element
@@ -304,13 +304,13 @@ public:
         // Make sure that the buffer can host at least one element of this type
         if (m_Cap < sizeof(T))
         {
-            ThrowMemExcept("Buffer capacity of (%u) is unable to host an element of size (%u)",
+            ThrowMemExcept(fmt::runtime("Buffer capacity of (%u) is unable to host an element of size (%u)"),
                             m_Cap, sizeof(T));
         }
         // Make sure that the specified element is withing buffer range
         else if (n > (m_Cap - sizeof(T)))
         {
-            ThrowMemExcept("Element of size (%d) at index (%u) is out of buffer capacity (%u)",
+            ThrowMemExcept(fmt::runtime("Element of size (%d) at index (%u) is out of buffer capacity (%u)"),
                             sizeof(T), n, m_Cap);
         }
         // Return the requested element
@@ -357,7 +357,7 @@ public:
         // Make sure that the buffer can host at least one element of this type
         if (m_Cap < sizeof(T))
         {
-            ThrowMemExcept("Buffer capacity of (%u) is unable to host an element of size (%u)",
+            ThrowMemExcept(fmt::runtime("Buffer capacity of (%u) is unable to host an element of size (%u)"),
                             m_Cap, sizeof(T));
         }
         // Return the requested element
@@ -372,7 +372,7 @@ public:
         // Make sure that the buffer can host at least one element of this type
         if (m_Cap < sizeof(T))
         {
-            ThrowMemExcept("Buffer capacity of (%u) is unable to host an element of size (%u)",
+            ThrowMemExcept(fmt::runtime("Buffer capacity of (%u) is unable to host an element of size (%u)"),
                             m_Cap, sizeof(T));
         }
         // Return the requested element
@@ -387,7 +387,7 @@ public:
         // Make sure that the buffer can host at least two elements of this type
         if (m_Cap < (sizeof(T) * 2))
         {
-            ThrowMemExcept("Buffer capacity of (%u) is unable to host two elements of size (%u)",
+            ThrowMemExcept(fmt::runtime("Buffer capacity of (%u) is unable to host two elements of size (%u)"),
                             m_Cap, sizeof(T));
         }
         // Return the requested element
@@ -402,7 +402,7 @@ public:
         // Make sure that the buffer can host at least two elements of this type
         if (m_Cap < (sizeof(T) * 2))
         {
-            ThrowMemExcept("Buffer capacity of (%u) is unable to host two elements of size (%u)",
+            ThrowMemExcept(fmt::runtime("Buffer capacity of (%u) is unable to host two elements of size (%u)"),
                             m_Cap, sizeof(T));
         }
         // Return the requested element
@@ -417,7 +417,7 @@ public:
         // Make sure that the buffer can host at least one element of this type
         if (m_Cap < sizeof(T))
         {
-            ThrowMemExcept("Buffer capacity of (%u) is unable to host an element of size (%u)",
+            ThrowMemExcept(fmt::runtime("Buffer capacity of (%u) is unable to host an element of size (%u)"),
                             m_Cap, sizeof(T));
         }
         // Return the requested element
@@ -432,7 +432,7 @@ public:
         // Make sure that the buffer can host at least one element of this type
         if (m_Cap < sizeof(T))
         {
-            ThrowMemExcept("Buffer capacity of (%u) is unable to host an element of size (%u)",
+            ThrowMemExcept(fmt::runtime("Buffer capacity of (%u) is unable to host an element of size (%u)"),
                             m_Cap, sizeof(T));
         }
         // Return the requested element
@@ -447,7 +447,7 @@ public:
         // Make sure that the buffer can host at least two elements of this type
         if (m_Cap < (sizeof(T) * 2))
         {
-            ThrowMemExcept("Buffer capacity of (%u) is unable to host two elements of size (%u)",
+            ThrowMemExcept(fmt::runtime("Buffer capacity of (%u) is unable to host two elements of size (%u)"),
                             m_Cap, sizeof(T));
         }
         // Return the requested element
@@ -462,7 +462,7 @@ public:
         // Make sure that the buffer can host at least two elements of this type
         if (m_Cap < (sizeof(T) * 2))
         {
-            ThrowMemExcept("Buffer capacity of (%u) is unable to host two elements of size (%u)",
+            ThrowMemExcept(fmt::runtime("Buffer capacity of (%u) is unable to host two elements of size (%u)"),
                             m_Cap, sizeof(T));
         }
         // Return the requested element
@@ -538,7 +538,7 @@ public:
         // Make sure that at least one element of this type exists after the cursor
         if ((m_Cur + sizeof(T)) > m_Cap)
         {
-            ThrowMemExcept("Element of size (%u) starting at (%u) exceeds buffer capacity (%u)",
+            ThrowMemExcept(fmt::runtime("Element of size (%u) starting at (%u) exceeds buffer capacity (%u)"),
                             sizeof(T), m_Cur, m_Cap);
         }
         // Return the requested element
@@ -553,7 +553,7 @@ public:
         // Make sure that at least one element of this type exists after the cursor
         if ((m_Cur + sizeof(T)) > m_Cap)
         {
-            ThrowMemExcept("Element of size (%u) starting at (%u) exceeds buffer capacity (%u)",
+            ThrowMemExcept(fmt::runtime("Element of size (%u) starting at (%u) exceeds buffer capacity (%u)"),
                             sizeof(T), m_Cur, m_Cap);
         }
         // Return the requested element
@@ -568,7 +568,7 @@ public:
         // The cursor must have at least one element of this type behind
         if (m_Cur < sizeof(T))
         {
-            ThrowMemExcept("Cannot read an element of size (%u) before the cursor at (%u)",
+            ThrowMemExcept(fmt::runtime("Cannot read an element of size (%u) before the cursor at (%u)"),
                             sizeof(T), m_Cur);
         }
         // Return the requested element
@@ -583,7 +583,7 @@ public:
         // The cursor must have at least one element of this type behind
         if (m_Cur < sizeof(T))
         {
-            ThrowMemExcept("Cannot read an element of size (%u) before the cursor at (%u)",
+            ThrowMemExcept(fmt::runtime("Cannot read an element of size (%u) before the cursor at (%u)"),
                             sizeof(T), m_Cur);
         }
         // Return the requested element
@@ -598,13 +598,13 @@ public:
         // Make sure that the buffer can host at least one element of this type
         if (m_Cap < sizeof(T))
         {
-            ThrowMemExcept("Buffer capacity of (%u) is unable to host an element of size (%u)",
+            ThrowMemExcept(fmt::runtime("Buffer capacity of (%u) is unable to host an element of size (%u)"),
                             m_Cap, sizeof(T));
         }
         // There must be buffer left for at least two elements of this type after the cursor
         else if ((m_Cur + (sizeof(T) * 2)) > m_Cap)
         {
-            ThrowMemExcept("Element of size (%u) starting at (%u) exceeds buffer capacity (%u)",
+            ThrowMemExcept(fmt::runtime("Element of size (%u) starting at (%u) exceeds buffer capacity (%u)"),
                             sizeof(T), m_Cur + sizeof(T), m_Cap);
         }
         // Return the requested element
@@ -619,13 +619,13 @@ public:
         // Make sure that the buffer can host at least one element of this type
         if (m_Cap < sizeof(T))
         {
-            ThrowMemExcept("Buffer capacity of (%u) is unable to host an element of size (%u)",
+            ThrowMemExcept(fmt::runtime("Buffer capacity of (%u) is unable to host an element of size (%u)"),
                             m_Cap, sizeof(T));
         }
         // There must be buffer left for at least two elements of this type after the cursor
         else if ((m_Cur + (sizeof(T) * 2)) > m_Cap)
         {
-            ThrowMemExcept("Element of size (%u) starting at (%u) exceeds buffer capacity (%u)",
+            ThrowMemExcept(fmt::runtime("Element of size (%u) starting at (%u) exceeds buffer capacity (%u)"),
                             sizeof(T), m_Cur + sizeof(T), m_Cap);
         }
         // Return the requested element
@@ -706,7 +706,7 @@ public:
         // See if the requested capacity doesn't exceed the limit
         if (n > Max< T >())
         {
-            ThrowMemExcept("Requested buffer of (%u) elements exceeds the (%u) limit", n, Max< T >());
+            ThrowMemExcept(fmt::runtime("Requested buffer of (%u) elements exceeds the (%u) limit"), n, Max< T >());
         }
         // Is there an existing buffer?
         else if (n && !m_Cap)

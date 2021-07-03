@@ -903,7 +903,7 @@ void SQLiteConnection::Validate() const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid SQLite connection reference");
+        SqThrowF(fmt::runtime("Invalid SQLite connection reference"));
     }
 }
 #endif // _DEBUG
@@ -926,11 +926,11 @@ void SQLiteConnection::ValidateCreated() const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid SQLite connection reference");
+        SqThrowF(fmt::runtime("Invalid SQLite connection reference"));
     }
     else if (m_Handle->mPtr == nullptr)
     {
-        SqThrowF("Invalid SQLite connection");
+        SqThrowF(fmt::runtime("Invalid SQLite connection"));
     }
 }
 #endif // _DEBUG
@@ -1241,12 +1241,12 @@ void SQLiteParameter::Validate() const
     // Are we pointing to a valid index?
     if (m_Index < 0)
     {
-        SqThrowF("Invalid column index: {} < 0", m_Index);
+        SqThrowF(fmt::runtime("Invalid column index: {} < 0"), m_Index);
     }
     // Do we have a valid statement handle?
     else if (!m_Handle)
     {
-        SqThrowF("Invalid SQLite statement reference");
+        SqThrowF(fmt::runtime("Invalid SQLite statement reference"));
     }
 }
 #endif // _DEBUG
@@ -1275,15 +1275,15 @@ void SQLiteParameter::ValidateCreated() const
     // Are we pointing to a valid index?
     if (m_Index < 0)
     {
-        SqThrowF("Invalid column index: {} < 0", m_Index);
+        SqThrowF(fmt::runtime("Invalid column index: {} < 0"), m_Index);
     }
     else if (!m_Handle)
     {
-        SqThrowF("Invalid SQLite statement reference");
+        SqThrowF(fmt::runtime("Invalid SQLite statement reference"));
     }
     else if (m_Handle->mPtr == nullptr)
     {
-        SqThrowF("Invalid SQLite statement");
+        SqThrowF(fmt::runtime("Invalid SQLite statement"));
     }
 }
 #endif // _DEBUG
@@ -1337,7 +1337,7 @@ void SQLiteParameter::ValidateParam(int32_t idx) const
     // Is the specified index in range?
     if (!m_Handle->CheckParameter(idx))
     {
-        SqThrowF("SQLiteParameter index is out of range ({}:{})", idx, m_Handle->mParameters);
+        SqThrowF(fmt::runtime("SQLiteParameter index is out of range ({}:{})"), idx, m_Handle->mParameters);
     }
 }
 #endif // _DEBUG
@@ -1947,12 +1947,12 @@ void SQLiteColumn::Validate() const
     // Are we pointing to a valid index?
     if (m_Index < 0)
     {
-        SqThrowF("Invalid column index: {} < 0", m_Index);
+        SqThrowF(fmt::runtime("Invalid column index: {} < 0"), m_Index);
     }
     // Do we have a valid statement handle?
     else if (!m_Handle)
     {
-        SqThrowF("Invalid SQLite statement reference");
+        SqThrowF(fmt::runtime("Invalid SQLite statement reference"));
     }
 }
 #endif // _DEBUG
@@ -1981,15 +1981,15 @@ void SQLiteColumn::ValidateCreated() const
     // Are we pointing to a valid index?
     if (m_Index < 0)
     {
-        SqThrowF("Invalid column index: {} < 0", m_Index);
+        SqThrowF(fmt::runtime("Invalid column index: {} < 0"), m_Index);
     }
     else if (!m_Handle)
     {
-        SqThrowF("Invalid SQLite statement reference");
+        SqThrowF(fmt::runtime("Invalid SQLite statement reference"));
     }
     else if (m_Handle->mPtr == nullptr)
     {
-        SqThrowF("Invalid SQLite statement");
+        SqThrowF(fmt::runtime("Invalid SQLite statement"));
     }
 }
 #endif // _DEBUG
@@ -2043,7 +2043,7 @@ void SQLiteColumn::ValidateColumn(int32_t idx) const
     // Is the specified index in range?
     if (!m_Handle->CheckColumn(idx))
     {
-        SqThrowF("Column index is out of range: {}:{}", idx, m_Handle->mColumns);
+        SqThrowF(fmt::runtime("Column index is out of range: {}:{}"), idx, m_Handle->mColumns);
     }
 }
 #endif // _DEBUG
@@ -2415,7 +2415,7 @@ void SQLiteStatement::Validate() const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid SQLite statement reference");
+        SqThrowF(fmt::runtime("Invalid SQLite statement reference"));
     }
 }
 #endif // _DEBUG
@@ -2438,11 +2438,11 @@ void SQLiteStatement::ValidateCreated() const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid SQLite statement reference");
+        SqThrowF(fmt::runtime("Invalid SQLite statement reference"));
     }
     else if (m_Handle->mPtr == nullptr)
     {
-        SqThrowF("Invalid SQLite statement");
+        SqThrowF(fmt::runtime("Invalid SQLite statement"));
     }
 }
 #endif // _DEBUG
@@ -2495,7 +2495,7 @@ void SQLiteStatement::ValidateColumn(int32_t idx) const
     // Is the specified index in range?
     if (!m_Handle->CheckColumn(idx))
     {
-        SqThrowF("Column index is out of range: {}:{}", idx, m_Handle->mColumns);
+        SqThrowF(fmt::runtime("Column index is out of range: {}:{}"), idx, m_Handle->mColumns);
     }
 }
 #endif // _DEBUG
@@ -2518,7 +2518,7 @@ void SQLiteStatement::ValidateParam(int32_t idx) const
     // Is the specified index in range?
     if (!m_Handle->CheckParameter(idx))
     {
-        SqThrowF("Parameter index is out of range: {}:{}", idx, m_Handle->mParameters);
+        SqThrowF(fmt::runtime("Parameter index is out of range: {}:{}"), idx, m_Handle->mParameters);
     }
 }
 #endif // _DEBUG
@@ -2541,7 +2541,7 @@ void SQLiteStatement::ValidateRow() const
     // Do we have any rows available?
     if (!m_Handle->mGood)
     {
-        SqThrowF("No row available");
+        SqThrowF(fmt::runtime("No row available"));
     }
 }
 #endif // _DEBUG

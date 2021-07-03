@@ -133,7 +133,7 @@ void SqThrowLastF(const SQChar * msg, ...)
     if(error_num == 0)
     {
         // Invoker is responsible for making sure this doesn't happen!
-        SqThrowF("{} [Unknown error]", b.Data());
+        SqThrowF(fmt::runtime("{} [Unknown error]"), b.Data());
     }
     // The resulted message buffer
     LPSTR msg_buff = nullptr;
@@ -147,7 +147,7 @@ void SqThrowLastF(const SQChar * msg, ...)
     //Free the message buffer
     LocalFree(msg_buff);
     // Now it's safe to throw the error
-    SqThrowF("{} [{}]", b.Data(), message);
+    SqThrowF(fmt::runtime("{} [{}]"), b.Data(), message);
 #else
     SqThrowF("{} [{}]", b.Data(), std::strerror(errno));
 #endif // SQMOD_OS_WINDOWS

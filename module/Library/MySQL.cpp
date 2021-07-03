@@ -1631,7 +1631,7 @@ void Connection::Validate() const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid MySQL connection reference");
+        SqThrowF(fmt::runtime("Invalid MySQL connection reference"));
     }
 }
 #endif // _DEBUG
@@ -1654,11 +1654,11 @@ void Connection::ValidateCreated() const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid MySQL connection reference");
+        SqThrowF(fmt::runtime("Invalid MySQL connection reference"));
     }
     else if (m_Handle->mPtr == nullptr)
     {
-        SqThrowF("Invalid MySQL connection");
+        SqThrowF(fmt::runtime("Invalid MySQL connection"));
     }
 }
 #endif // _DEBUG
@@ -1976,12 +1976,12 @@ void Field::Validate() const
     // Do we have a valid result-set handle?
     if (!m_Handle)
     {
-        SqThrowF("Invalid MySQL result-set reference");
+        SqThrowF(fmt::runtime("Invalid MySQL result-set reference"));
     }
     // Are we pointing to a valid index?
     else if (m_Index >= m_Handle->mFieldCount)
     {
-        SqThrowF("Field index is out of range: {} >= {}", m_Index, m_Handle->mFieldCount);
+        SqThrowF(fmt::runtime("Field index is out of range: {} >= {}"), m_Index, m_Handle->mFieldCount);
     }
 }
 #endif // _DEBUG
@@ -2004,7 +2004,7 @@ void Field::ValidateCreated() const
     // Do we have a valid result-set handle?
     if (!m_Handle)
     {
-        SqThrowF("Invalid MySQL result-set reference");
+        SqThrowF(fmt::runtime("Invalid MySQL result-set reference"));
     }
     // Are we pointing to a valid index?
     m_Handle->ValidateField(m_Index);
@@ -2034,12 +2034,12 @@ void Field::ValidateStepped() const
     // Do we have a valid result-set handle?
     if (!m_Handle)
     {
-        SqThrowF("Invalid MySQL result-set reference");
+        SqThrowF(fmt::runtime("Invalid MySQL result-set reference"));
     }
     // Do we have a valid row available?
     else if (m_Handle->mRow == nullptr)
     {
-        SqThrowF("No row available in MySQL result-set");
+        SqThrowF(fmt::runtime("No row available in MySQL result-set"));
     }
     // Are we pointing to a valid index?
     m_Handle->ValidateField(m_Index);
@@ -2109,7 +2109,7 @@ void Field::ValidateField(uint32_t idx) const
     // Do we have a valid result-set handle?
     if (!m_Handle)
     {
-        SqThrowF("Invalid MySQL result-set reference");
+        SqThrowF(fmt::runtime("Invalid MySQL result-set reference"));
     }
     // Validate the specified field index
     m_Handle->ValidateField(idx);
@@ -2480,7 +2480,7 @@ void ResultSet::Validate() const
     // Do we have a valid result-set handle?
     if (!m_Handle)
     {
-        SqThrowF("Invalid MySQL result-set reference");
+        SqThrowF(fmt::runtime("Invalid MySQL result-set reference"));
     }
 }
 #endif // _DEBUG
@@ -2505,11 +2505,11 @@ void ResultSet::ValidateCreated() const
     // Do we have a valid result-set handle?
     if (!m_Handle)
     {
-        SqThrowF("Invalid MySQL result-set reference");
+        SqThrowF(fmt::runtime("Invalid MySQL result-set reference"));
     }
     else if (m_Handle->mPtr == nullptr)
     {
-        SqThrowF("Invalid MySQL result-set");
+        SqThrowF(fmt::runtime("Invalid MySQL result-set"));
     }
 }
 #endif // _DEBUG
@@ -2535,12 +2535,12 @@ void ResultSet::ValidateStepped() const
     // Do we have a valid result-set handle?
     if (!m_Handle)
     {
-        SqThrowF("Invalid MySQL result-set reference");
+        SqThrowF(fmt::runtime("Invalid MySQL result-set reference"));
     }
     // Do we have a valid row available?
     else if (m_Handle->mRow == nullptr)
     {
-        SqThrowF("No row available in MySQL result-set");
+        SqThrowF(fmt::runtime("No row available in MySQL result-set"));
     }
 }
 #endif // _DEBUG
@@ -2761,7 +2761,7 @@ void Statement::Validate() const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid MySQL statement reference");
+        SqThrowF(fmt::runtime("Invalid MySQL statement reference"));
     }
 }
 #endif // _DEBUG
@@ -2784,11 +2784,11 @@ void Statement::ValidateCreated() const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid MySQL statement reference");
+        SqThrowF(fmt::runtime("Invalid MySQL statement reference"));
     }
     else if (m_Handle->mPtr == nullptr)
     {
-        SqThrowF("Invalid MySQL statement");
+        SqThrowF(fmt::runtime("Invalid MySQL statement"));
     }
 }
 #endif // _DEBUG

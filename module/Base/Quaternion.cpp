@@ -719,7 +719,7 @@ const Quaternion & Quaternion::Get(StackStrF & str)
 // ------------------------------------------------------------------------------------------------
 String Quaternion::Format(StackStrF & str) const
 {
-    return fmt::format(str.ToStr()
+    return fmt::format(fmt::runtime(str.ToStr())
         , fmt::arg("x", x)
         , fmt::arg("y", y)
         , fmt::arg("z", z)

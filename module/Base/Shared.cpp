@@ -955,11 +955,11 @@ struct SqAssertResult
         // Default?
         if (s.mLen <= 0)
         {
-            LogScs("%s", fmt::format(mFStr, mA, mB).c_str());
+            LogScs("%s", fmt::format(fmt::runtime(mFStr), mA, mB).c_str());
         }
         else
         {
-            LogScs("%s", fmt::format(s.ToStr(), mA, mB).c_str());
+            LogScs("%s", fmt::format(fmt::runtime(s.ToStr()), mA, mB).c_str());
         }
         // Allow chaining
         return *this;
@@ -1120,7 +1120,7 @@ template < class C > static SQInteger SqAssertValue(HSQUIRRELVM vm)
     if (C{}(r) == false)
     {
         // Throw the error
-        return sq_throwerrorf(vm, fmt::format(C::FSTRV, ar.Get()->mA, ar.Get()->mB).c_str());
+        return sq_throwerrorf(vm, fmt::format(fmt::runtime(C::FSTRV), ar.Get()->mA, ar.Get()->mB).c_str());
     }
     // Try to return assert result
     try
@@ -1165,7 +1165,7 @@ template < class C > static SQInteger SqAssertSame(HSQUIRRELVM vm)
     if (C{}(r) == false)
     {
         // Throw the error
-        return sq_throwerrorf(vm, fmt::format(C::FSTRV, ar.Get()->mA, ar.Get()->mB).c_str());
+        return sq_throwerrorf(vm, fmt::format(fmt::runtime(C::FSTRV), ar.Get()->mA, ar.Get()->mB).c_str());
     }
     // Try to return assert result
     try

@@ -375,7 +375,7 @@ Vector2 Vector2::Abs() const
 // ------------------------------------------------------------------------------------------------
 String Vector2::Format(StackStrF & str) const
 {
-    return fmt::format(str.ToStr()
+    return fmt::format(fmt::runtime(str.ToStr())
         , fmt::arg("x", x)
         , fmt::arg("y", y)
     );
