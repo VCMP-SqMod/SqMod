@@ -19,20 +19,19 @@ class Core;
 /* ------------------------------------------------------------------------------------------------
  * Hold a information about loaded scripts as it's contents and executable code.
 */
-class ScriptSrc
+struct ScriptSrc
 {
-public:
-
     // --------------------------------------------------------------------------------------------
     typedef std::vector< std::pair< uint32_t, uint32_t > > Line;
 
     // --------------------------------------------------------------------------------------------
-    Script      mExec; // Reference to the script object.
-    String      mPath; // Path to the script file.
-    String      mData; // The contents of the script file.
-    Line        mLine; // List of lines of code in the data.
-    bool        mInfo; // Whether this script contains line information.
-    bool        mDelay; // Don't execute immediately after compilation.
+    Script      mExec{}; // Reference to the script object.
+    Function    mFunc{}; // Callback to invoke after script was executed.
+    String      mPath{}; // Path to the script file.
+    String      mData{}; // The contents of the script file.
+    Line        mLine{}; // List of lines of code in the data.
+    bool        mInfo{false}; // Whether this script contains line information.
+    bool        mDelay{false}; // Don't execute immediately after compilation.
 
     /* --------------------------------------------------------------------------------------------
      * Read file contents and calculate information about the lines of code.
@@ -42,7 +41,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    explicit ScriptSrc(const String & path, bool delay = false, bool info = false);
+    explicit ScriptSrc(const String & path, Function & cb, bool delay = false, bool info = false);
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.

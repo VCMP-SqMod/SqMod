@@ -71,18 +71,17 @@ extern Buffer GetRealFilePath(const SQChar * path);
 /* ------------------------------------------------------------------------------------------------
  * Loader used to process a section from the configuration file and look for scripts to load.
 */
-class ScriptLoader
+struct ScriptLoader
 {
     // --------------------------------------------------------------------------------------------
-    CSimpleIniA & m_Config; // The processed configuration.
-
-public:
+    CSimpleIniA &   m_Config; // The processed configuration.
+    Function        m_Callback{}; // Null callback.
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
     explicit ScriptLoader(CSimpleIniA & conf)
-        : m_Config(conf)
+        : m_Config(conf), m_Callback()
     {
         /* ... */
     }
@@ -90,7 +89,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Function call operator.
     */
-    bool operator () (const char * key, const char * val) const
+    bool operator () (const char * key, const char * val)
     {
         // Validate the specified key
         if (!key || *key == '\0')
@@ -104,11 +103,11 @@ public:
         }
         else if (std::strcmp(key, "Compile") == 0)
         {
-            return Core::Get().LoadScript(val, true);
+            return Core::Get().LoadScript(val, m_Callback, true);
         }
         else if (std::strcmp(key, "Execute") == 0)
         {
-            return Core::Get().LoadScript(val, false);
+            return Core::Get().LoadScript(val, m_Callback, false);
         }
         // Move to the next element!
         return true;
@@ -717,7 +716,7 @@ Core::Scripts::iterator Core::FindPendingScript(const SQChar * src)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Core::LoadScript(const SQChar * filepath, bool delay)
+bool Core::LoadScript(const SQChar * filepath, Function & cb, bool delay)
 {
     // Is the specified path empty?
     if (!filepath || *filepath == '\0')
@@ -761,7 +760,7 @@ bool Core::LoadScript(const SQChar * filepath, bool delay)
     else if (m_Executed)
     {
         // Create a new script container and insert it into the script pool
-        m_Scripts.emplace_back(path, delay, m_Debugging);
+        m_Scripts.emplace_back(path, cb, delay, m_Debugging);
 
         // Attempt to load and compile the script file
         try
@@ -782,7 +781,14 @@ bool Core::LoadScript(const SQChar * filepath, bool delay)
         // Attempt to execute the compiled script code
         try
         {
-            m_Scripts.back().mExec.Run();
+            auto & s = m_Scripts.back();
+            // Attempt to run the script
+            s.mExec.Run();
+            // Does someone need to be notified?
+            if (!s.mFunc.IsNull())
+            {
+                s.mFunc.Execute(s.mPath, s.mExec);
+            }
         }
         catch (const std::exception & e)
         {
@@ -803,7 +809,7 @@ bool Core::LoadScript(const SQChar * filepath, bool delay)
         try
         {
             // Create a new script container and insert it into the pending script pool
-            m_PendingScripts.emplace_back(path, delay, m_Debugging);
+            m_PendingScripts.emplace_back(path, cb, delay, m_Debugging);
         }
         catch (const std::exception & e)
         {
@@ -900,7 +906,14 @@ bool Core::DoScripts(Scripts::iterator itr, Scripts::iterator end)
         // Attempt to execute the compiled script code
         try
         {
-            (*itr).mExec.Run();
+            auto & s = *itr;
+            // Attempt to run the script
+            s.mExec.Run();
+            // Does someone need to be notified?
+            if (!s.mFunc.IsNull())
+            {
+                s.mFunc.Execute(s.mPath, s.mExec);
+            }
         }
         catch (const std::exception & e)
         {
@@ -925,11 +938,18 @@ bool Core::DoScripts(Scripts::iterator itr, Scripts::iterator end)
         // Attempt to execute the compiled script code
         try
         {
-            (*itr).mExec.Run();
+            auto & s = *itr;
+            // Attempt to run the script
+            s.mExec.Run();
+            // Does someone need to be notified?
+            if (!s.mFunc.IsNull())
+            {
+                s.mFunc.Execute(s.mPath, s.mExec);
+            }
         }
         catch (const std::exception & e)
         {
-            LogFtl("Unable to execute: %s", (*itr).mPath.c_str());
+            LogFtl("Unable to execute (%s) exception caught: %s", (*itr).mPath.c_str(), e.what());
             // Failed to execute properly
             return false;
         }
@@ -2477,10 +2497,17 @@ static SQInteger SqLoadScript(HSQUIRRELVM vm)
     {
         return sq_throwerror(vm, "Failed to retrieve the delay parameter");
     }
+    Function cb;
     // Forward the call to the actual implementation
-    sq_pushbool(vm, Core::Get().LoadScript(val.mPtr, static_cast< bool >(delay)));
+    sq_pushbool(vm, Core::Get().LoadScript(val.mPtr, cb, static_cast< bool >(delay)));
     // We have an argument on the stack
     return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+static bool SqLoadScriptNotify(bool delay, StackStrF & path, Function & cb)
+{
+    return Core::Get().LoadScript(path.mPtr, cb, delay);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2813,6 +2840,7 @@ void Register_Core(HSQUIRRELVM vm)
         .Func(_SC("OnPreLoad"), &SqGetPreLoadEvent)
         .Func(_SC("OnPostLoad"), &SqGetPostLoadEvent)
         .Func(_SC("OnUnload"), &SqGetUnloadEvent)
+        .CbFunc(_SC("LoadScriptNotify"), &SqLoadScriptNotify)
         .SquirrelFunc(_SC("ForceEnableNullEntities"), &SqForceEnableNullEntities)
         .SquirrelFunc(_SC("LoadScript"), &SqLoadScript, -3, ".b.")
         .SquirrelFunc(_SC("On"), &SqGetEvents);

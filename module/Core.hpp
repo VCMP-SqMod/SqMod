@@ -368,7 +368,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Adds a script to the load queue.
     */
-    bool LoadScript(const SQChar * filepath, bool delay);
+    bool LoadScript(const SQChar * filepath, Function & cb, bool delay = false);
 
     /* --------------------------------------------------------------------------------------------
      * Modify the name for the currently assigned incoming connection.
