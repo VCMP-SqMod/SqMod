@@ -76,12 +76,13 @@ struct ScriptLoader
     // --------------------------------------------------------------------------------------------
     CSimpleIniA &   m_Config; // The processed configuration.
     Function        m_Callback{}; // Null callback.
+    LightObj        m_Context{}; // Callback context.
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
     explicit ScriptLoader(CSimpleIniA & conf)
-        : m_Config(conf), m_Callback()
+        : m_Config(conf), m_Callback(), m_Context()
     {
         /* ... */
     }
@@ -103,11 +104,11 @@ struct ScriptLoader
         }
         else if (std::strcmp(key, "Compile") == 0)
         {
-            return Core::Get().LoadScript(val, m_Callback, true);
+            return Core::Get().LoadScript(val, m_Callback, m_Context, true);
         }
         else if (std::strcmp(key, "Execute") == 0)
         {
-            return Core::Get().LoadScript(val, m_Callback, false);
+            return Core::Get().LoadScript(val, m_Callback, m_Context, false);
         }
         // Move to the next element!
         return true;
@@ -716,7 +717,7 @@ Core::Scripts::iterator Core::FindPendingScript(const SQChar * src)
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Core::LoadScript(const SQChar * filepath, Function & cb, bool delay)
+bool Core::LoadScript(const SQChar * filepath, Function & cb, LightObj & ctx, bool delay)
 {
     // Is the specified path empty?
     if (!filepath || *filepath == '\0')
@@ -760,7 +761,7 @@ bool Core::LoadScript(const SQChar * filepath, Function & cb, bool delay)
     else if (m_Executed)
     {
         // Create a new script container and insert it into the script pool
-        m_Scripts.emplace_back(path, cb, delay, m_Debugging);
+        m_Scripts.emplace_back(path, cb, ctx, delay, m_Debugging);
 
         // Attempt to load and compile the script file
         try
@@ -787,12 +788,20 @@ bool Core::LoadScript(const SQChar * filepath, Function & cb, bool delay)
             // Does someone need to be notified?
             if (!s.mFunc.IsNull())
             {
-                s.mFunc.Execute(s.mPath, s.mExec);
+                // Invoke the associated script
+                s.mFunc.Execute(s.mPath, s.mCtx);
+                // Release callback since we know it exists
+                s.mFunc.Release();
             }
+            // Release context, if any
+            s.mCtx.Release();
         }
         catch (const std::exception & e)
         {
             LogFtl("Unable to execute (%s) exception caught: %s", path.c_str(), e.what());
+            // Release callback and context objects, if any
+            m_Scripts.back().mFunc.Release();
+            m_Scripts.back().mCtx.Release();
             // Remove the script container since it's invalid
             m_Scripts.pop_back();
             // Failed to execute properly
@@ -809,7 +818,7 @@ bool Core::LoadScript(const SQChar * filepath, Function & cb, bool delay)
         try
         {
             // Create a new script container and insert it into the pending script pool
-            m_PendingScripts.emplace_back(path, cb, delay, m_Debugging);
+            m_PendingScripts.emplace_back(path, cb, ctx, delay, m_Debugging);
         }
         catch (const std::exception & e)
         {
@@ -912,12 +921,20 @@ bool Core::DoScripts(Scripts::iterator itr, Scripts::iterator end)
             // Does someone need to be notified?
             if (!s.mFunc.IsNull())
             {
-                s.mFunc.Execute(s.mPath, s.mExec);
+                // Invoke the associated script
+                s.mFunc.Execute(s.mPath, s.mCtx);
+                // Release callback since we know it exists
+                s.mFunc.Release();
             }
+            // Release context, if any
+            s.mCtx.Release();
         }
         catch (const std::exception & e)
         {
             LogFtl("Unable to execute (%s) exception caught: %s", (*itr).mPath.c_str(), e.what());
+            // Release callback and context objects, if any
+            itr->mFunc.Release();
+            itr->mCtx.Release();
             // Failed to execute properly
             return false;
         }
@@ -944,12 +961,20 @@ bool Core::DoScripts(Scripts::iterator itr, Scripts::iterator end)
             // Does someone need to be notified?
             if (!s.mFunc.IsNull())
             {
-                s.mFunc.Execute(s.mPath, s.mExec);
+                // Invoke the associated script
+                s.mFunc.Execute(s.mPath, s.mCtx);
+                // Release callback since we know it exists
+                s.mFunc.Release();
             }
+            // Release context, if any
+            s.mCtx.Release();
         }
         catch (const std::exception & e)
         {
             LogFtl("Unable to execute (%s) exception caught: %s", (*itr).mPath.c_str(), e.what());
+            // Release callback and context objects, if any
+            itr->mFunc.Release();
+            itr->mCtx.Release();
             // Failed to execute properly
             return false;
         }
@@ -2498,16 +2523,17 @@ static SQInteger SqLoadScript(HSQUIRRELVM vm)
         return sq_throwerror(vm, "Failed to retrieve the delay parameter");
     }
     Function cb;
+    LightObj ctx;
     // Forward the call to the actual implementation
-    sq_pushbool(vm, Core::Get().LoadScript(val.mPtr, cb, static_cast< bool >(delay)));
+    sq_pushbool(vm, Core::Get().LoadScript(val.mPtr, cb, ctx, static_cast< bool >(delay)));
     // We have an argument on the stack
     return 1;
 }
 
 // ------------------------------------------------------------------------------------------------
-static bool SqLoadScriptNotify(bool delay, StackStrF & path, Function & cb)
+static bool SqLoadScriptNotify(bool delay, StackStrF & path, LightObj & ctx, Function & cb)
 {
-    return Core::Get().LoadScript(path.mPtr, cb, delay);
+    return Core::Get().LoadScript(path.mPtr, cb, ctx, delay);
 }
 
 // ------------------------------------------------------------------------------------------------

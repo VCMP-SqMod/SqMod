@@ -27,6 +27,7 @@ struct ScriptSrc
     // --------------------------------------------------------------------------------------------
     Script      mExec{}; // Reference to the script object.
     Function    mFunc{}; // Callback to invoke after script was executed.
+    LightObj    mCtx{}; // Object to be passed over to the callback as context.
     String      mPath{}; // Path to the script file.
     String      mData{}; // The contents of the script file.
     Line        mLine{}; // List of lines of code in the data.
@@ -41,7 +42,7 @@ struct ScriptSrc
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    explicit ScriptSrc(const String & path, Function & cb, bool delay = false, bool info = false);
+    explicit ScriptSrc(const String & path, Function & cb, LightObj & ctx, bool delay = false, bool info = false);
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.

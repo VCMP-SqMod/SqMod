@@ -148,9 +148,10 @@ void ScriptSrc::Process()
 }
 
 // ------------------------------------------------------------------------------------------------
-ScriptSrc::ScriptSrc(const String & path, Function & cb, bool delay, bool info) // NOLINT(modernize-pass-by-value)
+ScriptSrc::ScriptSrc(const String & path, Function & cb, LightObj & ctx, bool delay, bool info) // NOLINT(modernize-pass-by-value)
     : mExec()
     , mFunc(std::move(cb))
+    , mCtx(std::move(ctx))
     , mPath(path)
     , mData()
     , mLine()
