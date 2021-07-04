@@ -83,9 +83,7 @@ static SQInteger SqExtractIPv4(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-extern void Register_Map(HSQUIRRELVM vm, Table & ns);
 extern void Register_Vector(HSQUIRRELVM vm, Table & ns);
-extern void Register_Dictionary(HSQUIRRELVM vm, Table & ns);
 extern void Register_Native_String(HSQUIRRELVM vm, Table & ns);
 extern void Register_ServerAnnouncer(HSQUIRRELVM vm, Table & ns);
 
@@ -94,9 +92,7 @@ void Register_Utils(HSQUIRRELVM vm)
 {
     Table ns(vm);
 
-    Register_Map(vm, ns);
     Register_Vector(vm, ns);
-    Register_Dictionary(vm, ns);
     Register_Native_String(vm, ns);
     Register_ServerAnnouncer(vm, ns);
 
