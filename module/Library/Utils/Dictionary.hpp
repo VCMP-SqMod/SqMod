@@ -232,6 +232,18 @@ struct SqDictionary
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Check whether an element exists.
+    */
+    bool Exists(SqKeyHash k) const
+    {
+        for (auto & e : mC)
+        {
+            if (e.first == k.mH) return true;
+        }
+        return false;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Iterate all values through a functor.
     */
     void Each(Function & fn) const
