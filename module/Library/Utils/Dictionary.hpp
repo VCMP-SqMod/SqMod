@@ -234,7 +234,7 @@ struct SqDictionary
     /* --------------------------------------------------------------------------------------------
      * Check whether an element exists.
     */
-    bool Exists(SqKeyHash k) const
+    bool Contains(SqKeyHash k) const
     {
         for (auto & e : mC)
         {
