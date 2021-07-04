@@ -748,17 +748,29 @@ bool Core::LoadScript(const SQChar * filepath, Function & cb, LightObj & ctx, bo
 
     // See if it wasn't already loaded
     if (std::find_if(m_Scripts.cbegin(), m_Scripts.cend(), [&path](Scripts::const_reference s) {
+#ifdef SQMOD_OS_WINDOWS
+        // Windows does not have case sensitive filenames and we can end up trying to load the same file more than once
+        return s.mPath.size() == path.size() && strnicmp(s.mPath.c_str(), path.c_str(), path.size()) == 0;
+#else
         return (s.mPath == path);
+#endif
     }) != m_Scripts.end())
     { // NOLINT(bugprone-branch-clone)
         LogWrn("Script was specified before: %s", path.c_str());
+        return false; // We didn't actually fail to load it
     }
     // Also check the pending scripts container
     else if (std::find_if(m_PendingScripts.cbegin(), m_PendingScripts.cend(), [&path](Scripts::const_reference s) {
+#ifdef SQMOD_OS_WINDOWS
+        // Windows does not have case sensitive filenames and we can end up trying to load the same file more than once
+        return s.mPath.size() == path.size() && strnicmp(s.mPath.c_str(), path.c_str(), path.size()) == 0;
+#else
         return (s.mPath == path);
+#endif
     }) != m_PendingScripts.end())
     {
         LogWrn("Script was specified before: %s", path.c_str());
+        return false; // We didn't actually fail to load it
     }
     // Were the scripts already executed? Then there's no need to queue them
     else if (m_Executed)
