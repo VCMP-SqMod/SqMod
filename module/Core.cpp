@@ -356,6 +356,7 @@ bool Core::Initialize()
     InitSignalPair(mOnPreLoad, NullLightObj(), nullptr);
     InitSignalPair(mOnPostLoad, NullLightObj(), nullptr);
     InitSignalPair(mOnUnload, NullLightObj(), nullptr);
+    InitSignalPair(mOnScript, NullLightObj(), nullptr);
 
     CSimpleIniA::TNamesDepend scripts;
     // Attempt to retrieve the list of keys to make sure there's actually something to process
@@ -510,6 +511,7 @@ void Core::Terminate(bool shutdown)
         // Tell modules to do their monkey business
         //_Func->SendPluginCommand(0xDEADC0DE, "");
     }
+
     cLogDbg(m_Verbosity >= 1, "Clearing the entity containers");
     // Release all entity resources by clearing the containers
     const ContainerCleaner cc_players(m_Players, ENT_PLAYER, !shutdown);
@@ -571,6 +573,7 @@ void Core::Terminate(bool shutdown)
     {
         cLogDbg(m_Verbosity >= 1, "Releasing any final resources and all loaded scripts");
         // Release all script callbacks
+        ResetSignalPair(mOnScript);
         DropEvents();
         // Release the script instances
         m_Scripts.clear();
@@ -793,6 +796,8 @@ bool Core::LoadScript(const SQChar * filepath, Function & cb, LightObj & ctx, bo
                 // Release callback since we know it exists
                 s.mFunc.Release();
             }
+            // Invoke the global callback
+            (*mOnScript.first)(s.mPath, s.mCtx);
             // Release context, if any
             s.mCtx.Release();
         }
@@ -926,6 +931,8 @@ bool Core::DoScripts(Scripts::iterator itr, Scripts::iterator end)
                 // Release callback since we know it exists
                 s.mFunc.Release();
             }
+            // Invoke the global callback
+            (*Core::Get().mOnScript.first)(s.mPath, s.mCtx);
             // Release context, if any
             s.mCtx.Release();
         }
@@ -966,6 +973,8 @@ bool Core::DoScripts(Scripts::iterator itr, Scripts::iterator end)
                 // Release callback since we know it exists
                 s.mFunc.Release();
             }
+            // Invoke the global callback
+            (*Core::Get().mOnScript.first)(s.mPath, s.mCtx);
             // Release context, if any
             s.mCtx.Release();
         }
@@ -2339,7 +2348,7 @@ void Core::InitEvents()
 #endif
     InitSignalPair(mOnServerOption, m_Events, "ServerOption");
     InitSignalPair(mOnScriptReload, m_Events, "ScriptReload");
-    InitSignalPair(mOnScriptLoaded, m_Events, "ScriptLoaded");
+    InitSignalPair(mOnScript, m_Events, "ScriptLoaded");
 }
 // ------------------------------------------------------------------------------------------------
 void Core::DropEvents()
@@ -2484,7 +2493,7 @@ void Core::DropEvents()
 #endif
     ResetSignalPair(mOnServerOption);
     ResetSignalPair(mOnScriptReload);
-    ResetSignalPair(mOnScriptLoaded);
+    ResetSignalPair(mOnScript);
     m_Events.Release();
 }
 
@@ -2541,6 +2550,15 @@ static SQInteger SqGetEvents(HSQUIRRELVM vm)
 {
     // Push the events table object on the stack
     sq_pushobject(vm, Core::Get().GetEvents().mObj);
+    // Specify that we're returning a value
+    return 1;
+}
+
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqGetOnScript(HSQUIRRELVM vm)
+{
+    // Push the events table object on the stack
+    sq_pushobject(vm, Core::Get().mOnScript.second);
     // Specify that we're returning a value
     return 1;
 }
@@ -2869,6 +2887,7 @@ void Register_Core(HSQUIRRELVM vm)
         .CbFunc(_SC("LoadScriptNotify"), &SqLoadScriptNotify)
         .SquirrelFunc(_SC("ForceEnableNullEntities"), &SqForceEnableNullEntities)
         .SquirrelFunc(_SC("LoadScript"), &SqLoadScript, -3, ".b.")
+        .SquirrelFunc(_SC("OnScript"), &SqGetOnScript)
         .SquirrelFunc(_SC("On"), &SqGetEvents);
 
     RootTable(vm).Bind(_SC("SqCore"), corens);
