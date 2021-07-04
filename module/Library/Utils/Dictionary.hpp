@@ -166,18 +166,77 @@ struct SqDictionary
     /* --------------------------------------------------------------------------------------------
      * Modify a value from the container.
     */
-    void Set(SqKeyHash k, LightObj & v)
+    bool Set(SqKeyHash k, LightObj & v)
     {
         for (auto & e : mC)
         {
             if (e.first == k.mH)
             {
                 e.second = std::move(v);
-                return; // We updated existing element
+                // We updated the element
+                return true;
             }
         }
         // Create the element now
         mC.emplace_back(k.mH, std::move(v));
+        // We created the element
+        return false;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify a value from the container. Use different values for update and create.
+    */
+    bool SetOr(SqKeyHash k, LightObj & a, LightObj & b)
+    {
+        for (auto & e : mC)
+        {
+            if (e.first == k.mH)
+            {
+                e.second = std::move(a);
+                // We updated the element
+                return true;
+            }
+        }
+        // Create the element now
+        mC.emplace_back(k.mH, std::move(b));
+        // We created the element
+        return false;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Update a value from the container. Does not create one if it doesn't exist.
+    */
+    bool Update(SqKeyHash k, LightObj & v)
+    {
+        for (auto & e : mC)
+        {
+            if (e.first == k.mH)
+            {
+                e.second = std::move(v);
+                // We updated the element
+                return true;
+            }
+        }
+        // No element was updated
+        return false;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Create a value in the container. Does not update value from existing element.
+    */
+    bool Create(SqKeyHash k, LightObj & v)
+    {
+        for (auto & e : mC)
+        {
+            if (e.first == k.mH)
+            {
+                return false; // No element was created
+            }
+        }
+        // Create the element now
+        mC.emplace_back(k.mH, std::move(v));
+        // We created the element
+        return true;
     }
 
     /* --------------------------------------------------------------------------------------------
