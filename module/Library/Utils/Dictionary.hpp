@@ -151,6 +151,19 @@ struct SqDictionary
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve a value from the container or a fall-back if it doesn't exist.
+    */
+    SQMOD_NODISCARD LightObj & GetOr(SqKeyHash k, LightObj & v)
+    {
+        for (auto & e : mC)
+        {
+            if (e.first == k.mH) return e.second;
+        }
+        // Use fall-back
+        return v;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Modify a value from the container.
     */
     void Set(SqKeyHash k, LightObj & v)

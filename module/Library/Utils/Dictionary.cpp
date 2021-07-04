@@ -23,6 +23,7 @@ void Register_Dictionary(HSQUIRRELVM vm, Table & ns)
         // Member Methods
         .Func(_SC("Get"), &SqDictionary::Get)
         .Func(_SC("Set"), &SqDictionary::Set)
+        .Func(_SC("GetOr"), &SqDictionary::GetOr)
         .Func(_SC("Clear"), &SqDictionary::Clear)
         .Func(_SC("Erase"), &SqDictionary::Erase)
         .Func(_SC("Contains"), &SqDictionary::Contains)
