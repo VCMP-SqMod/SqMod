@@ -490,6 +490,7 @@ bool Core::Execute()
     ImportPickups();
     ImportVehicles();
 
+    cLogDbg(m_Executed && m_Verbosity >= 2, "Successfully executed specified scripts");
     // Successfully executed
     return m_Executed;
 }
@@ -2360,7 +2361,7 @@ void Core::InitEvents()
 #endif
     InitSignalPair(mOnServerOption, m_Events, "ServerOption");
     InitSignalPair(mOnScriptReload, m_Events, "ScriptReload");
-    InitSignalPair(mOnScript, m_Events, "ScriptLoaded");
+    InitSignalPair(mOnScriptLoaded, m_Events, "ScriptLoaded");
 }
 // ------------------------------------------------------------------------------------------------
 void Core::DropEvents()
@@ -2505,7 +2506,7 @@ void Core::DropEvents()
 #endif
     ResetSignalPair(mOnServerOption);
     ResetSignalPair(mOnScriptReload);
-    ResetSignalPair(mOnScript);
+    ResetSignalPair(mOnScriptLoaded);
     m_Events.Release();
 }
 
