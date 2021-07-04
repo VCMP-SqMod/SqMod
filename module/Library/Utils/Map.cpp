@@ -12,7 +12,7 @@ SQMOD_DECL_TYPENAME(SqMapString, _SC("SqMapString"))
 template < class T, class U >
 static void Register_Map(HSQUIRRELVM vm, Table & ns, const SQChar * name)
 {
-	using Container = SqMap< T >;
+    using Container = SqMap< T >;
     // --------------------------------------------------------------------------------------------
     ns.Bind(name,
         Class< Container, NoCopy< Container > >(vm, U::Str)

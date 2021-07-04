@@ -86,6 +86,7 @@ add_library(SqModule MODULE SqBase.hpp Main.cpp
     Library/System/Path.cpp Library/System/Path.hpp
     Library/Utils.cpp Library/Utils.hpp
     Library/Utils/Announce.cpp Library/Utils/Announce.hpp
+    Library/Utils/Dictionary.cpp Library/Utils/Dictionary.hpp
     Library/Utils/Map.cpp Library/Utils/Map.hpp
     Library/Utils/String.cpp Library/Utils/String.hpp
     Library/Utils/Vector.cpp Library/Utils/Vector.hpp
