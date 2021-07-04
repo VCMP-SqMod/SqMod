@@ -64,6 +64,20 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Creates a path in native format from a string.
     */
+    explicit SysPath(StackStrF & path)
+        : SysPath(path.mPtr)
+    { }
+
+    /* --------------------------------------------------------------------------------------------
+     * Creates a path from a string.
+    */
+    SysPath(StackStrF & path, int32_t style)
+        : SysPath(path.mPtr, style)
+    { }
+
+    /* --------------------------------------------------------------------------------------------
+     * Creates a path in native format from a string.
+    */
     explicit SysPath(const Buffer & path, int32_t size = -1);
 
     /* --------------------------------------------------------------------------------------------
@@ -178,11 +192,13 @@ public:
      * Assigns a string containing a path in native format.
     */
     SysPath & Assign(const SQChar * path);
+    SysPath & AssignSq(StackStrF & path) { return Assign(path.mPtr); }
 
     /* --------------------------------------------------------------------------------------------
      * Assigns a string containing a path.
     */
     SysPath & Assign(const SQChar * path, int32_t style);
+    SysPath & AssignAs(int32_t style, StackStrF & path) { return Assign(path.mPtr, style); }
 
     /* --------------------------------------------------------------------------------------------
      * Assigns a string containing a path.
@@ -231,6 +247,7 @@ public:
      * Copy the components from another path.
     */
     SysPath & Assign(const SysPath & path);
+    SysPath & AssignPath(const SysPath & path) { return Assign(path); }
 
     /* --------------------------------------------------------------------------------------------
      * Move the components of another path into this instance.
@@ -241,11 +258,13 @@ public:
      * The resulting path always refers to a directory and the filename part is empty.
     */
     SysPath & AssignDir(const SQChar * path);
+    SysPath & AssignDirSq(StackStrF & path) { return AssignDir(path.mPtr); }
 
     /* --------------------------------------------------------------------------------------------
      * The resulting path always refers to a directory and the filename part is empty.
     */
     SysPath & AssignDir(const SQChar * path, int32_t style);
+    SysPath & AssignDirAs(int32_t style, StackStrF & path) { return AssignDir(path.mPtr, style); }
 
     /* --------------------------------------------------------------------------------------------
      * The resulting path always refers to a directory and the filename part is empty.
@@ -291,6 +310,7 @@ public:
      * Assigns a string containing a path.
     */
     void FromString(const SQChar * path);
+    void FromStringSq(StackStrF & path) { FromString(path.mPtr); }
 
     /* --------------------------------------------------------------------------------------------
      * See whether the path is absolute.
@@ -352,11 +372,13 @@ public:
      * as base directory.
     */
     SysPath & MakeAbsolute();
+    SysPath & MakeAbsolute0() { return MakeAbsolute(); }
 
     /* --------------------------------------------------------------------------------------------
      * Makes the path absolute if it is relative. The given path is taken as base.
     */
     SysPath & MakeAbsolute(const SysPath & base);
+    SysPath & MakeAbsolute1(const SysPath & base) { return MakeAbsolute(base); }
 
     /* --------------------------------------------------------------------------------------------
      * Makes the path absolute if it is relative. The given path is taken as base.
@@ -367,6 +389,7 @@ public:
      * Appends the given path.
     */
     SysPath & Append(const SysPath & path);
+    SysPath & AppendPath(const SysPath & path) { return Append(path); }
 
     /* --------------------------------------------------------------------------------------------
      * Appends the given path.
@@ -377,11 +400,13 @@ public:
      * Parse the given string and append the resulted path.
     */
     SysPath & Append(const SQChar * path);
+    SysPath & AppendSq(StackStrF & path) { return Append(path.mPtr); }
 
     /* --------------------------------------------------------------------------------------------
      * Parse the given string and append the resulted path.
     */
     SysPath & Append(const SQChar * path, int32_t style);
+    SysPath & AppendAs(int32_t style, StackStrF & path) { return Append(path.mPtr, style); }
 
     /* --------------------------------------------------------------------------------------------
      * Parse the given string and append the resulted path.
@@ -441,6 +466,7 @@ public:
      * Adds a directory to the directory list.
     */
     SysPath & Push(const SQChar * dir);
+    SysPath & PushSq(StackStrF & dir) { return Push(dir.mPtr); }
 
     /* --------------------------------------------------------------------------------------------
      * Adds a directory to the directory list.
@@ -488,9 +514,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Set the specified file name.
     */
-    void SqSetFilename(const SQChar * name)
+    SysPath & SetFilenameSq(StackStrF & name)
     {
-        SetFilename(name);
+        return SetFilename(name.mPtr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -516,9 +542,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Sets the basename part of the file name and does not change the extension.
     */
-    void SqSetBasename(const SQChar * name)
+    SysPath & SetBasenameSq(StackStrF & name)
     {
-        SetBasename(name);
+        return SetBasename(name.mPtr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -539,9 +565,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Sets the file name extension.
     */
-    void SqSetExtension(const SQChar * ext)
+    SysPath & SetExtensionSq(StackStrF & ext)
     {
-        SetExtension(ext);
+        return SetExtension(ext.mPtr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -630,11 +656,13 @@ public:
      * Creates a path referring to a directory.
     */
     static SysPath ForDirectory(const SQChar * path);
+    static SysPath ForDirectorySq(StackStrF & path) { return ForDirectory(path.mPtr); }
 
     /* --------------------------------------------------------------------------------------------
      * Creates a path referring to a directory.
     */
     static SysPath ForDirectory(const SQChar * path, int32_t style);
+    static SysPath ForDirectoryAs(int32_t style, StackStrF & path) { return ForDirectory(path.mPtr, style); }
 
     /* --------------------------------------------------------------------------------------------
      * Creates a path referring to a directory.
@@ -656,6 +684,7 @@ public:
      * in the path is replaced with the path to user's home directory.
     */
     static SysPath Expand(const SQChar * path);
+    static SysPath ExpandSq(StackStrF & path) { return Expand(path.mPtr); }
 
     /* --------------------------------------------------------------------------------------------
      * Expands all environment variables contained in the path.
@@ -719,37 +748,44 @@ public:
      * Returns the real path to the specified file or directory.
     */
     static SysPath Real(const SQChar * path);
+    static SysPath RealSq(StackStrF & path) { return Real(path.mPtr); }
 
     /* --------------------------------------------------------------------------------------------
      * Creates a path from a parent path and a file name. The parent path is expected to reference
      * a directory.
     */
     static SysPath With(const SysPath & parent, const SQChar * name);
+    static SysPath WithSq(const SysPath & parent, StackStrF & name) { return With(parent, name.mPtr); }
 
     /* --------------------------------------------------------------------------------------------
      * Creates a path in unix format from a string.
     */
     static SysPath MakeUnix(const SQChar * path);
+    static SysPath MakeUnixSq(StackStrF & path) { return MakeUnix(path.mPtr); }
 
     /* --------------------------------------------------------------------------------------------
      * Creates a path in windows format from a string.
     */
     static SysPath MakeWindows(const SQChar * path);
+    static SysPath MakeWindowsSq(StackStrF & path) { return MakeWindows(path.mPtr); }
 
     /* --------------------------------------------------------------------------------------------
      * Creates a path in native format from a string.
     */
     static SysPath MakeNative(const SQChar * path);
+    static SysPath MakeNativeSq(StackStrF & path) { return MakeNative(path.mPtr); }
 
     /* --------------------------------------------------------------------------------------------
      * Creates a path in and guess the format from a string.
     */
     static SysPath MakeGuess(const SQChar * path);
+    static SysPath MakeGuessSq(StackStrF & path) { return MakeGuess(path.mPtr); }
 
     /* --------------------------------------------------------------------------------------------
      * Creates a path in dynamic format from a string.
     */
     static SysPath MakeDynamic(const SQChar * path);
+    static SysPath MakeDynamicSq(StackStrF & path) { return MakeDynamic(path.mPtr); }
 
     /* --------------------------------------------------------------------------------------------
      * Makes sure all separators from a path are the same.
