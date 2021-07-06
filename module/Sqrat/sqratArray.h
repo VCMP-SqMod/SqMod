@@ -580,12 +580,13 @@ public:
     template<class F, class... A>
     ArrayBase& AppendFrom(F&& func, A &&... a) {
         HSQUIRRELVM vm = SqVM();
+        const StackGuard sg(vm);
         sq_pushobject(vm, GetObj());
         while (func(vm, std::forward< A >(a)...))
         {
             sq_arrayappend(vm, -2);
         }
-        sq_pop(vm,1); // pop array
+        //sq_pop(vm,1); // pop array
         return *this;
     }
 
@@ -602,12 +603,13 @@ public:
     template<class F, class... A>
     ArrayBase& AppendFromCounted(F&& func, A &&... a) {
         HSQUIRRELVM vm = SqVM();
+        const StackGuard sg(vm);
         sq_pushobject(vm, GetObj());
         for (SQInteger i = 0; func(vm, i, std::forward< A >(a)...); ++i)
         {
             sq_arrayappend(vm, -2);
         }
-        sq_pop(vm,1); // pop array
+        //sq_pop(vm,1); // pop array
         return *this;
     }
 };
