@@ -518,4 +518,15 @@ template < typename T > LightObj MakeLightObj(HSQUIRRELVM vm, const T & v)
     return Var< LightObj >(vm, -1).value;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+inline StackStrF::StackStrF(HSQUIRRELVM vm, LightObj & o)
+    : StackStrF(vm, -1)
+{
+    sq_pushobject(vm, o.mObj);
+    // Process the object on the stack
+    Proc(false);
+    // Restore stack
+    sq_pop(vm, 1);
+}
+
 }
