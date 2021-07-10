@@ -68,12 +68,14 @@ add_library(SqModule MODULE SqBase.hpp Main.cpp
     Library/Chrono/Timer.cpp Library/Chrono/Timer.hpp
     Library/Chrono/Timestamp.cpp Library/Chrono/Timestamp.hpp
     Library/CURL.cpp Library/CURL.hpp
+    Library/FileSystem.cpp Library/FileSystem.hpp
     Library/Format.cpp Library/Format.hpp
     Library/IO.cpp Library/IO.hpp
     Library/IO/Buffer.cpp Library/IO/Buffer.hpp
     Library/IO/File.cpp Library/IO/File.hpp
     Library/IO/INI.cpp Library/IO/INI.hpp
     Library/IO/Stream.cpp Library/IO/Stream.hpp
+    Library/JSON.cpp Library/JSON.hpp
     Library/MMDB.cpp Library/MMDB.hpp
     Library/Numeric.cpp Library/Numeric.hpp
     Library/Numeric/Long.cpp Library/Numeric/Long.hpp
@@ -132,7 +134,7 @@ if(WIN32 OR MINGW)
     target_link_libraries(SqModule wsock32 ws2_32 shlwapi)
 endif()
 # Link to base libraries
-target_link_libraries(SqModule Squirrel ghc_filesystem fmt::fmt SimpleINI TinyDir ConcurrentQueue CPR PUGIXML maxminddb jansson libzmq-static)
+target_link_libraries(SqModule Squirrel fmt::fmt SimpleINI TinyDir ConcurrentQueue CPR PUGIXML maxminddb libzmq-static)
 # Link to POCO libraries
 target_link_libraries(SqModule Poco::Foundation Poco::Crypto Poco::Data Poco::Net Poco::JSON Poco::XML)
 # Does POCO have SQLite support?
@@ -141,7 +143,7 @@ if(ENABLE_DATA_SQLITE)
         # We need to make sqlite3.h available for include. Ugly but POCO doesn't expose this directly.
         target_include_directories(SqModule PRIVATE "${PROJECT_SOURCE_DIR}/vendor/POCO/Data/SQLite/src")
     endif()
-    message(STATUS SQLite was enabled)
+    message(STATUS "SQLite was enabled")
     # Link the libraries
     target_link_libraries(SqModule Poco::DataSQLite)
     # Inform the plug-in that it can make use of this library
@@ -152,7 +154,7 @@ endif()
 # Does POCO have MySLQ support?
 find_package(MySQL)
 if(MYSQL_FOUND)
-    message(STATUS MySQL was enabled)
+    message(STATUS "MySQL was enabled")
     # Link the libraries
     target_link_libraries(SqModule Poco::DataMySQL)
     # Inform the plug-in that it can make use of this library
