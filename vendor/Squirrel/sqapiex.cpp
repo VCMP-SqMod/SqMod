@@ -120,6 +120,13 @@ SQRESULT sq_arrayreserve(HSQUIRRELVM v,SQInteger idx,SQInteger newcap)
     return sq_throwerror(v,_SC("negative capacity"));
 }
 
+void sq_newarrayex(HSQUIRRELVM v,SQInteger capacity)
+{
+    SQArray* a = SQArray::Create(_ss(v), 0);
+    a->Reserve(capacity);
+    v->Push(a);
+}
+
 SQInteger sq_cmpr(HSQUIRRELVM v)
 {
     SQInteger res;
