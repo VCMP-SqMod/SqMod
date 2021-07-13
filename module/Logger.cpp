@@ -658,21 +658,29 @@ void Logger::DebugFv(HSQUIRRELVM vm, const char * fmt, va_list args)
     }
     else
     {
-        message->AppendF("\n[\n=>Location: unknown\n=>Line: unknown\n=>Function: unknown\n]");
+        message->AppendF("\n[\n=> Location: unknown\n=> Line: unknown\n=> Function: unknown\n]");
     }
     // Assign the error message
     messages[0] = std::move(message);
     // Create a new message builder
     message = std::make_unique<Message>(LOGL_INF, true);
+    // Trace list (so it can be reused later in locals)
+    std::vector< std::string > locations;
+    std::vector< std::string > closures;
+    // Obtain traces from the associated function call
+    for (int32_t level = 1; SQ_SUCCEEDED(sq_stackinfos(vm, level, &si)); ++level)
+    {
+        // Store source location
+        locations.emplace_back(fmt::format("{} : {}", si.source ? si.source : _SC("unknown"), si.line));
+        // Store closure name
+        closures.emplace_back(si.funcname ? si.funcname : _SC("unknown"));
+    }
     // Begin the traceback process
     message->Append("Traceback:\n[\n");
     // Traceback the function call
-    for (int32_t level = 1; SQ_SUCCEEDED(sq_stackinfos(vm, level, &si)); ++level)
+    for (int32_t level = 0; level < locations.size(); ++level)
     {
-        message->AppendF("=> [%d] %s (%d) [%s]\n", level
-                                    , si.source ? si.source : _SC("unknown")
-                                    , si.line
-                                    , si.funcname ? si.funcname : _SC("unknown"));
+        message->AppendF("=> [%d] %s in %s\n", level + 1, locations[level].c_str(), closures[level].c_str());
     }
     // End the function call traceback
     message->Append("]");
@@ -688,46 +696,66 @@ void Logger::DebugFv(HSQUIRRELVM vm, const char * fmt, va_list args)
     StackStrF ssf_;
     // Begin the local variables information
     message->Append("Locals:\n[\n");
+    // Indentation string
+    std::string indent;
+    // Whether current level includes trace
+    bool traced = false;
     // Process each stack level
-    for (int32_t level = 0; level < 10; level++)
+    for (int32_t level = 0; level < 10; ++level)
     {
         SQInteger seq = 0;
         // Display all locals in the current stack level
         while((name = sq_getlocal(vm, static_cast< SQUnsignedInteger >(level), static_cast< SQUnsignedInteger >(seq))))
         {
             ++seq;
+            // This first loop?
+            if (!traced)
+            {
+                // Can we trace it? (current level trace is actually level - 1)
+                if (level > 0 && static_cast< size_t >(level) <= locations.size())
+                {
+                    message->AppendF("%s=> [%d] %s (%s)\n", indent.c_str(), level, closures[level - 1].c_str(), locations[level - 1].c_str());
+                }
+                else
+                {
+                    message->AppendF("%s=> [%d]\n", indent.c_str(), level);
+                }
+                // Mark as traced
+                traced = true;
+            }
+            // Identify type
             switch(sq_gettype(vm, -1))
             {
                 case OT_NULL:
-                    message->AppendF("=> [%d] NULL [%s]\n", level, name);
+                    message->AppendF("%s|- %-10s[%s]\n", indent.c_str(), "NULL", name);
                     break;
                 case OT_INTEGER:
                     sq_getinteger(vm, -1, &i_);
-                    message->AppendF("=> [%d] INTEGER [%s] with value: %" PRINT_INT_FMT "\n", level, name, i_);
+                    message->AppendF("%s|- %-10s[%s] with value: %" PRINT_INT_FMT "\n", indent.c_str(), "INTEGER", name, i_);
                     break;
                 case OT_FLOAT:
                     sq_getfloat(vm, -1, &f_);
-                    message->AppendF("=> [%d] FLOAT [%s] with value: %f\n", level, name, f_);
+                    message->AppendF("%s|- %-10s[%s] with value: %f\n", indent.c_str(), "FLOAT", name, f_);
                     break;
                 case OT_USERPOINTER:
                     sq_getuserpointer(vm, -1, &p_);
-                    message->AppendF("=> [%d] USERPOINTER [%s] pointing at: %p\n", level, name, p_);
+                    message->AppendF("%s|- %-10s[%s] pointing at: %p\n", indent.c_str(), "POINTER", name, p_);
                     break;
                 case OT_STRING:
                     sq_getstringandsize(vm, -1, &s_, &i_);
                     if (i_ > 0) {
-                        message->AppendF("=> [%d] STRING [%s] of %" PRINT_INT_FMT " characters: %.*s\n", level, name, i_, m_StringTruncate, s_);
+                        message->AppendF("%s|- %-10s[%s] of %" PRINT_INT_FMT " characters: %.*s\n", indent.c_str(), "STRING", name, i_, m_StringTruncate, s_);
                     } else {
-                        message->AppendF("=> [%d] STRING [%s] empty\n", level, name);
+                        message->AppendF("%s|- %-10s[%s] empty\n", indent.c_str(), "STRING", level, name);
                     }
                     break;
                 case OT_TABLE:
                     i_ = sq_getsize(vm, -1);
-                    message->AppendF("=> [%d] TABLE [%s] with %" PRINT_INT_FMT " elements\n", level, name, i_);
+                    message->AppendF("%s|- %-10s[%s] with %" PRINT_INT_FMT " elements\n", indent.c_str(), "TABLE", name, i_);
                     break;
                 case OT_ARRAY:
                     i_ = sq_getsize(vm, -1);
-                    message->AppendF("=> [%d] ARRAY [%s] with %" PRINT_INT_FMT " elements\n", level, name, i_);
+                    message->AppendF("%s|- %-10s[%s] with %" PRINT_INT_FMT " elements\n", indent.c_str(), "ARRAY", name, i_);
                     break;
                 case OT_CLOSURE:
                     s_ = _SC("@anonymous");
@@ -737,7 +765,7 @@ void Logger::DebugFv(HSQUIRRELVM vm, const char * fmt, va_list args)
                         }
                         sq_poptop(vm);
                     }
-                    message->AppendF("=> [%d] CLOSURE [%s] with name: %s\n", level, name, s_);
+                    message->AppendF("%s|- %-10s[%s] with name: %s\n", indent.c_str(), "CLOSURE", name, s_);
                     break;
                 case OT_NATIVECLOSURE:
                     s_ = _SC("@unknown");
@@ -747,16 +775,16 @@ void Logger::DebugFv(HSQUIRRELVM vm, const char * fmt, va_list args)
                         }
                         sq_poptop(vm);
                     }
-                    message->AppendF("=> [%d] NATIVECLOSURE [%s] with name: %s\n", level, name, s_);
+                    message->AppendF("%s|- %-10s[%s] with name: %s\n", indent.c_str(), "NCLOSURE", name, s_);
                     break;
                 case OT_GENERATOR:
-                    message->AppendF("=> [%d] GENERATOR [%s]\n", level, name);
+                    message->AppendF("%s|- %-10s[%s]\n", indent.c_str(), "GENERATOR", name);
                     break;
                 case OT_USERDATA:
-                    message->AppendF("=> [%d] USERDATA [%s]\n", level, name);
+                    message->AppendF("%s|- %-10s[%s]\n", indent.c_str(), "USERDATA", name);
                     break;
                 case OT_THREAD:
-                    message->AppendF("=> [%d] THREAD [%s]\n", level, name);
+                    message->AppendF("%s|- %-10s[%s]\n", indent.c_str(), "THREAD", name);
                     break;
                 case OT_CLASS:
                     // Brute force our way into getting the name of this class without blowing up
@@ -774,7 +802,7 @@ void Logger::DebugFv(HSQUIRRELVM vm, const char * fmt, va_list args)
                         // Pop the dummy instance
                         sq_poptop(vm);
                     }
-                    message->AppendF("=> [%d] CLASS [%s] of type: %s\n", level, name, s_);
+                    message->AppendF("%s|- %-10s[%s] of type: %s\n", indent.c_str(), "CLASS", name, s_);
                     break;
                 case OT_INSTANCE:
                     s_ = _SC("@unknown");
@@ -784,7 +812,7 @@ void Logger::DebugFv(HSQUIRRELVM vm, const char * fmt, va_list args)
                         }
                         sq_poptop(vm);
                     }
-                    message->AppendF("=> [%d] INSTANCE [%s] of type: %s\n", level, name, s_);
+                    message->AppendF("%s|- %-10s[%s] of type: %s\n", indent.c_str(), "INSTANCE", name, s_);
                     break;
                 case OT_WEAKREF:
                     s_ = _SC("@unknown");
@@ -801,17 +829,24 @@ void Logger::DebugFv(HSQUIRRELVM vm, const char * fmt, va_list args)
                         // Pop the referenced value
                         sq_poptop(vm);
                     }
-                    message->AppendF("=> [%d] WEAKREF [%s] of type: %s\n", level, name, s_);
+                    message->AppendF("%s|- %-10s[%s] of type: %s\n", indent.c_str(), "WEAKREF", name, s_);
                     break;
                 case OT_BOOL:
                     sq_getinteger(vm, -1, &i_);
-                    message->AppendF("=> [%d] BOOL [%s] with value: %s\n", level, name, i_ ? _SC("true") : _SC("false"));
+                    message->AppendF("%s|- %-10s[%s] with value: %s\n", indent.c_str(), "BOOL", name, i_ ? _SC("true") : _SC("false"));
                     break;
                 default:
-                    message->AppendF("=> [%d] UNKNOWN [%s]\n", level, name);
+                    message->AppendF("%s|- %-10s[%s]\n", indent.c_str(), "UNKNOWN", name);
                 break;
             }
             sq_pop(vm, 1);
+        }
+        // Mark next level as untraced
+        traced = false;
+        // Indent for next level
+        if (level != 0)
+        {
+            indent.push_back(' ');
         }
     }
     // End the variables information
