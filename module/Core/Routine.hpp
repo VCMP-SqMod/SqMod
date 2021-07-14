@@ -33,19 +33,21 @@ private:
     struct Instance
     {
         // ----------------------------------------------------------------------------------------
-        LightObj    mEnv; // A reference to the managed environment object.
-        LightObj    mFunc; // A reference to the managed function object.
-        LightObj    mInst; // Reference to the routine associated with this instance.
-        LightObj    mData; // A reference to the arbitrary data associated with this instance.
-        String      mTag; // An arbitrary string which represents the tag.
-        Iterator    mIterations; // Number of iterations before self destruct.
-        Interval    mInterval; // Interval between routine invocations.
-        bool        mSuspended; // Whether this instance is allowed to receive calls.
-        bool        mQuiet; // Whether this instance is allowed to handle errors.
-        bool        mEndure; // Whether this instance is allowed to terminate itself on errors.
-        bool        mExecuting; // Whether this instance is currently being executed.
-        uint8_t     mArgc; // The number of arguments that the routine must forward.
-        Argument    mArgv[14]; // The arguments that the routine must forward.
+        LightObj    mEnv{}; // A reference to the managed environment object.
+        LightObj    mFunc{}; // A reference to the managed function object.
+        LightObj    mInst{}; // Reference to the routine associated with this instance.
+        LightObj    mData{}; // A reference to the arbitrary data associated with this instance.
+        String      mTag{}; // An arbitrary string which represents the tag.
+        Iterator    mIterations{0}; // Number of iterations before self destruct.
+        Interval    mInterval{0}; // Interval between routine invocations.
+        bool        mSuspended{false}; // Whether this instance is allowed to receive calls.
+        bool        mExecuting{false}; // Whether this instance is currently being executed.
+        bool        mQuiet{false}; // Whether this instance is allowed to handle errors.
+        bool        mEndure{false}; // Whether this instance is allowed to terminate itself on errors.
+        bool        mInactive{true}; // Whether this instance has finished all iterations.
+        bool        mPersistent{false}; // Whether this instance should not reset when finished.
+        uint8_t     mArgc{0}; // The number of arguments that the routine must forward.
+        Argument    mArgv[14]{}; // The arguments that the routine must forward.
 
         /* ----------------------------------------------------------------------------------------
          * Default constructor.
@@ -59,9 +61,11 @@ private:
             , mIterations(0)
             , mInterval(0)
             , mSuspended(false)
+            , mExecuting(false)
             , mQuiet(GetSilenced())
             , mEndure(false)
-            , mExecuting(false)
+            , mInactive(true)
+            , mPersistent(GetPersistency())
             , mArgc(0)
             , mArgv()
         {
@@ -111,6 +115,8 @@ private:
             mInterval = intrv;
             // This can't be true now
             mExecuting = false;
+            // This is now active
+            mInactive = mFunc.IsNull();
         }
 
         /* ----------------------------------------------------------------------------------------
@@ -124,6 +130,7 @@ private:
             mData.Release();
             mIterations = 0;
             mInterval = 0;
+            mInactive = true;
             mTag.clear();
         }
 
@@ -179,7 +186,10 @@ private:
             // Decrease the number of iterations if necessary
             if (mIterations && (--mIterations) == 0)
             {
-                Terminate(); // This routine reached the end of it's life
+                // This routine reached the end of it's life
+                Finalize();
+                // We shouldn't try this again
+                return 0;
             }
             // Return the current interval
             return mInterval;
@@ -207,6 +217,22 @@ private:
             Release();
             Clear();
         }
+
+protected:
+
+        /* ----------------------------------------------------------------------------------------
+         * Finalize the routine.
+        */
+        void Finalize()
+        {
+            // Should we persist after this?
+            if (!mPersistent)
+            {
+                Terminate();
+            }
+            // This routine is not active anymore
+            mInactive = true;
+        }
     };
 
 private:
@@ -217,6 +243,7 @@ private:
     static Interval     s_Intervals[SQMOD_MAX_ROUTINES]; // List of intervals to be processed.
     static Instance     s_Instances[SQMOD_MAX_ROUTINES]; // List of routines to be executed.
     static bool         s_Silenced; // Error reporting independent from global setting.
+    static bool         s_Persistent; // Whether all routines should be persistent by default.
 
 private:
 
@@ -354,7 +381,7 @@ public:
         }
         // Unable to find such routine
         STHROWF("Unable to fetch a routine with tag ({}). No such routine", tag.mPtr);
-        SQ_UNREACHABLE;
+        SQ_UNREACHABLE
         // Should not reach this point but if it did, we have to return something
 #ifdef __clang__
     #pragma clang diagnostic push
@@ -611,6 +638,14 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * See whether the routine is currently being executed.
+    */
+    SQMOD_NODISCARD bool GetExecuting() const
+    {
+        return GetValid().mExecuting;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * See whether the routine is quite.
     */
     SQMOD_NODISCARD bool GetQuiet() const
@@ -661,6 +696,47 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * See whether the routine is inactive.
+    */
+    SQMOD_NODISCARD bool GetInactive() const
+    {
+        return GetValid().mInactive;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the routine is persistent.
+    */
+    SQMOD_NODISCARD bool GetPersistent() const
+    {
+        return GetValid().mPersistent;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Set whether the routine should be persistent.
+    */
+    void SetPersistent(bool toggle)
+    {
+        GetValid().mPersistent = toggle;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Set whether the routine should be persistent.
+    */
+    Routine & ApplyPersistent(bool toggle)
+    {
+        SetPersistent(toggle);
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * See whether the routine was terminated.
+    */
+    SQMOD_NODISCARD bool GetTerminated() const
+    {
+        return (m_Slot == SQMOD_MAX_ROUTINES);
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the number of arguments to be forwarded.
     */
     SQMOD_NODISCARD SQInteger GetArguments() const
@@ -687,15 +763,38 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Release the environment object and default to self.
     */
-    void DropEnv()
+    Routine & DropEnv()
     {
         GetValid().mEnv.Release();
+        // Allow chaining
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Restart the routine with the specified number of iterations.
+    */
+    Routine & Restart(SQInteger itr)
+    {
+        Instance & inst = GetValid();
+        // Apply the iterations
+        inst.mIterations = ConvTo< Iterator >::From(itr);
+        // If currently executing then we need to account for the subtract
+        if (inst.mExecuting)
+        {
+            inst.mIterations += 1;
+        }
+        // Activate the routine again
+        inst.mInactive = inst.mFunc.IsNull();
+        // Start the clock again
+        s_Intervals[m_Slot] = inst.mInterval;
+        // Allow chaining
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
      * See if error reporting is enabled for all newly created routines.
     */
-    static bool GetSilenced()
+    static bool GetSilenced() noexcept
     {
         return s_Silenced;
     }
@@ -703,9 +802,25 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Set if error reporting should be enabled for all newly created routines.
     */
-    static void SetSilenced(bool toggle)
+    static void SetSilenced(bool toggle) noexcept
     {
         s_Silenced = toggle;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * See if all newly created routines should be persistent by default.
+    */
+    static bool GetPersistency() noexcept
+    {
+        return s_Persistent;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Set all newly created routines to be persistent by default.
+    */
+    static void SetPersistency(bool toggle) noexcept
+    {
+        s_Persistent = toggle;
     }
 };
 

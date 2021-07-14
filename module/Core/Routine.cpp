@@ -19,6 +19,7 @@ Routine::Time       Routine::s_Prev = 0;
 Routine::Interval   Routine::s_Intervals[SQMOD_MAX_ROUTINES];
 Routine::Instance   Routine::s_Instances[SQMOD_MAX_ROUTINES];
 bool                Routine::s_Silenced = false;
+bool                Routine::s_Persistent = false;
 
 // ------------------------------------------------------------------------------------------------
 void Routine::Process()
@@ -537,8 +538,12 @@ void Register_Routine(HSQUIRRELVM vm)
         .Prop(_SC("Interval"), &Routine::GetInterval, &Routine::SetInterval)
         .Prop(_SC("Iterations"), &Routine::GetIterations, &Routine::SetIterations)
         .Prop(_SC("Suspended"), &Routine::GetSuspended, &Routine::SetSuspended)
+        .Prop(_SC("Executing"), &Routine::GetExecuting)
         .Prop(_SC("Quiet"), &Routine::GetQuiet, &Routine::SetQuiet)
         .Prop(_SC("Endure"), &Routine::GetEndure, &Routine::SetEndure)
+        .Prop(_SC("Inactive"), &Routine::GetInactive)
+        .Prop(_SC("Persistent"), &Routine::GetPersistent, &Routine::SetPersistent)
+        .Prop(_SC("Terminated"), &Routine::GetTerminated)
         .Prop(_SC("Arguments"), &Routine::GetArguments)
         // Member Methods
         .FmtFunc(_SC("SetTag"), &Routine::ApplyTag)
@@ -548,12 +553,16 @@ void Register_Routine(HSQUIRRELVM vm)
         .Func(_SC("SetSuspended"), &Routine::ApplySuspended)
         .Func(_SC("SetQuiet"), &Routine::ApplyQuiet)
         .Func(_SC("SetEndure"), &Routine::ApplyEndure)
+        .Func(_SC("SetPersistent"), &Routine::ApplyPersistent)
         .Func(_SC("Terminate"), &Routine::Terminate)
         .Func(_SC("GetArgument"), &Routine::GetArgument)
         .Func(_SC("DropEnv"), &Routine::DropEnv)
+        .Func(_SC("Restart"), &Routine::Restart)
         .StaticFunc(_SC("UsedCount"), &Routine::GetUsed)
         .StaticFunc(_SC("AreSilenced"), &Routine::GetSilenced)
         .StaticFunc(_SC("SetSilenced"), &Routine::SetSilenced)
+        .StaticFunc(_SC("ArePersistent"), &Routine::GetPersistency)
+        .StaticFunc(_SC("SetPersistency"), &Routine::SetPersistency)
     );
     // Global functions
     RootTable(vm).SquirrelFunc(_SC("SqRoutine"), &Routine::Create);
