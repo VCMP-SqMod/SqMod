@@ -559,6 +559,7 @@ void Register_Routine(HSQUIRRELVM vm)
     RootTable(vm).SquirrelFunc(_SC("SqRoutine"), &Routine::Create);
     RootTable(vm).FmtFunc(_SC("SqFindRoutineByTag"), &Routine::FindByTag);
     RootTable(vm).FmtFunc(_SC("SqIsRoutineWithTag"), &Routine::IsWithTag);
+    RootTable(vm).FmtFunc(_SC("SqFetchRoutineWithTag"), &Routine::FetchWithTag);
     RootTable(vm).FmtFunc(_SC("SqTerminateRoutineWithTag"), &Routine::TerminateWithTag);
 #ifdef VCMP_ENABLE_OFFICIAL
     RootTable(vm).SquirrelFunc(_SC("NewTimer"), &Routine::CreateOfficial);

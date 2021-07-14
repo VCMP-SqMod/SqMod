@@ -314,16 +314,37 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the number of used routine slots.
+     * Locate a routine with a specific name.
     */
-    static const LightObj & FindByTag(StackStrF & tag)
+    static LightObj FindByTag(StackStrF & tag)
     {
         // Is the specified tag valid?
-        if (!tag.mPtr)
+        if (tag.mPtr != nullptr && tag.mLen > 0)
+        {
+            // Iterate routine list and look for it
+            for (const auto & r : s_Instances)
+            {
+                if (!r.mInst.IsNull() && r.mTag == tag.mPtr)
+                {
+                    return r.mInst; // Return this routine instance
+                }
+            }
+        }
+        // Unable to find such routine
+        return LightObj{};
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve a routine with a specific name.
+    */
+    static const LightObj & FetchWithTag(StackStrF & tag)
+    {
+        // Is the specified tag valid?
+        if (tag.mPtr == nullptr || tag.mLen <= 0)
         {
             STHROWF("Invalid routine tag");
         }
-        // Iterate routine list
+        // Iterate routine list and look for it
         for (const auto & r : s_Instances)
         {
             if (!r.mInst.IsNull() && r.mTag == tag.mPtr)
@@ -332,26 +353,29 @@ public:
             }
         }
         // Unable to find such routine
-        STHROWF("Unable to find a routine with tag ({})", tag.mPtr);
+        STHROWF("Unable to fetch a routine with tag ({}). No such routine", tag.mPtr);
         SQ_UNREACHABLE;
         // Should not reach this point but if it did, we have to return something
 #ifdef __clang__
-	#pragma clang diagnostic push
-	#pragma clang diagnostic ignored "-Warray-bounds"
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Warray-bounds"
 #endif
         return s_Instances[SQMOD_MAX_ROUTINES].mInst; // Intentional Buffer overflow!
 #ifdef __clang__
-	#pragma clang diagnostic pop
+    #pragma clang diagnostic pop
 #endif
     }
+
     /* --------------------------------------------------------------------------------------------
      * Check if a routine with a certain tag exists.
     */
     static bool IsWithTag(StackStrF & tag);
+
     /* --------------------------------------------------------------------------------------------
      * Check if a routine with a certain tag exists.
     */
     static bool TerminateWithTag(StackStrF & tag);
+
     /* --------------------------------------------------------------------------------------------
      * Process all active routines and update elapsed time.
     */
