@@ -17,90 +17,76 @@ static SQInteger SqToJSON(HSQUIRRELVM vm) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
-static SQInteger SqFromJson_Push(HSQUIRRELVM vm, const char * str, jsmntok * t, size_t count) noexcept
+static SQInteger SqFromJson_Push(HSQUIRRELVM vm, const sajson::value & node) noexcept
 {
-    // Are there any elements to process?
-    if (count == 0)
+    // Operation result
+    SQInteger r = SQ_OK;
+    // Identify element type
+    switch (node.get_type())
     {
-        // We still need something on the stack
-        sq_pushnull(vm);
-        // No token consumed
-        return 0;
-    }
-    // Is this a primitive type?
-    else if (t->type & JSMN_PRIMITIVE)
-    {
-        // Primitive length (in characters)
-        const jsmnint l = (t->end - t->start);
-        // Primitive start (character offset)
-        const char * v = (str + t->start);
-        // Is this a floating point?
-        if (memchr(v, '.', l) || memchr(v, 'e', l) || memchr(v, 'E', l))
-        {
-            sq_pushfloat(vm, ConvNum< SQFloat >::FromStr(v));
-        }
-        // Is this an integer?
-        else if (((v[0] >= '0') && (v[0] <= '9')) || (v[0] == '-') || (v[0] == '+'))
-        {
-            sq_pushinteger(vm, ConvNum< SQInteger >::FromStr(v));
-        }
-        // Is this a boolean true?
-        else if (v[0] == 't')
-        {
-            sq_pushbool(vm, SQTrue);
-        }
-        // Is this a boolean false?
-        else if (v[0] == 'f')
-        {
-            sq_pushbool(vm, SQFalse);
-        }
-        // Is this null?
-        else if (v[0] == 'n')
-        {
+        case sajson::TYPE_INTEGER: {
+            sq_pushinteger(vm, static_cast< SQInteger >(node.get_integer_value()));
+        } break;
+        case sajson::TYPE_DOUBLE: {
+            sq_pushfloat(vm, static_cast< SQFloat >(node.get_double_value()));
+        } break;
+        case sajson::TYPE_NULL: {
             sq_pushnull(vm);
-        }
-        // Should never really get here because it should be sanitized by the JSON parser
-        // But doesn't hurt to have it here in case something out of our scope goes wrong
-        else
-        {
-            return sq_throwerrorf(vm, _SC("Unrecognized JSON primitive: '%.*s'"), l, v);
-        }
-        // One token was consumed
-        return 1;
-    }
-    // Is this a string?
-    else if (t->type & JSMN_STRING)
-    {
-        sq_pushstring(vm, (str + t->start), static_cast< SQInteger >(t->end - t->start));
-        // One token was consumed
-        return 1;
-    }
-    // Is this an object?
-    else if (t->type & JSMN_OBJECT)
-    {
-        // Number of tokens consumed by this object
-        SQInteger c = 0, r = SQ_OK;
-        // Create a new table on the stack
-        sq_newtableex(vm, static_cast< SQInteger >(t->size));
-        // Process object elements
-        for (jsmnint i = 0; i < t->size; i++)
-        {
-            // Locate key token relative to the current token
-            jsmntok * k = (t + 1 + c);
-            // Transform the key into a script object on the stack
-            r = SqFromJson_Push(vm, str, k, count - c);
-            // Did we fail?
-            if (SQ_FAILED(r))
-            {
-                break; // Abort
-            }
-            // Update consumed tokens
-            c += r;
-            // Does the key have an associated value?
-            if (k->size > 0)
+        } break;
+        case sajson::TYPE_FALSE: {
+            sq_pushbool(vm, SQFalse);
+        } break;
+        case sajson::TYPE_TRUE: {
+            sq_pushbool(vm, SQTrue);
+        } break;
+        case sajson::TYPE_STRING: {
+            sq_pushstring(vm, node.as_cstring(), static_cast< SQInteger >(node.get_string_length()));
+        } break;
+        case sajson::TYPE_ARRAY: {
+            // Array length
+            const size_t n = node.get_length();
+            // Create a new array on the stack
+            sq_newarrayex(vm, static_cast< SQInteger >(n));
+            // Process array elements
+            for (size_t i = 0; i < n; ++i)
             {
                 // Transform the value into a script object on the stack
-                r = SqFromJson_Push(vm, str, (t + 1 + c), count - c);
+                r = SqFromJson_Push(vm, node.get_array_element(i));
+                // Did we fail?
+                if (SQ_FAILED(r))
+                {
+                    break; // Abort
+                }
+                // At this point we have a value on the stack
+                r = sq_arrayappend(vm, -2);
+                // Did we fail?
+                if (SQ_FAILED(r))
+                {
+                    // Discard the value
+                    sq_poptop(vm);
+                    // Abort
+                    break;
+                }
+            }
+            // Anything bad happened?
+            if (SQ_FAILED(r))
+            {
+                sq_poptop(vm); // Discard the array
+            }
+        } break;
+        case sajson::TYPE_OBJECT: {
+            // Object length
+            const size_t n = node.get_length();
+            // Create a new table on the stack
+            sq_newtableex(vm, static_cast< SQInteger >(n));
+            //
+            for (size_t i = 0; i < n; ++i)
+            {
+                const auto k = node.get_object_key(i);
+                // Transform the key into a script object on the stack
+                sq_pushstring(vm, k.data(), static_cast< SQInteger >(k.length()));
+                // Transform the value into a script object on the stack
+                r = SqFromJson_Push(vm, node.get_object_value(i));
                 // Did we fail?
                 if (SQ_FAILED(r))
                 {
@@ -109,79 +95,30 @@ static SQInteger SqFromJson_Push(HSQUIRRELVM vm, const char * str, jsmntok * t, 
                     // Abort
                     break;
                 }
-                // Update consumed tokens
-                c += r;
+                // At this point we have a key and a value on the stack
+                r = sq_newslot(vm, -3, SQFalse);
+                // Did we fail?
+                if (SQ_FAILED(r))
+                {
+                    // Discard the key/value pair
+                    sq_pop(vm, 2);
+                    // Abort
+                    break;
+                }
             }
-            else
-            {
-                sq_pushnull(vm); // Default to null because a value must exist
-            }
-            // At this point we have a key and a value on the stack
-            r = sq_newslot(vm, -3, SQFalse);
-            // Did we fail?
+            // Anything bad happened?
             if (SQ_FAILED(r))
             {
-                // Discard the key/value pair
-                sq_pop(vm, 2);
-                // Abort
-                break;
+                sq_poptop(vm); // Discard the table
             }
-        }
-        // Anything bad happened?
-        if (SQ_FAILED(r))
-        {
-            // Discard the table
-            sq_poptop(vm);
-            // Propagate the error
-            return r;
-        }
-        // Return consumed tokens
-        return c + 1;
+        } break;
+        default:
+            // Should never really get here because it should be sanitized by the JSON parser
+            // But doesn't hurt to have it here in case something out of our scope goes wrong
+            r = sq_throwerror(vm, _SC("Unrecognized JSON type"));
     }
-    // Is this an array?
-    else if (t->type & JSMN_ARRAY)
-    {
-        // Number of tokens consumed by this array
-        SQInteger c = 0, r = SQ_OK;
-        // Create a new array on the stack
-        sq_newarrayex(vm, static_cast< SQInteger >(t->size));
-        // Process array elements
-        for (jsmnint i = 0; i < t->size; i++)
-        {
-            // Transform the value into a script object on the stack
-            r = SqFromJson_Push(vm, str, (t + 1 + c), count - c);
-            // Did we fail?
-            if (SQ_FAILED(r))
-            {
-                break; // Abort
-            }
-            // Update consumed tokens
-            c += r;
-            // At this point we have a value on the stack
-            r = sq_arrayappend(vm, -2);
-            // Did we fail?
-            if (SQ_FAILED(r))
-            {
-                // Discard the value
-                sq_poptop(vm);
-                // Abort
-                break;
-            }
-        }
-        // Anything bad happened?
-        if (SQ_FAILED(r))
-        {
-            // Discard the array
-            sq_poptop(vm);
-            // Propagate the error
-            return r;
-        }
-        // Return consumed tokens
-        return c + 1;
-    }
-    // Should never really get here because it should be sanitized by the JSON parser
-    // But doesn't hurt to have it here in case something out of our scope goes wrong
-    return sq_throwerror(vm, _SC("Unrecognized JSON type"));
+    // Return the result
+    return r;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -201,45 +138,17 @@ static SQInteger SqFromJSON(HSQUIRRELVM vm) noexcept
     {
         return s.mRes; // Propagate the error
     }
-    // Parser context
-    jsmnparser p;
-    // Initialize parser
-    jsmn_init(&p);
-    // Estimate the number of tokens necessary to parse the specified JSON string
-    jsmnint r = jsmn_parse(&p, s.mPtr, static_cast< size_t >(s.mLen), nullptr, 0);
-    // Is there anything to parse?
-    if (r == 0)
-    {
-        // Default to null
-        sq_pushnull(vm);
-        // A value was returned
-        return 1;
-    }
-    // See if there was an error
-    switch (r)
-    {
-        case jsmnint(JSMN_ERROR_NOMEM):
-            return sq_throwerror(vm, _SC("Not enough token memory was provided"));
-        case jsmnint(JSMN_ERROR_LEN):
-            return sq_throwerror(vm, _SC("Input data too long"));
-        case jsmnint(JSMN_ERROR_INVAL):
-            return sq_throwerror(vm, _SC("Invalid character inside JSON string"));
-        case jsmnint(JSMN_ERROR_PART):
-            return sq_throwerror(vm, _SC("The string is not a full JSON packet, more bytes expected"));
-        case jsmnint(JSMN_ERROR_UNMATCHED_BRACKETS):
-            return sq_throwerror(vm, _SC("The JSON string has unmatched brackets"));
-        default: break; // Nothing bad happened
-    }
-    // Initialize the token array
-    std::vector< jsmntok > tks(static_cast< size_t >(r) + 16);
-    // Initialize parser
-    jsmn_init(&p);
     // Attempt to parse the specified JSON string
-    r = jsmn_parse(&p, s.mPtr, static_cast< size_t >(s.mLen), tks.data(), tks.size());
-    // Process the tokens that were parsed from the string
-    SQInteger res = SqFromJson_Push(vm, s.mPtr, tks.data(), p.toknext);
+    const sajson::document & document = sajson::parse(sajson::dynamic_allocation(), sajson::string(s.mPtr, static_cast<size_t>(s.mLen)));
+    // See if there was an error
+    if (!document.is_valid())
+    {
+        return sq_throwerror(vm, document.get_error_message_as_cstring());
+    }
+    // Process the nodes that were parsed from the string
+    SQInteger r = SqFromJson_Push(vm, document.get_root());
     // We either have a value to return or we propagate some error
-    return SQ_SUCCEEDED(res) ? 1 : res;
+    return SQ_SUCCEEDED(r) ? 1 : r;
 }
 
 // ================================================================================================
