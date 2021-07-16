@@ -2,6 +2,6 @@
 
 namespace sajson {
 namespace internal {
-template <> const uint8_t globals_struct<void>::parse_flags[256];
+//template <> const uint8_t globals_struct<void>::parse_flags[256];
 }
 }
