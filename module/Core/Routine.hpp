@@ -37,6 +37,7 @@ private:
         LightObj    mFunc{}; // A reference to the managed function object.
         LightObj    mInst{}; // Reference to the routine associated with this instance.
         LightObj    mData{}; // A reference to the arbitrary data associated with this instance.
+        LightObj    mResult{}; // A reference to the value returned by the callback on last invocation.
         String      mTag{}; // An arbitrary string which represents the tag.
         Iterator    mIterations{0}; // Number of iterations before self destruct.
         Interval    mInterval{0}; // Interval between routine invocations.
@@ -46,6 +47,7 @@ private:
         bool        mEndure{false}; // Whether this instance is allowed to terminate itself on errors.
         bool        mInactive{true}; // Whether this instance has finished all iterations.
         bool        mPersistent{false}; // Whether this instance should not reset when finished.
+        bool        mYields{false}; // Whether this instance may yield a value when callback is invoked.
         uint8_t     mArgc{0}; // The number of arguments that the routine must forward.
         Argument    mArgv[14]{}; // The arguments that the routine must forward.
 
@@ -57,6 +59,7 @@ private:
             , mFunc()
             , mInst()
             , mData()
+            , mResult()
             , mTag()
             , mIterations(0)
             , mInterval(0)
@@ -66,6 +69,7 @@ private:
             , mEndure(false)
             , mInactive(true)
             , mPersistent(GetPersistency())
+            , mYields(false)
             , mArgc(0)
             , mArgv()
         {
@@ -128,6 +132,7 @@ private:
             mFunc.Release();
             mInst.Release();
             mData.Release();
+            mResult.Release();
             mIterations = 0;
             mInterval = 0;
             mInactive = true;
@@ -168,9 +173,30 @@ private:
                 // This routine is currently executing
                 mExecuting = true;
                 // Make the function call and store the result
-                const SQRESULT res = sq_call(vm, mArgc + 1, static_cast< SQBool >(false), static_cast< SQBool >(!mQuiet));
+                const SQRESULT res = sq_call(vm, mArgc + 1, static_cast< SQBool >(mYields), static_cast< SQBool >(!mQuiet));
                 // This routine has finished executing
                 mExecuting = false;
+                // Should we look for a yielded value?
+                if (mYields)
+                {
+                    // Release previous value, if any
+                    if (!sq_isnull(mResult.mObj))
+                    {
+                        sq_release(vm, &(mResult.mObj));
+                    }
+                    // Attempt to retrieve the new value if possible
+                    if (SQ_SUCCEEDED(res) && SQ_SUCCEEDED(sq_getstackobj(vm, -1, &(mResult.mObj))))
+                    {
+                        sq_addref(vm, &(mResult.mObj)); // Don't destroy once popped
+                    }
+                    else
+                    {
+                        sq_resetobject(&(mResult.mObj)); // Discard anything so far
+                    }
+                    // Pop the returned value from the stack
+                    sq_pop(vm, 1);
+                }
+
                 // Pop the callback object from the stack
                 sq_pop(vm, 1);
                 // Validate the result
@@ -242,6 +268,7 @@ private:
     static Time         s_Prev; // Previous time point.
     static Interval     s_Intervals[SQMOD_MAX_ROUTINES]; // List of intervals to be processed.
     static Instance     s_Instances[SQMOD_MAX_ROUTINES]; // List of routines to be executed.
+    static SQInteger    s_Current; // Currently executed routine index (SQMOD_MAX_ROUTINES if none).
     static bool         s_Silenced; // Error reporting independent from global setting.
     static bool         s_Persistent; // Whether all routines should be persistent by default.
 
@@ -563,6 +590,22 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Retrieve the value that the callback has yielded last invocation.
+    */
+    SQMOD_NODISCARD const LightObj & GetResult() const
+    {
+        return GetValid().mResult;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the value that the callback has yielded last invocation.
+    */
+    void SetResult(const LightObj & value)
+    {
+        GetValid().mResult = value;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve the execution interval.
     */
     SQMOD_NODISCARD SQInteger GetInterval() const
@@ -729,6 +772,31 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * See whether the routine is yielding a value.
+    */
+    SQMOD_NODISCARD bool GetYields() const
+    {
+        return GetValid().mYields;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Set whether the routine should be yielding values.
+    */
+    void SetYields(bool toggle)
+    {
+        GetValid().mYields = toggle;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Set whether the routine should be yielding values.
+    */
+    Routine & ApplyYields(bool toggle)
+    {
+        SetYields(toggle);
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * See whether the routine was terminated.
     */
     SQMOD_NODISCARD bool GetTerminated() const
@@ -789,6 +857,14 @@ public:
         s_Intervals[m_Slot] = inst.mInterval;
         // Allow chaining
         return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the currently executed routine, if any.
+    */
+    static LightObj & GetCurrent()
+    {
+        return (s_Current != SQMOD_MAX_ROUTINES) ? s_Instances[s_Current].mInst : NullLightObj();
     }
 
     /* --------------------------------------------------------------------------------------------

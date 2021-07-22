@@ -18,6 +18,7 @@ Routine::Time       Routine::s_Last = 0;
 Routine::Time       Routine::s_Prev = 0;
 Routine::Interval   Routine::s_Intervals[SQMOD_MAX_ROUTINES];
 Routine::Instance   Routine::s_Instances[SQMOD_MAX_ROUTINES];
+SQInteger           Routine::s_Current = SQMOD_MAX_ROUTINES;
 bool                Routine::s_Silenced = false;
 bool                Routine::s_Persistent = false;
 
@@ -48,11 +49,14 @@ void Routine::Process()
             // Have we completed the routine interval?
             if ((*itr) <= 0)
             {
+                s_Current = static_cast< SQInteger >(itr - s_Intervals);
                 // Execute and reset the elapsed time
-                (*itr) = s_Instances[itr - s_Intervals].Execute();
+                (*itr) = s_Instances[s_Current].Execute();
             }
         }
     }
+    // Clear currently executed routine
+    s_Current = SQMOD_MAX_ROUTINES;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -535,6 +539,7 @@ void Register_Routine(HSQUIRRELVM vm)
         .Prop(_SC("Env"), &Routine::GetEnv, &Routine::SetEnv)
         .Prop(_SC("Func"), &Routine::GetFunc, &Routine::SetFunc)
         .Prop(_SC("Data"), &Routine::GetData, &Routine::SetData)
+        .Prop(_SC("Result"), &Routine::GetResult, &Routine::SetResult)
         .Prop(_SC("Interval"), &Routine::GetInterval, &Routine::SetInterval)
         .Prop(_SC("Iterations"), &Routine::GetIterations, &Routine::SetIterations)
         .Prop(_SC("Suspended"), &Routine::GetSuspended, &Routine::SetSuspended)
@@ -543,6 +548,7 @@ void Register_Routine(HSQUIRRELVM vm)
         .Prop(_SC("Endure"), &Routine::GetEndure, &Routine::SetEndure)
         .Prop(_SC("Inactive"), &Routine::GetInactive)
         .Prop(_SC("Persistent"), &Routine::GetPersistent, &Routine::SetPersistent)
+        .Prop(_SC("Yields"), &Routine::GetYields, &Routine::SetYields)
         .Prop(_SC("Terminated"), &Routine::GetTerminated)
         .Prop(_SC("Arguments"), &Routine::GetArguments)
         // Member Methods
@@ -554,10 +560,12 @@ void Register_Routine(HSQUIRRELVM vm)
         .Func(_SC("SetQuiet"), &Routine::ApplyQuiet)
         .Func(_SC("SetEndure"), &Routine::ApplyEndure)
         .Func(_SC("SetPersistent"), &Routine::ApplyPersistent)
+        .Func(_SC("SetYields"), &Routine::ApplyYields)
         .Func(_SC("Terminate"), &Routine::Terminate)
         .Func(_SC("GetArgument"), &Routine::GetArgument)
         .Func(_SC("DropEnv"), &Routine::DropEnv)
         .Func(_SC("Restart"), &Routine::Restart)
+        .StaticFunc(_SC("Current"), &Routine::GetCurrent)
         .StaticFunc(_SC("UsedCount"), &Routine::GetUsed)
         .StaticFunc(_SC("AreSilenced"), &Routine::GetSilenced)
         .StaticFunc(_SC("SetSilenced"), &Routine::SetSilenced)
