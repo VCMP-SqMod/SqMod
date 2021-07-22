@@ -622,9 +622,9 @@ void Logger::DebugFv(HSQUIRRELVM vm, const char * fmt, va_list args)
     using namespace Sqrat;
     // We want to make sure these messages appear in succession
     // So we will push them in bulk after generating them
-    std::array< MsgPtr, 3 > messages{};
+    std::array< MsgPtr, 3 > messages{nullptr, nullptr, nullptr};
     // Create a new message builder
-    MsgPtr message(new Message(LOGL_ERR, true));
+    MsgPtr message = std::make_unique< Message >(LOGL_ERR, true);
     // Used to acquire stack information
     SQStackInfos si;
     // Write the given error message
@@ -663,7 +663,7 @@ void Logger::DebugFv(HSQUIRRELVM vm, const char * fmt, va_list args)
     // Assign the error message
     messages[0] = std::move(message);
     // Create a new message builder
-    message = std::make_unique<Message>(LOGL_INF, true);
+    message = std::make_unique< Message >(LOGL_INF, true);
     // Trace list (so it can be reused later in locals)
     std::vector< std::string > locations;
     std::vector< std::string > closures;
@@ -687,7 +687,7 @@ void Logger::DebugFv(HSQUIRRELVM vm, const char * fmt, va_list args)
     // Assign the error message
     messages[1] = std::move(message);
     // Create a new message builder
-    message = std::make_unique<Message>(LOGL_INF, true);
+    message = std::make_unique< Message >(LOGL_INF, true);
     // Temporary variables to retrieve stack information
     const SQChar * s_ = nullptr, * name;
     SQInteger i_;
@@ -697,7 +697,7 @@ void Logger::DebugFv(HSQUIRRELVM vm, const char * fmt, va_list args)
     // Begin the local variables information
     message->Append("Locals:\n[\n");
     // Indentation string
-    std::string indent;
+    std::string indent{};
     // Whether current level includes trace
     bool traced = false;
     // Process each stack level
@@ -726,74 +726,74 @@ void Logger::DebugFv(HSQUIRRELVM vm, const char * fmt, va_list args)
             // Identify type
             switch(sq_gettype(vm, -1))
             {
-                case OT_NULL:
+                case OT_NULL: {
                     message->AppendF("%s|- %-10s[%s]\n", indent.c_str(), "NULL", name);
-                    break;
-                case OT_INTEGER:
+                } break;
+                case OT_INTEGER: {
                     sq_getinteger(vm, -1, &i_);
                     message->AppendF("%s|- %-10s[%s] with value: %" PRINT_INT_FMT "\n", indent.c_str(), "INTEGER", name, i_);
-                    break;
-                case OT_FLOAT:
+                } break;
+                case OT_FLOAT: {
                     sq_getfloat(vm, -1, &f_);
                     message->AppendF("%s|- %-10s[%s] with value: %f\n", indent.c_str(), "FLOAT", name, f_);
-                    break;
-                case OT_USERPOINTER:
+                } break;
+                case OT_USERPOINTER: {
                     sq_getuserpointer(vm, -1, &p_);
                     message->AppendF("%s|- %-10s[%s] pointing at: %p\n", indent.c_str(), "POINTER", name, p_);
-                    break;
-                case OT_STRING:
+                } break;
+                case OT_STRING: {
                     sq_getstringandsize(vm, -1, &s_, &i_);
                     if (i_ > 0) {
                         message->AppendF("%s|- %-10s[%s] of %" PRINT_INT_FMT " characters: %.*s\n", indent.c_str(), "STRING", name, i_, m_StringTruncate, s_);
                     } else {
                         message->AppendF("%s|- %-10s[%s] empty\n", indent.c_str(), "STRING", level, name);
                     }
-                    break;
-                case OT_TABLE:
+                } break;
+                case OT_TABLE: {
                     i_ = sq_getsize(vm, -1);
                     message->AppendF("%s|- %-10s[%s] with %" PRINT_INT_FMT " elements\n", indent.c_str(), "TABLE", name, i_);
-                    break;
-                case OT_ARRAY:
+                } break;
+                case OT_ARRAY: {
                     i_ = sq_getsize(vm, -1);
                     message->AppendF("%s|- %-10s[%s] with %" PRINT_INT_FMT " elements\n", indent.c_str(), "ARRAY", name, i_);
-                    break;
-                case OT_CLOSURE:
+                } break;
+                case OT_CLOSURE: {
                     s_ = _SC("@anonymous");
                     if (SQ_SUCCEEDED(sq_getclosurename(vm, -1))) {
-                        if (sq_gettype(vm, -1) != OT_NULL && SQ_SUCCEEDED(ssf_.Release(vm).Proc())) {
+                        if (sq_gettype(vm, -1) != OT_NULL && SQ_SUCCEEDED(ssf_.Release(vm).Proc(false))) {
                             s_ = ssf_.mPtr;
                         }
                         sq_poptop(vm);
                     }
                     message->AppendF("%s|- %-10s[%s] with name: %s\n", indent.c_str(), "CLOSURE", name, s_);
-                    break;
-                case OT_NATIVECLOSURE:
+                } break;
+                case OT_NATIVECLOSURE: {
                     s_ = _SC("@unknown");
                     if (SQ_SUCCEEDED(sq_getclosurename(vm, -1))) {
-                        if (sq_gettype(vm, -1) != OT_NULL && SQ_SUCCEEDED(ssf_.Release(vm).Proc())) {
+                        if (sq_gettype(vm, -1) != OT_NULL && SQ_SUCCEEDED(ssf_.Release(vm).Proc(false))) {
                             s_ = ssf_.mPtr;
                         }
                         sq_poptop(vm);
                     }
                     message->AppendF("%s|- %-10s[%s] with name: %s\n", indent.c_str(), "NCLOSURE", name, s_);
-                    break;
-                case OT_GENERATOR:
+                } break;
+                case OT_GENERATOR: {
                     message->AppendF("%s|- %-10s[%s]\n", indent.c_str(), "GENERATOR", name);
-                    break;
-                case OT_USERDATA:
+                } break;
+                case OT_USERDATA: {
                     message->AppendF("%s|- %-10s[%s]\n", indent.c_str(), "USERDATA", name);
-                    break;
-                case OT_THREAD:
+                } break;
+                case OT_THREAD: {
                     message->AppendF("%s|- %-10s[%s]\n", indent.c_str(), "THREAD", name);
-                    break;
-                case OT_CLASS:
+                } break;
+                case OT_CLASS: {
                     // Brute force our way into getting the name of this class without blowing up
                     s_ = _SC("@unknown");
                     // Create a dummy, non-constructed instance and hope `_typeof` doesn't rely on member variables
                     if (SQ_SUCCEEDED(sq_createinstance(vm, -1))) {
                         // Attempt a `_typeof` on that instance
                         if (SQ_SUCCEEDED(sq_typeof(vm, -1))) {
-                            if (SQ_SUCCEEDED(ssf_.Release(vm).Proc())) {
+                            if (SQ_SUCCEEDED(ssf_.Release(vm).Proc(false))) {
                                 s_ = ssf_.mPtr;
                             }
                             // Pop the name object
@@ -803,24 +803,24 @@ void Logger::DebugFv(HSQUIRRELVM vm, const char * fmt, va_list args)
                         sq_poptop(vm);
                     }
                     message->AppendF("%s|- %-10s[%s] of type: %s\n", indent.c_str(), "CLASS", name, s_);
-                    break;
-                case OT_INSTANCE:
+                } break;
+                case OT_INSTANCE: {
                     s_ = _SC("@unknown");
                     if (SQ_SUCCEEDED(sq_typeof(vm, -1))) {
-                        if (SQ_SUCCEEDED(ssf_.Release(vm).Proc())) {
+                        if (SQ_SUCCEEDED(ssf_.Release(vm).Proc(false))) {
                             s_ = ssf_.mPtr;
                         }
                         sq_poptop(vm);
                     }
                     message->AppendF("%s|- %-10s[%s] of type: %s\n", indent.c_str(), "INSTANCE", name, s_);
-                    break;
-                case OT_WEAKREF:
+                } break;
+                case OT_WEAKREF: {
                     s_ = _SC("@unknown");
                     // Attempt to grab the value pointed by the weak reference
                     if (SQ_SUCCEEDED(sq_getweakrefval(vm, -1))) {
                         // Attempt a `_typeof` on that instance
                         if (SQ_SUCCEEDED(sq_typeof(vm, -1))) {
-                            if (SQ_SUCCEEDED(ssf_.Release(vm).Proc())) {
+                            if (SQ_SUCCEEDED(ssf_.Release(vm).Proc(false))) {
                                 s_ = ssf_.mPtr;
                             }
                             // Pop the name object
@@ -830,14 +830,14 @@ void Logger::DebugFv(HSQUIRRELVM vm, const char * fmt, va_list args)
                         sq_poptop(vm);
                     }
                     message->AppendF("%s|- %-10s[%s] of type: %s\n", indent.c_str(), "WEAKREF", name, s_);
-                    break;
-                case OT_BOOL:
+                } break;
+                case OT_BOOL: {
                     sq_getinteger(vm, -1, &i_);
                     message->AppendF("%s|- %-10s[%s] with value: %s\n", indent.c_str(), "BOOL", name, i_ ? _SC("true") : _SC("false"));
-                    break;
-                default:
+                } break;
+                default: {
                     message->AppendF("%s|- %-10s[%s]\n", indent.c_str(), "UNKNOWN", name);
-                break;
+                } break;
             }
             sq_pop(vm, 1);
         }
