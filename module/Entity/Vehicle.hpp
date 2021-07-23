@@ -250,12 +250,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the immunity flags of the managed vehicle entity.
     */
-    SQMOD_NODISCARD int32_t GetImmunity() const;
+    SQMOD_NODISCARD uint32_t GetImmunity() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the immunity flags of the managed vehicle entity.
     */
-    void SetImmunity(int32_t flags);
+    void SetImmunity(uint32_t flags);
 
     /* --------------------------------------------------------------------------------------------
      * Explode the managed vehicle entity.
@@ -605,7 +605,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the lights data for the managed vehicle entity.
     */
-    SQMOD_NODISCARD int32_t GetLightsData() const;
+    SQMOD_NODISCARD uint32_t GetLightsData() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the lights data for the managed vehicle entity.

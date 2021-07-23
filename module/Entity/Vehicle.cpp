@@ -306,7 +306,7 @@ void CVehicle::Respawn() const
 }
 
 // ------------------------------------------------------------------------------------------------
-int32_t CVehicle::GetImmunity() const
+uint32_t CVehicle::GetImmunity() const
 {
     // Validate the managed identifier
     Validate();
@@ -315,12 +315,12 @@ int32_t CVehicle::GetImmunity() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CVehicle::SetImmunity(int32_t flags)
+void CVehicle::SetImmunity(uint32_t flags)
 {
     // Validate the managed identifier
     Validate();
     // Grab the current value for this property
-    const int32_t current = _Func->GetVehicleImmunityFlags(m_ID);
+    const uint32_t current = _Func->GetVehicleImmunityFlags(m_ID);
     // Avoid property unwind from a recursive call
     _Func->SetVehicleImmunityFlags(m_ID, static_cast< uint32_t >(flags));
     // Avoid infinite recursive event loops
@@ -329,7 +329,7 @@ void CVehicle::SetImmunity(int32_t flags)
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_IMMUNITY);
         // Now forward the event call
-        Core::Get().EmitVehicleImmunity(m_ID, current, flags);
+        Core::Get().EmitVehicleImmunity(m_ID, static_cast< int32_t >(current), static_cast< int32_t >(flags));
     }
 }
 
@@ -1130,7 +1130,7 @@ void CVehicle::ResetHandlings() const
 }
 
 // ------------------------------------------------------------------------------------------------
-int32_t CVehicle::GetLightsData() const
+uint32_t CVehicle::GetLightsData() const
 {
     // Validate the managed identifier
     Validate();
