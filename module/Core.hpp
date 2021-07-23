@@ -105,6 +105,9 @@ private:
     int32_t                         m_Verbosity; // Restrict the amount of outputted information.
 
     // --------------------------------------------------------------------------------------------
+    LightObj                        m_ClientData; // Currently processed client data buffer.
+
+    // --------------------------------------------------------------------------------------------
     LightObj                        m_NullBlip; // Null Blips instance.
     LightObj                        m_NullCheckpoint; // Null Checkpoints instance.
     LightObj                        m_NullKeyBind; // Null Key-instance pool.
@@ -381,6 +384,14 @@ public:
     SQMOD_NODISCARD const SQChar * GetIncomingName()
     {
         return (!m_IncomingNameBuffer) ? _SC("") : m_IncomingNameBuffer;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the current client data buffer, if any.
+    */
+    SQMOD_NODISCARD LightObj & GetClientDataBuffer()
+    {
+        return m_ClientData;
     }
 
     /* --------------------------------------------------------------------------------------------

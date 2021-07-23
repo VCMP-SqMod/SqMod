@@ -2213,18 +2213,25 @@ void Core::EmitClientScriptData(int32_t player_id, const uint8_t * data, size_t 
 {
     SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ClientScriptData(%d, [byte stream], %" PRINT_SZ_FMT ")", player_id, size)
     PlayerInst & _player = m_Players.at(static_cast< size_t >(player_id));
+#ifndef VCMP_ENABLE_OFFICIAL
     // Don't even bother if there's no one listening
     if (!(_player.mOnClientScriptData.first->IsEmpty()) || !(mOnClientScriptData.first->IsEmpty()))
     {
+#endif
         // Allocate a buffer with the received size
         Buffer b(static_cast< Buffer::SzType >(size));
         // Replicate the data to the allocated buffer
         b.Write(0, reinterpret_cast< Buffer::ConstPtr >(data), static_cast< Buffer::SzType >(size));
         // Prepare an object for the obtained buffer
-        LightObj o(SqTypeIdentity< SqBuffer >{}, m_VM, std::move(b));
+        m_ClientData = LightObj(SqTypeIdentity< SqBuffer >{}, m_VM, std::move(b));
+#ifdef VCMP_ENABLE_OFFICIAL
+    // Don't even bother if there's no one listening
+    if (!(_player.mOnClientScriptData.first->IsEmpty()) || !(mOnClientScriptData.first->IsEmpty()))
+    {
+#endif
         // Forward the event call
-        (*_player.mOnClientScriptData.first)(o, size);
-        (*mOnClientScriptData.first)(_player.mObj, o, size);
+        (*_player.mOnClientScriptData.first)(m_ClientData, size);
+        (*mOnClientScriptData.first)(_player.mObj, m_ClientData, size);
     }
     SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::ClientScriptData")
 #ifdef VCMP_ENABLE_OFFICIAL
@@ -2234,6 +2241,8 @@ void Core::EmitClientScriptData(int32_t player_id, const uint8_t * data, size_t 
         ExecuteLegacyEvent(m_VM, _SC("onClientScriptData"), _player.mLgObj);
     }
 #endif
+    // Discard the buffer instance, if any
+    m_ClientData.Release();
 }
 
 #undef NULL_SQOBJ_ // don't need this anymore

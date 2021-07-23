@@ -181,6 +181,7 @@ Core::Core() noexcept
     , m_LockUnloadSignal(false)
     , m_EmptyInit(false)
     , m_Verbosity(1)
+    , m_ClientData()
     , m_NullBlip()
     , m_NullCheckpoint()
     , m_NullKeyBind()
@@ -560,6 +561,8 @@ void Core::Terminate(bool shutdown)
     NullObject().Release();
     NullLightObj().Release();
     NullFunction().Release();
+    // Release client data buffer, if any
+    m_ClientData.Release();
     // Release null entity instances
     m_NullBlip.Release();
     m_NullCheckpoint.Release();
@@ -2846,6 +2849,12 @@ static bool SqDelVehicle(int32_t id, int32_t header, LightObj & payload)
     return Core::Get().DelVehicle(id, header, payload);
 }
 
+// ------------------------------------------------------------------------------------------------
+static LightObj & SqGetClientDataBuffer()
+{
+    return Core::Get().GetClientDataBuffer();
+}
+
 // ================================================================================================
 void Register_Core(HSQUIRRELVM vm)
 {
@@ -2894,6 +2903,7 @@ void Register_Core(HSQUIRRELVM vm)
         .Func(_SC("DestroyObject"), &SqDelObject)
         .Func(_SC("DestroyPickup"), &SqDelPickup)
         .Func(_SC("DestroyVehicle"), &SqDelVehicle)
+        .Func(_SC("ClientDataBuffer"), &SqGetClientDataBuffer)
         .Func(_SC("OnPreLoad"), &SqGetPreLoadEvent)
         .Func(_SC("OnPostLoad"), &SqGetPostLoadEvent)
         .Func(_SC("OnUnload"), &SqGetUnloadEvent)
