@@ -488,12 +488,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the immunity flags of the managed player entity.
     */
-    SQMOD_NODISCARD int32_t GetImmunity() const;
+    SQMOD_NODISCARD uint32_t GetImmunity() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the immunity flags of the managed player entity.
     */
-    void SetImmunity(int32_t flags);
+    void SetImmunity(uint32_t flags);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the position of the managed player entity.
@@ -588,7 +588,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the game keys of the managed player entity.
     */
-    SQMOD_NODISCARD int32_t GetGameKeys() const;
+    SQMOD_NODISCARD uint32_t GetGameKeys() const;
 
     /* --------------------------------------------------------------------------------------------
      * Embark the managed player entity into the specified vehicle entity.
@@ -959,7 +959,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the current cursor position of the stream buffer.
     */
-    SQMOD_NODISCARD int32_t GetBufferCursor() const;
+    SQMOD_NODISCARD uint32_t GetBufferCursor() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the current cursor position of the stream buffer.

@@ -817,7 +817,7 @@ void CPlayer::SetArmor(float amount) const
 }
 
 // ------------------------------------------------------------------------------------------------
-int32_t CPlayer::GetImmunity() const
+uint32_t CPlayer::GetImmunity() const
 {
     // Validate the managed identifier
     Validate();
@@ -826,12 +826,12 @@ int32_t CPlayer::GetImmunity() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void CPlayer::SetImmunity(int32_t flags)
+void CPlayer::SetImmunity(uint32_t flags)
 {
     // Validate the managed identifier
     Validate();
     // Grab the current value for this property
-    const int32_t current = _Func->GetPlayerImmunityFlags(m_ID);
+    const uint32_t current = _Func->GetPlayerImmunityFlags(m_ID);
     // Avoid property unwind from a recursive call
     _Func->SetPlayerImmunityFlags(m_ID, static_cast< uint32_t >(flags));
     // Avoid infinite recursive event loops
@@ -840,7 +840,7 @@ void CPlayer::SetImmunity(int32_t flags)
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, PLAYERCL_EMIT_PLAYER_IMMUNITY);
         // Now forward the event call
-        Core::Get().EmitPlayerImmunity(m_ID, current, flags);
+        Core::Get().EmitPlayerImmunity(m_ID, static_cast< int32_t >(current), static_cast< int32_t >(flags));
     }
 }
 
@@ -1035,7 +1035,7 @@ int32_t CPlayer::GetAction() const
 }
 
 // ------------------------------------------------------------------------------------------------
-int32_t CPlayer::GetGameKeys() const
+uint32_t CPlayer::GetGameKeys() const
 {
     // Validate the managed identifier
     Validate();
@@ -1845,7 +1845,7 @@ void CPlayer::StartStreamEx(uint32_t size)
 }
 
 // ------------------------------------------------------------------------------------------------
-int32_t CPlayer::GetBufferCursor() const
+uint32_t CPlayer::GetBufferCursor() const
 {
     return m_Buffer.Position();
 }
