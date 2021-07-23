@@ -914,7 +914,7 @@ void Core::EmitPlayerCommand(int32_t player_id, const char * message)
         if (split)
         {
             // Create a string object for the command (don't include the space character)
-            text = LightObj(message, static_cast< SQInteger >(split - message) - 1);
+            text = LightObj(message, static_cast< SQInteger >(split - message));
             // Do we need to create a script object for arguments?
             if (std::strlen(split + 1) > 0)
             {
