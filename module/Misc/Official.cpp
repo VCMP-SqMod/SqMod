@@ -2,6 +2,7 @@
 #include "Misc/Official.hpp"
 #include "Base/Vector2.hpp"
 #include "Core/Utility.hpp"
+#include "Library/IO/Buffer.hpp"
 // ------------------------------------------------------------------------------------------------
 #include "Core/Entity.hpp"
 #include "Core.hpp"
@@ -697,7 +698,7 @@ struct LgPlayer
     SQMOD_NODISCARD int GetPing() const { return Get().GetPing(); }
     SQMOD_NODISCARD float GetHealth() const { return Get().GetHealth(); }
     SQMOD_NODISCARD float GetArmour() const { return Get().GetArmor(); }
-    SQMOD_NODISCARD int32_t GetImmunity() const { return Get().GetImmunity(); }
+    SQMOD_NODISCARD uint32_t GetImmunity() const { return Get().GetImmunity(); }
     SQMOD_NODISCARD float GetHeading() const { return Get().GetHeading(); }
     SQMOD_NODISCARD LgVehicle * GetVehicle() const
     { const int id = _Func->GetPlayerVehicleId(GetIdentifier()); return VALID_ENTITYEX(id, SQMOD_VEHICLE_POOL) ? Core::Get().GetVehicle(id).mLgInst : nullptr; }
@@ -718,7 +719,7 @@ struct LgPlayer
     SQMOD_NODISCARD bool Typing() const { return Get().IsTyping(); }
     SQMOD_NODISCARD bool ShowingMarkers() const { return _Func->GetPlayerOption(GetIdentifier(), vcmpPlayerOptionShowMarkers) >= 1; }
     SQMOD_NODISCARD bool GetCameraLocked() const { return Get().IsCameraLocked(); }
-    SQMOD_NODISCARD int GetKey() const { return Get().GetKey(); }
+    SQMOD_NODISCARD uint32_t GetKey() const { return Get().GetKey(); }
     SQMOD_NODISCARD bool GetAwayStatus() const { return Get().IsAway(); }
     SQMOD_NODISCARD LgPlayer * GetSpectateTarget() const
     { const int id = _Func->GetPlayerSpectateTarget(GetIdentifier()); return VALID_ENTITYEX(id, SQMOD_PLAYER_POOL) ? Core::Get().GetPlayer(id).mLgInst : nullptr; }
@@ -733,7 +734,7 @@ struct LgPlayer
     SQMOD_NODISCARD bool GetPlayerOnFireStatus() const { return Get().IsBurning(); }
     SQMOD_NODISCARD bool GetPlayerCrouchStatus() const { return Get().IsCrouched(); }
     SQMOD_NODISCARD int GetPlayerAction() const { return Get().GetAction(); }
-    SQMOD_NODISCARD int GetPlayerGameKeys() const { return Get().GetGameKeys(); }
+    SQMOD_NODISCARD uint32_t GetPlayerGameKeys() const { return Get().GetGameKeys(); }
     SQMOD_NODISCARD LgVector GetPlayerAimPos() const { return LgVector(Get().GetAimPosition()); }
     SQMOD_NODISCARD LgVector GetPlayerAimDir() const { return LgVector(Get().GetAimDirection()); }
     SQMOD_NODISCARD int GetWantedLevel() const { return Get().GetWantedLevel(); }
@@ -825,9 +826,12 @@ struct LgVehicle
     }
     // --------------------------------------------------------------------------------------------
     SQMOD_NODISCARD static int32_t GetDriverID(int32_t id) {
-        for(int i = 0, n = _Func->GetMaxPlayers(); i < n; ++i) {
-            if(_Func->IsPlayerConnected(i)) {
-                if(_Func->GetPlayerVehicleId(i) == id && _Func->GetPlayerInVehicleSlot(i) == 0) return i;
+        for(uint32_t i = 0, n = _Func->GetMaxPlayers(); i < n; ++i) {
+            if(_Func->IsPlayerConnected(static_cast< int32_t >(i))) {
+                if(_Func->GetPlayerVehicleId(static_cast< int32_t >(i)) == id &&
+                    _Func->GetPlayerInVehicleSlot(static_cast< int32_t >(i)) == 0) {
+                    return static_cast< int32_t >(i);
+                }
             }
         }
         return -1;
@@ -845,7 +849,7 @@ struct LgVehicle
     void SetColour2(int colour2) const { Get().SetSecondaryColor(colour2); }
     void SetLocked(bool toggle) const { _Func->SetVehicleOption(GetIdentifier(), vcmpVehicleOptionDoorsLocked, static_cast< uint8_t >(toggle)); }
     void SetDamage(uint32_t damage) const { Get().SetDamageData(damage); }
-    void SetLightFlags(uint32_t flags) const { Get().SetLightsData(flags); }
+    void SetLightFlags(int32_t flags) const { Get().SetLightsData(flags); }
     void SetAlarm(bool toggle) const { _Func->SetVehicleOption(GetIdentifier(), vcmpVehicleOptionAlarm, static_cast< uint8_t >(toggle)); }
     void SetSiren(bool toggle) const { _Func->SetVehicleOption(GetIdentifier(), vcmpVehicleOptionSiren, static_cast< uint8_t >(toggle)); }
     void SetLights(bool toggle) const { _Func->SetVehicleOption(GetIdentifier(), vcmpVehicleOptionLights, static_cast< uint8_t >(toggle)); }
@@ -869,7 +873,7 @@ struct LgVehicle
     // --------------------------------------------------------------------------------------------
     SQMOD_NODISCARD int GetWorld() const { return Get().GetWorld(); }
     SQMOD_NODISCARD int GetModel() const { return Get().GetModel(); }
-    SQMOD_NODISCARD int GetImmunity() const { return Get().GetImmunity(); }
+    SQMOD_NODISCARD uint32_t GetImmunity() const { return Get().GetImmunity(); }
     SQMOD_NODISCARD LgEntityVector GetPosition() const
     { return LgEntityVector(mID, LgEntityType::Vehicle, LgVehicleVectorFlag::Pos, Get().GetPosition()); }
     SQMOD_NODISCARD LgEntityVector GetSpawnPos() const
@@ -1259,7 +1263,7 @@ static void LgSetServerName(StackStrF & str) { _Func->SetServerName(str.mPtr); }
 static void LgSetMaxPlayers(int newMaxPlayers) { _Func->SetMaxPlayers(static_cast< uint32_t >(newMaxPlayers)); }
 static void LgSetServerPassword(StackStrF & str) { _Func->SetServerPassword(str.mPtr); }
 static void LgSetGameModeText(StackStrF & str) { _Func->SetGameModeText(str.mPtr); }
-static void LgSetTimeRate(uint32_t rate) { _Func->SetTimeRate(rate); }
+static void LgSetTimeRate(int32_t rate) { _Func->SetTimeRate(rate); }
 static void LgSetHour(int hour) { _Func->SetHour( hour ); }
 static void LgSetMinute(int minute) { _Func->SetMinute(minute); }
 static void LgSetTime(int hour, int minute) { LgSetHour(hour); LgSetMinute(minute); }
@@ -1290,7 +1294,7 @@ SQMOD_NODISCARD static SQInteger LgGetGameModeText(HSQUIRRELVM vm) {
     return 1;
 }
 // ------------------------------------------------------------------------------------------------
-SQMOD_NODISCARD static int LgGetMaxPlayers() { return _Func->GetMaxPlayers(); }
+SQMOD_NODISCARD static uint32_t LgGetMaxPlayers() { return _Func->GetMaxPlayers(); }
 SQMOD_NODISCARD static uint32_t LgGetTimeRate() { return static_cast< uint32_t >(_Func->GetTimeRate()); }
 SQMOD_NODISCARD static int LgGetHour() { return _Func->GetHour(); }
 SQMOD_NODISCARD static int LgGetMinute() { return _Func->GetMinute(); }
@@ -2245,7 +2249,7 @@ struct LgStream {
                 length = static_cast< uint16_t >(MAX_SIZE - m_OutputStreamPosition);
                 m_OutputStreamError = true;
             }
-            uint16_t lengthBE = static_cast< uint16_t >(((length >> 8u) & 0xFFu) | ((length & 0xFFu) << 8u));
+            auto lengthBE = static_cast< uint16_t >(((length >> 8u) & 0xFFu) | ((length & 0xFFu) << 8u));
             Write(&lengthBE, sizeof(lengthBE));
             Write(value.mPtr, length);
         }
@@ -2310,6 +2314,17 @@ struct LgStream {
         m_InputStreamPosition += length;
         return LightObj(m_Buffer, static_cast< SQInteger >(length));
     }
+    // --------------------------------------------------------------------------------------------
+    static LightObj CloneInputToBuffer() {
+        return LightObj(SqTypeIdentity< SqBuffer >{}, SqVM(), Buffer(m_Buffer,
+                static_cast< Buffer::SzType >(m_InputStreamSize),
+                static_cast< Buffer::SzType >(m_InputStreamPosition)));
+    }
+    static LightObj CloneOutputToBuffer() {
+        return LightObj(SqTypeIdentity< SqBuffer >{}, SqVM(), Buffer(m_Buffer,
+                static_cast< Buffer::SzType >(m_OutputStreamEnd),
+                static_cast< Buffer::SzType >(m_OutputStreamPosition)));
+    }
 private:
     // --------------------------------------------------------------------------------------------
     static bool CanWrite(size_t size) { return (size <= (MAX_SIZE - m_OutputStreamPosition)); }
@@ -2331,28 +2346,28 @@ private:
         return 0;
     }
     // --------------------------------------------------------------------------------------------
-    static uint8_t m_InputStreamData[MAX_SIZE];
-    static size_t m_InputStreamSize;
-    static size_t m_InputStreamPosition;
-    static bool m_InputStreamError;
+    static uint8_t  m_InputStreamData[MAX_SIZE];
+    static size_t   m_InputStreamSize;
+    static size_t   m_InputStreamPosition;
+    static bool     m_InputStreamError;
     // --------------------------------------------------------------------------------------------
-    static uint8_t m_OutputStreamData[MAX_SIZE];
-    static size_t m_OutputStreamPosition;
-    static size_t m_OutputStreamEnd;
-    static bool m_OutputStreamError;
+    static uint8_t  m_OutputStreamData[MAX_SIZE];
+    static size_t   m_OutputStreamPosition;
+    static size_t   m_OutputStreamEnd;
+    static bool     m_OutputStreamError;
     // --------------------------------------------------------------------------------------------
-    static SQChar m_Buffer[MAX_SIZE];
+    static SQChar   m_Buffer[MAX_SIZE];
 };
 // ------------------------------------------------------------------------------------------------
-uint8_t LgStream::m_InputStreamData[LgStream::MAX_SIZE];
-size_t LgStream::m_InputStreamSize;
-size_t LgStream::m_InputStreamPosition;
-bool LgStream::m_InputStreamError;
+uint8_t LgStream::m_InputStreamData[LgStream::MAX_SIZE]{};
+size_t  LgStream::m_InputStreamSize{0};
+size_t  LgStream::m_InputStreamPosition{0};
+bool    LgStream::m_InputStreamError{false};
 // ------------------------------------------------------------------------------------------------
-uint8_t LgStream::m_OutputStreamData[LgStream::MAX_SIZE];
-size_t LgStream::m_OutputStreamEnd;
-size_t LgStream::m_OutputStreamPosition;
-bool LgStream::m_OutputStreamError;
+uint8_t LgStream::m_OutputStreamData[LgStream::MAX_SIZE]{};
+size_t  LgStream::m_OutputStreamEnd{0};
+size_t  LgStream::m_OutputStreamPosition{0};
+bool    LgStream::m_OutputStreamError{false};
 // ------------------------------------------------------------------------------------------------
 SQChar LgStream::m_Buffer[LgStream::MAX_SIZE];
 
@@ -2383,6 +2398,8 @@ void Register_Official_Stream(HSQUIRRELVM vm)
             .StaticFunc(_SC("ReadInt"), &LgStream::ReadInt)
             .StaticFunc(_SC("ReadFloat"), &LgStream::ReadFloat)
             .StaticFunc(_SC("ReadString"), &LgStream::ReadString)
+            .StaticFunc(_SC("CloneInputToBuffer"), &LgStream::CloneInputToBuffer)
+            .StaticFunc(_SC("CloneOutputToBuffer"), &LgStream::CloneOutputToBuffer)
     );
 }
 
