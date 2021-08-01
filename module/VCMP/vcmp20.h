@@ -156,6 +156,7 @@ typedef enum {
 	vcmpServerOptionWallGlitch = 19,
 	vcmpServerOptionDisableBackfaceCulling = 20,
 	vcmpServerOptionDisableHeliBladeDamage = 21,
+	vcmpServerOptionDisableCrouch = 22, // Apparently this exists in 4.6 as well
 	forceSizeVcmpServerOption = INT32_MAX
 } vcmpServerOption;
 

@@ -344,12 +344,12 @@ static const EnumElement g_ServerOptionEnum[] = {
     {_SC("WallGlitch"),                 vcmpServerOptionWallGlitch},
     {_SC("DisableBackfaceCulling"),     vcmpServerOptionDisableBackfaceCulling},
     {_SC("DisableHeliBladeDamage"),     vcmpServerOptionDisableHeliBladeDamage},
-#if SQMOD_SDK_LEAST(2, 1)
+//#if SQMOD_SDK_LEAST(2, 1)
     {_SC("DisableCrouch"),              vcmpServerOptionDisableCrouch},
     {_SC("Max"),                        vcmpServerOptionDisableCrouch}
-#else
-    {_SC("Max"),                        vcmpServerOptionDisableHeliBladeDamage}
-#endif
+//#else
+//    {_SC("Max"),                        vcmpServerOptionDisableHeliBladeDamage}
+//#endif
 };
 
 // ------------------------------------------------------------------------------------------------
