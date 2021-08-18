@@ -1743,7 +1743,7 @@ void Core::EmitEntityPool(vcmpEntityPool entity_type, int32_t entity_id, bool is
         break;
         case vcmpEntityPoolRadio:
             // @TODO Implement...
-        //break;
+        break;
 #if SQMOD_SDK_LEAST(2, 1)
         case vcmpEntityPoolPlayer:
             // @TODO Implement...
