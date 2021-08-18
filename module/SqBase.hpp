@@ -507,6 +507,24 @@ enum EntityType
 #endif
 
 /* ------------------------------------------------------------------------------------------------
+ * FLOAT SELECTION
+*/
+#ifdef SQUSEDOUBLE
+    #define SQMOD_DOUBLE_ONLY(X) X
+    #define SQMOD_EXCEPT_DOUBLE(X)
+    #define SQMOD_FLOAT_ONLY(X)
+    #define SQMOD_EXCEPT_FLOAT(X) X
+#else
+    #define SQMOD_DOUBLE_ONLY(X) X
+    #define SQMOD_EXCEPT_DOUBLE(X)
+    #define SQMOD_FLOAT_ONLY(X)
+    #define SQMOD_EXCEPT_FLOAT(X) X
+#endif
+
+#define SQMOD_DOUBLE_OR(D, F) SQMOD_DOUBLE_ONLY(D) SQMOD_EXCEPT_DOUBLE(F)
+#define SQMOD_FLOAT_OR(F, D) SQMOD_FLOAT_ONLY(F) SQMOD_EXCEPT_FLOAT(D)
+
+/* ------------------------------------------------------------------------------------------------
  * DEBUG SELECTION
 */
 #ifdef _DEBUG
