@@ -48,7 +48,7 @@ else()
 endif()
 # Make sure Squirrel knows this is 64 bit
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    target_compile_definitions(Squirrel PUBLIC _SQ64)
+    target_compile_definitions(Squirrel PUBLIC _SQ64=1 SQUSEDOUBLE=1)
 endif()
 # Set specific compiler options
 if (GCC OR MINGW)
