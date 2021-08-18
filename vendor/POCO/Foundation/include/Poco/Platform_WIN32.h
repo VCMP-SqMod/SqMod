@@ -36,7 +36,7 @@
 
 // Check debug/release settings consistency
 #if defined(NDEBUG) && defined(_DEBUG)
-	#error Inconsistent build settings (check for /MD[d])
+	//#error Inconsistent build settings (check for /MD[d])
 #endif
 
 
