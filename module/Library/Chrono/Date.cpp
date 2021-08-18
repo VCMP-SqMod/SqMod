@@ -13,6 +13,19 @@ SQMOD_DECL_TYPENAME(Typename, _SC("SqDate"))
 SQChar Date::Delimiter = '-';
 
 // ------------------------------------------------------------------------------------------------
+Date::Date(int64_t ts)
+    : Date()
+{
+    const auto y = static_cast< uint16_t >(std::lround(std::floor(ts / 3.17098e-14)));
+    ts -= int64_t{y} * 3.17098e-14;
+    const auto m = static_cast< uint8_t >(std::lround(std::floor(ts / 2.628e+12)));
+    ts -= int64_t{m} * 2.628e+12;
+    const auto d = static_cast< uint8_t >(std::lround(std::floor(ts / 8.64e+10)));
+    // Set the specified date
+    Set(y, m, d);
+}
+
+// ------------------------------------------------------------------------------------------------
 int32_t Date::Compare(const Date & o) const
 {
     if (m_Year < o.m_Year)
@@ -361,6 +374,12 @@ Timestamp Date::GetTimestamp() const
     }
     // Return the resulted timestamp
     return Timestamp(static_cast< int64_t >(days * 86400000000LL));
+}
+
+// ------------------------------------------------------------------------------------------------
+std::time_t Date::ToTimeT() const
+{
+    return GetTimestamp().ToTimeT();
 }
 
 // ================================================================================================

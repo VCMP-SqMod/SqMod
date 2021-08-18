@@ -26,10 +26,10 @@ protected:
 private:
 
     // ------------------------------------------------------------------------------------------------
-    uint8_t   m_Hour{}; // Hour
-    uint8_t   m_Minute{}; // Minute
-    uint8_t   m_Second{}; // Second
-    uint16_t  m_Millisecond{}; // Millisecond
+    uint8_t   m_Hour{0}; // Hour
+    uint8_t   m_Minute{0}; // Minute
+    uint8_t   m_Second{0}; // Second
+    uint16_t  m_Millisecond{0}; // Millisecond
 
     // ------------------------------------------------------------------------------------------------
     SQChar  m_Delimiter; // Component delimiter when generating strings.
@@ -93,6 +93,11 @@ public:
     {
         SetStr(str);
     }
+
+    /* ------------------------------------------------------------------------------------------------
+     * Time-stamp constructor.
+    */
+    explicit Time(int64_t ts);
 
     /* ------------------------------------------------------------------------------------------------
      * Copy constructor.
@@ -354,6 +359,11 @@ public:
      * Convert this time instance to a time-stamp.
     */
     SQMOD_NODISCARD Timestamp GetTimestamp() const;
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
+    std::time_t ToTimeT() const;
 };
 
 } // Namespace:: SqMod

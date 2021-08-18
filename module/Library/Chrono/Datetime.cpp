@@ -17,6 +17,26 @@ SQChar Datetime::DateDelim = '-';
 SQChar Datetime::TimeDelim = ':';
 
 // ------------------------------------------------------------------------------------------------
+Datetime::Datetime(int64_t ts)
+    : Datetime()
+{
+    const auto y = static_cast< uint16_t >(std::lround(std::floor(ts / 3.17098e-14)));
+    ts -= int64_t{y} * 3.17098e-14;
+    const auto mo = static_cast< uint8_t >(std::lround(std::floor(ts / 2.628e+12)));
+    ts -= int64_t{mo} * 2.628e+12;
+    const auto d = static_cast< uint8_t >(std::lround(std::floor(ts / 8.64e+10)));
+    ts -= int64_t{d} * 8.64e+10;
+    const auto h = static_cast< uint8_t >(std::lround(std::floor(ts / 3.6e+9)));
+    ts -= int64_t{h} * 3.6e+9;
+    const auto mi = static_cast< uint8_t >(std::lround(std::floor(ts / 6e+7)));
+    ts -= int64_t{mi} * 6e+7;
+    const auto s = static_cast< uint8_t >(std::lround(std::floor(ts / 1e+6)));
+    ts -= int64_t{s} * 1e+6;
+    // Set the specified date-time
+    Set(y, mo, d, h, mi, s, static_cast< uint16_t >(ts / 1000LL));
+}
+
+// ------------------------------------------------------------------------------------------------
 int32_t Datetime::Compare(const Datetime & o) const
 {
     if (m_Year < o.m_Year)
@@ -743,6 +763,12 @@ Timestamp Datetime::GetTimestamp() const
     ms += static_cast< int64_t >(m_Millisecond * 1000L);
     // Return the resulted timestamp
     return Timestamp(ms);
+}
+
+// ------------------------------------------------------------------------------------------------
+std::time_t Datetime::ToTimeT() const
+{
+    return GetTimestamp().ToTimeT();
 }
 
 // ================================================================================================

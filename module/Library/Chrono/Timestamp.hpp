@@ -7,7 +7,10 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+class Date;
+class Time;
 class Timer;
+class Datetime;
 
 /* ------------------------------------------------------------------------------------------------
  *
@@ -129,6 +132,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      *
     */
+    Timestamp & AddMicroseconds(const SLongInt & amount);
+    Timestamp & SubMicroseconds(const SLongInt & amount);
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
     SQMOD_NODISCARD SQInteger GetMicrosecondsRaw() const
     {
         return SQInteger(m_Timestamp);
@@ -145,12 +154,24 @@ public:
     /* --------------------------------------------------------------------------------------------
      *
     */
+    Timestamp & AddMicrosecondsRaw(SQInteger amount) { m_Timestamp += amount; return *this; }
+    Timestamp & SubMicrosecondsRaw(SQInteger amount) { m_Timestamp -= amount; return *this; }
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
     SQMOD_NODISCARD SLongInt GetMilliseconds() const;
 
     /* --------------------------------------------------------------------------------------------
      *
     */
     void SetMilliseconds(const SLongInt & amount);
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
+    Timestamp & AddMilliseconds(const SLongInt & amount);
+    Timestamp & SubMilliseconds(const SLongInt & amount);
 
     /* --------------------------------------------------------------------------------------------
      *
@@ -171,6 +192,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      *
     */
+    Timestamp & AddMillisecondsRaw(SQInteger amount) { m_Timestamp += int64_t(int64_t(amount) * 1000L); return *this; }
+    Timestamp & SubMillisecondsRaw(SQInteger amount) { m_Timestamp -= int64_t(int64_t(amount) * 1000L); return *this; }
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
     SQMOD_NODISCARD SQFloat GetSecondsF() const
     {
         return static_cast< SQFloat >(static_cast< int64_t >(m_Timestamp / 1000000LL));
@@ -183,6 +210,12 @@ public:
     {
         m_Timestamp = int64_t(double(amount) * 1000000L);
     }
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
+    Timestamp & AddSecondsF(SQFloat amount) { m_Timestamp += int64_t(double(amount) * 1000000L); return *this; }
+    Timestamp & SubSecondsF(SQFloat amount) { m_Timestamp -= int64_t(double(amount) * 1000000L); return *this; }
 
     /* --------------------------------------------------------------------------------------------
      *
@@ -203,6 +236,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      *
     */
+    Timestamp & AddSecondsI(SQInteger amount) { m_Timestamp += int64_t(int64_t(amount) * 1000000L); return *this; }
+    Timestamp & SubSecondsI(SQInteger amount) { m_Timestamp -= int64_t(int64_t(amount) * 1000000L); return *this; }
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
     SQMOD_NODISCARD SQFloat GetMinutesF() const
     {
         return SQFloat(m_Timestamp / 60000000.0);
@@ -215,6 +254,12 @@ public:
     {
         m_Timestamp = int64_t(double(amount) * 60000000L);
     }
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
+    Timestamp & AddMinutesF(SQFloat amount) { m_Timestamp += int64_t(double(amount) * 60000000L); return *this; }
+    Timestamp & SubMinutesF(SQFloat amount) { m_Timestamp -= int64_t(double(amount) * 60000000L); return *this; }
 
     /* --------------------------------------------------------------------------------------------
      *
@@ -235,6 +280,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      *
     */
+    Timestamp & AddMinutesI(SQInteger amount) { m_Timestamp += int64_t(int64_t(amount) * 60000000L); return *this; }
+    Timestamp & SubMinutesI(SQInteger amount) { m_Timestamp -= int64_t(int64_t(amount) * 60000000L); return *this; }
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
     SQMOD_NODISCARD SQFloat GetHoursF() const
     {
         return SQFloat(m_Timestamp / 3600000000.0);
@@ -247,6 +298,12 @@ public:
     {
         m_Timestamp = int64_t(double(amount) * 3600000000LL);
     }
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
+    Timestamp & AddHoursF(SQFloat amount) { m_Timestamp += int64_t(double(amount) * 3600000000LL); return *this; }
+    Timestamp & SubHoursF(SQFloat amount) { m_Timestamp -= int64_t(double(amount) * 3600000000LL); return *this; }
 
     /* --------------------------------------------------------------------------------------------
      *
@@ -267,6 +324,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      *
     */
+    Timestamp & AddHoursI(SQInteger amount) { m_Timestamp += int64_t(double(amount) * 3600000000LL); return *this; }
+    Timestamp & SubHoursI(SQInteger amount) { m_Timestamp -= int64_t(double(amount) * 3600000000LL); return *this; }
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
     SQMOD_NODISCARD SQFloat GetDaysF() const
     {
         return SQFloat(m_Timestamp / 86400000000.0);
@@ -279,6 +342,12 @@ public:
     {
         m_Timestamp = int64_t(double(amount) * 86400000000LL);
     }
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
+    Timestamp & AddDaysF(SQFloat amount) { m_Timestamp += int64_t(double(amount) * 86400000000LL); return *this; }
+    Timestamp & SubDaysF(SQFloat amount) { m_Timestamp -= int64_t(double(amount) * 86400000000LL); return *this; }
 
     /* --------------------------------------------------------------------------------------------
      *
@@ -299,6 +368,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      *
     */
+    Timestamp & AddDaysI(SQInteger amount) { m_Timestamp += int64_t(double(amount) * 86400000000LL); return *this; }
+    Timestamp & SubDaysI(SQInteger amount) { m_Timestamp -= int64_t(double(amount) * 86400000000LL); return *this; }
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
     SQMOD_NODISCARD SQFloat GetYearsF() const
     {
         return SQFloat(m_Timestamp / 31557600000000.0);
@@ -315,6 +390,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      *
     */
+    Timestamp & AddYearsF(SQFloat amount) { m_Timestamp += int64_t(double(amount) * 31557600000000LL); return *this; }
+    Timestamp & SubYearsF(SQFloat amount) { m_Timestamp -= int64_t(double(amount) * 31557600000000LL); return *this; }
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
     SQMOD_NODISCARD SQInteger GetYearsI() const
     {
         return SQInteger(m_Timestamp / 31557600000000LL);
@@ -327,6 +408,65 @@ public:
     {
         m_Timestamp = int64_t(double(amount) * 31557600000000LL);
     }
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
+    Timestamp & AddYearsI(SQInteger amount) { m_Timestamp += int64_t(double(amount) * 31557600000000LL); return *this; }
+    Timestamp & SubYearsI(SQInteger amount) { m_Timestamp -= int64_t(double(amount) * 31557600000000LL); return *this; }
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
+    SQMOD_NODISCARD Time GetTime() const;
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
+    void SetTime(const Time & t);
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
+    Timestamp & AddTime(const Time & t);
+    Timestamp & SubTime(const Time & t);
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
+    SQMOD_NODISCARD Date GetDate() const;
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
+    void SetDate(const Date & d);
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
+    Timestamp & AddDate(const Date & d);
+    Timestamp & SubDate(const Date & d);
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
+    SQMOD_NODISCARD Datetime GetDatetime() const;
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
+    void SetDatetime(const Datetime & dt);
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
+    Timestamp & AddDatetime(const Datetime & dt);
+    Timestamp & SubDatetime(const Datetime & dt);
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
+    std::time_t ToTimeT() const;
 
 private:
 

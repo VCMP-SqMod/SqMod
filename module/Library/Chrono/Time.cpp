@@ -13,6 +13,20 @@ SQMOD_DECL_TYPENAME(Typename, _SC("SqTime"))
 SQChar Time::Delimiter = ':';
 
 // ------------------------------------------------------------------------------------------------
+Time::Time(int64_t ts)
+    : Time()
+{
+    const auto h = static_cast< uint8_t >(std::lround(std::floor(ts / 3.6e+9)));
+    ts -= int64_t{h} * 3.6e+9;
+    const auto m = static_cast< uint8_t >(std::lround(std::floor(ts / 6e+7)));
+    ts -= int64_t{m} * 6e+7;
+    const auto s = static_cast< uint8_t >(std::lround(std::floor(ts / 1e+6)));
+    ts -= int64_t{s} * 1e+6;
+    // Set the specified time
+    Set(h, m, s, static_cast< uint16_t >(ts / 1000LL));
+}
+
+// ------------------------------------------------------------------------------------------------
 int32_t Time::Compare(const Time & o) const
 {
     if (m_Hour < o.m_Hour)
@@ -408,6 +422,12 @@ Timestamp Time::GetTimestamp() const
     ms += static_cast< int64_t >(m_Millisecond * 1000L);
     // Return the resulted timestamp
     return Timestamp(ms);
+}
+
+// ------------------------------------------------------------------------------------------------
+std::time_t Time::ToTimeT() const
+{
+    return GetTimestamp().ToTimeT();
 }
 
 // ================================================================================================

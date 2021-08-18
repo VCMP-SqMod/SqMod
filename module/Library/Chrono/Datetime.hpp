@@ -141,6 +141,11 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Time-stamp constructor.
+    */
+    explicit Datetime(int64_t ts);
+
+    /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
     Datetime(const Datetime & o) = default;
@@ -572,6 +577,11 @@ public:
      * Convert this date-time instance to a time-stamp.
     */
     SQMOD_NODISCARD Timestamp GetTimestamp() const;
+
+    /* --------------------------------------------------------------------------------------------
+     *
+    */
+    std::time_t ToTimeT() const;
 };
 
 } // Namespace:: SqMod
