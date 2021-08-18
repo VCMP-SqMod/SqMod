@@ -53,7 +53,7 @@ void Area::AddCircleEx(SQFloat cx, SQFloat cy, SQFloat cr, SQInteger num_segment
         CheckLock();
         // Get the current angle
 #ifdef SQUSEDOUBLE
-        SQFloat theta = 2.0d * SQMOD_PI64 * static_cast< SQFloat >(i) / static_cast< SQFloat >(num_segments);
+        SQFloat theta = 2.0 * SQMOD_PI64 * static_cast< SQFloat >(i) / static_cast< SQFloat >(num_segments);
 #else
         SQFloat theta = 2.0f * SQMOD_PI * static_cast< SQFloat >(i) / static_cast< SQFloat >(num_segments);
 #endif // SQUSEDOUBLE
@@ -62,9 +62,9 @@ void Area::AddCircleEx(SQFloat cx, SQFloat cy, SQFloat cr, SQInteger num_segment
         // Calculate the y component
         SQFloat y = (cr * std::sin(theta)) + cy;
         // Insert the point into the list
-        mPoints.emplace_back(x, y);
+        mPoints.emplace_back(static_cast< Vector2::Value >(x), static_cast< Vector2::Value >(y));
         // Update the bounding box
-        Expand(x, y);
+        Expand(static_cast< Vector2::Value >(x), static_cast< Vector2::Value >(y));
     }
 }
 
