@@ -31,6 +31,8 @@ template < class Key, class T, class Pred = std::equal_to< Key > > struct VecMap
     using difference_type       = typename storage_type::difference_type;
     using iterator              = typename storage_type::iterator;
     using const_iterator        = typename storage_type::const_iterator;
+    using reverse_iterator          = typename storage_type::reverse_iterator;
+    using const_reverse_iterator    = typename storage_type::const_reverse_iterator;
     using insert_return_type    = std::pair< iterator, pointer >;
 
     /* --------------------------------------------------------------------------------------------
@@ -100,12 +102,12 @@ template < class Key, class T, class Pred = std::equal_to< Key > > struct VecMap
     /* --------------------------------------------------------------------------------------------
      * Retrieve a reverse iterator to the beginning (const). See: std::vector::[c]rbegin()
     */
-    const_iterator rbegin() const noexcept { return m_Storage.rbegin(); }
+    reverse_iterator rbegin() const noexcept { return m_Storage.rbegin(); }
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve a reverse iterator to the beginning (const). See: std::vector::crbegin()
     */
-    const_iterator crbegin() const noexcept { return m_Storage.crbegin(); }
+    const_reverse_iterator crbegin() const noexcept { return m_Storage.crbegin(); }
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve a reverse iterator to the beginning. See: std::vector::rend()
@@ -115,12 +117,12 @@ template < class Key, class T, class Pred = std::equal_to< Key > > struct VecMap
     /* --------------------------------------------------------------------------------------------
      * Retrieve a reverse iterator to the beginning (const). See: std::vector::[c]rend()
     */
-    const_iterator rend() const noexcept { return m_Storage.rend(); }
+    reverse_iterator rend() const noexcept { return m_Storage.rend(); }
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve a reverse iterator to the beginning (const). See: std::vector::crend()
     */
-    const_iterator crend() const noexcept { return m_Storage.crend(); }
+    const_reverse_iterator crend() const noexcept { return m_Storage.crend(); }
 
     /* --------------------------------------------------------------------------------------------
      * Check if elements are stored in the container.
