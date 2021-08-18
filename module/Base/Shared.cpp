@@ -807,7 +807,7 @@ static SQInteger SqPackARGB(SQInteger r, SQInteger g, SQInteger b, SQInteger a)
 // ------------------------------------------------------------------------------------------------
 static SQInteger SqNameFilterCheck(HSQUIRRELVM vm)
 {
-    const int32_t top = sq_gettop(vm);
+    SQInteger top = sq_gettop(vm);
     // Was the filter string specified?
     if (top <= 1)
     {
@@ -1031,7 +1031,7 @@ const String CmpGE::FSTRV("Assertion failed. Value mismatch: {0} >= {1}"); // NO
 // ------------------------------------------------------------------------------------------------
 static SQInteger SqNameFilterCheckInsensitive(HSQUIRRELVM vm)
 {
-    const int32_t top = sq_gettop(vm);
+    SQInteger top = sq_gettop(vm);
     // Was the filter string specified?
     if (top <= 1)
     {
