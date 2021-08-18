@@ -264,7 +264,12 @@ struct AABB
     */
     SQMOD_NODISCARD int32_t Cmp(SQFloat s) const
     {
+#ifdef SQUSEDOUBLE
+        auto f = static_cast< Value >(s);
+        return Cmp(AABB(f, f, f, f, f, f));
+#else
         return Cmp(AABB(s, s, s, s, s, s));
+#endif
     }
 
     /* --------------------------------------------------------------------------------------------
