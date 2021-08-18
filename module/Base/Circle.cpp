@@ -481,9 +481,9 @@ Array Circle::ToPointsArray(SQInteger num_segments) const
         SQFloat theta = 2.0f * SQMOD_PI * static_cast< SQFloat >(i) / static_cast< SQFloat >(num_segments);
 #endif // SQUSEDOUBLE
         // Calculate the x component
-        SQFloat x = (rad * SQMOD_DOUBLE_OR(cos, cosf)(theta)) + pos.x;
+        SQFloat x = (rad * std::cos(theta)) + pos.x;
         // Calculate the y component
-        SQFloat y = (rad * SQMOD_DOUBLE_OR(sin, sinf)(theta)) + pos.y;
+        SQFloat y = (rad * std::sin(theta)) + pos.y;
         // Push the Vector2 instance on the stack
         Var< Vector2 >::push(vm, Vector2{static_cast< Vector2::Value >(x), static_cast< Vector2::Value >(y)});
         // Insert the element on the stack into the array
