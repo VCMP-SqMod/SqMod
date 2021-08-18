@@ -895,7 +895,7 @@ void SQLiteConnection::Validate(const char * file, int32_t line) const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid SQLite connection reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid SQLite connection reference =>[{}:{}]"), file, line);
     }
 }
 #else
@@ -914,11 +914,11 @@ void SQLiteConnection::ValidateCreated(const char * file, int32_t line) const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid SQLite connection reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid SQLite connection reference =>[{}:{}]"), file, line);
     }
     else if (m_Handle->mPtr == nullptr)
     {
-        SqThrowF("Invalid SQLite connection =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid SQLite connection =>[{}:{}]"), file, line);
     }
 }
 #else
@@ -1227,12 +1227,12 @@ void SQLiteParameter::Validate(const char * file, int32_t line) const
     // Are we pointing to a valid index?
     if (m_Index < 0)
     {
-        SqThrowF("Invalid column index: {} < 0 =>[{}:{}]", m_Index, file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid column index: {} < 0 =>[{}:{}]"), m_Index, file, line);
     }
     // Do we have a valid statement handle?
     else if (!m_Handle)
     {
-        SqThrowF("Invalid SQLite statement reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid SQLite statement reference =>[{}:{}]"), file, line);
     }
 }
 #else
@@ -1258,15 +1258,15 @@ void SQLiteParameter::ValidateCreated(const char * file, int32_t line) const
     // Are we pointing to a valid index?
     if (m_Index < 0)
     {
-        SqThrowF("Invalid column index: {} < 0 =>[{}:{}]", m_Index, file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid column index: {} < 0 =>[{}:{}]"), m_Index, file, line);
     }
     else if (!m_Handle)
     {
-        SqThrowF("Invalid SQLite statement reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid SQLite statement reference =>[{}:{}]"), file, line);
     }
     else if (m_Handle->mPtr == nullptr)
     {
-        SqThrowF("Invalid SQLite statement =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid SQLite statement =>[{}:{}]"), file, line);
     }
 }
 #else
@@ -1326,7 +1326,7 @@ void SQLiteParameter::ValidateParam(int32_t idx, const char * file, int32_t line
     // Is the specified index in range?
     if (!m_Handle->CheckParameter(idx))
     {
-        SqThrowF("Parameter index is out of range ({}:{}) =>[{}:{}]", idx, m_Handle->mParameters,
+        SqThrowF(SQMOD_RTFMT("Parameter index is out of range ({}:{}) =>[{}:{}]"), idx, m_Handle->mParameters,
                     file, line);
     }
 }
@@ -1933,12 +1933,12 @@ void SQLiteColumn::Validate(const char * file, int32_t line) const
     // Are we pointing to a valid index?
     if (m_Index < 0)
     {
-        SqThrowF("Invalid column index: {} < 0 =>[{}:{}]", m_Index, file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid column index: {} < 0 =>[{}:{}]"), m_Index, file, line);
     }
     // Do we have a valid statement handle?
     else if (!m_Handle)
     {
-        SqThrowF("Invalid SQLite statement reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid SQLite statement reference =>[{}:{}]"), file, line);
     }
 }
 #else
@@ -1964,15 +1964,15 @@ void SQLiteColumn::ValidateCreated(const char * file, int32_t line) const
     // Are we pointing to a valid index?
     if (m_Index < 0)
     {
-        SqThrowF("Invalid column index: {} < 0 =>[{}:{}]", m_Index, file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid column index: {} < 0 =>[{}:{}]"), m_Index, file, line);
     }
     else if (!m_Handle)
     {
-        SqThrowF("Invalid SQLite statement reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid SQLite statement reference =>[{}:{}]"), file, line);
     }
     else if (m_Handle->mPtr == nullptr)
     {
-        SqThrowF("Invalid SQLite statement =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid SQLite statement =>[{}:{}]"), file, line);
     }
 }
 #else
@@ -2032,7 +2032,7 @@ void SQLiteColumn::ValidateColumn(int32_t idx, const char * file, int32_t line) 
     // Is the specified index in range?
     if (!m_Handle->CheckColumn(idx))
     {
-        SqThrowF("Column index is out of range: {}:{} =>[{}:{}]", idx, m_Handle->mColumns,
+        SqThrowF(SQMOD_RTFMT("Column index is out of range: {}:{} =>[{}:{}]"), idx, m_Handle->mColumns,
                     file, line);
     }
 }
@@ -2407,7 +2407,7 @@ void SQLiteStatement::Validate(const char * file, int32_t line) const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid SQLite statement reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid SQLite statement reference =>[{}:{}]"), file, line);
     }
 }
 #else
@@ -2426,11 +2426,11 @@ void SQLiteStatement::ValidateCreated(const char * file, int32_t line) const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid SQLite statement reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid SQLite statement reference =>[{}:{}]"), file, line);
     }
     else if (m_Handle->mPtr == nullptr)
     {
-        SqThrowF("Invalid SQLite statement =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid SQLite statement =>[{}:{}]"), file, line);
     }
 }
 #else
@@ -2485,7 +2485,7 @@ void SQLiteStatement::ValidateColumn(int32_t idx, const char * file, int32_t lin
     // Is the specified index in range?
     if (!m_Handle->CheckColumn(idx))
     {
-        SqThrowF("Column index is out of range: {}:{} =>[{}:{}]", idx, m_Handle->mColumns, file, line);
+        SqThrowF(SQMOD_RTFMT("Column index is out of range: {}:{} =>[{}:{}]"), idx, m_Handle->mColumns, file, line);
     }
 }
 #else
@@ -2508,7 +2508,7 @@ void SQLiteStatement::ValidateParam(int32_t idx, const char * file, int32_t line
     // Is the specified index in range?
     if (!m_Handle->CheckParameter(idx))
     {
-        SqThrowF("Parameter index is out of range: {}:{} =>[{}:{}]", idx, m_Handle->mParameters, file, line);
+        SqThrowF(SQMOD_RTFMT("Parameter index is out of range: {}:{} =>[{}:{}]"), idx, m_Handle->mParameters, file, line);
     }
 }
 #else
@@ -2531,7 +2531,7 @@ void SQLiteStatement::ValidateRow(const char * file, int32_t line) const
     // Do we have any rows available?
     if (!m_Handle->mGood)
     {
-        SqThrowF("No row available =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("No row available =>[{}:{}]"), file, line);
     }
 }
 #else

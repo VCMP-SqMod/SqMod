@@ -1623,7 +1623,7 @@ void Connection::Validate(const char * file, int32_t line) const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid MySQL connection reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid MySQL connection reference =>[{}:{}]"), file, line);
     }
 }
 #else
@@ -1642,11 +1642,11 @@ void Connection::ValidateCreated(const char * file, int32_t line) const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid MySQL connection reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid MySQL connection reference =>[{}:{}]"), file, line);
     }
     else if (m_Handle->mPtr == nullptr)
     {
-        SqThrowF("Invalid MySQL connection =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid MySQL connection =>[{}:{}]"), file, line);
     }
 }
 #else
@@ -1962,12 +1962,12 @@ void Field::Validate(const char * file, int32_t line) const
     // Do we have a valid result-set handle?
     if (!m_Handle)
     {
-        SqThrowF("Invalid MySQL result-set reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid MySQL result-set reference =>[{}:{}]"), file, line);
     }
     // Are we pointing to a valid index?
     else if (m_Index >= m_Handle->mFieldCount)
     {
-        SqThrowF("Field index is out of range: {} >= {} =>[{}:{}]", m_Index, m_Handle->mFieldCount, file, line);
+        SqThrowF(SQMOD_RTFMT("Field index is out of range: {} >= {} =>[{}:{}]"), m_Index, m_Handle->mFieldCount, file, line);
     }
 }
 #else
@@ -1993,7 +1993,7 @@ void Field::ValidateCreated(const char * file, int32_t line) const
     // Do we have a valid result-set handle?
     if (!m_Handle)
     {
-        SqThrowF("Invalid MySQL result-set reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid MySQL result-set reference =>[{}:{}]"), file, line);
     }
     // Are we pointing to a valid index?
     m_Handle->ValidateField(m_Index, file, line);
@@ -2018,12 +2018,12 @@ void Field::ValidateStepped(const char * file, int32_t line) const
     // Do we have a valid result-set handle?
     if (!m_Handle)
     {
-        SqThrowF("Invalid MySQL result-set reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid MySQL result-set reference =>[{}:{}]"), file, line);
     }
     // Do we have a valid row available?
     else if (m_Handle->mRow == nullptr)
     {
-        SqThrowF("No row available in MySQL result-set =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("No row available in MySQL result-set =>[{}:{}]"), file, line);
     }
     // Are we pointing to a valid index?
     m_Handle->ValidateField(m_Index, file, line);
@@ -2098,7 +2098,7 @@ void Field::ValidateField(uint32_t idx, const char * file, int32_t line) const
     // Do we have a valid result-set handle?
     if (!m_Handle)
     {
-        SqThrowF("Invalid MySQL result-set reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid MySQL result-set reference =>[{}:{}]"), file, line);
     }
     // Validate the specified field index
     m_Handle->ValidateField(idx, file, line);
@@ -2471,7 +2471,7 @@ void ResultSet::Validate(const char * file, int32_t line) const
     // Do we have a valid result-set handle?
     if (!m_Handle)
     {
-        SqThrowF("Invalid MySQL result-set reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid MySQL result-set reference =>[{}:{}]"), file, line);
     }
 }
 #else
@@ -2492,11 +2492,11 @@ void ResultSet::ValidateCreated(const char * file, int32_t line) const
     // Do we have a valid result-set handle?
     if (!m_Handle)
     {
-        SqThrowF("Invalid MySQL result-set reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid MySQL result-set reference =>[{}:{}]"), file, line);
     }
     else if (m_Handle->mPtr == nullptr)
     {
-        SqThrowF("Invalid MySQL result-set =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid MySQL result-set =>[{}:{}]"), file, line);
     }
 }
 #else
@@ -2521,12 +2521,12 @@ void ResultSet::ValidateStepped(const char * file, int32_t line) const
     // Do we have a valid result-set handle?
     if (!m_Handle)
     {
-        SqThrowF("Invalid MySQL result-set reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid MySQL result-set reference =>[{}:{}]"), file, line);
     }
     // Do we have a valid row available?
     else if (m_Handle->mRow == nullptr)
     {
-        SqThrowF("No row available in MySQL result-set =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("No row available in MySQL result-set =>[{}:{}]"), file, line);
     }
 }
 #else
@@ -2753,7 +2753,7 @@ void Statement::Validate(const char * file, int32_t line) const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid MySQL statement reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid MySQL statement reference =>[{}:{}]"), file, line);
     }
 }
 #else
@@ -2772,11 +2772,11 @@ void Statement::ValidateCreated(const char * file, int32_t line) const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid MySQL statement reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid MySQL statement reference =>[{}:{}]"), file, line);
     }
     else if (m_Handle->mPtr == nullptr)
     {
-        SqThrowF("Invalid MySQL statement =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid MySQL statement =>[{}:{}]"), file, line);
     }
 }
 #else

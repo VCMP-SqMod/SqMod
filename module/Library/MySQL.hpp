@@ -650,7 +650,7 @@ public:
      * Grab the current error in the associated statement or connection handle and throw it.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    void ThrowCurrent(const char * act, const char * file, int32_t line);
+    void ThrowCurrent(const char * act, const char * file, int32_t line) const;
 #else
     void ThrowCurrent(const char * act) const;
 #endif // _DEBUG

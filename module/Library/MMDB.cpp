@@ -444,7 +444,7 @@ void SockAddr::Validate(const SQChar * file, int32_t line) const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid sockaddr structure handle =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid sockaddr structure handle =>[{}:{}]"), file, line);
     }
 }
 #else
@@ -551,7 +551,7 @@ void Database::Validate(const SQChar * file, int32_t line) const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid Maxmind database reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid Maxmind database reference =>[{}:{}]"), file, line);
     }
 }
 #else
@@ -687,7 +687,7 @@ void Description::Validate(const SQChar * file, int32_t line) const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid Maxmind database reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid Maxmind database reference =>[{}:{}]"), file, line);
     }
 }
 #else
@@ -708,7 +708,7 @@ Description::Pointer Description::GetValid(const SQChar * file, int32_t line) co
     // Validate the referenced description
     if (!m_Description)
     {
-        SqThrowF("Invalid Maxmind meta-data description reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid Maxmind meta-data description reference =>[{}:{}]"), file, line);
     }
     // Return the description pointer
     return m_Description;
@@ -747,7 +747,7 @@ void EntryData::Validate(const SQChar * file, int32_t line) const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid Maxmind database reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid Maxmind database reference =>[{}:{}]"), file, line);
     }
 }
 #else
@@ -768,7 +768,7 @@ EntryData::ConstRef EntryData::GetValid(const SQChar * file, int32_t line) const
     // See if the entry has any data
     if (!m_Entry.has_data)
     {
-        SqThrowF("The referenced entry has no data =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("The referenced entry has no data =>[{}:{}]"), file, line);
     }
     // Return the entry
     return m_Entry;
@@ -821,7 +821,7 @@ void EntryDataList::Validate(const SQChar * file, int32_t line) const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid Maxmind database reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid Maxmind database reference =>[{}:{}]"), file, line);
     }
 }
 #else
@@ -842,7 +842,7 @@ EntryDataList::Pointer EntryDataList::GetValid(const SQChar * file, int32_t line
     // Validate the managed list
     if (!m_List)
     {
-        SqThrowF("Invalid Maxmind entry data list reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid Maxmind entry data list reference =>[{}:{}]"), file, line);
     }
     // return the list
     return m_List;
@@ -869,7 +869,7 @@ EntryDataList::Pointer EntryDataList::GetValidElem(const SQChar * file, int32_t 
     // Validate the current element
     if (!m_List)
     {
-        SqThrowF("Invalid Maxmind entry data element reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid Maxmind entry data element reference =>[{}:{}]"), file, line);
     }
     // return the element
     return m_Elem;
@@ -979,7 +979,7 @@ void LookupResult::Validate(const SQChar * file, int32_t line) const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid Maxmind database reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid Maxmind database reference =>[{}:{}]"), file, line);
     }
 }
 #else
@@ -1139,7 +1139,7 @@ void Metadata::Validate(const SQChar * file, int32_t line) const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid Maxmind database reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid Maxmind database reference =>[{}:{}]"), file, line);
     }
 }
 #else
@@ -1160,7 +1160,7 @@ Metadata::Pointer Metadata::GetValid(const SQChar * file, int32_t line) const
     // Validate the referenced meta-data
     if (!m_Metadata)
     {
-        SqThrowF("Invalid Maxmind meta-data reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid Maxmind meta-data reference =>[{}:{}]"), file, line);
     }
     // Return the meta-data pointer
     return m_Metadata;
@@ -1211,7 +1211,7 @@ void SearchNode::Validate(const SQChar * file, int32_t line) const
 {
     if (!m_Handle)
     {
-        SqThrowF("Invalid Maxmind database reference =>[{}:{}]", file, line);
+        SqThrowF(SQMOD_RTFMT("Invalid Maxmind database reference =>[{}:{}]"), file, line);
     }
 }
 #else
