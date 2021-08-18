@@ -507,6 +507,26 @@ enum EntityType
 #endif
 
 /* ------------------------------------------------------------------------------------------------
+ * DEBUG SELECTION
+*/
+#ifdef _DEBUG
+    #define SQMOD_DEBUG_ONLY(X) X
+    #define SQMOD_EXCEPT_DEBUG(X)
+    #define SQMOD_RELEASE_ONLY(X)
+    #define SQMOD_EXCEPT_RELEASE(X) X
+    #define SQMOD_RTFMT(X) fmt::runtime(X)
+#else
+    #define SQMOD_DEBUG_ONLY(X)
+    #define SQMOD_EXCEPT_DEBUG(X) X
+    #define SQMOD_RELEASE_ONLY(X) X
+    #define SQMOD_EXCEPT_RELEASE(X)
+    #define SQMOD_RTFMT(X) X
+#endif
+
+#define SQMOD_DEBUG_OR(D, R) SQMOD_DEBUG_ONLY(D) SQMOD_EXCEPT_DEBUG(R)
+#define SQMOD_RELEASE_OR(R, D) SQMOD_RELEASE_ONLY(R) SQMOD_EXCEPT_RELEASE(D)
+
+/* ------------------------------------------------------------------------------------------------
  * LOGGING LOCATION
 */
 
@@ -525,7 +545,7 @@ enum EntityType
 
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
     #define STHROW(e, m, ...) throw e(m " =>[" __FILE__ ":" SQMOD_STRINGIZEWRAP(__LINE__) "] ", ##__VA_ARGS__)
-    #define STHROWF(m, ...) SqThrowF(m " =>[" __FILE__ ":" SQMOD_STRINGIZEWRAP(__LINE__) "] ", ##__VA_ARGS__)
+    #define STHROWF(m, ...) SqThrowF(fmt::runtime(m " =>[" __FILE__ ":" SQMOD_STRINGIZEWRAP(__LINE__) "] "), ##__VA_ARGS__)
     #define STHROWLASTF(m, ...) SqThrowLastF(m " =>[" __FILE__ ":" SQMOD_STRINGIZEWRAP(__LINE__) "] ", ##__VA_ARGS__)
 #else
     #define STHROW(e, m, ...) throw e(m, ##__VA_ARGS__)
