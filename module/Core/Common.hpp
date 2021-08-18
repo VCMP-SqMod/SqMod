@@ -171,7 +171,7 @@ void OutputMessage(const char * msg, ...);
 void OutputError(const char * msg, ...);
 
 /* ------------------------------------------------------------------------------------------------
- * Generate a formatted string and throw it as a sqrat exception.
+ * Generate a formatted string and throw it as a Sqrat exception.
 */
 template < class... Args > void SqThrowF(Args &&... args)
 {
