@@ -262,3 +262,16 @@ TEST(ranges_test, join_range) {
   EXPECT_EQ(fmt::format("{}", fmt::join(z, ",")), "0,0,0");
 }
 #endif  // FMT_RANGES_TEST_ENABLE_JOIN
+
+TEST(ranges_test, escape_string) {
+  using vec = std::vector<std::string>;
+  EXPECT_EQ(fmt::format("{}", vec{"\n\r\t\"\\"}), "[\"\\n\\r\\t\\\"\\\\\"]");
+  EXPECT_EQ(fmt::format("{}", vec{"\x07"}), "[\"\\x07\"]");
+  EXPECT_EQ(fmt::format("{}", vec{"\x7f"}), "[\"\\x7f\"]");
+
+  // Unassigned Unicode code points.
+  if (fmt::detail::is_utf8()) {
+    EXPECT_EQ(fmt::format("{}", vec{"\xf0\xaa\x9b\x9e"}), "[\"\\U0002a6de\"]");
+    EXPECT_EQ(fmt::format("{}", vec{"\xf4\x8f\xbf\xbf"}), "[\"\\U0010ffff\"]");
+  }
+}

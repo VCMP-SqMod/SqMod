@@ -26,6 +26,16 @@ function(add_fmt_executable name)
   if (MINGW)
     target_link_libraries(${name} -static-libgcc -static-libstdc++)
   endif ()
+  # (Wstringop-overflow) - [meta-bug] bogus/missing -Wstringop-overflow warnings
+  #   https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88443
+  # Bogus -Wstringop-overflow warning
+  #   https://gcc.gnu.org/bugzilla/show_bug.cgi?id=100395
+  # [10 Regression] spurious -Wstringop-overflow writing to a trailing array plus offset
+  #   https://gcc.gnu.org/bugzilla/show_bug.cgi?id=95353
+  if (CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND
+      NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.0)
+    target_link_libraries(${name} -Wno-stringop-overflow)
+  endif ()
 endfunction()
 
 # Adds a test.
@@ -41,7 +51,7 @@ function(add_fmt_test name)
       set(PEDANTIC_COMPILE_FLAGS ${PEDANTIC_COMPILE_FLAGS} -Wno-weak-vtables)
     endif ()
   elseif (ADD_FMT_TEST_MODULE)
-    set(libs test-main test-module)
+    set(libs gtest test-module)
     set_source_files_properties(${name}.cc PROPERTIES OBJECT_DEPENDS test-module)
   else ()
     set(libs test-main fmt)
@@ -97,7 +107,7 @@ if (FMT_CAN_MODULE)
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
   enable_module(test-module)
 
-  add_fmt_test(module-test MODULE)
+  add_fmt_test(module-test MODULE test-main.cc)
   if (MSVC)
     target_compile_options(test-module PRIVATE /utf-8 /Zc:__cplusplus
                            /Zc:externConstexpr /Zc:inline)

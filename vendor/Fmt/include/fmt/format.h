@@ -150,16 +150,19 @@ FMT_END_NAMESPACE
 
 // __builtin_clz is broken in clang with Microsoft CodeGen:
 // https://github.com/fmtlib/fmt/issues/519
-#if (FMT_GCC_VERSION || FMT_HAS_BUILTIN(__builtin_clz)) && !FMT_MSC_VER
+#if (FMT_GCC_VERSION || FMT_HAS_BUILTIN(__builtin_clz) || FMT_ICC_VERSION) && \
+    !FMT_MSC_VER
 #  define FMT_BUILTIN_CLZ(n) __builtin_clz(n)
 #endif
-#if (FMT_GCC_VERSION || FMT_HAS_BUILTIN(__builtin_clzll)) && !FMT_MSC_VER
+#if (FMT_GCC_VERSION || FMT_HAS_BUILTIN(__builtin_clzll) || \
+     FMT_ICC_VERSION) &&                                    \
+    !FMT_MSC_VER
 #  define FMT_BUILTIN_CLZLL(n) __builtin_clzll(n)
 #endif
-#if (FMT_GCC_VERSION || FMT_HAS_BUILTIN(__builtin_ctz))
+#if (FMT_GCC_VERSION || FMT_HAS_BUILTIN(__builtin_ctz) || FMT_ICC_VERSION)
 #  define FMT_BUILTIN_CTZ(n) __builtin_ctz(n)
 #endif
-#if (FMT_GCC_VERSION || FMT_HAS_BUILTIN(__builtin_ctzll))
+#if (FMT_GCC_VERSION || FMT_HAS_BUILTIN(__builtin_ctzll) || FMT_ICC_VERSION)
 #  define FMT_BUILTIN_CTZLL(n) __builtin_ctzll(n)
 #endif
 
@@ -480,27 +483,38 @@ FMT_CONSTEXPR inline auto utf8_decode(const char* s, uint32_t* c, int* e)
   return next;
 }
 
+enum { invalid_code_point = ~uint32_t() };
+
+// Invokes f(cp, sv) for every code point cp in s with sv being the string view
+// corresponding to the code point. cp is invalid_code_point on error.
 template <typename F>
 FMT_CONSTEXPR void for_each_codepoint(string_view s, F f) {
-  auto decode = [f](const char* p) {
+  auto decode = [f](const char* buf_ptr, const char* ptr) {
     auto cp = uint32_t();
     auto error = 0;
-    p = utf8_decode(p, &cp, &error);
-    f(cp, error);
-    return p;
+    auto end = utf8_decode(buf_ptr, &cp, &error);
+    bool result = f(error ? invalid_code_point : cp,
+                    string_view(ptr, to_unsigned(end - buf_ptr)));
+    return result ? end : nullptr;
   };
   auto p = s.data();
   const size_t block_size = 4;  // utf8_decode always reads blocks of 4 chars.
   if (s.size() >= block_size) {
-    for (auto end = p + s.size() - block_size + 1; p < end;) p = decode(p);
+    for (auto end = p + s.size() - block_size + 1; p < end;) {
+      p = decode(p, p);
+      if (!p) return;
+    }
   }
   if (auto num_chars_left = s.data() + s.size() - p) {
     char buf[2 * block_size - 1] = {};
     copy_str<char>(p, p + num_chars_left, buf);
-    p = buf;
+    const char* buf_ptr = buf;
     do {
-      p = decode(p);
-    } while (p - buf < num_chars_left);
+      auto end = decode(buf_ptr, p);
+      if (!end) return;
+      p += end - buf_ptr;
+      buf_ptr = end;
+    } while (buf_ptr - buf < num_chars_left);
   }
 }
 
@@ -515,10 +529,10 @@ FMT_CONSTEXPR inline size_t compute_width(string_view s) {
   // It is not a lambda for compatibility with C++14.
   struct count_code_points {
     size_t* count;
-    FMT_CONSTEXPR void operator()(uint32_t cp, int error) const {
+    FMT_CONSTEXPR auto operator()(uint32_t cp, string_view) const -> bool {
       *count += detail::to_unsigned(
           1 +
-          (error == 0 && cp >= 0x1100 &&
+          (cp >= 0x1100 &&
            (cp <= 0x115f ||  // Hangul Jamo init. consonants
             cp == 0x2329 ||  // LEFT-POINTING ANGLE BRACKET
             cp == 0x232a ||  // RIGHT-POINTING ANGLE BRACKET
@@ -536,6 +550,7 @@ FMT_CONSTEXPR inline size_t compute_width(string_view s) {
             (cp >= 0x1f300 && cp <= 0x1f64f) ||
             // Supplemental Symbols and Pictographs:
             (cp >= 0x1f900 && cp <= 0x1f9ff))));
+      return true;
     }
   };
   for_each_codepoint(s, count_code_points{&num_code_points});
@@ -607,8 +622,8 @@ enum { inline_buffer_size = 500 };
 
   **Example**::
 
-     fmt::memory_buffer out;
-     format_to(out, "The answer is {}.", 42);
+     auto out = fmt::memory_buffer();
+     format_to(std::back_inserter(out), "The answer is {}.", 42);
 
   This will append the following output to the ``out`` object:
 
@@ -916,23 +931,33 @@ FMT_CONSTEXPR inline auto count_digits(uint128_t n) -> int {
 }
 #endif
 
+#ifdef FMT_BUILTIN_CLZLL
+// It is a separate function rather than a part of count_digits to workaround
+// the lack of static constexpr in constexpr functions.
+inline auto do_count_digits(uint64_t n) -> int {
+  // This has comparable performance to the version by Kendall Willets
+  // (https://github.com/fmtlib/format-benchmark/blob/master/digits10)
+  // but uses smaller tables.
+  // Maps bsr(n) to ceil(log10(pow(2, bsr(n) + 1) - 1)).
+  static constexpr uint8_t bsr2log10[] = {
+      1,  1,  1,  2,  2,  2,  3,  3,  3,  4,  4,  4,  4,  5,  5,  5,
+      6,  6,  6,  7,  7,  7,  7,  8,  8,  8,  9,  9,  9,  10, 10, 10,
+      10, 11, 11, 11, 12, 12, 12, 13, 13, 13, 13, 14, 14, 14, 15, 15,
+      15, 16, 16, 16, 16, 17, 17, 17, 18, 18, 18, 19, 19, 19, 19, 20};
+  auto t = bsr2log10[FMT_BUILTIN_CLZLL(n | 1) ^ 63];
+  static constexpr const uint64_t zero_or_powers_of_10[] = {
+      0, 0, FMT_POWERS_OF_10(1U), FMT_POWERS_OF_10(1000000000ULL),
+      10000000000000000000ULL};
+  return t - (n < zero_or_powers_of_10[t]);
+}
+#endif
+
 // Returns the number of decimal digits in n. Leading zeros are not counted
 // except for n == 0 in which case count_digits returns 1.
 FMT_CONSTEXPR20 inline auto count_digits(uint64_t n) -> int {
 #ifdef FMT_BUILTIN_CLZLL
   if (!is_constant_evaluated()) {
-    // https://github.com/fmtlib/format-benchmark/blob/master/digits10
-    // Maps bsr(n) to ceil(log10(pow(2, bsr(n) + 1) - 1)).
-    constexpr uint16_t bsr2log10[] = {
-        1,  1,  1,  2,  2,  2,  3,  3,  3,  4,  4,  4,  4,  5,  5,  5,
-        6,  6,  6,  7,  7,  7,  7,  8,  8,  8,  9,  9,  9,  10, 10, 10,
-        10, 11, 11, 11, 12, 12, 12, 13, 13, 13, 13, 14, 14, 14, 15, 15,
-        15, 16, 16, 16, 16, 17, 17, 17, 18, 18, 18, 19, 19, 19, 19, 20};
-    auto t = bsr2log10[FMT_BUILTIN_CLZLL(n | 1) ^ 63];
-    constexpr const uint64_t zero_or_powers_of_10[] = {
-        0, 0, FMT_POWERS_OF_10(1U), FMT_POWERS_OF_10(1000000000ULL),
-        10000000000000000000ULL};
-    return t - (n < zero_or_powers_of_10[t]);
+    return do_count_digits(n);
   }
 #endif
   return count_digits_fallback(n);
@@ -954,12 +979,13 @@ FMT_CONSTEXPR auto count_digits(UInt n) -> int {
 
 template <> auto count_digits<4>(detail::fallback_uintptr n) -> int;
 
+#ifdef FMT_BUILTIN_CLZ
 // It is a separate function rather than a part of count_digits to workaround
 // the lack of static constexpr in constexpr functions.
-FMT_INLINE uint64_t count_digits_inc(int n) {
-  // An optimization by Kendall Willets from https://bit.ly/3uOIQrB.
-  // This increments the upper 32 bits (log10(T) - 1) when >= T is added.
-#define FMT_INC(T) (((sizeof(#T) - 1ull) << 32) - T)
+FMT_INLINE auto do_count_digits(uint32_t n) -> int {
+// An optimization by Kendall Willets from https://bit.ly/3uOIQrB.
+// This increments the upper 32 bits (log10(T) - 1) when >= T is added.
+#  define FMT_INC(T) (((sizeof(#  T) - 1ull) << 32) - T)
   static constexpr uint64_t table[] = {
       FMT_INC(0),          FMT_INC(0),          FMT_INC(0),           // 8
       FMT_INC(10),         FMT_INC(10),         FMT_INC(10),          // 64
@@ -973,15 +999,16 @@ FMT_INLINE uint64_t count_digits_inc(int n) {
       FMT_INC(1000000000), FMT_INC(1000000000), FMT_INC(1000000000),  // 1024M
       FMT_INC(1000000000), FMT_INC(1000000000)                        // 4B
   };
-  return table[n];
+  auto inc = table[FMT_BUILTIN_CLZ(n | 1) ^ 31];
+  return static_cast<int>((n + inc) >> 32);
 }
+#endif
 
 // Optional version of count_digits for better performance on 32-bit platforms.
 FMT_CONSTEXPR20 inline auto count_digits(uint32_t n) -> int {
 #ifdef FMT_BUILTIN_CLZ
   if (!is_constant_evaluated()) {
-    auto inc = count_digits_inc(FMT_BUILTIN_CLZ(n | 1) ^ 31);
-    return static_cast<int>((n + inc) >> 32);
+    return do_count_digits(n);
   }
 #endif
   return count_digits_fallback(n);
@@ -1393,55 +1420,83 @@ FMT_CONSTEXPR FMT_INLINE auto write_int(OutputIt out, int num_digits,
       });
 }
 
+template <typename Char> class digit_grouping {
+ private:
+  thousands_sep_result<Char> sep_;
+
+  struct next_state {
+    std::string::const_iterator group;
+    int pos;
+  };
+  next_state initial_state() const { return {sep_.grouping.begin(), 0}; }
+
+  // Returns the next digit group separator position.
+  int next(next_state& state) const {
+    if (!sep_.thousands_sep) return max_value<int>();
+    if (state.group == sep_.grouping.end())
+      return state.pos += sep_.grouping.back();
+    if (*state.group <= 0 || *state.group == max_value<char>())
+      return max_value<int>();
+    state.pos += *state.group++;
+    return state.pos;
+  }
+
+ public:
+  explicit digit_grouping(locale_ref loc, bool localized = true) {
+    if (localized)
+      sep_ = thousands_sep<Char>(loc);
+    else
+      sep_.thousands_sep = Char();
+  }
+
+  Char separator() const { return sep_.thousands_sep; }
+
+  int count_separators(int num_digits) const {
+    int count = 0;
+    auto state = initial_state();
+    while (num_digits > next(state)) ++count;
+    return count;
+  }
+
+  // Applies grouping to digits and write the output to out.
+  template <typename Out, typename C>
+  Out apply(Out out, basic_string_view<C> digits) const {
+    auto num_digits = static_cast<int>(digits.size());
+    auto separators = basic_memory_buffer<int>();
+    separators.push_back(0);
+    auto state = initial_state();
+    while (int i = next(state)) {
+      if (i >= num_digits) break;
+      separators.push_back(i);
+    }
+    for (int i = 0, sep_index = static_cast<int>(separators.size() - 1);
+         i < num_digits; ++i) {
+      if (num_digits - i == separators[sep_index]) {
+        *out++ = separator();
+        --sep_index;
+      }
+      *out++ = static_cast<Char>(digits[to_unsigned(i)]);
+    }
+    return out;
+  }
+};
+
 template <typename OutputIt, typename UInt, typename Char>
 auto write_int_localized(OutputIt& out, UInt value, unsigned prefix,
                          const basic_format_specs<Char>& specs, locale_ref loc)
     -> bool {
   static_assert(std::is_same<uint64_or_128_t<UInt>, UInt>::value, "");
-  const auto sep_size = 1;
-  auto ts = thousands_sep<Char>(loc);
-  if (!ts.thousands_sep) return false;
   int num_digits = count_digits(value);
-  int size = num_digits, n = num_digits;
-  const std::string& groups = ts.grouping;
-  std::string::const_iterator group = groups.cbegin();
-  while (group != groups.cend() && n > *group && *group > 0 &&
-         *group != max_value<char>()) {
-    size += sep_size;
-    n -= *group;
-    ++group;
-  }
-  if (group == groups.cend()) size += sep_size * ((n - 1) / groups.back());
   char digits[40];
   format_decimal(digits, value, num_digits);
-  basic_memory_buffer<Char> buffer;
-  if (prefix != 0) ++size;
-  const auto usize = to_unsigned(size);
-  buffer.resize(usize);
-  basic_string_view<Char> s(&ts.thousands_sep, sep_size);
-  // Index of a decimal digit with the least significant digit having index 0.
-  int digit_index = 0;
-  group = groups.cbegin();
-  auto p = buffer.data() + size - 1;
-  for (int i = num_digits - 1; i > 0; --i) {
-    *p-- = static_cast<Char>(digits[i]);
-    if (*group <= 0 || ++digit_index % *group != 0 ||
-        *group == max_value<char>())
-      continue;
-    if (group + 1 != groups.cend()) {
-      digit_index = 0;
-      ++group;
-    }
-    std::uninitialized_copy(s.data(), s.data() + s.size(),
-                            make_checked(p, s.size()));
-    p -= s.size();
-  }
-  *p-- = static_cast<Char>(*digits);
-  if (prefix != 0) *p = static_cast<Char>(prefix);
-  auto data = buffer.data();
+
+  auto grouping = digit_grouping<Char>(loc);
+  unsigned size = to_unsigned((prefix != 0 ? 1 : 0) + num_digits +
+                              grouping.count_separators(num_digits));
   out = write_padded<align::right>(
-      out, specs, usize, usize, [=](reserve_iterator<OutputIt> it) {
-        return copy_str<Char>(data, data + size, it);
+      out, specs, size, size, [&](reserve_iterator<OutputIt> it) {
+        if (prefix != 0) *it++ = static_cast<Char>(prefix);
+        return grouping.apply(it, string_view(digits, to_unsigned(num_digits)));
       });
   return true;
 }
@@ -1616,13 +1671,27 @@ inline auto get_significand_size(const dragonbox::decimal_fp<T>& fp) -> int {
 
 template <typename Char, typename OutputIt>
 inline auto write_significand(OutputIt out, const char* significand,
-                              int& significand_size) -> OutputIt {
+                              int significand_size) -> OutputIt {
   return copy_str<Char>(significand, significand + significand_size, out);
 }
 template <typename Char, typename OutputIt, typename UInt>
 inline auto write_significand(OutputIt out, UInt significand,
                               int significand_size) -> OutputIt {
   return format_decimal<Char>(out, significand, significand_size).end;
+}
+template <typename Char, typename OutputIt, typename T>
+inline auto write_significand(OutputIt out, T significand, int significand_size,
+                              int exponent,
+                              const digit_grouping<Char>& grouping)
+    -> OutputIt {
+  if (!grouping.separator()) {
+    out = write_significand<Char>(out, significand, significand_size);
+    return detail::fill_n(out, exponent, static_cast<Char>('0'));
+  }
+  auto buffer = memory_buffer();
+  write_significand<char>(appender(buffer), significand, significand_size);
+  detail::fill_n(appender(buffer), exponent, '0');
+  return grouping.apply(out, string_view(buffer.data(), buffer.size()));
 }
 
 template <typename Char, typename UInt,
@@ -1666,16 +1735,37 @@ inline auto write_significand(OutputIt out, const char* significand,
                                          significand + significand_size, out);
 }
 
+template <typename OutputIt, typename Char, typename T>
+inline auto write_significand(OutputIt out, T significand, int significand_size,
+                              int integral_size, Char decimal_point,
+                              const digit_grouping<Char>& grouping)
+    -> OutputIt {
+  if (!grouping.separator()) {
+    return write_significand(out, significand, significand_size, integral_size,
+                             decimal_point);
+  }
+  auto buffer = basic_memory_buffer<Char>();
+  write_significand(buffer_appender<Char>(buffer), significand,
+                    significand_size, integral_size, decimal_point);
+  grouping.apply(
+      out, basic_string_view<Char>(buffer.data(), to_unsigned(integral_size)));
+  return detail::copy_str_noinline<Char>(buffer.data() + integral_size,
+                                         buffer.end(), out);
+}
+
 template <typename OutputIt, typename DecimalFP, typename Char>
 auto write_float(OutputIt out, const DecimalFP& fp,
                  const basic_format_specs<Char>& specs, float_specs fspecs,
-                 Char decimal_point) -> OutputIt {
+                 locale_ref loc) -> OutputIt {
   auto significand = fp.significand;
   int significand_size = get_significand_size(fp);
   static const Char zero = static_cast<Char>('0');
   auto sign = fspecs.sign;
   size_t size = to_unsigned(significand_size) + (sign ? 1 : 0);
   using iterator = reserve_iterator<OutputIt>;
+
+  Char decimal_point =
+      fspecs.locale ? detail::decimal_point<Char>(loc) : static_cast<Char>('.');
 
   int output_exp = fp.exponent + significand_size - 1;
   auto use_exp_format = [=]() {
@@ -1728,10 +1818,12 @@ auto write_float(OutputIt out, const DecimalFP& fp,
       if (num_zeros <= 0 && fspecs.format != float_format::fixed) num_zeros = 1;
       if (num_zeros > 0) size += to_unsigned(num_zeros) + 1;
     }
+    auto grouping = digit_grouping<Char>(loc, fspecs.locale);
+    size += to_unsigned(grouping.count_separators(significand_size));
     return write_padded<align::right>(out, specs, size, [&](iterator it) {
       if (sign) *it++ = static_cast<Char>(data::signs[sign]);
-      it = write_significand<Char>(it, significand, significand_size);
-      it = detail::fill_n(it, fp.exponent, zero);
+      it = write_significand<Char>(it, significand, significand_size,
+                                   fp.exponent, grouping);
       if (!fspecs.showpoint) return it;
       *it++ = decimal_point;
       return num_zeros > 0 ? detail::fill_n(it, num_zeros, zero) : it;
@@ -1740,10 +1832,12 @@ auto write_float(OutputIt out, const DecimalFP& fp,
     // 1234e-2 -> 12.34[0+]
     int num_zeros = fspecs.showpoint ? fspecs.precision - significand_size : 0;
     size += 1 + to_unsigned(num_zeros > 0 ? num_zeros : 0);
+    auto grouping = digit_grouping<Char>(loc, fspecs.locale);
+    size += to_unsigned(grouping.count_separators(significand_size));
     return write_padded<align::right>(out, specs, size, [&](iterator it) {
       if (sign) *it++ = static_cast<Char>(data::signs[sign]);
       it = write_significand(it, significand, significand_size, exp,
-                             decimal_point);
+                             decimal_point, grouping);
       return num_zeros > 0 ? detail::fill_n(it, num_zeros, zero) : it;
     });
   }
@@ -1808,10 +1902,8 @@ auto write(OutputIt out, T value, basic_format_specs<Char> specs,
   fspecs.use_grisu = is_fast_float<T>();
   int exp = format_float(promote_float(value), precision, fspecs, buffer);
   fspecs.precision = precision;
-  Char point =
-      fspecs.locale ? decimal_point<Char>(loc) : static_cast<Char>('.');
   auto fp = big_decimal_fp{buffer.data(), static_cast<int>(buffer.size()), exp};
-  return write_float(out, fp, specs, fspecs, point);
+  return write_float(out, fp, specs, fspecs, loc);
 }
 
 template <typename Char, typename OutputIt, typename T,
@@ -1836,7 +1928,7 @@ auto write(OutputIt out, T value) -> OutputIt {
     return write_nonfinite(out, std::isinf(value), specs, fspecs);
 
   auto dec = dragonbox::to_decimal(static_cast<floaty>(value));
-  return write_float(out, dec, specs, fspecs, static_cast<Char>('.'));
+  return write_float(out, dec, specs, fspecs, {});
 }
 
 template <typename Char, typename OutputIt, typename T,
