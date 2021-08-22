@@ -14,15 +14,16 @@
 #include "cpr/cprtypes.h"
 #include "cpr/curlholder.h"
 #include "cpr/digest.h"
+#include "cpr/interface.h"
 #include "cpr/limit_rate.h"
 #include "cpr/low_speed.h"
-#include "cpr/max_redirects.h"
 #include "cpr/multipart.h"
 #include "cpr/ntlm.h"
 #include "cpr/parameters.h"
 #include "cpr/payload.h"
 #include "cpr/proxies.h"
 #include "cpr/proxyauth.h"
+#include "cpr/redirect.h"
 #include "cpr/response.h"
 #include "cpr/ssl_options.h"
 #include "cpr/timeout.h"
@@ -62,8 +63,7 @@ class Session {
     void SetMultipart(Multipart&& multipart);
     void SetMultipart(const Multipart& multipart);
     void SetNTLM(const NTLM& auth);
-    void SetRedirect(const bool& redirect);
-    void SetMaxRedirects(const MaxRedirects& max_redirects);
+    void SetRedirect(const Redirect& redirect);
     void SetCookies(const Cookies& cookies);
     void SetBody(Body&& body);
     void SetBody(const Body& body);
@@ -77,6 +77,7 @@ class Session {
     void SetProgressCallback(const ProgressCallback& progress);
     void SetDebugCallback(const DebugCallback& debug);
     void SetVerbose(const Verbose& verbose);
+    void SetInterface(const Interface& iface);
 
     // Used in templated functions
     void SetOption(const Url& url);
@@ -103,8 +104,7 @@ class Session {
     void SetOption(Multipart&& multipart);
     void SetOption(const Multipart& multipart);
     void SetOption(const NTLM& auth);
-    void SetOption(const bool& redirect);
-    void SetOption(const MaxRedirects& max_redirects);
+    void SetOption(const Redirect& redirect);
     void SetOption(const Cookies& cookies);
     void SetOption(Body&& body);
     void SetOption(const Body& body);
@@ -118,7 +118,9 @@ class Session {
     void SetOption(const Verbose& verbose);
     void SetOption(const UnixSocket& unix_socket);
     void SetOption(const SslOptions& options);
+    void SetOption(const Interface& iface);
 
+    cpr_off_t GetDownloadFileLength();
     Response Delete();
     Response Download(const WriteCallback& write);
     Response Download(std::ofstream& file);

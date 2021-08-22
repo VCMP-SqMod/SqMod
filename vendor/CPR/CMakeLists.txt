@@ -13,6 +13,7 @@ add_library(CPR STATIC
     cpr/payload.cpp
     cpr/proxies.cpp
     cpr/proxyauth.cpp
+    cpr/redirect.cpp
     cpr/session.cpp
     cpr/timeout.cpp
     cpr/unix_socket.cpp
@@ -30,14 +31,15 @@ add_library(CPR STATIC
     include/cpr/curlholder.h
     include/cpr/digest.h
     include/cpr/error.h
+    include/cpr/interface.h
     include/cpr/limit_rate.h
-    include/cpr/max_redirects.h
     include/cpr/multipart.h
     include/cpr/ntlm.h
     include/cpr/parameters.h
     include/cpr/payload.h
     include/cpr/proxies.h
     include/cpr/proxyauth.h
+    include/cpr/redirect.h
     include/cpr/response.h
     include/cpr/session.h
     include/cpr/ssl_options.h
