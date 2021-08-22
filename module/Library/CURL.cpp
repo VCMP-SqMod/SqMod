@@ -16,6 +16,7 @@ SQMOD_DECL_TYPENAME(SqCpResponse, _SC("SqCprResponse"))
 SQMOD_DECL_TYPENAME(SqCpParameters, _SC("SqCprParameters"))
 SQMOD_DECL_TYPENAME(SqCpPayload, _SC("SqCprPayload"))
 SQMOD_DECL_TYPENAME(SqCpProxies, _SC("SqCprProxies"))
+SQMOD_DECL_TYPENAME(SqCpRedirect, _SC("SqCprRedirect"))
 SQMOD_DECL_TYPENAME(SqCpSession, _SC("SqCprSession"))
 
 /* ------------------------------------------------------------------------------------------------
@@ -405,9 +406,19 @@ static const EnumElement g_StatusCodes[] = {
 };
 
 // ------------------------------------------------------------------------------------------------
+static const EnumElement g_PostRedirectFlags[] = {
+    {_SC("Post301"),    static_cast< SQInteger >(cpr::PostRedirectFlags::POST_301)},
+    {_SC("Post302"),    static_cast< SQInteger >(cpr::PostRedirectFlags::POST_302)},
+    {_SC("Post303"),    static_cast< SQInteger >(cpr::PostRedirectFlags::POST_303)},
+    {_SC("Postall"),    static_cast< SQInteger >(cpr::PostRedirectFlags::POST_ALL)},
+    {_SC("None"),       static_cast< SQInteger >(cpr::PostRedirectFlags::NONE)},
+};
+
+// ------------------------------------------------------------------------------------------------
 static const EnumElements g_EnumList[] = {
-    {_SC("SqCprErrorCode"), g_ErrorCodes},
-    {_SC("SqCprStatusCode"), g_StatusCodes}
+    {_SC("SqCprErrorCode"),             g_ErrorCodes},
+    {_SC("SqCprStatusCode"),            g_StatusCodes},
+    {_SC("SqCprPostRedirectFlags"),     g_PostRedirectFlags}
 };
 
 // ================================================================================================
@@ -606,6 +617,26 @@ void Register_CURL(HSQUIRRELVM vm)
     );
 
     // --------------------------------------------------------------------------------------------
+    cpns.Bind(_SC("Redirect"),
+        Class< CpRedirect >(vm, SqCpRedirect::Str)
+        // Constructors
+        .Ctor()
+        .Ctor< SQInteger >()
+        .Ctor< SQInteger, bool >()
+        .Ctor< SQInteger, bool, SQInteger >()
+        // Meta-methods
+        .SquirrelFunc(_SC("_typename"), &SqCpRedirect::Fn)
+        // Properties
+        .Prop(_SC("Maximum"), &CpRedirect::GetMaximum, &CpRedirect::SetMaximum)
+        .Prop(_SC("Follow"), &CpRedirect::GetFollow, &CpRedirect::SetFollow)
+        .Prop(_SC("Flags"), &CpRedirect::GetFlags, &CpRedirect::SetFlags)
+        // Member Methods
+        .Func(_SC("SetMaximum"), &CpRedirect::ApplyMaximum)
+        .Func(_SC("SetFollow"), &CpRedirect::ApplyFollow)
+        .Func(_SC("SetFlags"), &CpRedirect::ApplyFlags)
+    );
+
+    // --------------------------------------------------------------------------------------------
     cpns.Bind(_SC("Session"),
         Class< CpSession, NoCopy< CpSession > >(vm, SqCpSession::Str)
         // Constructors
@@ -631,7 +662,6 @@ void Register_CURL(HSQUIRRELVM vm)
         .Func(_SC("YieldProxies"), &CpSession::YieldProxies)
         .FmtFunc(_SC("SetNTLM"), &CpSession::SetNTLM_)
         .Func(_SC("SetRedirect"), &CpSession::SetRedirect_)
-        .Func(_SC("SetMaxRedirects"), &CpSession::SetMaxRedirects_)
         .Func(_SC("SetCookies"), &CpSession::SetCookies_)
         .FmtFunc(_SC("SetBody"), &CpSession::SetBody_)
         .Func(_SC("SetLowSpeed"), &CpSession::SetLowSpeed_)

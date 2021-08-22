@@ -888,7 +888,7 @@ struct CpResponse : public cpr::Response
     */
     void SetStatusCode(SQInteger value)
     {
-        cpr::Response::status_code = value;
+        cpr::Response::status_code = static_cast< long >(value);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1605,6 +1605,152 @@ struct CpProxies : public cpr::Proxies
 };
 
 /* ------------------------------------------------------------------------------------------------
+ * Wrapper for cpr::Redirect that can be bound to the script engine.
+*/
+struct CpRedirect : public cpr::Redirect
+{
+    using cpr::Redirect::Redirect;
+    /* --------------------------------------------------------------------------------------------
+     * Default constructor.
+    */
+    CpRedirect() = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Explicit constructor.
+    */
+    explicit CpRedirect(SQInteger maximum)
+        : cpr::Redirect(static_cast< long >(maximum), true, cpr::PostRedirectFlags::POST_ALL)
+    {
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Explicit constructor.
+    */
+    CpRedirect(SQInteger maximum, bool follow)
+        : cpr::Redirect(static_cast< long >(maximum), follow, cpr::PostRedirectFlags::POST_ALL)
+    {
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Explicit constructor.
+    */
+    CpRedirect(SQInteger maximum, bool follow, SQInteger post_flags)
+        : cpr::Redirect(static_cast< long >(maximum), follow, static_cast< cpr::PostRedirectFlags >(post_flags))
+    {
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor.
+    */
+    explicit CpRedirect(const cpr::Redirect & e) : cpr::Redirect(e) { }
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    explicit CpRedirect(cpr::Redirect && e) : cpr::Redirect(e) { }
+    
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor.
+    */
+    CpRedirect(const CpRedirect &) = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    CpRedirect(CpRedirect &&) noexcept = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Destructor.
+    */
+    ~CpRedirect() = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator.
+    */
+    CpRedirect & operator = (const CpRedirect &) = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator.
+    */
+    CpRedirect & operator = (CpRedirect &&) noexcept = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the maximum number of redirects to follow. 0: Refuse any redirects. -1: Infinite number of redirects.
+    */
+    SQMOD_NODISCARD SQInteger GetMaximum() const noexcept
+    {
+        return static_cast< SQInteger >(cpr::Redirect::maximum);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the maximum number of redirects to follow. 0: Refuse any redirects. -1: Infinite number of redirects.
+    */
+    void SetMaximum(SQInteger value) noexcept
+    {
+        cpr::Redirect::maximum = static_cast< long >(value);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the maximum number of redirects to follow. 0: Refuse any redirects. -1: Infinite number of redirects.
+    */
+    CpRedirect & ApplyMaximum(SQInteger value) noexcept
+    {
+        SetMaximum(value);
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve whether to follow 3xx redirects.
+    */
+    SQMOD_NODISCARD bool GetFollow() const noexcept
+    {
+        return cpr::Redirect::follow;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify whether to follow 3xx redirects.
+    */
+    void SetFollow(bool value) noexcept
+    {
+        cpr::Redirect::follow = value;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify whether to follow 3xx redirects.
+    */
+    CpRedirect & ApplyFollow(bool value) noexcept
+    {
+        SetMaximum(value);
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the flags to control how to act after a redirect for a post request.
+    */
+    SQMOD_NODISCARD bool GetFlags() const noexcept
+    {
+        return cpr::Redirect::follow;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the flags to control how to act after a redirect for a post request.
+    */
+    void SetFlags(bool value) noexcept
+    {
+        cpr::Redirect::follow = value;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the flags to control how to act after a redirect for a post request.
+    */
+    CpRedirect & ApplyFlags(bool value) noexcept
+    {
+        SetMaximum(value);
+        return *this;
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
  * Wrapper for cpr::Session that can be bound to the script engine.
 */
 struct CpSession : public cpr::Session
@@ -1620,7 +1766,7 @@ struct CpSession : public cpr::Session
     /* --------------------------------------------------------------------------------------------
      * URL constructor.
     */
-    CpSession(StackStrF & url)
+    explicit CpSession(StackStrF & url)
         : cpr::Session()
     {
         cpr::Session::SetUrl(cpr::Url(url.mPtr, url.GetSize()));
@@ -1654,7 +1800,7 @@ struct CpSession : public cpr::Session
     /* --------------------------------------------------------------------------------------------
      * Throw exception if the session is locked.
     */
-    void LockCheck()
+    void LockCheck() const
     {
         if (mPending)
         {
@@ -1827,20 +1973,10 @@ struct CpSession : public cpr::Session
     /* --------------------------------------------------------------------------------------------
      * Modify redirect option.
     */
-    CpSession & SetRedirect_(bool redirect)
+    CpSession & SetRedirect_(CpRedirect & redirect)
     {
         LockCheck();
         cpr::Session::SetRedirect(redirect);
-        return *this; // Allow chaining
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Modify max-redirects option.
-    */
-    CpSession & SetMaxRedirects_(SQInteger max_redirects)
-    {
-        LockCheck();
-        cpr::Session::SetMaxRedirects(cpr::MaxRedirects(static_cast< int32_t >(max_redirects)));
         return *this; // Allow chaining
     }
 
