@@ -7,7 +7,7 @@
 /bin/*
 
 # Exclude
-!/bin/demo
+!/vendor
 
 # Hidden files and folders
 .*

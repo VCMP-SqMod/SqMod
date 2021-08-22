@@ -61,7 +61,6 @@ public:
 	#define POCO_RESTORE_TIMESTAMP_REQUEST
 	#undef TIMESTAMP_REQUEST
 #endif
-
 	enum MessageType
 	{
 		ECHO_REPLY,
@@ -84,9 +83,8 @@ public:
 		MESSAGE_TYPE_UNKNOWN,  // non-standard default, must remain last but one
 		MESSAGE_TYPE_LENGTH    // length indicator, must remain last
 	};
-
 #if defined(POCO_RESTORE_TIMESTAMP_REQUEST)
-	#pragma pop_macro("TIMESTAMP_REQUEST")
+    #pragma pop_macro("TIMESTAMP_REQUEST")
 	#undef POCO_RESTORE_TIMESTAMP_REQUEST
 #endif
 
