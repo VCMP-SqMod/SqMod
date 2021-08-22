@@ -31,6 +31,12 @@ jobs:
     - name: Install Postgre SQL
       run: sudo apt-get -y install libpq-dev
 
+    - name: Install Sodium
+      run: sudo apt-get -y install libsodium-dev
+
+    - name: Install GNUTLS
+      run: sudo apt-get -y install libgnutls-dev
+
     - name: Install ZLib
       run: sudo apt-get -y install zlib1g-dev
 
