@@ -149,7 +149,7 @@ void SqThrowLastF(const SQChar * msg, ...)
     // Now it's safe to throw the error
     SqThrowF(fmt::runtime("{} [{}]"), b.Data(), message);
 #else
-    SqThrowF("{} [{}]", b.Data(), std::strerror(errno));
+    SqThrowF(fmt::runtime("{} [{}]"), b.Data(), std::strerror(errno));
 #endif // SQMOD_OS_WINDOWS
 }
 
