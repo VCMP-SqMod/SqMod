@@ -54,10 +54,10 @@ public:
 	poco_static_assert (offsetof(Header, seq) == 0x06);
 #endif
 
-	// wincrypt.h also contains a macro named TIMESTAMP_REQUEST
-	// being a MinGW issue we can get rid of it for a moment
+// wincrypt.h also contains a macro named TIMESTAMP_REQUEST
+// being a MinGW issue we can get rid of it for a moment
 #if defined(TIMESTAMP_REQUEST) && defined(POCO_COMPILER_MINGW)
-	#pragma push_macro("TIMESTAMP_REQUEST")
+    #pragma push_macro("TIMESTAMP_REQUEST")
 	#define POCO_RESTORE_TIMESTAMP_REQUEST
 	#undef TIMESTAMP_REQUEST
 #endif
