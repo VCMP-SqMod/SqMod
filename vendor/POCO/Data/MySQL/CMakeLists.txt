@@ -37,7 +37,7 @@ endif()
 # Some instalations don't have mysql_reset_connection() even if their version indicates otherwise
 # Debian 9 (Stretch) is one such example
 if(UNIX)
-    file(STRINGS "${MYSQL_INCLUDE_DIR}/mysql.h" lines REGEX "mysql_reset_connection")
+    file(STRINGS "${MYSQL_INCLUDE_DIR}/mysql/mysql.h" lines REGEX "mysql_reset_connection")
     if(lines)
         target_compile_definitions(DataMySQL PRIVATE HAVE_MYSQL_RESET_CONNECTION)
     endif()
