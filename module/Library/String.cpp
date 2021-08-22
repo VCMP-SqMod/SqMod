@@ -189,7 +189,7 @@ static LightObj SqCenterStr(SQChar f, uint32_t w, StackStrF & s)
     else
     {
         // Calculate the insert position
-        const int32_t p = ((w/2) - (s.mLen/2));
+        const auto p = ((w/2) - (s.mLen/2));
         // Insert only the fill character first
         std::memset(b.Data(), f, w);
         // Overwrite with the specified string
@@ -287,7 +287,7 @@ static Buffer StrToLowercaseImpl(const SQChar * str, uint32_t len)
     while (*str != '\0')
     {
         // Convert it and move to the next one
-        b.At(n++) = std::tolower(*(str++));
+        b.At(n++) = static_cast< char >(std::tolower(*(str++)));
     }
     // End the resulted string
     b.At(n) = '\0';
@@ -349,7 +349,7 @@ static Buffer StrToUppercaseImpl(const SQChar * str, uint32_t len)
     while (*str != '\0')
     {
         // Convert it and move to the next one
-        b.At(n++) = std::toupper(*(str++));
+        b.At(n++) = static_cast< char >(std::toupper(*(str++)));
     }
     // End the resulted string
     b.At(n) = '\0';
@@ -594,7 +594,7 @@ static bool OnlyDelimiter(const SQChar * str, SQChar chr)
 // ------------------------------------------------------------------------------------------------
 static SQInteger SqStrExplode(HSQUIRRELVM vm)
 {
-    const int32_t top = sq_gettop(vm);
+    const auto top = sq_gettop(vm);
     // Was the delimiter character specified?
     if (top <= 1)
     {
@@ -899,6 +899,68 @@ static String StrCharacterSwap(SQInteger a, SQInteger b, StackStrF & val)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Returns a size_t, depicting the difference between `a` and `b`. See: https://github.com/wooorm/levenshtein.c
+// See <https://en.wikipedia.org/wiki/Levenshtein_distance> for more information.
+SQMOD_NODISCARD static size_t Levenshtein_n(const char * a, const size_t a_length, const char * b, const size_t b_length) noexcept
+{
+    // Shortcut optimizations / degenerate cases.
+    if (a == b)
+    {
+        return 0;
+    }
+    else if (a_length == 0)
+    {
+        return b_length;
+    }
+    else if (b_length == 0)
+    {
+        return a_length;
+    }
+    auto cache = reinterpret_cast< size_t * >(calloc(a_length, sizeof(size_t)));
+    size_t index = 0;
+    size_t b_index = 0;
+    size_t distance;
+    size_t b_distance;
+    size_t result;
+    char code;
+    // initialize the vector.
+    while (index < a_length)
+    {
+        cache[index] = index + 1;
+        index++;
+    }
+    // Loop
+    while (b_index < b_length)
+    {
+        code = b[b_index];
+        result = distance = b_index++;
+        index = SIZE_MAX;
+
+        while (++index < a_length)
+        {
+            b_distance = code == a[index] ? distance : distance + 1;
+            distance = cache[index];
+
+            cache[index] = result = distance > result
+                ? b_distance > result
+                    ? result + 1
+                    : b_distance
+                : b_distance > distance
+                    ? distance + 1
+                    : b_distance;
+        }
+    }
+    free(cache);
+    return result;
+}
+
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqLevenshtein(StackStrF & a, StackStrF & b)
+{
+    return static_cast< SQInteger >(Levenshtein_n(a.mPtr, static_cast< size_t >(a.mLen), b.mPtr, static_cast< size_t >(b.mLen)));
+}
+
+// ------------------------------------------------------------------------------------------------
 static SQInteger SqStrToI(SQInteger base, StackStrF & s)
 {
 #ifdef _SQ64
@@ -940,6 +1002,7 @@ void Register_String(HSQUIRRELVM vm)
     .FmtFunc(_SC("JustAlnum"), &SqJustAlphaNum)
     .FmtFunc(_SC("ToInt"), &SqStrToI)
     .FmtFunc(_SC("ToFloat"), &SqStrToF)
+    .FmtFunc(_SC("Levenshtein"), &SqLevenshtein)
     .FmtFunc(_SC("AreAllSpace"), &SqAllChars< std::isspace >)
     .FmtFunc(_SC("AreAllPrint"), &SqAllChars< std::isprint >)
     .FmtFunc(_SC("AreAllCntrl"), &SqAllChars< std::iscntrl >)
