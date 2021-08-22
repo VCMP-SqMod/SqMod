@@ -68,7 +68,8 @@ You can clone this repository and build it by running:
     $ git clone --recursive https://github.com/maxmind/libmaxminddb
 
 After cloning, run `./bootstrap` from the `libmaxminddb` directory and then
-follow the instructions for installing from a named release tarball as described above.
+follow the instructions for installing from a named release tarball as
+described above.
 
 ## Using CMake
 
@@ -79,6 +80,11 @@ work.
     $ cmake --build .
     $ ctest -V .
     $ cmake --build . --target install
+
+When building with Visual Studio, you may build a multithreaded (MT/MTd)
+runtime library, using the `MSVC_STATIC_RUNTIME` setting:
+
+    $ cmake -DMSVC_STATIC_RUNTIME=ON -DBUILD_SHARED_LIBS=OFF ..
 
 ## On Ubuntu via PPA
 
@@ -119,6 +125,8 @@ development easier. These are written in Perl or shell. They are:
 Use `make safedist` to check the resulting tarball.
 
 # Copyright and License
+
+Copyright 2013-2021 MaxMind, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

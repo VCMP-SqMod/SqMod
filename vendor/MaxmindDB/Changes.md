@@ -1,3 +1,44 @@
+## 1.7.0
+
+* `FD_CLOEXEC` is now set on platforms that do not support `O_CLOEXEC`.
+  Reported by rittneje. GitHub #273.
+* When building with Visual Studio, you may now build a static runtime with
+  CMake by setting `MSVC_STATIC_RUNTIME` to `ON`. Pull request by Rafael
+  Santiago. GitHub #269.
+* The CMake build now works on iOS. Pull request by SpaceIm. GitHub #271.
+
+## 1.6.0 - 2021-04-29
+
+* This release includes several improvements to the CMake build. In
+  particular:
+  * C99 support is now properly enabled, fixing builds on older `gcc`
+    versions. Pull request by Jan Včelák. GitHub #257.
+  * `CMAKE_SHARED_LIBRARY_PREFIX` and `CMAKE_STATIC_LIBRARY_PREFIX` are
+    no longer explicitly set and now use the default values for the platform.
+    Pull request by Jan Včelák. GitHub #258.
+  * `target_include_directories` now works as expected. Pull request by Jan
+    Včelák. GitHub #259.
+  * DLLs are now installed on Windows when `libmaxminddb` is built as a
+    shared library. Pull request by Jan Včelák. GitHub #261.
+  * When built as a dynamic library on Windows, all symbols are now exported.
+    Pull request by Jan Včelák. GitHub #262.
+
+
+## 1.5.2 - 2021-02-18
+
+* With `libmaxminddb` on Windows and `mmdblookup` generally, there were
+  instances where the return value of `calloc` was not checked, which could
+  lead to issues in low memory situations or when resource limits had been
+  set. Reported by cve-reporting. GitHub #252.
+
+
+## 1.5.1 - 2021-02-18
+
+* The formatting of the manpages has been improved and the script that
+  generates them now supports `lowdown` in addition to `pandoc`. Pull request
+  by Faidon Liambotis. GitHub #248.
+
+
 ## 1.5.0 - 2021-01-05
 
 * A CMake build script has been added for Windows builds. The Visual
