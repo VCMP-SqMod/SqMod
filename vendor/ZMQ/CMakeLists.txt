@@ -27,7 +27,7 @@ list(APPEND CMAKE_MODULE_PATH ${ZMQ_CMAKE_MODULES_DIR})
 # This is tp deal with the fact that windows file names is case insensitive while linux isn't
 # So linux has issues finding FindSodium.cmake because it looks for Findsodium.cmake
 # Lazy workaround, if I can even call it that
-set(ZMQ_CMAKE_MODULES_DIR2 ${CMAKE_CURRENT_SOURCE_DIR}/builds/cmake/Modules)
+set(ZMQ_CMAKE_MODULES_DIR2 ${CMAKE_CURRENT_SOURCE_DIR}/builds/cmake/Modules2)
 list(APPEND CMAKE_MODULE_PATH ${ZMQ_CMAKE_MODULES_DIR2})
 
 include(TestZMQVersion)
