@@ -18,7 +18,7 @@
 
 // ------------------------------------------------------------------------------------------------
 #ifdef SQMOD_POCO_HAS_MYSQL
-    #include <mysql.h>
+    #include <mysql/mysql.h>
 #else
     #error Enable MySQL support in order to compile this library.
 #endif

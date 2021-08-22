@@ -13,7 +13,7 @@
 #ifdef SQMOD_POCO_HAS_MYSQL
     #include <Poco/Data/MySQL/Connector.h>
     // Used for string escape functionality
-    #include <mysql.h>
+    #include <mysql/mysql.h>
 #endif
 #ifdef SQMOD_POCO_HAS_POSTGRESQL
     #include <Poco/Data/PostgreSQL/Connector.h>
