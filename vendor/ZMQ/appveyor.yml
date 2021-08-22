@@ -176,10 +176,14 @@ install:
   - cmd: echo "Platform='%Platform%'"
   - cmd: if "%WITH_LIBSODIUM%"=="ON" set LIBSODIUMDIR=C:\projects\libsodium
   - cmd: if "%WITH_LIBSODIUM%"=="ON" (
+                git config --global user.email "test@appveyor.com" &&
+                git config --global user.name "appveyor"
+         )
+  - cmd: if "%WITH_LIBSODIUM%"=="ON" (
             if not exist "%LIBSODIUMDIR%" (
                 git clone --branch stable --depth 1 --quiet "https://github.com/jedisct1/libsodium.git" %LIBSODIUMDIR%
             ) else (
-                git -C "%LIBSODIUMDIR%" pull
+                git -C "%LIBSODIUMDIR%" fetch --all && git -C "%LIBSODIUMDIR%" reset --hard origin/stable
             )
          )
   - cmd: if "%WITH_LIBSODIUM%"=="ON" msbuild /v:minimal /maxcpucount:%NUMBER_OF_PROCESSORS% /p:Configuration=%Configuration%DLL %LIBSODIUMDIR%\builds\msvc\%MSVCYEAR%\libsodium\libsodium.vcxproj
@@ -272,18 +276,18 @@ test_script:
   - cmd: if "%APPVEYOR_REPO_TAG%"=="false" (ctest -C "%Configuration%" -V %TEST_OPTIONS%)
 
 deploy:
-  - provider: BinTray
-    username: somdoron
-    api_key:
-      secure: B4TC4GvUMbwX13Skh2Kvyc6SnqLkjNS9W0gtN2yxUC2Y4oQSCK2F4eRgtpMpCasg
-    subject: zeromq
-    repo: generic
-    package: libzmq
-    publish: true
-    override: true
-    version: ${ZMQ_VERSION}
-    on:
-      APPVEYOR_REPO_TAG: true
+  - provider: GitHub
+    tag: $(APPVEYOR_REPO_TAG_NAME)
+    release: libzmq $(APPVEYOR_REPO_TAG_NAME)
+    description: |
+        Windows binaries for libzmq $(APPVEYOR_REPO_TAG_NAME), uploaded from appveyor.
+        Edit after appveyor is done uploading.
+    auth_token:
+      secure: vmAeVtN2qiQgFBCB2I5FDDRtADQ7GUdR9NwAJJyakbiV5OHzLHExDcC/D9Oh5r67
+    draft: true
+    prerelease: false
+    force_update: true # adds files, clobbers release name and description
+
 
 # the analysis build is repeated; apparently appveyor only uses the first section that matches some branch
 for:

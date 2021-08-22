@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2007-2016 Contributors as noted in the AUTHORS file
+    Copyright (c) 2007-2021 Contributors as noted in the AUTHORS file
 
     This file is part of libzmq, the ZeroMQ core engine in C++.
 
@@ -27,38 +27,50 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <string>
-#include <sstream>
-#include <vmci_sockets.h>
-
 #include "testutil.hpp"
 #include "testutil_unity.hpp"
 
 SETUP_TEARDOWN_TESTCONTEXT
 
-void test_reqrep_vmci ()
+void test ()
 {
-    std::stringstream s;
-    s << "vmci://" << VMCISock_GetLocalCID () << ":" << 5560;
-    std::string endpoint = s.str ();
+    char address[MAX_SOCKET_STRING];
+    size_t addr_length = sizeof (address);
 
-    void *sb = test_context_socket (ZMQ_DEALER);
-    TEST_ASSERT_SUCCESS_ERRNO (zmq_bind (sb, endpoint.c_str ()));
+    //  Create a server
+    void *server = test_context_socket (ZMQ_SERVER);
 
-    void *sc = test_context_socket (ZMQ_DEALER);
-    TEST_ASSERT_SUCCESS_ERRNO (zmq_connect (sc, endpoint.c_str ()));
+    //  bind server
+    TEST_ASSERT_SUCCESS_ERRNO (zmq_bind (server, "tcp://127.0.0.1:*"));
+    TEST_ASSERT_SUCCESS_ERRNO (
+      zmq_getsockopt (server, ZMQ_LAST_ENDPOINT, address, &addr_length));
 
-    expect_bounce_fail (sb, sc);
+    //  Create a client
+    void *client = test_context_socket (ZMQ_CLIENT);
+    TEST_ASSERT_SUCCESS_ERRNO (
+      zmq_setsockopt (client, ZMQ_HELLO_MSG, "HELLO", 5));
+    TEST_ASSERT_SUCCESS_ERRNO (
+      zmq_setsockopt (client, ZMQ_HICCUP_MSG, "HICCUP", 6));
+    TEST_ASSERT_SUCCESS_ERRNO (zmq_connect (client, address));
 
-    test_context_socket_close_zero_linger (sc);
-    test_context_socket_close_zero_linger (sb);
+    // Receive the hello message from client
+    recv_string_expect_success (server, "HELLO", 0);
+
+    // Kill the server
+    test_context_socket_close (server);
+
+    // Receive the hiccup message
+    recv_string_expect_success (client, "HICCUP", 0);
+
+    //  Clean up.
+    test_context_socket_close (client);
 }
 
-int main (void)
+int main ()
 {
     setup_test_environment ();
 
     UNITY_BEGIN ();
-    RUN_TEST (test_reqrep_vmci);
+    RUN_TEST (test);
     return UNITY_END ();
 }

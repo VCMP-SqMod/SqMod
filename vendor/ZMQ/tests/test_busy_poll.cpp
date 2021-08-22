@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2007-2016 Contributors as noted in the AUTHORS file
+    Copyright (c) 2007-2021 Contributors as noted in the AUTHORS file
 
     This file is part of libzmq, the ZeroMQ core engine in C++.
 
@@ -27,38 +27,32 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <string>
-#include <sstream>
-#include <vmci_sockets.h>
-
 #include "testutil.hpp"
 #include "testutil_unity.hpp"
 
 SETUP_TEARDOWN_TESTCONTEXT
 
-void test_reqrep_vmci ()
+void test_busy_poll ()
 {
-    std::stringstream s;
-    s << "vmci://" << VMCISock_GetLocalCID () << ":" << 5560;
-    std::string endpoint = s.str ();
+    //  Create a socket
+    void *socket = test_context_socket (ZMQ_DEALER);
 
-    void *sb = test_context_socket (ZMQ_DEALER);
-    TEST_ASSERT_SUCCESS_ERRNO (zmq_bind (sb, endpoint.c_str ()));
+    //  set socket ZMQ_BUSY_POLL options
+    int busy_poll = 1;
+    TEST_ASSERT_SUCCESS_ERRNO (
+      zmq_setsockopt (socket, ZMQ_BUSY_POLL, &busy_poll, sizeof (int)));
 
-    void *sc = test_context_socket (ZMQ_DEALER);
-    TEST_ASSERT_SUCCESS_ERRNO (zmq_connect (sc, endpoint.c_str ()));
+    //  bind socket
+    TEST_ASSERT_SUCCESS_ERRNO (zmq_bind (socket, "tcp://127.0.0.1:*"));
 
-    expect_bounce_fail (sb, sc);
-
-    test_context_socket_close_zero_linger (sc);
-    test_context_socket_close_zero_linger (sb);
+    //  Clean up.
+    test_context_socket_close (socket);
 }
 
-int main (void)
+int main ()
 {
     setup_test_environment ();
-
     UNITY_BEGIN ();
-    RUN_TEST (test_reqrep_vmci);
+    RUN_TEST (test_busy_poll);
     return UNITY_END ();
 }
