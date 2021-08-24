@@ -165,6 +165,22 @@ template < class T > struct SqVector
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Copy constructor from container.
+    */
+    explicit SqVector(const Container & v)
+        : mC(Poco::makeShared< Container >(v))
+    {
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor from container.
+    */
+    explicit SqVector(Container && v) noexcept
+        : mC(Poco::makeShared< Container >(std::move(v)))
+    {
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
     SqVector(SqVector &&) noexcept = default;
