@@ -750,7 +750,7 @@ protected:
         // add the set table (static)
         HSQOBJECT& setTable = cd->setTable;
         sq_resetobject(&setTable);
-        sq_pushstring(vm, _SC("__setTable"), -1);
+        sq_pushstring(vm, _SC("set_"), -1);
         sq_newtable(vm);
         sq_getstackobj(vm, -1, &setTable);
         sq_addref(vm, &setTable);
@@ -759,7 +759,7 @@ protected:
         // add the get table (static)
         HSQOBJECT& getTable = cd->getTable;
         sq_resetobject(&getTable);
-        sq_pushstring(vm, _SC("__getTable"), -1);
+        sq_pushstring(vm, _SC("get_"), -1);
         sq_newtable(vm);
         sq_getstackobj(vm, -1, &getTable);
         sq_addref(vm, &getTable);
@@ -1033,7 +1033,7 @@ protected:
         HSQOBJECT& setTable = cd->setTable;
         sq_resetobject(&setTable);
         sq_pushobject(vm, bd->setTable);
-        sq_pushstring(vm, _SC("__setTable"), -1);
+        sq_pushstring(vm, _SC("set_"), -1);
         sq_clone(vm, -2);
         sq_remove(vm, -3);
         sq_getstackobj(vm, -1, &setTable);
@@ -1044,7 +1044,7 @@ protected:
         HSQOBJECT& getTable = cd->getTable;
         sq_resetobject(&getTable);
         sq_pushobject(vm, bd->getTable);
-        sq_pushstring(vm, _SC("__getTable"), -1);
+        sq_pushstring(vm, _SC("get_"), -1);
         sq_clone(vm, -2);
         sq_remove(vm, -3);
         sq_getstackobj(vm, -1, &getTable);
