@@ -41,6 +41,7 @@ extern void Register_Numeric(HSQUIRRELVM vm);
 extern void Register_String(HSQUIRRELVM vm);
 extern void Register_System(HSQUIRRELVM vm);
 extern void Register_Utils(HSQUIRRELVM vm);
+extern void Register_Web(HSQUIRRELVM vm);
 extern void Register_XML(HSQUIRRELVM vm);
 extern void Register_ZMQ(HSQUIRRELVM vm);
 #ifdef SQMOD_POCO_HAS_SQLITE
@@ -106,6 +107,7 @@ bool RegisterAPI(HSQUIRRELVM vm)
     Register_String(vm);
     Register_System(vm);
     Register_Utils(vm);
+    Register_Web(vm);
     Register_XML(vm);
     Register_ZMQ(vm);
 #ifdef SQMOD_POCO_HAS_SQLITE

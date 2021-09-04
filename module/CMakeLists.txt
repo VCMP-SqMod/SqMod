@@ -89,6 +89,7 @@ add_library(SqModule MODULE SqBase.hpp Main.cpp
     Library/Utils/Announce.cpp Library/Utils/Announce.hpp
     Library/Utils/String.cpp Library/Utils/String.hpp
     Library/Utils/Vector.cpp Library/Utils/Vector.hpp
+    Library/Web.cpp Library/Web.hpp
     Library/XML.cpp Library/XML.hpp
     Library/ZMQ.cpp Library/ZMQ.hpp
     # Misc
@@ -133,7 +134,7 @@ if(WIN32 OR MINGW)
     target_link_libraries(SqModule wsock32 ws2_32 shlwapi)
 endif()
 # Link to base libraries
-target_link_libraries(SqModule Squirrel fmt::fmt SimpleINI TinyDir xxHash ConcurrentQueue SAJSON CPR PUGIXML maxminddb libzmq-static)
+target_link_libraries(SqModule Squirrel fmt::fmt SimpleINI TinyDir xxHash ConcurrentQueue SAJSON CPR PUGIXML CivetWeb maxminddb libzmq-static)
 # Link to POCO libraries
 target_link_libraries(SqModule Poco::Foundation Poco::Crypto Poco::Data Poco::Net Poco::JSON Poco::XML)
 # Does POCO have SQLite support?
