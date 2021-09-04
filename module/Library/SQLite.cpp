@@ -886,7 +886,7 @@ void SQLiteConnection::TraceOutput(void * /*ptr*/, const char * sql)
 // ------------------------------------------------------------------------------------------------
 void SQLiteConnection::ProfileOutput(void * /*ptr*/, const char * sql, sqlite3_uint64 time)
 {
-    LogInf("SQLite profile (time: %" PRINT_UINT_FMT "): %s", time, sql);
+    LogInf("SQLite profile (time: %llu): %s", time, sql);
 }
 
 // ------------------------------------------------------------------------------------------------
