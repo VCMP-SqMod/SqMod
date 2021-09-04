@@ -1380,7 +1380,7 @@ static bool LgUsingClasses()
 { return _Func->GetServerOption(vcmpServerOptionUseClasses) >= 1; }
 static void LgAddClass(int team, const Color3 & col, int skin, const Vector3 & pos, float angle,
                         int wep1, int ammo1, int wep2, int ammo2, int wep3, int ammo3)
-{ _Func->AddPlayerClass(team, col.GetRGBA(), skin, pos.x, pos.y, pos.z, angle, wep1, ammo1, wep2, ammo2, wep3, ammo3); }
+{ _Func->AddPlayerClass(team, col.GetRGB(), skin, pos.x, pos.y, pos.z, angle, wep1, ammo1, wep2, ammo2, wep3, ammo3); }
 // ------------------------------------------------------------------------------------------------
 static void LgSetSpawnPlayerPos(const Vector3 & pos) { _Func->SetSpawnPlayerPosition(pos.x, pos.y, pos.z); }
 static void LgSetSpawnCameraPos(const Vector3 & pos) { _Func->SetSpawnCameraPosition(pos.x, pos.y, pos.z); }
