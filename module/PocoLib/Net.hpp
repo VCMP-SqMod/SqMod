@@ -67,6 +67,7 @@ struct WsClient
               mRequest(Poco::Net::HTTPRequest::HTTP_GET, uri.ToStr(), Poco::Net::HTTPRequest::HTTP_1_1), mResponse(),
               mWebSocket(mClient, mRequest, mResponse), mBuffer(0), mFlags(0), mState(0)
     {
+        mWebSocket.setBlocking(false); // Disable blocking
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -106,7 +107,11 @@ struct WsClient
     LightObj RecvFrame()
     {
         // Attempt to receive data
-        mState = mWebSocket.receiveFrame(mBuffer, mFlags);
+        try {
+            mState = mWebSocket.receiveFrame(mBuffer, mFlags);
+        } catch (const Poco::TimeoutException &) {
+            return LightObj{}; // We handle timeout so we can be non blocking
+        }
         // If something was returned
         if (mState != 0)
         {
@@ -131,7 +136,11 @@ struct WsClient
     LightObj RecvStringFrame()
     {
         // Attempt to receive data
-        mState = mWebSocket.receiveFrame(mBuffer, mFlags);
+        try {
+            mState = mWebSocket.receiveFrame(mBuffer, mFlags);
+        } catch (const Poco::TimeoutException &) {
+            return LightObj{}; // We handle timeout so we can be non blocking
+        }
         // If something was returned
         if (mState != 0)
         {
@@ -144,6 +153,38 @@ struct WsClient
         }
         // Default to null
         return LightObj{};
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Receives a frame from the socket and return it as a buffer. Only invokes callback if response is valid.
+     * The frame's payload size must not exceed the maximum payload size set with SetMaxPayloadSize().
+    */
+    SQInteger RecvFrameIn(Function & cb)
+    {
+        auto obj = RecvFrame();
+        // Only invoke the callback if we have a valid response
+        if (mState != 0 || mFlags != 0)
+        {
+            cb(obj, mState, mFlags);
+        }
+        // Return result
+        return mState;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Receives a frame from the socket and return it as a string. Only invokes callback if response is valid.
+     * The frame's payload size must not exceed the maximum payload size set with SetMaxPayloadSize().
+    */
+    SQInteger RecvStringFrameIn(Function & cb)
+    {
+        auto obj = RecvStringFrame();
+        // Only invoke the callback if we have data response
+        if (mState != 0 || mFlags != 0)
+        {
+            cb(obj, mState, mFlags);
+        }
+        // Return result
+        return mState;
     }
 
     /* --------------------------------------------------------------------------------------------

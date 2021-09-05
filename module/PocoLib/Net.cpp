@@ -33,6 +33,8 @@ void Register_POCO_Net(HSQUIRRELVM vm, Table &)
         .FmtFunc(_SC("SendStringFrame"), &WsClient::SendStringFrame)
         .Func(_SC("RecvFrame"), &WsClient::RecvFrame)
         .Func(_SC("RecvStringFrame"), &WsClient::RecvStringFrame)
+        .CbFunc(_SC("RecvFrameIn"), &WsClient::RecvFrameIn)
+        .CbFunc(_SC("RecvStringFrameIn"), &WsClient::RecvStringFrameIn)
     );
     // --------------------------------------------------------------------------------------------
     RootTable(vm).Bind(_SC("SqNet"), ns);
