@@ -62,7 +62,7 @@ struct WsClient
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    WsClient(StackStrF &host, uint16_t port, StackStrF &uri)
+    WsClient(StackStrF & host, uint16_t port, StackStrF & uri)
             : mClient(host.ToStr(), port),
               mRequest(Poco::Net::HTTPRequest::HTTP_GET, uri.ToStr(), Poco::Net::HTTPRequest::HTTP_1_1), mResponse(),
               mWebSocket(mClient, mRequest, mResponse), mBuffer(0), mFlags(0), mState(0)
@@ -79,7 +79,7 @@ struct WsClient
     /* --------------------------------------------------------------------------------------------
      * Sends a Close control frame to the server end of the connection to initiate an orderly shutdown of the connection.
     */
-    void ShutdownWith(SQInteger code, StackStrF &msg) {
+    void ShutdownWith(SQInteger code, StackStrF & msg) {
         mWebSocket.shutdown(static_cast< uint16_t >(code), msg.ToStr());
     }
 
@@ -95,7 +95,7 @@ struct WsClient
      * Sends the contents of the given string through the socket as a single frame.
      * Returns the number of bytes sent, which may be less than the number of bytes specified.
     */
-    SQInteger SendStringFrame(SQInteger flags, StackStrF &str) {
+    SQInteger SendStringFrame(SQInteger flags, StackStrF & str) {
         return mWebSocket.sendFrame(str.mPtr, static_cast< int >(str.mLen), static_cast< int >(flags));
     }
 
@@ -136,9 +136,7 @@ struct WsClient
         if (mState != 0)
         {
             // Create a string with buffer contents
-            LightObj obj(SqTypeIdentity< SqBuffer >{}, SqVM(),
-                            const_cast< const SQChar * >(mBuffer.begin()),
-                            static_cast< SQInteger >(mBuffer.sizeBytes()));
+            LightObj obj(const_cast< const SQChar * >(mBuffer.begin()), static_cast< SQInteger >(mBuffer.sizeBytes()), SqVM());
             // Discard buffer contents for next request
             mBuffer.resize(0);
             // Return the string object

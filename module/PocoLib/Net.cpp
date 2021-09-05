@@ -56,8 +56,8 @@ void Register_POCO_Net(HSQUIRRELVM vm, Table &)
     );
     // --------------------------------------------------------------------------------------------
     ConstTable(vm).Enum(_SC("SqWsSendFlags"), Enumeration(vm)
-        .Const(_SC("TEXT"),     static_cast< SQInteger >(Poco::Net::WebSocket::FRAME_TEXT))
-        .Const(_SC("BINARY"),   static_cast< SQInteger >(Poco::Net::WebSocket::FRAME_BINARY))
+        .Const(_SC("Text"),     static_cast< SQInteger >(Poco::Net::WebSocket::FRAME_TEXT))
+        .Const(_SC("Binary"),   static_cast< SQInteger >(Poco::Net::WebSocket::FRAME_BINARY))
     );
     // --------------------------------------------------------------------------------------------
     ConstTable(vm).Enum(_SC("SqWsStatusCodes"), Enumeration(vm)
@@ -76,7 +76,7 @@ void Register_POCO_Net(HSQUIRRELVM vm, Table &)
         .Const(_SC("ReservedTlsFailure"),       static_cast< SQInteger >(Poco::Net::WebSocket::WS_RESERVED_TLS_FAILURE))
     );
     // --------------------------------------------------------------------------------------------
-    ConstTable(vm).Enum(_SC("SqWsSendFlags"), Enumeration(vm)
+    ConstTable(vm).Enum(_SC("SqWsErrorCodes"), Enumeration(vm)
         .Const(_SC("NoHandshake"),                  static_cast< SQInteger >(Poco::Net::WebSocket::WS_ERR_NO_HANDSHAKE))
         .Const(_SC("HandshakeNoVersion"),           static_cast< SQInteger >(Poco::Net::WebSocket::WS_ERR_HANDSHAKE_NO_VERSION))
         .Const(_SC("HandshakeUnsupportedVersion"),  static_cast< SQInteger >(Poco::Net::WebSocket::WS_ERR_HANDSHAKE_UNSUPPORTED_VERSION))
