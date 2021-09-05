@@ -259,6 +259,16 @@ public:
 		swap(_ownMem, other._ownMem);
 	}
 
+	T* steal()
+	/// Releases ownership of the buffer. Whoever gets hold of the buffer must invoke delete [] on it.
+	{
+		T* ptr = _ptr;
+		_ptr = 0;
+		_capacity = _used = 0; // Retrieve this before calling this method
+		_ownMem = false; // Consult this before calling this method
+		return ptr;
+	}
+
 	bool operator == (const Buffer& other) const
 		/// Compare operator.
 	{
