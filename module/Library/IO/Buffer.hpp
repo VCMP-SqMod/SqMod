@@ -178,7 +178,7 @@ public:
     */
     Buffer & Valid() const
     {
-        Valid();
+        Validate();
         // Return the buffer
         return *m_Buffer;
     }
