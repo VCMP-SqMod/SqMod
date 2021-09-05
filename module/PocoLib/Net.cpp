@@ -10,6 +10,12 @@ namespace SqMod {
 // ------------------------------------------------------------------------------------------------
 SQMOD_DECL_TYPENAME(SqWsClient, _SC("SqWsClient"))
 
+// ------------------------------------------------------------------------------------------------
+void TerminatePocoNet()
+{
+
+}
+
 // ================================================================================================
 void Register_POCO_Net(HSQUIRRELVM vm, Table &)
 {
@@ -25,8 +31,12 @@ void Register_POCO_Net(HSQUIRRELVM vm, Table &)
         .Var(_SC("Flags"), &WsClient::mFlags)
         .Var(_SC("State"), &WsClient::mState)
         // Properties
+        .Prop(_SC("Tag"), &WsClient::GetTag, &WsClient::SetTag)
+        .Prop(_SC("Data"), &WsClient::GetData, &WsClient::SetData)
         .Prop(_SC("MaxPayloadSize"), &WsClient::GetMaxPayloadSize, &WsClient::SetMaxPayloadSize)
         // Member Methods
+        .FmtFunc(_SC("SetTag"), &WsClient::ApplyTag)
+        .FmtFunc(_SC("SetData"), &WsClient::ApplyData)
         .Func(_SC("Shutdown"), &WsClient::Shutdown)
         .FmtFunc(_SC("ShutdownWith"), &WsClient::ShutdownWith)
         .Func(_SC("SendFrame"), &WsClient::SendFrame)

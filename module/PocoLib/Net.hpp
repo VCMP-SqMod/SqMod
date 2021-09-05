@@ -6,12 +6,21 @@
 
 // ------------------------------------------------------------------------------------------------
 #include <vector>
+#include <utility>
+#include <algorithm>
 
 // ------------------------------------------------------------------------------------------------
+#include <Poco/Thread.h>
+#include <Poco/AutoPtr.h>
+#include <Poco/Runnable.h>
+#include <Poco/Observer.h>
+#include <Poco/NObserver.h>
 #include <Poco/Net/HTTPRequest.h>
 #include <Poco/Net/HTTPResponse.h>
 #include <Poco/Net/HTTPMessage.h>
 #include <Poco/Net/HTTPClientSession.h>
+#include <Poco/Net/SocketAcceptor.h>
+#include <Poco/Net/SocketReactor.h>
 #include <Poco/Net/WebSocket.h>
 
 // ------------------------------------------------------------------------------------------------
@@ -22,6 +31,34 @@ namespace SqMod {
 */
 struct WsClient
 {
+
+    /* --------------------------------------------------------------------------------------------
+     * Flags received in the last call to Recv[String]Frame() (will be overwritten on next call).
+    */
+    int mFlags{0};
+
+    /* --------------------------------------------------------------------------------------------
+     * Return value from the last call to Recv[String]Frame() (will be overwritten on next call).
+     * A return value of 0, with flags also 0, means that the peer has shut down or closed the connection.
+     * A return value of 0, with non-zero flags, indicates an reception of an empty frame (e.g., in case of a PING).
+    */
+    int mState{0};
+
+    /* --------------------------------------------------------------------------------------------
+     * Receiving buffer instance.
+    */
+    Poco::Buffer< char > mBuffer;
+
+    /* --------------------------------------------------------------------------------------------
+     * User tag associated with this instance.
+    */
+    String mTag;
+
+    /* --------------------------------------------------------------------------------------------
+     * User data associated with this instance.
+    */
+    LightObj mData;
+
     /* --------------------------------------------------------------------------------------------
      * HTTP client session instance.
     */
@@ -40,64 +77,110 @@ struct WsClient
     /* --------------------------------------------------------------------------------------------
      * WebSocket instance.
     */
-    Poco::Net::WebSocket mWebSocket;
-
-    /* --------------------------------------------------------------------------------------------
-     * Receiving buffer instance.
-    */
-    Poco::Buffer< char > mBuffer;
-
-    /* --------------------------------------------------------------------------------------------
-     * Flags received in the last call to Recv[String]Frame() (will be overwritten on next call).
-    */
-    int mFlags{0};
-
-    /* --------------------------------------------------------------------------------------------
-     * Return value from the last call to Recv[String]Frame() (will be overwritten on next call).
-     * A return value of 0, with flags also 0, means that the peer has shut down or closed the connection.
-     * A return value of 0, with non-zero flags, indicates an reception of an empty frame (e.g., in case of a PING).
-    */
-    int mState{0};
+    Poco::Net::WebSocket mSocket;
 
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
     WsClient(StackStrF & host, uint16_t port, StackStrF & uri)
-            : mClient(host.ToStr(), port),
-              mRequest(Poco::Net::HTTPRequest::HTTP_GET, uri.ToStr(), Poco::Net::HTTPRequest::HTTP_1_1), mResponse(),
-              mWebSocket(mClient, mRequest, mResponse), mBuffer(0), mFlags(0), mState(0)
+        : mFlags(0), mState(0), mBuffer(0), mTag(), mData()
+        , mClient(host.ToStr(), port)
+        , mRequest(Poco::Net::HTTPRequest::HTTP_GET, uri.ToStr(), Poco::Net::HTTPRequest::HTTP_1_1)
+        , mResponse()
+        , mSocket(mClient, mRequest, mResponse)
     {
-        mWebSocket.setBlocking(false); // Disable blocking
+        mSocket.setBlocking(false); // Disable blocking
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated user tag.
+    */
+    SQMOD_NODISCARD const String & GetTag() const
+    {
+        return mTag;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated user tag.
+    */
+    void SetTag(StackStrF & tag)
+    {
+        if (tag.mLen > 0)
+        {
+            mTag.assign(tag.mPtr, static_cast< size_t >(tag.mLen));
+        }
+        else
+        {
+            mTag.clear();
+        }
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated user tag.
+    */
+    WsClient & ApplyTag(StackStrF & tag)
+    {
+        SetTag(tag);
+        return *this;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated user data.
+    */
+    SQMOD_NODISCARD LightObj & GetData()
+    {
+        return mData;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated user data.
+    */
+    void SetData(LightObj & data)
+    {
+        mData = data;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated user data.
+    */
+    WsClient & ApplyData(LightObj & data)
+    {
+        mData = data;
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
      * Sends a Close control frame to the server end of the connection to initiate an orderly shutdown of the connection.
     */
-    void Shutdown() {
-        mWebSocket.shutdown();
+    void Shutdown()
+    {
+        mSocket.shutdown();
     }
 
     /* --------------------------------------------------------------------------------------------
      * Sends a Close control frame to the server end of the connection to initiate an orderly shutdown of the connection.
     */
-    void ShutdownWith(SQInteger code, StackStrF & msg) {
-        mWebSocket.shutdown(static_cast< uint16_t >(code), msg.ToStr());
+    void ShutdownWith(SQInteger code, StackStrF & msg)
+    {
+        mSocket.shutdown(static_cast< uint16_t >(code), msg.ToStr());
     }
 
     /* --------------------------------------------------------------------------------------------
      * Sends the contents of the given buffer through the socket as a single frame.
      * Returns the number of bytes sent, which may be less than the number of bytes specified.
     */
-    SQInteger SendFrame(SqBuffer & buf, SQInteger flags) {
-        return mWebSocket.sendFrame(buf.Valid().Data(), static_cast< int >(buf.Valid().Position()), static_cast< int >(flags));
+    SQInteger SendFrame(SqBuffer & buf, SQInteger flags)
+    {
+        return mSocket.sendFrame(buf.Valid().Data(), static_cast< int >(buf.Valid().Position()), static_cast< int >(flags));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Sends the contents of the given string through the socket as a single frame.
      * Returns the number of bytes sent, which may be less than the number of bytes specified.
     */
-    SQInteger SendStringFrame(SQInteger flags, StackStrF & str) {
-        return mWebSocket.sendFrame(str.mPtr, static_cast< int >(str.mLen), static_cast< int >(flags));
+    SQInteger SendStringFrame(SQInteger flags, StackStrF & str)
+    {
+        return mSocket.sendFrame(str.mPtr, static_cast< int >(str.mLen), static_cast< int >(flags));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -108,7 +191,7 @@ struct WsClient
     {
         // Attempt to receive data
         try {
-            mState = mWebSocket.receiveFrame(mBuffer, mFlags);
+            mState = mSocket.receiveFrame(mBuffer, mFlags);
         } catch (const Poco::TimeoutException &) {
             mState = mFlags = 0; // Make sure these don't indicate otherwise
             return LightObj{}; // We handle timeout so we can be non blocking
@@ -138,7 +221,7 @@ struct WsClient
     {
         // Attempt to receive data
         try {
-            mState = mWebSocket.receiveFrame(mBuffer, mFlags);
+            mState = mSocket.receiveFrame(mBuffer, mFlags);
         } catch (const Poco::TimeoutException &) {
             mState = mFlags = 0; // Make sure these don't indicate otherwise
             return LightObj{}; // We handle timeout so we can be non blocking
@@ -194,7 +277,7 @@ struct WsClient
     */
     WsClient & SetMaxPayloadSize(SQInteger size)
     {
-        mWebSocket.setMaxPayloadSize(static_cast< int >(size));
+        mSocket.setMaxPayloadSize(static_cast< int >(size));
         return *this;
     }
 
@@ -203,7 +286,7 @@ struct WsClient
     */
     SQMOD_NODISCARD SQInteger GetMaxPayloadSize() const
     {
-        return mWebSocket.getMaxPayloadSize();
+        return mSocket.getMaxPayloadSize();
     }
 };
 
