@@ -22,19 +22,13 @@ SQMOD_DECL_TYPENAME(Typename, _SC("SqBuffer"))
 // ------------------------------------------------------------------------------------------------
 void SqBuffer::WriteInt64(const SLongInt & val)
 {
-    // Validate the managed buffer reference
-    Validate();
-    // Perform the requested operation
-    m_Buffer->Push< int64_t >(val.GetNum());
+    Valid().Push< int64_t >(val.GetNum());
 }
 
 // ------------------------------------------------------------------------------------------------
 void SqBuffer::WriteUint64(const ULongInt & val)
 {
-    // Validate the managed buffer reference
-    Validate();
-    // Perform the requested operation
-    m_Buffer->Push< uint64_t >(val.GetNum());
+    Valid().Push< uint64_t >(val.GetNum());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -83,91 +77,61 @@ SQInteger SqBuffer::WriteClientString(StackStrF & val)
 // ------------------------------------------------------------------------------------------------
 void SqBuffer::WriteAABB(const AABB & val)
 {
-    // Validate the managed buffer reference
-    Validate();
-    // Perform the requested operation
-    m_Buffer->Push< AABB >(val);
+    Valid().Push< AABB >(val);
 }
 
 // ------------------------------------------------------------------------------------------------
 void SqBuffer::WriteCircle(const Circle & val)
 {
-    // Validate the managed buffer reference
-    Validate();
-    // Perform the requested operation
-    m_Buffer->Push< Circle >(val);
+    Valid().Push< Circle >(val);
 }
 
 // ------------------------------------------------------------------------------------------------
 void SqBuffer::WriteColor3(const Color3 & val)
 {
-    // Validate the managed buffer reference
-    Validate();
-    // Perform the requested operation
-    m_Buffer->Push< Color3 >(val);
+    Valid().Push< Color3 >(val);
 }
 
 // ------------------------------------------------------------------------------------------------
 void SqBuffer::WriteColor4(const Color4 & val)
 {
-    // Validate the managed buffer reference
-    Validate();
-    // Perform the requested operation
-    m_Buffer->Push< Color4 >(val);
+    Valid().Push< Color4 >(val);
 }
 
 // ------------------------------------------------------------------------------------------------
 void SqBuffer::WriteQuaternion(const Quaternion & val)
 {
-    // Validate the managed buffer reference
-    Validate();
-    // Perform the requested operation
-    m_Buffer->Push< Quaternion >(val);
+    Valid().Push< Quaternion >(val);
 }
 
 // ------------------------------------------------------------------------------------------------
 void SqBuffer::WriteSphere(const Sphere &val)
 {
-    // Validate the managed buffer reference
-    Validate();
-    // Perform the requested operation
-    m_Buffer->Push< Sphere >(val);
+    Valid().Push< Sphere >(val);
 }
 
 // ------------------------------------------------------------------------------------------------
 void SqBuffer::WriteVector2(const Vector2 & val)
 {
-    // Validate the managed buffer reference
-    Validate();
-    // Perform the requested operation
-    m_Buffer->Push< Vector2 >(val);
+    Valid().Push< Vector2 >(val);
 }
 
 // ------------------------------------------------------------------------------------------------
 void SqBuffer::WriteVector2i(const Vector2i & val)
 {
-    // Validate the managed buffer reference
-    Validate();
-    // Perform the requested operation
-    m_Buffer->Push< Vector2i >(val);
+    Valid().Push< Vector2i >(val);
 }
 
 // ------------------------------------------------------------------------------------------------
 void SqBuffer::WriteVector3(const Vector3 & val)
 {
-    // Validate the managed buffer reference
-    Validate();
-    // Perform the requested operation
-    m_Buffer->Push< Vector3 >(val);
+    Valid().Push< Vector3 >(val);
 }
 
 // ------------------------------------------------------------------------------------------------
 void SqBuffer::WriteVector4(const Vector4 & val)
 {
-    // Validate the managed buffer reference
-    Validate();
-    // Perform the requested operation
-    m_Buffer->Push< Vector4 >(val);
+    Valid().Push< Vector4 >(val);
 }
 
 // ------------------------------------------------------------------------------------------------

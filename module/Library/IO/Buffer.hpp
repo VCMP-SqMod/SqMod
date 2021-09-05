@@ -45,7 +45,6 @@ public:
     SqBuffer()
         : m_Buffer(new Buffer())
     {
-        /* ... */
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -54,7 +53,6 @@ public:
     explicit SqBuffer(SQInteger n)
         : m_Buffer(new Buffer(ConvTo< SzType >::From(n)))
     {
-        /* ... */
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -63,7 +61,6 @@ public:
     SqBuffer(SQInteger n, SQInteger c)
         : m_Buffer(new Buffer(ConvTo< SzType >::From(n), ConvTo< SzType >::From(c)))
     {
-        /* ... */
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -72,7 +69,6 @@ public:
     SqBuffer(ConstPtr p, SQInteger n)
         : m_Buffer(new Buffer(p, ConvTo< SzType >::From(n)))
     {
-        /* ... */
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -81,7 +77,6 @@ public:
     SqBuffer(ConstPtr p, SQInteger n, SQInteger c)
         : m_Buffer(new Buffer(p, ConvTo< SzType >::From(n), ConvTo< SzType >::From(c)))
     {
-        /* ... */
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -90,7 +85,6 @@ public:
     explicit SqBuffer(const SRef & ref) // NOLINT(modernize-pass-by-value)
         : m_Buffer(ref)
     {
-        /* ... */
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -99,7 +93,6 @@ public:
     explicit SqBuffer(const Buffer & b)
         : m_Buffer(new Buffer(b))
     {
-        /* ... */
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -108,7 +101,6 @@ public:
     explicit SqBuffer(Buffer && b)
         : m_Buffer(new Buffer(std::move(b)))
     {
-        /* ... */
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -182,14 +174,31 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Validate the managed memory buffer reference.
+    */
+    Buffer & Valid() const
+    {
+        Valid();
+        // Return the buffer
+        return *m_Buffer;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed memory buffer reference and the buffer itself.
+    */
+    Buffer & ValidDeeper() const
+    {
+        ValidateDeeper();
+        // Return the buffer
+        return *m_Buffer;
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve a certain element type at the specified position.
     */
     SQMOD_NODISCARD Value Get(SQInteger n) const
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Return the requested element
-        return m_Buffer->At(ConvTo< SzType >::From(n));
+        return Valid().At(ConvTo< SzType >::From(n));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -197,10 +206,7 @@ public:
     */
     void Set(SQInteger n, SQInteger v)
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Return the requested element
-        m_Buffer->At(ConvTo< SzType >::From(n)) = ConvTo< Value >::From(v);
+        Valid().At(ConvTo< SzType >::From(n)) = ConvTo< Value >::From(v);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -208,10 +214,7 @@ public:
     */
     SQMOD_NODISCARD Value GetFront() const
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Return the requested element
-        return m_Buffer->Front();
+        return Valid().Front();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -219,10 +222,7 @@ public:
     */
     void SetFront(SQInteger v)
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Return the requested element
-        m_Buffer->Front() = ConvTo< Value >::From(v);
+        Valid().Front() = ConvTo< Value >::From(v);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -230,10 +230,7 @@ public:
     */
     SQMOD_NODISCARD Value GetNext() const
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Return the requested element
-        return m_Buffer->Next();
+        return Valid().Next();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -241,10 +238,7 @@ public:
     */
     void SetNext(SQInteger v)
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Return the requested element
-        m_Buffer->Next() = ConvTo< Value >::From(v);
+        Valid().Next() = ConvTo< Value >::From(v);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -252,10 +246,7 @@ public:
     */
     SQMOD_NODISCARD Value GetBack() const
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Return the requested element
-        return m_Buffer->Back();
+        return Valid().Back();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -263,10 +254,7 @@ public:
     */
     void SetBack(SQInteger v)
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Return the requested element
-        m_Buffer->Back() = ConvTo< Value >::From(v);
+        Valid().Back() = ConvTo< Value >::From(v);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -274,10 +262,7 @@ public:
     */
     SQMOD_NODISCARD Value GetPrev() const
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Return the requested element
-        return m_Buffer->Prev();
+        return Valid().Prev();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -285,10 +270,7 @@ public:
     */
     void SetPrev(SQInteger v)
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Return the requested element
-        m_Buffer->Prev() = ConvTo< Value >::From(v);
+        Valid().Prev() = ConvTo< Value >::From(v);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -296,10 +278,7 @@ public:
     */
     void Advance(SQInteger n)
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Perform the requested operation
-        m_Buffer->Advance(ConvTo< SzType >::From(n));
+        Valid().Advance(ConvTo< SzType >::From(n));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -307,10 +286,7 @@ public:
     */
     void Retreat(SQInteger n)
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Perform the requested operation
-        m_Buffer->Retreat(ConvTo< SzType >::From(n));
+        Valid().Retreat(ConvTo< SzType >::From(n));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -318,10 +294,7 @@ public:
     */
     void Move(SQInteger n)
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Perform the requested operation
-        m_Buffer->Move(ConvTo< SzType >::From(n));
+        Valid().Move(ConvTo< SzType >::From(n));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -329,10 +302,7 @@ public:
     */
     void Push(SQInteger v)
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Perform the requested operation
-        m_Buffer->Push(ConvTo< Value >::From(v));
+        Valid().Push(ConvTo< Value >::From(v));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -340,10 +310,7 @@ public:
     */
     SQMOD_NODISCARD Value GetCursor() const
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Return the requested element
-        return m_Buffer->Cursor();
+        return Valid().Cursor();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -351,10 +318,7 @@ public:
     */
     void SetCursor(SQInteger v)
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Return the requested element
-        m_Buffer->Cursor() = ConvTo< Value >::From(v);
+        Valid().Cursor() = ConvTo< Value >::From(v);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -362,10 +326,7 @@ public:
     */
     SQMOD_NODISCARD Value GetBefore() const
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Return the requested element
-        return m_Buffer->Before();
+        return Valid().Before();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -373,10 +334,7 @@ public:
     */
     void SetBefore(SQInteger v)
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Return the requested element
-        m_Buffer->Before() = ConvTo< Value >::From(v);
+        Valid().Before() = ConvTo< Value >::From(v);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -384,10 +342,7 @@ public:
     */
     SQMOD_NODISCARD Value GetAfter() const
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Return the requested element
-        return m_Buffer->After();
+        return Valid().After();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -395,10 +350,7 @@ public:
     */
     void SetAfter(SQInteger v)
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Return the requested element
-        m_Buffer->After() = ConvTo< Value >::From(v);
+        Valid().After() = ConvTo< Value >::From(v);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -414,10 +366,7 @@ public:
     */
     SQMOD_NODISCARD SzType GetSize() const
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Return the requested information
-        return m_Buffer->CapacityAs< Value >();
+        return Valid().CapacityAs< Value >();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -425,10 +374,7 @@ public:
     */
     SQMOD_NODISCARD SzType GetCapacity() const
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Return the requested information
-        return m_Buffer->Capacity();
+        return Valid().Capacity();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -436,10 +382,7 @@ public:
     */
     SQMOD_NODISCARD SzType GetPosition() const
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Return the requested information
-        return m_Buffer->Position();
+        return Valid().Position();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -447,10 +390,7 @@ public:
     */
     SQMOD_NODISCARD SzType GetRemaining() const
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Return the requested information
-        return m_Buffer->Remaining();
+        return Valid().Remaining();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -458,10 +398,7 @@ public:
     */
     void Grow(SQInteger n)
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Perform the requested operation
-        return m_Buffer->Grow(ConvTo< SzType >::From(n) * sizeof(Value));
+        return Valid().Grow(ConvTo< SzType >::From(n) * sizeof(Value));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -490,10 +427,7 @@ public:
     */
     void WriteInt8(SQInteger val)
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Perform the requested operation
-        m_Buffer->Push< int8_t >(ConvTo< int8_t >::From(val));
+        Valid().Push< int8_t >(ConvTo< int8_t >::From(val));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -501,10 +435,7 @@ public:
     */
     void WriteUint8(SQInteger val)
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Perform the requested operation
-        m_Buffer->Push< uint8_t >(ConvTo< uint8_t >::From(val));
+        Valid().Push< uint8_t >(ConvTo< uint8_t >::From(val));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -512,10 +443,7 @@ public:
     */
     void WriteInt16(SQInteger val)
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Perform the requested operation
-        m_Buffer->Push< int16_t >(ConvTo< int16_t >::From(val));
+        Valid().Push< int16_t >(ConvTo< int16_t >::From(val));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -523,10 +451,7 @@ public:
     */
     void WriteUint16(SQInteger val)
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Perform the requested operation
-        m_Buffer->Push< uint16_t >(ConvTo< uint16_t >::From(val));
+        Valid().Push< uint16_t >(ConvTo< uint16_t >::From(val));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -534,10 +459,7 @@ public:
     */
     void WriteInt32(SQInteger val)
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Perform the requested operation
-        m_Buffer->Push< int32_t >(ConvTo< int32_t >::From(val));
+        Valid().Push< int32_t >(ConvTo< int32_t >::From(val));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -545,10 +467,7 @@ public:
     */
     void WriteUint32(SQInteger val)
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Perform the requested operation
-        m_Buffer->Push< uint32_t >(ConvTo< uint32_t >::From(val));
+        Valid().Push< uint32_t >(ConvTo< uint32_t >::From(val));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -566,10 +485,7 @@ public:
     */
     void WriteFloat32(SQFloat val)
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Perform the requested operation
-        m_Buffer->Push< float >(ConvTo< float >::From(val));
+        Valid().Push< float >(ConvTo< float >::From(val));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -577,10 +493,7 @@ public:
     */
     void WriteFloat64(SQFloat val)
     {
-        // Validate the managed buffer reference
-        Validate();
-        // Perform the requested operation
-        m_Buffer->Push< double >(ConvTo< double >::From(val));
+        Valid().Push< double >(ConvTo< double >::From(val));
     }
 
     /* --------------------------------------------------------------------------------------------
