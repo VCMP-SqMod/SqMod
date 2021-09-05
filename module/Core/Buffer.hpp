@@ -148,6 +148,7 @@ public:
         : m_Ptr(o.m_Ptr), m_Cap(o.m_Cap), m_Cur(o.m_Cur)
     {
         o.m_Ptr = nullptr;
+        o.m_Cap = o.m_Cur = 0;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -175,6 +176,7 @@ public:
             m_Cap = o.m_Cap;
             m_Cur = o.m_Cur;
             o.m_Ptr = nullptr;
+            o.m_Cap = o.m_Cur = 0;
         }
         return *this;
     }
@@ -854,6 +856,17 @@ public:
     void AppendS(const char * str, SzType size)
     {
         m_Cur += Write(m_Cur, str, size);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Steal ownership of the internal memory buffer. Whoever gets hold of the buffer must invoke delete [] on it.
+    */
+    SQMOD_NODISCARD Pointer Steal()
+    {
+        Pointer ptr = m_Ptr;
+        m_Ptr = nullptr;
+        m_Cap = m_Cur = 0; // Save this before calling this method
+        return ptr;
     }
 
 protected:
