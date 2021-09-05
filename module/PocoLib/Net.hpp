@@ -110,6 +110,7 @@ struct WsClient
         try {
             mState = mWebSocket.receiveFrame(mBuffer, mFlags);
         } catch (const Poco::TimeoutException &) {
+            mState = mFlags = 0; // Make sure these don't indicate otherwise
             return LightObj{}; // We handle timeout so we can be non blocking
         }
         // If something was returned
@@ -139,6 +140,7 @@ struct WsClient
         try {
             mState = mWebSocket.receiveFrame(mBuffer, mFlags);
         } catch (const Poco::TimeoutException &) {
+            mState = mFlags = 0; // Make sure these don't indicate otherwise
             return LightObj{}; // We handle timeout so we can be non blocking
         }
         // If something was returned
