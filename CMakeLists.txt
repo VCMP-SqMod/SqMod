@@ -93,10 +93,9 @@ else()
     endif()
 endif()
 
-# Determine if build mode
-if(${CMAKE_BUILD_TYPE} MATCHES "(Debug)+")
-    add_compile_options(-g)
-endif()
+# Strip binary
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s -g")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s -g")
 
 # Enable position independent code
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
