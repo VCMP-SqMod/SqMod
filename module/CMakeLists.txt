@@ -175,6 +175,8 @@ if(${CMAKE_BUILD_TYPE} MATCHES "(Release)+")
 else()
     target_compile_definitions(SqModule PRIVATE _DEBUG=1 SQMOD_EXCEPTLOC=1)
 endif()
+# Strip binary
+set_target_properties(SqModule PROPERTIES LINK_FLAGS_RELEASE -s)
 # Force 32-bit binaries when necessary
 if(FORCE_32BIT_BIN)
     set_target_properties(SqModule PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
