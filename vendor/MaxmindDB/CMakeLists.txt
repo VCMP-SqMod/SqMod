@@ -86,17 +86,16 @@ set(MAXMINDB_HEADERS
 )
 set_target_properties(maxminddb PROPERTIES PUBLIC_HEADER "${MAXMINDB_HEADERS}")
 
-install(TARGETS maxminddb
-	EXPORT maxminddb)
+#install(TARGETS maxminddb EXPORT maxminddb)
 
 # This is required to work with FetchContent
-install(EXPORT maxminddb
-        FILE maxminddb-config.cmake
-        NAMESPACE maxminddb::
-        DESTINATION lib/cmake/maxminddb)
+# install(EXPORT maxminddb
+#         FILE maxminddb-config.cmake
+#         NAMESPACE maxminddb::
+#         DESTINATION lib/cmake/maxminddb)
 
 # We always want to build mmdblookup
-add_subdirectory(bin)
+#add_subdirectory(bin)
 
 if (BUILD_TESTING)
   enable_testing()
