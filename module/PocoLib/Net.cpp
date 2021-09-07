@@ -17,9 +17,8 @@ void TerminatePocoNet()
 }
 
 // ================================================================================================
-void Register_POCO_Net(HSQUIRRELVM vm, Table &)
+void Register_POCO_Net(HSQUIRRELVM vm, Table & ns)
 {
-    Table ns(vm);
     // --------------------------------------------------------------------------------------------
     ns.Bind(_SC("WsClient"),
         Class< WsClient, NoCopy< WsClient > >(ns.GetVM(), SqWsClient::Str)
@@ -46,8 +45,6 @@ void Register_POCO_Net(HSQUIRRELVM vm, Table &)
         .CbFunc(_SC("RecvFrameIn"), &WsClient::RecvFrameIn)
         .CbFunc(_SC("RecvStringFrameIn"), &WsClient::RecvStringFrameIn)
     );
-    // --------------------------------------------------------------------------------------------
-    RootTable(vm).Bind(_SC("SqNet"), ns);
     // --------------------------------------------------------------------------------------------
     ConstTable(vm).Enum(_SC("SqWsFrameFlags"), Enumeration(vm)
         .Const(_SC("FIN"),      static_cast< SQInteger >(Poco::Net::WebSocket::FRAME_FLAG_FIN))
