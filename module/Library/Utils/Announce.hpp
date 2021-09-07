@@ -40,8 +40,9 @@ using Poco::StreamCopier;
 /* ------------------------------------------------------------------------------------------------
  * Helper utility that can be used to announce the server to a master-list.
 */
-struct SqAnnouncer : SqChainedInstances< SqAnnouncer >
+struct SqAnnouncer : public SqChainedInstances< SqAnnouncer >
 {
+    using Base = SqChainedInstances< SqAnnouncer >;
     /* --------------------------------------------------------------------------------------------
      * Announcer status.
     */
@@ -114,7 +115,7 @@ struct SqAnnouncer : SqChainedInstances< SqAnnouncer >
      * Explicit constructor.
     */
     SqAnnouncer(SQInteger interval, StackStrF & uri)
-        : mRun(false), mLog(true)
+        : Base(), mRun(false), mLog(true)
         , mCount(0)
         , mSuccess(0)
         , mFailures(0)
@@ -125,8 +126,7 @@ struct SqAnnouncer : SqChainedInstances< SqAnnouncer >
         , mURI(uri.mPtr)
         , mMtx(), mThread()
     {
-        // Remember this instance
-        ChainInstance();
+        ChainInstance(); // Remember this instance
     }
 
     /* --------------------------------------------------------------------------------------------
