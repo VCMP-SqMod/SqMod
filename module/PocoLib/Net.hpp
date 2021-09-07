@@ -31,7 +31,6 @@ namespace SqMod {
 */
 struct WsClient
 {
-
     /* --------------------------------------------------------------------------------------------
      * Flags received in the last call to Recv[String]Frame() (will be overwritten on next call).
     */
@@ -47,17 +46,17 @@ struct WsClient
     /* --------------------------------------------------------------------------------------------
      * Receiving buffer instance.
     */
-    Poco::Buffer< char > mBuffer;
+    Poco::Buffer< char > mBuffer{0};
 
     /* --------------------------------------------------------------------------------------------
      * User tag associated with this instance.
     */
-    String mTag;
+    String mTag{};
 
     /* --------------------------------------------------------------------------------------------
      * User data associated with this instance.
     */
-    LightObj mData;
+    LightObj mData{};
 
     /* --------------------------------------------------------------------------------------------
      * HTTP client session instance.
