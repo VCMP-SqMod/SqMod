@@ -18,10 +18,12 @@ static bool g_Reload = false;
 
 // ------------------------------------------------------------------------------------------------
 //extern void InitExports();
+extern void InitializeNet();
 extern void InitializePocoDataConnectors();
 extern void ProcessRoutines();
 extern void ProcessTasks();
 extern void ProcessThreads();
+extern void ProcessNet();
 
 /* ------------------------------------------------------------------------------------------------
  * Will the scripts be reloaded at the end of the current event?
@@ -168,6 +170,8 @@ static void OnServerFrame(float elapsed_time)
     ProcessTasks();
     // Process threads
     ProcessThreads();
+    // Process network
+    ProcessNet();
     // Process log messages from other threads
     Logger::Get().ProcessQueue();
     // See if a reload was requested
@@ -991,6 +995,7 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
     try
     {
         // External plugs that need to happen (once) before initialization
+        InitializeNet();
         InitializePocoDataConnectors();
         // Proceed with plug-in initialization
         if (!Core::Get().Initialize())

@@ -37,6 +37,7 @@ extern void Register_Format(HSQUIRRELVM vm);
 extern void Register_IO(HSQUIRRELVM vm);
 extern void Register_JSON(HSQUIRRELVM vm);
 extern void Register_MMDB(HSQUIRRELVM vm);
+extern void Register_Net(HSQUIRRELVM vm);
 extern void Register_Numeric(HSQUIRRELVM vm);
 extern void Register_String(HSQUIRRELVM vm);
 extern void Register_System(HSQUIRRELVM vm);
@@ -102,6 +103,7 @@ bool RegisterAPI(HSQUIRRELVM vm)
     Register_IO(vm);
     Register_JSON(vm);
     Register_MMDB(vm);
+    Register_Net(vm);
     Register_Numeric(vm);
     Register_String(vm);
     Register_System(vm);

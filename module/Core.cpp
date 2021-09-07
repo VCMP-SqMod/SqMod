@@ -48,6 +48,7 @@ extern void TerminatePrivileges();
 extern void TerminateRoutines();
 extern void TerminateCommands();
 extern void TerminateSignals();
+extern void TerminateNet();
 extern void TerminatePocoNet();
 extern void TerminatePocoData();
 
@@ -548,6 +549,9 @@ void Core::Terminate(bool shutdown)
     // Release announcers
     AnnounceTerminate();
     cLogDbg(m_Verbosity >= 1, "Announcer terminated");
+    // Release network
+    TerminateNet();
+    cLogDbg(m_Verbosity >= 1, "Network terminated");
     // Release Poco statement results
     TerminatePocoNet();
     TerminatePocoData();
