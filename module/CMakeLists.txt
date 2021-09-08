@@ -105,13 +105,11 @@ add_library(SqModule MODULE SqBase.hpp Main.cpp
     # POCO
     PocoLib/Crypto.cpp PocoLib/Crypto.hpp
     PocoLib/Data.cpp PocoLib/Data.hpp
-    PocoLib/JSON.cpp PocoLib/JSON.hpp
     PocoLib/Net.cpp PocoLib/Net.hpp
     PocoLib/RegEx.cpp PocoLib/RegEx.hpp
     PocoLib/Register.cpp PocoLib/Register.hpp
     PocoLib/Time.cpp PocoLib/Time.hpp
     PocoLib/Util.cpp PocoLib/Util.hpp
-    PocoLib/XML.cpp PocoLib/XML.hpp
     # 
     Core.cpp Core.hpp
     Logger.cpp Logger.hpp
