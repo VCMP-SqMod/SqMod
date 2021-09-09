@@ -106,7 +106,7 @@
 /* ------------------------------------------------------------------------------------------------
  * API EXPORT.
 */
-#if defined(_MSC_VER)
+#if defined(SQMOD_OS_WINDOWS)
     #define SQMOD_API_EXPORT    extern "C" __declspec(dllexport)
 #elif defined(__GNUC__)
     #define SQMOD_API_EXPORT    extern "C"
