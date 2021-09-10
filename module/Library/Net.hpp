@@ -273,14 +273,6 @@ struct WebSocketClient : public SqChainedInstances< WebSocketClient >
     WebSocketClient & operator = (WebSocketClient &&) = delete;
 
     /* --------------------------------------------------------------------------------------------
-     * Retrieve the associated user tag.
-    */
-    SQMOD_NODISCARD const String & GetTag() const
-    {
-        return mTag;
-    }
-
-    /* --------------------------------------------------------------------------------------------
      * Return whether the associated connection handle is valid.
     */
     SQMOD_NODISCARD bool IsValid() const
@@ -295,6 +287,14 @@ struct WebSocketClient : public SqChainedInstances< WebSocketClient >
     SQMOD_NODISCARD bool IsClosing() const
     {
         return mClosing.load();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated user tag.
+    */
+    SQMOD_NODISCARD const String & GetTag() const
+    {
+        return mTag;
     }
 
     /* --------------------------------------------------------------------------------------------
