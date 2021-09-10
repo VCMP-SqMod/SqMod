@@ -4,7 +4,6 @@
 #include "Library/Chrono/Time.hpp"
 #include "Library/Chrono/Date.hpp"
 #include "Library/Chrono/Datetime.hpp"
-#include "Library/Numeric/Long.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <chrono>
@@ -14,13 +13,6 @@ namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
 SQMOD_DECL_TYPENAME(Typename, _SC("SqTimestamp"))
-
-// ------------------------------------------------------------------------------------------------
-Timestamp::Timestamp(const SLongInt & t)
-    : m_Timestamp(t.GetNum())
-{
-    /* ... */
-}
 
 // ------------------------------------------------------------------------------------------------
 int32_t Timestamp::Cmp(const Timestamp & o) const
@@ -52,36 +44,36 @@ void Timestamp::SetNow()
 }
 
 // ------------------------------------------------------------------------------------------------
-SLongInt Timestamp::GetMicroseconds() const
+SQInteger Timestamp::GetMicroseconds() const
 {
-    return SLongInt(m_Timestamp);
+    return m_Timestamp;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Timestamp::SetMicroseconds(const SLongInt & amount)
+void Timestamp::SetMicroseconds(SQInteger amount)
 {
-    m_Timestamp = amount.GetNum();
+    m_Timestamp = amount;
 }
 
 // ------------------------------------------------------------------------------------------------
-Timestamp & Timestamp::AddMicroseconds(const SLongInt & amount) { m_Timestamp += amount.GetNum(); return *this; }
-Timestamp & Timestamp::SubMicroseconds(const SLongInt & amount) { m_Timestamp -= amount.GetNum(); return *this; }
+Timestamp & Timestamp::AddMicroseconds(SQInteger amount) { m_Timestamp += amount; return *this; }
+Timestamp & Timestamp::SubMicroseconds(SQInteger amount) { m_Timestamp -= amount; return *this; }
 
 // ------------------------------------------------------------------------------------------------
-SLongInt Timestamp::GetMilliseconds() const
+    SQInteger Timestamp::GetMilliseconds() const
 {
-    return SLongInt(m_Timestamp / 1000L);
+    return m_Timestamp / 1000L;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Timestamp::SetMilliseconds(const SLongInt & amount)
+void Timestamp::SetMilliseconds(SQInteger amount)
 {
-    m_Timestamp = (amount.GetNum() * 1000L);
+    m_Timestamp = (amount * 1000L);
 }
 
 // ------------------------------------------------------------------------------------------------
-Timestamp & Timestamp::AddMilliseconds(const SLongInt & amount) { m_Timestamp += (amount.GetNum() * 1000L); return *this; }
-Timestamp & Timestamp::SubMilliseconds(const SLongInt & amount) { m_Timestamp -= (amount.GetNum() * 1000L); return *this; }
+Timestamp & Timestamp::AddMilliseconds(SQInteger amount) { m_Timestamp += (amount * 1000L); return *this; }
+Timestamp & Timestamp::SubMilliseconds(SQInteger amount) { m_Timestamp -= (amount * 1000L); return *this; }
 
 // ------------------------------------------------------------------------------------------------
 Time Timestamp::GetTime() const
@@ -213,7 +205,7 @@ static Timestamp SqGetMicrosecondsRaw(int64_t amount)
 }
 
 // ------------------------------------------------------------------------------------------------
-static Timestamp SqGetMicroseconds(const SLongInt & amount)
+static Timestamp SqGetMicroseconds(SQInteger amount)
 {
     return Timestamp(amount);
 }

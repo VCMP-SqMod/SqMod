@@ -4,7 +4,6 @@
 #include "Base/Color3.hpp"
 #include "Base/Vector2.hpp"
 #include "Entity/Player.hpp"
-#include "Library/Numeric/Long.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -173,9 +172,9 @@ void SendPluginCommand(uint32_t identifier, StackStrF & payload)
 }
 
 // ------------------------------------------------------------------------------------------------
-const ULongInt & GetTime()
+SQInteger GetTime()
 {
-    return GetULongInt(_Func->GetTime());
+    return static_cast< SQInteger >(_Func->GetTime());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -218,7 +217,7 @@ const SQChar * GetPluginAuthor()
 }
 
 // ------------------------------------------------------------------------------------------------
-int32_t GetPluginID()
+uint32_t GetPluginID()
 {
     return _Info->pluginId;
 }
@@ -242,7 +241,7 @@ uint32_t GetServerFlags()
 }
 
 // ------------------------------------------------------------------------------------------------
-int32_t GetMaxPlayers()
+uint32_t GetMaxPlayers()
 {
     return _Func->GetMaxPlayers();
 }
@@ -468,7 +467,7 @@ int32_t GetTimeRate()
 }
 
 // ------------------------------------------------------------------------------------------------
-void SetTimeRate(uint32_t rate)
+void SetTimeRate(int32_t rate)
 {
     _Func->SetTimeRate(rate);
 }

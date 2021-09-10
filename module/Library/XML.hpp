@@ -4,9 +4,6 @@
 #include "Core/Utility.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include "Library/Numeric/Long.hpp"
-
-// ------------------------------------------------------------------------------------------------
 #include <pugixml.hpp>
 #include <utility>
 
@@ -1420,12 +1417,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value as a long integer or the specified default value if empty.
     */
-    SQMOD_NODISCARD LightObj AsLong(const SLongInt & def) const;
+    SQMOD_NODISCARD SQInteger AsLong(SQInteger def) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value as a unsigned long integer or the specified default value if empty.
     */
-    SQMOD_NODISCARD LightObj AsUlong(const ULongInt & def) const;
+    SQMOD_NODISCARD SQInteger AsUlong(SQInteger def) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value as a boolean or the specified default value if empty.
@@ -1478,12 +1475,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the value as a long integer.
     */
-    bool ApplyLong(const SLongInt & value);
+    bool ApplyLong(SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
      * Modify the value as a unsigned long integer.
     */
-    bool ApplyUlong(const ULongInt & value);
+    bool ApplyUlong(SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
      * Modify the value as a boolean.
@@ -1576,22 +1573,22 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value as a long integer.
     */
-    SQMOD_NODISCARD LightObj GetLong() const;
+    SQMOD_NODISCARD SQInteger GetLong() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the value as a long integer.
     */
-    void SetLong(const SLongInt & value);
+    void SetLong(SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value as a unsigned long integer.
     */
-    SQMOD_NODISCARD LightObj GetUlong() const;
+    SQMOD_NODISCARD SQInteger GetUlong() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the value as a unsigned long integer.
     */
-    void SetUlong(const ULongInt & value);
+    void SetUlong(SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value as a boolean.
@@ -1772,12 +1769,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value as a long integer or the specified default value if empty.
     */
-    SQMOD_NODISCARD LightObj AsLong(const SLongInt & def) const;
+    SQMOD_NODISCARD SQInteger AsLong(SQInteger def) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value as a unsigned long integer or the specified default value if empty.
     */
-    SQMOD_NODISCARD LightObj AsUlong(const ULongInt & def) const;
+    SQMOD_NODISCARD SQInteger AsUlong(SQInteger def) const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value as a boolean or the specified default value if empty.
@@ -1830,12 +1827,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the value as a long integer.
     */
-    bool ApplyLong(const SLongInt & value);
+    bool ApplyLong(SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
      * Modify the value as a unsigned long integer.
     */
-    bool ApplyUlong(const ULongInt & value);
+    bool ApplyUlong(SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
      * Modify the value as a boolean.
@@ -1928,22 +1925,22 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value as a long integer.
     */
-    SQMOD_NODISCARD LightObj GetLong() const;
+    SQMOD_NODISCARD SQInteger GetLong() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the value as a long integer.
     */
-    void SetLong(const SLongInt & value);
+    void SetLong(SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value as a unsigned long integer.
     */
-    SQMOD_NODISCARD LightObj GetUlong() const;
+    SQMOD_NODISCARD SQInteger GetUlong() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the value as a unsigned long integer.
     */
-    void SetUlong(const ULongInt & value);
+    void SetUlong(SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value as a boolean.

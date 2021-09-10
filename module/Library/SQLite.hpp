@@ -5,7 +5,6 @@
 
 // ------------------------------------------------------------------------------------------------
 #include "Library/IO/Buffer.hpp"
-#include "Library/Numeric/Long.hpp"
 #include "Library/Chrono/Date.hpp"
 #include "Library/Chrono/Datetime.hpp"
 #include "Library/Chrono/Time.hpp"
@@ -95,12 +94,12 @@ Object GetStatementObj(const StmtRef & stmt);
 /* ------------------------------------------------------------------------------------------------
  * Tests if a certain query string is empty.
 */
-bool IsQueryEmpty(const SQChar * str);
+SQMOD_NODISCARD bool IsQueryEmpty(const SQChar * str);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the string representation of a certain status code.
 */
-const SQChar * GetErrStr(int32_t status);
+SQMOD_NODISCARD const SQChar * GetErrStr(int32_t status);
 
 /* ------------------------------------------------------------------------------------------------
  * Set a specific heap limit.
@@ -115,32 +114,32 @@ int32_t ReleaseMemory(int32_t bytes);
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the current memory usage.
 */
-Object GetMemoryUsage();
+SQMOD_NODISCARD SQInteger GetMemoryUsage();
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the memory high watermark.
 */
-Object GetMemoryHighwaterMark(bool reset);
+SQMOD_NODISCARD SQInteger GetMemoryHighwaterMark(bool reset);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the escaped version of the specified string.
 */
-LightObj EscapeString(StackStrF & str);
+SQMOD_NODISCARD LightObj EscapeString(StackStrF & str);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the escaped version of the specified string using the supplied format specifier.
 */
-LightObj EscapeStringEx(SQChar spec, StackStrF & str);
+SQMOD_NODISCARD LightObj EscapeStringEx(SQChar spec, StackStrF & str);
 
 /* ------------------------------------------------------------------------------------------------
  * Convert the values from the specified array to a list of column names string.
 */
-LightObj ArrayToQueryColumns(Array & arr);
+SQMOD_NODISCARD LightObj ArrayToQueryColumns(Array & arr);
 
 /* ------------------------------------------------------------------------------------------------
  * Convert the keys from the specified array to a list of column names string.
 */
-LightObj TableToQueryColumns(Table & tbl);
+SQMOD_NODISCARD LightObj TableToQueryColumns(Table & tbl);
 
 /* ------------------------------------------------------------------------------------------------
  * The structure that holds the data associated with a certain connection.
@@ -701,9 +700,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Get the row-id of the most recent successful INSERT into the database from the current connection.
     */
-    SQMOD_NODISCARD Object GetLastInsertRowID() const
+    SQMOD_NODISCARD SQInteger GetLastInsertRowID() const
     {
-        return Object(new SLongInt(sqlite3_last_insert_rowid(SQMOD_GET_CREATED(*this)->mPtr)));
+        return sqlite3_last_insert_rowid(SQMOD_GET_CREATED(*this)->mPtr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1148,12 +1147,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a signed 64 bit integer value at the referenced parameter index.
     */
-    void SetInt64(const Object & value);
+    void SetInt64(SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind an unsigned 64 bit integer value at the referenced parameter index.
     */
-    void SetUint64(const Object & value);
+    void SetUint64(SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a native floating point value at the referenced parameter index.
@@ -1538,7 +1537,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value inside the referenced column as a long integer.
     */
-    SQMOD_NODISCARD Object GetLong() const;
+    SQMOD_NODISCARD SQInteger GetLong() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value inside the referenced column as a string.
@@ -2101,7 +2100,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind a signed 64 bit integer value at the specified parameter index.
     */
-    SQLiteStatement & SetInt64(const Object & param, const Object & value)
+    SQLiteStatement & SetInt64(const Object & param, SQInteger value)
     {
         SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetInt64(value);
         // Allow chaining of operations
@@ -2111,7 +2110,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Attempt to bind an unsigned 64 bit integer value at the specified parameter index.
     */
-    SQLiteStatement & SetUint64(const Object & param, const Object & value)
+    SQLiteStatement & SetUint64(const Object & param, SQInteger value)
     {
         SQLiteParameter(SQMOD_GET_CREATED(*this), param).SetUint64(value);
         // Allow chaining of operations

@@ -49,7 +49,7 @@ void SendPluginCommand(uint32_t identifier, StackStrF & payload);
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the server time.
 */
-const ULongInt & GetTime();
+SQInteger GetTime();
 
 /* ------------------------------------------------------------------------------------------------
  * Send a log message to the server.
@@ -84,7 +84,7 @@ SQMOD_NODISCARD const SQChar * GetPluginAuthor();
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the id of the host Squirrel plug-in.
 */
-SQMOD_NODISCARD int32_t GetPluginID();
+SQMOD_NODISCARD uint32_t GetPluginID();
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the port onto which the server was binded.
@@ -99,7 +99,7 @@ SQMOD_NODISCARD uint32_t GetServerFlags();
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the maximum number of clients allowed on the server.
 */
-SQMOD_NODISCARD int32_t GetMaxPlayers();
+SQMOD_NODISCARD uint32_t GetMaxPlayers();
 
 /* ------------------------------------------------------------------------------------------------
  * Modify the maximum number of clients allowed on the server.
@@ -205,7 +205,7 @@ SQMOD_NODISCARD int32_t GetTimeRate();
 /* ------------------------------------------------------------------------------------------------
  * Modify the current time-rate.
 */
-void SetTimeRate(uint32_t rate);
+void SetTimeRate(int32_t rate);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the game hour.

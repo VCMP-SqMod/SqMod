@@ -2,7 +2,6 @@
 #include "Core/Common.hpp"
 #include "Core/Buffer.hpp"
 #include "Core/Utility.hpp"
-#include "Library/Numeric/Long.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cerrno>
@@ -313,46 +312,10 @@ SQInteger PopStackInteger(HSQUIRRELVM vm, SQInteger idx)
         case OT_TABLE:
         case OT_CLASS:
         case OT_USERDATA:
-        {
-            return sq_getsize(vm, idx);
-        }
         case OT_INSTANCE:
         {
-            SQUserPointer tag;
-            // Attempt to retrieve the type tag
-            if (SQ_FAILED(sq_gettypetag(vm, -1, &tag)))
-            {
-                break;
-            }
-            // Is the instance SLongInt? (signed long)
-            else if (static_cast< AbstractStaticClassData * >(tag) == StaticClassTypeTag< SLongInt >::Get())
-            {
-                try
-                {
-                    return ConvTo< SQInteger >::From(Var< const SLongInt & >(vm, idx).value.GetNum());
-                }
-                catch (...)
-                {
-                    // Just ignore it...
-                }
-            }
-            // Is the instance ULongInt? (unsigned long)
-            else if (static_cast< AbstractStaticClassData * >(tag) == StaticClassTypeTag< ULongInt >::Get())
-            {
-                try
-                {
-                    return ConvTo< SQInteger >::From(Var< const ULongInt & >(vm, idx).value.GetNum());
-                }
-                catch (...)
-                {
-                    // Just ignore it...
-                }
-            }
-            else
-            {
-                // Attempt to get the size of the instance as a fall back
-                return sq_getsize(vm, idx);
-            }
+            // Attempt to get the size of the instance as a fall back
+            return sq_getsize(vm, idx);
         }
         default: break;
     }
@@ -406,41 +369,8 @@ SQFloat PopStackFloat(HSQUIRRELVM vm, SQInteger idx)
         }
         case OT_INSTANCE:
         {
-            SQUserPointer tag;
-            // Attempt to retrieve the type tag
-            if (SQ_FAILED(sq_gettypetag(vm, -1, &tag)))
-            {
-                break;
-            }
-            // Is the instance SLongInt? (signed long)
-            else if (static_cast< AbstractStaticClassData * >(tag) == StaticClassTypeTag< SLongInt >::Get())
-            {
-                try
-                {
-                    return ConvTo< SQFloat >::From(Var< const SLongInt & >(vm, idx).value.GetNum());
-                }
-                catch (...)
-                {
-                    // Just ignore it...
-                }
-            }
-            // Is the instance ULongInt? (unsigned long)
-            else if (static_cast< AbstractStaticClassData * >(tag) == StaticClassTypeTag< ULongInt >::Get())
-            {
-                try
-                {
-                    return ConvTo< SQFloat >::From(Var< const ULongInt & >(vm, idx).value.GetNum());
-                }
-                catch (...)
-                {
-                    // Just ignore it...
-                }
-            }
-            else
-            {
-                // Attempt to get the size of the instance as a fall back
-                return ConvTo< SQFloat >::From(sq_getsize(vm, idx));
-            }
+            // Attempt to get the size of the instance as a fall back
+            return ConvTo< SQFloat >::From(sq_getsize(vm, idx));
         }
         default: break;
     }

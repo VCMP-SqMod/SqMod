@@ -5,7 +5,6 @@
 
 // ------------------------------------------------------------------------------------------------
 #include "Library/IO/Buffer.hpp"
-#include "Library/Numeric/Long.hpp"
 #include "Library/Chrono.hpp"
 #include "Library/Chrono/Date.hpp"
 #include "Library/Chrono/Datetime.hpp"
@@ -196,7 +195,7 @@ template < > struct DbConvTo< bool >
 */
 template < > struct DbConvTo< char >
 {
-    SQMOD_NODISCARD static bool From(const SQChar * value, unsigned long length, enum_field_types type, const SQChar * tn = _SC("char"));
+    SQMOD_NODISCARD static char From(const SQChar * value, unsigned long length, enum_field_types type, const SQChar * tn = _SC("char"));
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -560,7 +559,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the used buffer.
     */
-    char * GetBuffer()
+    SQMOD_NODISCARD char * GetBuffer()
     {
         return mData ? mData.Data() : reinterpret_cast< char * >(&mUint64);
     }
@@ -1457,7 +1456,7 @@ public:
     {
         // Attempt to toggle auto-commit if necessary
         if (SQMOD_GET_CREATED(*this)->mAutoCommit != toggle &&
-            mysql_autocommit(m_Handle->mPtr, toggle) != 0)
+            mysql_autocommit(m_Handle->mPtr, static_cast< StmtBind::BoolType >(toggle)) != 0)
         {
             SQMOD_THROW_CURRENT(*m_Handle, "Cannot toggle auto-commit");
         }
@@ -1486,15 +1485,15 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Execute a query on the server.
     */
-    Object Execute(const SQChar * query)
+    SQInteger Execute(const SQChar * query)
     {
-        return Object(SqTypeIdentity< ULongInt >{}, SqVM(), SQMOD_GET_CREATED(*this)->Execute(query));
+        return static_cast< SQInteger >(SQMOD_GET_CREATED(*this)->Execute(query));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Execute a query on the server.
     */
-    Object Insert(const SQChar * query);
+    SQInteger Insert(const SQChar * query);
 
     /* --------------------------------------------------------------------------------------------
      * Execute a query on the server.
@@ -1866,12 +1865,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value inside the referenced field as a signed 64 bit integer value.
     */
-    SQMOD_NODISCARD Object GetInt64() const;
+    SQMOD_NODISCARD SQInteger GetInt64() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value inside the referenced field as an unsigned 64 bit integer value.
     */
-    SQMOD_NODISCARD Object GetUint64() const;
+    SQMOD_NODISCARD SQInteger GetUint64() const;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value inside the referenced field as a 32 bit floating point value.
@@ -2111,17 +2110,17 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Returns the current position of the row cursor for the last Next().
     */
-    SQMOD_NODISCARD Object RowIndex() const
+    SQMOD_NODISCARD SQInteger RowIndex() const
     {
-        return Object(SqTypeIdentity< ULongInt >{}, SqVM(), SQMOD_GET_CREATED(*this)->RowIndex());
+        return static_cast< SQInteger >(SQMOD_GET_CREATED(*this)->RowIndex());
     }
 
     /* --------------------------------------------------------------------------------------------
      * Returns the number of rows in the result set.
     */
-    SQMOD_NODISCARD Object RowCount() const
+    SQMOD_NODISCARD SQInteger RowCount() const
     {
-        return Object(SqTypeIdentity< ULongInt >{}, SqVM(), SQMOD_GET_CREATED(*this)->RowCount());
+        return static_cast< SQInteger >(SQMOD_GET_CREATED(*this)->RowCount());
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2143,9 +2142,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Seeks to an arbitrary row in a query result set.
     */
-    SQMOD_NODISCARD bool SetLongRowIndex(const ULongInt & index) const
+    SQMOD_NODISCARD bool SetLongRowIndex(SQInteger index) const
     {
-        return SQMOD_GET_CREATED(*this)->SetRowIndex(index.GetNum());
+        return SQMOD_GET_CREATED(*this)->SetRowIndex(static_cast< uint64_t >(index));
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2422,7 +2421,7 @@ public:
         // Do we have a valid handle?
         if (m_Handle)
         {
-            m_Handle->mQuery;
+            return m_Handle->mQuery;
         }
         // Default to an empty string
         return NullString();
@@ -2517,12 +2516,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Assign a signed long integer to a parameter.
     */
-    void SetSLongInt(uint32_t idx, const SLongInt & val) const;
+    void SetSLongInt(uint32_t idx, SQInteger val) const;
 
     /* --------------------------------------------------------------------------------------------
      * Assign an unsigned long integer to a parameter.
     */
-    void SetULongInt(uint32_t idx, const ULongInt & val) const;
+    void SetULongInt(uint32_t idx, SQInteger val) const;
 
     /* --------------------------------------------------------------------------------------------
      * Assign a native integer to a parameter.

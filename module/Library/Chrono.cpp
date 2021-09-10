@@ -3,7 +3,6 @@
 #include "Library/Chrono/Date.hpp"
 #include "Library/Chrono/Timer.hpp"
 #include "Library/Chrono/Timestamp.hpp"
-#include "Library/Numeric/Long.hpp"
 #include "Core/Utility.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -243,33 +242,38 @@ int64_t Chrono::DateRangeToSeconds(uint16_t _year, uint8_t _month, uint8_t _day,
 }
 
 // ------------------------------------------------------------------------------------------------
-static SLongInt SqGetEpochTimeMicro()
+static SQRESULT SqGetEpochTimeMicro(HSQUIRRELVM vm)
 {
-    return SLongInt(Chrono::GetEpochTimeMicro());
+    sq_pushinteger(vm, Chrono::GetEpochTimeMicro());
+    return 1;
 }
 
 // ------------------------------------------------------------------------------------------------
-static SLongInt SqGetEpochTimeMilli()
+static SQRESULT SqGetEpochTimeMilli(HSQUIRRELVM vm)
 {
-    return SLongInt(Chrono::GetEpochTimeMilli());
+    sq_pushinteger(vm, Chrono::GetEpochTimeMilli());
+    return 1;
 }
 
 // ------------------------------------------------------------------------------------------------
-static SLongInt SqGetCurrentSysTime()
+static SQRESULT SqGetCurrentSysTime(HSQUIRRELVM vm)
 {
-    return SLongInt(Chrono::GetCurrentSysTime());
+    sq_pushinteger(vm, Chrono::GetCurrentSysTime());
+    return 1;
 }
 
 // ------------------------------------------------------------------------------------------------
-static SQInteger SqGetTickCount()
+static SQRESULT SqGetTickCount(HSQUIRRELVM vm)
 {
-    return ConvTo< SQInteger >::From(GetTickCount());
+    sq_pushinteger(vm, ConvTo< SQInteger >::From(GetTickCount()));
+    return 1;
 }
 
 // ------------------------------------------------------------------------------------------------
-static SLongInt SqGetTickCount64()
+static SQRESULT SqGetTickCount64(HSQUIRRELVM vm)
 {
-    return SLongInt(GetTickCount64());
+    sq_pushinteger(vm, ConvTo< SQInteger >::From(GetTickCount64()));
+    return 1;
 }
 
 // ================================================================================================
@@ -284,11 +288,11 @@ void Register_Chrono(HSQUIRRELVM vm)
     Register_ChronoTimestamp(vm, cns);
 
     cns
-    .Func(_SC("EpochMicro"), &SqGetEpochTimeMicro)
-    .Func(_SC("EpochMilli"), &SqGetEpochTimeMilli)
-    .Func(_SC("Current"), &SqGetCurrentSysTime)
-    .Func(_SC("TickCount"), &SqGetTickCount)
-    .Func(_SC("TickCount64"), &SqGetTickCount64)
+    .SquirrelFunc(_SC("EpochMicro"), &SqGetEpochTimeMicro)
+    .SquirrelFunc(_SC("EpochMilli"), &SqGetEpochTimeMilli)
+    .SquirrelFunc(_SC("Current"), &SqGetCurrentSysTime)
+    .SquirrelFunc(_SC("TickCount"), &SqGetTickCount)
+    .SquirrelFunc(_SC("TickCount64"), &SqGetTickCount64)
     .Func(_SC("IsLeapYear"), &Chrono::IsLeapYear)
     .Func(_SC("IsDateValid"), &Chrono::ValidDate)
     .Func(_SC("DaysInYear"), &Chrono::DaysInYear)

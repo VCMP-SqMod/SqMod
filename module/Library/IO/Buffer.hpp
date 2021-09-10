@@ -176,7 +176,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Validate the managed memory buffer reference.
     */
-    Buffer & Valid() const
+    SQMOD_NODISCARD Buffer & Valid() const
     {
         Validate();
         // Return the buffer
@@ -186,7 +186,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Validate the managed memory buffer reference and the buffer itself.
     */
-    Buffer & ValidDeeper() const
+    SQMOD_NODISCARD Buffer & ValidDeeper() const
     {
         ValidateDeeper();
         // Return the buffer
@@ -204,7 +204,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify a certain element type at the specified position.
     */
-    void Set(SQInteger n, SQInteger v)
+    void Set(SQInteger n, SQInteger v) const
     {
         Valid().At(ConvTo< SzType >::From(n)) = ConvTo< Value >::From(v);
     }
@@ -220,7 +220,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the element at the front of the buffer.
     */
-    void SetFront(SQInteger v)
+    void SetFront(SQInteger v) const
     {
         Valid().Front() = ConvTo< Value >::From(v);
     }
@@ -236,7 +236,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the element after the first element in the buffer.
     */
-    void SetNext(SQInteger v)
+    void SetNext(SQInteger v) const
     {
         Valid().Next() = ConvTo< Value >::From(v);
     }
@@ -252,7 +252,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the element at the back of the buffer.
     */
-    void SetBack(SQInteger v)
+    void SetBack(SQInteger v) const
     {
         Valid().Back() = ConvTo< Value >::From(v);
     }
@@ -268,7 +268,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the element before the last element in the buffer.
     */
-    void SetPrev(SQInteger v)
+    void SetPrev(SQInteger v) const
     {
         Valid().Prev() = ConvTo< Value >::From(v);
     }
@@ -276,7 +276,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Reposition the edit cursor to the specified number of elements ahead.
     */
-    void Advance(SQInteger n)
+    void Advance(SQInteger n) const
     {
         Valid().Advance(ConvTo< SzType >::From(n));
     }
@@ -284,7 +284,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Reposition the edit cursor to the specified number of elements behind.
     */
-    void Retreat(SQInteger n)
+    void Retreat(SQInteger n) const
     {
         Valid().Retreat(ConvTo< SzType >::From(n));
     }
@@ -292,7 +292,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Reposition the edit cursor to a fixed position within the buffer.
     */
-    void Move(SQInteger n)
+    void Move(SQInteger n) const
     {
         Valid().Move(ConvTo< SzType >::From(n));
     }
@@ -300,7 +300,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Append a value to the current cursor location and advance the cursor.
     */
-    void Push(SQInteger v)
+    void Push(SQInteger v) const
     {
         Valid().Push(ConvTo< Value >::From(v));
     }
@@ -316,7 +316,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the element at the cursor position.
     */
-    void SetCursor(SQInteger v)
+    void SetCursor(SQInteger v) const
     {
         Valid().Cursor() = ConvTo< Value >::From(v);
     }
@@ -332,7 +332,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the element before the cursor position.
     */
-    void SetBefore(SQInteger v)
+    void SetBefore(SQInteger v) const
     {
         Valid().Before() = ConvTo< Value >::From(v);
     }
@@ -348,7 +348,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the element after the cursor position.
     */
-    void SetAfter(SQInteger v)
+    void SetAfter(SQInteger v) const
     {
         Valid().After() = ConvTo< Value >::From(v);
     }
@@ -396,7 +396,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Grow the size of the internal buffer by the specified amount of bytes.
     */
-    void Grow(SQInteger n)
+    void Grow(SQInteger n) const
     {
         return Valid().Grow(ConvTo< SzType >::From(n) * sizeof(Value));
     }
@@ -425,65 +425,71 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Write a signed 8 bit integer to the buffer.
     */
-    void WriteInt8(SQInteger val)
+    void WriteInt8(SQInteger val) const
     {
-        Valid().Push< int8_t >(ConvTo< int8_t >::From(val));
+        Valid().Push< int8_t >(static_cast< int8_t >(val));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Write an unsigned 8 bit integer to the buffer.
     */
-    void WriteUint8(SQInteger val)
+    void WriteUint8(SQInteger val) const
     {
-        Valid().Push< uint8_t >(ConvTo< uint8_t >::From(val));
+        Valid().Push< uint8_t >(static_cast< uint8_t >(val));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Write a signed 16 bit integer to the buffer.
     */
-    void WriteInt16(SQInteger val)
+    void WriteInt16(SQInteger val) const
     {
-        Valid().Push< int16_t >(ConvTo< int16_t >::From(val));
+        Valid().Push< int16_t >(static_cast< int16_t >(val));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Write an unsigned 16 bit integer to the buffer.
     */
-    void WriteUint16(SQInteger val)
+    void WriteUint16(SQInteger val) const
     {
-        Valid().Push< uint16_t >(ConvTo< uint16_t >::From(val));
+        Valid().Push< uint16_t >(static_cast< uint16_t >(val));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Write a signed 32 bit integer to the buffer.
     */
-    void WriteInt32(SQInteger val)
+    void WriteInt32(SQInteger val) const
     {
-        Valid().Push< int32_t >(ConvTo< int32_t >::From(val));
+        Valid().Push< int32_t >(static_cast< int32_t >(val));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Write an unsigned 32 bit integer to the buffer.
     */
-    void WriteUint32(SQInteger val)
+    void WriteUint32(SQInteger val) const
     {
-        Valid().Push< uint32_t >(ConvTo< uint32_t >::From(val));
+        Valid().Push< uint32_t >(static_cast< uint32_t >(val));
     }
 
     /* --------------------------------------------------------------------------------------------
      * Write a signed 64 bit integer to the buffer.
     */
-    void WriteInt64(const SLongInt & val);
+    void WriteInt64(SQInteger val) const
+    {
+        Valid().Push< int64_t >(static_cast< int64_t >(val));
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Write an unsigned 64 bit integer to the buffer.
     */
-    void WriteUint64(const ULongInt & val);
+    void WriteUint64(SQInteger val) const
+    {
+        Valid().Push< uint64_t >(static_cast< uint64_t >(val));
+    }
 
     /* --------------------------------------------------------------------------------------------
      * Write a 32 bit float to the buffer.
     */
-    void WriteFloat32(SQFloat val)
+    void WriteFloat32(SQFloat val) const
     {
         Valid().Push< float >(ConvTo< float >::From(val));
     }
@@ -491,7 +497,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Write a 64 bit float to the buffer.
     */
-    void WriteFloat64(SQFloat val)
+    void WriteFloat64(SQFloat val) const
     {
         Valid().Push< double >(ConvTo< double >::From(val));
     }
@@ -499,67 +505,67 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Write a raw string to the buffer.
     */
-    SQInteger WriteRawString(StackStrF & val);
+    SQInteger WriteRawString(StackStrF & val) const;
 
     /* --------------------------------------------------------------------------------------------
      * Write a client encoded string to the buffer.
     */
-    SQInteger WriteClientString(StackStrF & val);
+    SQInteger WriteClientString(StackStrF & val) const;
 
     /* --------------------------------------------------------------------------------------------
      * Write a AABB to the buffer.
     */
-    void WriteAABB(const AABB & val);
+    void WriteAABB(const AABB & val) const;
 
     /* --------------------------------------------------------------------------------------------
      * Write a Circle to the buffer.
     */
-    void WriteCircle(const Circle & val);
+    void WriteCircle(const Circle & val) const;
 
     /* --------------------------------------------------------------------------------------------
      * Write a Color3 to the buffer.
     */
-    void WriteColor3(const Color3 & val);
+    void WriteColor3(const Color3 & val) const;
 
     /* --------------------------------------------------------------------------------------------
      * Write a Color4 to the buffer.
     */
-    void WriteColor4(const Color4 & val);
+    void WriteColor4(const Color4 & val) const;
 
     /* --------------------------------------------------------------------------------------------
      * Write a Quaternion to the buffer.
     */
-    void WriteQuaternion(const Quaternion & val);
+    void WriteQuaternion(const Quaternion & val) const;
 
     /* --------------------------------------------------------------------------------------------
      * Write a Sphere to the buffer.
     */
-    void WriteSphere(const Sphere &val);
+    void WriteSphere(const Sphere &val) const;
 
     /* --------------------------------------------------------------------------------------------
      * Write a Vector2 to the buffer.
     */
-    void WriteVector2(const Vector2 & val);
+    void WriteVector2(const Vector2 & val) const;
 
     /* --------------------------------------------------------------------------------------------
      * Write a Vector2i to the buffer.
     */
-    void WriteVector2i(const Vector2i & val);
+    void WriteVector2i(const Vector2i & val) const;
 
     /* --------------------------------------------------------------------------------------------
      * Write a Vector3 to the buffer.
     */
-    void WriteVector3(const Vector3 & val);
+    void WriteVector3(const Vector3 & val) const;
 
     /* --------------------------------------------------------------------------------------------
      * Write a Vector4 to the buffer.
     */
-    void WriteVector4(const Vector4 & val);
+    void WriteVector4(const Vector4 & val) const;
 
     /* --------------------------------------------------------------------------------------------
      * Write a signed 8 bit integer from the buffer.
     */
-    SQInteger ReadInt8()
+    SQMOD_NODISCARD SQInteger ReadInt8() const
     {
         // Validate the managed buffer reference
         ValidateDeeper();
@@ -574,7 +580,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Read an unsigned 8 bit integer from the buffer.
     */
-    SQInteger ReadUint8()
+    SQMOD_NODISCARD SQInteger ReadUint8() const
     {
         // Validate the managed buffer reference
         ValidateDeeper();
@@ -589,7 +595,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Read a signed 16 bit integer from the buffer.
     */
-    SQInteger ReadInt16()
+    SQMOD_NODISCARD SQInteger ReadInt16() const
     {
         // Validate the managed buffer reference
         ValidateDeeper();
@@ -604,7 +610,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Read an unsigned 16 bit integer from the buffer.
     */
-    SQInteger ReadUint16()
+    SQMOD_NODISCARD SQInteger ReadUint16() const
     {
         // Validate the managed buffer reference
         ValidateDeeper();
@@ -619,7 +625,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Read a signed 32 bit integer from the buffer.
     */
-    SQInteger ReadInt32()
+    SQMOD_NODISCARD SQInteger ReadInt32() const
     {
         // Validate the managed buffer reference
         ValidateDeeper();
@@ -634,7 +640,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Read an unsigned 32 bit integer from the buffer.
     */
-    SQInteger ReadUint32()
+    SQMOD_NODISCARD SQInteger ReadUint32() const
     {
         // Validate the managed buffer reference
         ValidateDeeper();
@@ -649,17 +655,17 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Read a signed 64 bit integer from the buffer.
     */
-    SLongInt ReadInt64();
+    SQMOD_NODISCARD SQInteger ReadInt64() const;
 
     /* --------------------------------------------------------------------------------------------
      * Read an unsigned 64 bit integer from the buffer.
     */
-    ULongInt ReadUint64();
+    SQMOD_NODISCARD SQInteger ReadUint64() const;
 
     /* --------------------------------------------------------------------------------------------
      * Read a 32 bit float from the buffer.
     */
-    SQFloat ReadFloat32()
+    SQMOD_NODISCARD SQFloat ReadFloat32() const
     {
         // Validate the managed buffer reference
         ValidateDeeper();
@@ -674,7 +680,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Read a 64 bit float from the buffer.
     */
-    SQFloat ReadFloat64()
+    SQMOD_NODISCARD SQFloat ReadFloat64() const
     {
         // Validate the managed buffer reference
         ValidateDeeper();
@@ -689,72 +695,72 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Read a raw string from the buffer.
     */
-    LightObj ReadRawString(SQInteger length);
+    SQMOD_NODISCARD LightObj ReadRawString(SQInteger length) const;
 
     /* --------------------------------------------------------------------------------------------
      * Read a string from the buffer.
     */
-    LightObj ReadClientString();
+    SQMOD_NODISCARD LightObj ReadClientString() const;
 
     /* --------------------------------------------------------------------------------------------
      * Read a AABB from the buffer.
     */
-    AABB ReadAABB();
+    SQMOD_NODISCARD AABB ReadAABB() const;
 
     /* --------------------------------------------------------------------------------------------
      * Read a Circle from the buffer.
     */
-    Circle ReadCircle();
+    SQMOD_NODISCARD Circle ReadCircle() const;
 
     /* --------------------------------------------------------------------------------------------
      * Read a Color3 from the buffer.
     */
-    Color3 ReadColor3();
+    SQMOD_NODISCARD Color3 ReadColor3() const;
 
     /* --------------------------------------------------------------------------------------------
      * Read a Color4 from the buffer.
     */
-    Color4 ReadColor4();
+    SQMOD_NODISCARD Color4 ReadColor4() const;
 
     /* --------------------------------------------------------------------------------------------
      * Read a Quaternion from the buffer.
     */
-    Quaternion ReadQuaternion();
+    SQMOD_NODISCARD Quaternion ReadQuaternion() const;
 
     /* --------------------------------------------------------------------------------------------
      * Read a Sphere from the buffer.
     */
-    Sphere ReadSphere();
+    SQMOD_NODISCARD Sphere ReadSphere() const;
 
     /* --------------------------------------------------------------------------------------------
      * Read a Vector2 from the buffer.
     */
-    Vector2 ReadVector2();
+    SQMOD_NODISCARD Vector2 ReadVector2() const;
 
     /* --------------------------------------------------------------------------------------------
      * Read a Vector2i from the buffer.
     */
-    Vector2i ReadVector2i();
+    SQMOD_NODISCARD Vector2i ReadVector2i() const;
 
     /* --------------------------------------------------------------------------------------------
      * Read a Vector3 from the buffer.
     */
-    Vector3 ReadVector3();
+    SQMOD_NODISCARD Vector3 ReadVector3() const;
 
     /* --------------------------------------------------------------------------------------------
      * Read a Vector4 from the buffer.
     */
-    Vector4 ReadVector4();
+    SQMOD_NODISCARD Vector4 ReadVector4() const;
 
     /* --------------------------------------------------------------------------------------------
      * Compute the CRC-32 checksums on the data in the buffer.
     */
-    SQInteger GetCRC32(SQInteger n);
+    SQMOD_NODISCARD SQInteger GetCRC32(SQInteger n) const;
 
     /* --------------------------------------------------------------------------------------------
      * Compute the Adler-32 checksums on the data in the buffer.
     */
-    SQInteger GetADLER32(SQInteger n);
+    SQMOD_NODISCARD SQInteger GetADLER32(SQInteger n) const;
 };
 
 } // Namespace:: SqMod

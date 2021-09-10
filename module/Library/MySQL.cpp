@@ -534,7 +534,7 @@ bool DbConvTo< bool >::From(const SQChar * value, unsigned long length, enum_fie
 }
 
 // ------------------------------------------------------------------------------------------------
-bool DbConvTo< char >::From(const SQChar * value, unsigned long length, enum_field_types type, const SQChar * tn)
+char DbConvTo< char >::From(const SQChar * value, unsigned long length, enum_field_types type, const SQChar * tn)
 {
     return ConvertToSInt< char >(value, length, type, tn);
 }
@@ -636,7 +636,7 @@ void ConnHnd::Create(const Account & acc)
         SQMOD_THROW_CURRENT(*this, "Cannot connect to database");
     }
     // Attempt configure the auto-commit option
-    else if (mysql_autocommit(mPtr, mAutoCommit) != 0)
+    else if (mysql_autocommit(mPtr, static_cast< StmtBind::BoolType >(mAutoCommit)) != 0)
     {
         SQMOD_THROW_CURRENT(*this, "Cannot configure auto-commit");
     }
@@ -1555,7 +1555,7 @@ void Account::SetSSL(const SQChar * key, const SQChar * cert, const SQChar * ca,
 Table Account::GetOptionsTable() const
 {
     // Allocate an empty table
-    Table tbl(SqVM(), m_Options.size());
+    Table tbl(SqVM(), static_cast< SQInteger >(m_Options.size()));
     // Insert every option into the table
     for (const auto & opt : m_Options)
     {
@@ -1694,7 +1694,7 @@ const ConnRef & Connection::GetCreated() const
 #endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
-Object Connection::Insert(const SQChar * query)
+SQInteger Connection::Insert(const SQChar * query)
 {
     // Make sure the specified query is valid
     if (!query || *query == '\0')
@@ -1707,7 +1707,7 @@ Object Connection::Insert(const SQChar * query)
         SQMOD_THROW_CURRENT(*m_Handle, "Unable to execute MySQL query");
     }
     // Return the identifier of the inserted row
-    return Object(SqTypeIdentity< ULongInt >{}, SqVM(), mysql_insert_id(m_Handle->mPtr));
+    return static_cast< SQInteger >(mysql_insert_id(m_Handle->mPtr));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1784,12 +1784,11 @@ SQInteger Connection::ExecuteF(HSQUIRRELVM vm)
     // Attempt to execute the specified query
     try
     {
-        Var< ULongInt >::push(vm, ULongInt(conn->m_Handle->Execute(val.mPtr, static_cast<unsigned long>(val.mLen))));
+        sq_pushinteger(vm, static_cast< SQInteger >(conn->m_Handle->Execute(val.mPtr, static_cast< unsigned long >(val.mLen))));
     }
-    catch (const Sqrat::Exception & e)
+    catch (const std::exception & e)
     {
-        // Propagate the error
-        return sq_throwerror(vm, e.what());
+        return sq_throwerror(vm, e.what()); // Propagate the error
     }
     // This function returned a value
     return 1;
@@ -1851,12 +1850,11 @@ SQInteger Connection::InsertF(HSQUIRRELVM vm)
             SQMOD_THROW_CURRENT(*(conn->m_Handle), "Unable to execute MySQL query");
         }
         // Return the identifier of the inserted row
-        Var< ULongInt >::push(vm, ULongInt(mysql_insert_id(conn->m_Handle->mPtr)));
+        sq_pushinteger(vm, static_cast< SQInteger >(mysql_insert_id(conn->m_Handle->mPtr)));
     }
-    catch (const Sqrat::Exception & e)
+    catch (const std::exception & e)
     {
-        // Propagate the error
-        return sq_throwerror(vm, e.what());
+        return sq_throwerror(vm, e.what()); // Propagate the error
     }
     // This function returned a value
     return 1;
@@ -2361,7 +2359,7 @@ SQInteger Field::GetUint32() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Field::GetInt64() const
+SQInteger Field::GetInt64() const
 {
     SQMOD_VALIDATE_STEPPED(*this);
     // Obtain the initial stack size
@@ -2369,18 +2367,16 @@ Object Field::GetInt64() const
     // Should we retrieve the value from the bind wrapper?
     if (m_Handle->mStatement)
     {
-        return Object(SqTypeIdentity< SLongInt >{}, SqVM(),
-                ConvTo< int64_t >::From(m_Handle->mBinds[m_Index].mInt64));
+        return ConvTo< SQInteger >::From(m_Handle->mBinds[m_Index].mInt64);
     }
     // Retrieve the value directly from the row
-    return Object(SqTypeIdentity< SLongInt >{}, SqVM(),
-            DbConvTo< int64_t >::From(m_Handle->mRow[m_Index],
+    return DbConvTo< SQInteger >::From(m_Handle->mRow[m_Index],
                                     m_Handle->mLengths[m_Index],
-                                    m_Handle->mFields[m_Index].type));
+                                    m_Handle->mFields[m_Index].type);
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Field::GetUint64() const
+SQInteger Field::GetUint64() const
 {
     SQMOD_VALIDATE_STEPPED(*this);
     // Obtain the initial stack size
@@ -2388,14 +2384,12 @@ Object Field::GetUint64() const
     // Should we retrieve the value from the bind wrapper?
     if (m_Handle->mStatement)
     {
-      return Object(SqTypeIdentity< ULongInt >{}, SqVM(),
-                ConvTo< uint64_t >::From(m_Handle->mBinds[m_Index].mUint64));
+      return ConvTo< SQInteger >::From(m_Handle->mBinds[m_Index].mUint64);
     }
     // Retrieve the value directly from the row
-    return Object(SqTypeIdentity< ULongInt >{}, SqVM(),
-            DbConvTo< uint64_t >::From(m_Handle->mRow[m_Index],
+    return DbConvTo< SQInteger >::From(m_Handle->mRow[m_Index],
                                     m_Handle->mLengths[m_Index],
-                                    m_Handle->mFields[m_Index].type));
+                                    m_Handle->mFields[m_Index].type);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2997,23 +2991,23 @@ void Statement::SetUint64(uint32_t idx, SQInteger val) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetSLongInt(uint32_t idx, const SLongInt & val) const
+void Statement::SetSLongInt(uint32_t idx, SQInteger val) const
 {
     SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
     m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_LONGLONG, &(m_Handle->mMyBinds[idx]));
     // Attempt to assign the numeric value inside the specified object
-    m_Handle->mBinds[idx].mInt64 = val.GetNum();
+    m_Handle->mBinds[idx].mInt64 = val;
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetULongInt(uint32_t idx, const ULongInt & val) const
+void Statement::SetULongInt(uint32_t idx, SQInteger val) const
 {
     SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
     m_Handle->mBinds[idx].SetInput(MYSQL_TYPE_LONGLONG, &(m_Handle->mMyBinds[idx]));
     // Attempt to assign the numeric value inside the specified object
-    m_Handle->mBinds[idx].mUint64 = val.GetNum();
+    m_Handle->mBinds[idx].mUint64 = static_cast< uint64_t >(val);
     // Specify that this value is unsigned
     m_Handle->mMyBinds[idx].is_unsigned = true;
 }

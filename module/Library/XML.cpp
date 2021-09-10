@@ -108,99 +108,99 @@ bool XmlNode::RemoveAttrInst(const XmlAttribute & attr)
 }
 
 // ------------------------------------------------------------------------------------------------
-LightObj XmlAttribute::AsLong(const SLongInt & def) const
+SQInteger XmlAttribute::AsLong(SQInteger def) const
 {
-    return LightObj(SqTypeIdentity< SLongInt >{}, SqVM(), m_Attr.as_llong(def.GetNum()));
+    return m_Attr.as_llong(def);
 }
 
 // ------------------------------------------------------------------------------------------------
-LightObj XmlAttribute::AsUlong(const ULongInt & def) const
+SQInteger XmlAttribute::AsUlong(SQInteger def) const
 {
-    return LightObj(SqTypeIdentity< ULongInt >{}, SqVM(), m_Attr.as_ullong(def.GetNum()));
+    return static_cast< SQInteger >(m_Attr.as_ullong(static_cast< uint64_t >(def)));
 }
 
 // ------------------------------------------------------------------------------------------------
-bool XmlAttribute::ApplyLong(const SLongInt & value)
+bool XmlAttribute::ApplyLong(SQInteger value)
 {
-    return m_Attr.set_value(value.GetNum());
+    return m_Attr.set_value(value);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool XmlAttribute::ApplyUlong(const ULongInt & value)
+bool XmlAttribute::ApplyUlong(SQInteger value)
 {
-    return m_Attr.set_value(value.GetNum());
+    return m_Attr.set_value(value);
 }
 
 // ------------------------------------------------------------------------------------------------
-LightObj XmlAttribute::GetLong() const
+SQInteger XmlAttribute::GetLong() const
 {
-    return LightObj(SqTypeIdentity< SLongInt >{}, SqVM(), m_Attr.as_llong());
+    return m_Attr.as_llong();
 }
 
 // ------------------------------------------------------------------------------------------------
-void XmlAttribute::SetLong(const SLongInt & value)
+void XmlAttribute::SetLong(SQInteger value)
 {
-    m_Attr = value.GetNum();
+    m_Attr = value;
 }
 
 // ------------------------------------------------------------------------------------------------
-LightObj XmlAttribute::GetUlong() const
+SQInteger XmlAttribute::GetUlong() const
 {
-    return LightObj(SqTypeIdentity< ULongInt >{}, SqVM(), m_Attr.as_ullong());
+    return static_cast< SQInteger >(m_Attr.as_ullong());
 }
 
 // ------------------------------------------------------------------------------------------------
-void XmlAttribute::SetUlong(const ULongInt & value)
+void XmlAttribute::SetUlong(SQInteger value)
 {
-    m_Attr = value.GetNum();
+    m_Attr = static_cast< uint64_t >(value);
 }
 
 // ------------------------------------------------------------------------------------------------
-LightObj XmlText::AsLong(const SLongInt & def) const
+SQInteger XmlText::AsLong(SQInteger def) const
 {
-    return LightObj(SqTypeIdentity< SLongInt >{}, SqVM(), m_Text.as_llong(def.GetNum()));
+    return m_Text.as_llong(def);
 }
 
 // ------------------------------------------------------------------------------------------------
-LightObj XmlText::AsUlong(const ULongInt & def) const
+SQInteger XmlText::AsUlong(SQInteger def) const
 {
-    return LightObj(SqTypeIdentity< ULongInt >{}, SqVM(), m_Text.as_ullong(def.GetNum()));
+    return static_cast< SQInteger >(m_Text.as_ullong(static_cast< uint64_t >(def)));
 }
 
 // ------------------------------------------------------------------------------------------------
-bool XmlText::ApplyLong(const SLongInt & value)
+bool XmlText::ApplyLong(SQInteger value)
 {
-    return m_Text.set(value.GetNum());
+    return m_Text.set(value);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool XmlText::ApplyUlong(const ULongInt & value)
+bool XmlText::ApplyUlong(SQInteger value)
 {
-    return m_Text.set(value.GetNum());
+    return m_Text.set(static_cast< uint64_t >(value));
 }
 
 // ------------------------------------------------------------------------------------------------
-LightObj XmlText::GetLong() const
+SQInteger XmlText::GetLong() const
 {
-    return LightObj(SqTypeIdentity< SLongInt >{}, SqVM(), m_Text.as_llong());
+    return m_Text.as_llong();
 }
 
 // ------------------------------------------------------------------------------------------------
-void XmlText::SetLong(const SLongInt & value)
+void XmlText::SetLong(SQInteger value)
 {
-    m_Text = value.GetNum();
+    m_Text = value;
 }
 
 // ------------------------------------------------------------------------------------------------
-LightObj XmlText::GetUlong() const
+SQInteger XmlText::GetUlong() const
 {
-    return LightObj(SqTypeIdentity< SLongInt >{}, SqVM(), m_Text.as_ullong());
+    return static_cast< SQInteger >(m_Text.as_ullong());
 }
 
 // ------------------------------------------------------------------------------------------------
-void XmlText::SetUlong(const ULongInt & value)
+void XmlText::SetUlong(SQInteger value)
 {
-    m_Text = value.GetNum();
+    m_Text = static_cast< uint64_t >(value);
 }
 
 // ------------------------------------------------------------------------------------------------

@@ -424,21 +424,21 @@ int32_t ReleaseMemory(int32_t bytes)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object GetMemoryUsage()
+SQInteger GetMemoryUsage()
 {
     // Obtain the initial stack size
     const StackGuard sg;
     // Push a long integer instance with the requested value on the stack
-    return Object(new SLongInt(sqlite3_memory_used()));
+    return sqlite3_memory_used();
 }
 
 // ------------------------------------------------------------------------------------------------
-Object GetMemoryHighwaterMark(bool reset)
+SQInteger GetMemoryHighwaterMark(bool reset)
 {
     // Obtain the initial stack size
     const StackGuard sg;
     // Push a long integer instance with the requested value on the stack
-    return Object(new SLongInt(sqlite3_memory_highwater(reset)));
+    return sqlite3_memory_highwater(reset);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1585,11 +1585,11 @@ void SQLiteParameter::SetUint32(SQInteger value)
 }
 
 // ------------------------------------------------------------------------------------------------
-void SQLiteParameter::SetInt64(const Object & value)
+void SQLiteParameter::SetInt64(SQInteger value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
-    m_Handle->mStatus = sqlite3_bind_int64(m_Handle->mPtr, m_Index, value.Cast< const SLongInt & >().GetNum());
+    m_Handle->mStatus = sqlite3_bind_int64(m_Handle->mPtr, m_Index, value);
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -1598,11 +1598,11 @@ void SQLiteParameter::SetInt64(const Object & value)
 }
 
 // ------------------------------------------------------------------------------------------------
-void SQLiteParameter::SetUint64(const Object & value)
+void SQLiteParameter::SetUint64(SQInteger value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
-    m_Handle->mStatus = sqlite3_bind_int64(m_Handle->mPtr, m_Index, value.Cast< const ULongInt & >().GetNum());
+    m_Handle->mStatus = sqlite3_bind_int64(m_Handle->mPtr, m_Index, value);
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -2315,11 +2315,11 @@ SQFloat SQLiteColumn::GetFloat() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Object SQLiteColumn::GetLong() const
+SQInteger SQLiteColumn::GetLong() const
 {
     SQMOD_VALIDATE_ROW(*this);
     // Return the requested information
-    return Object(new SLongInt(sqlite3_column_int64(m_Handle->mPtr, m_Index)));
+    return sqlite3_column_int64(m_Handle->mPtr, m_Index);
 }
 
 // ------------------------------------------------------------------------------------------------

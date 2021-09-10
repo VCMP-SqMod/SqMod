@@ -1,6 +1,5 @@
 // ------------------------------------------------------------------------------------------------
 #include "Library/IO/Buffer.hpp"
-#include "Library/Numeric/Long.hpp"
 #include "Base/AABB.hpp"
 #include "Base/Circle.hpp"
 #include "Base/Color3.hpp"
@@ -20,19 +19,7 @@ namespace SqMod {
 SQMOD_DECL_TYPENAME(Typename, _SC("SqBuffer"))
 
 // ------------------------------------------------------------------------------------------------
-void SqBuffer::WriteInt64(const SLongInt & val)
-{
-    Valid().Push< int64_t >(val.GetNum());
-}
-
-// ------------------------------------------------------------------------------------------------
-void SqBuffer::WriteUint64(const ULongInt & val)
-{
-    Valid().Push< uint64_t >(val.GetNum());
-}
-
-// ------------------------------------------------------------------------------------------------
-SQInteger SqBuffer::WriteRawString(StackStrF & val)
+SQInteger SqBuffer::WriteRawString(StackStrF & val) const
 {
     // Validate the managed buffer reference
     Validate();
@@ -50,7 +37,7 @@ SQInteger SqBuffer::WriteRawString(StackStrF & val)
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger SqBuffer::WriteClientString(StackStrF & val)
+SQInteger SqBuffer::WriteClientString(StackStrF & val) const
 {
     // Validate the managed buffer reference
     Validate();
@@ -75,67 +62,67 @@ SQInteger SqBuffer::WriteClientString(StackStrF & val)
 }
 
 // ------------------------------------------------------------------------------------------------
-void SqBuffer::WriteAABB(const AABB & val)
+void SqBuffer::WriteAABB(const AABB & val) const
 {
     Valid().Push< AABB >(val);
 }
 
 // ------------------------------------------------------------------------------------------------
-void SqBuffer::WriteCircle(const Circle & val)
+void SqBuffer::WriteCircle(const Circle & val) const
 {
     Valid().Push< Circle >(val);
 }
 
 // ------------------------------------------------------------------------------------------------
-void SqBuffer::WriteColor3(const Color3 & val)
+void SqBuffer::WriteColor3(const Color3 & val) const
 {
     Valid().Push< Color3 >(val);
 }
 
 // ------------------------------------------------------------------------------------------------
-void SqBuffer::WriteColor4(const Color4 & val)
+void SqBuffer::WriteColor4(const Color4 & val) const
 {
     Valid().Push< Color4 >(val);
 }
 
 // ------------------------------------------------------------------------------------------------
-void SqBuffer::WriteQuaternion(const Quaternion & val)
+void SqBuffer::WriteQuaternion(const Quaternion & val) const
 {
     Valid().Push< Quaternion >(val);
 }
 
 // ------------------------------------------------------------------------------------------------
-void SqBuffer::WriteSphere(const Sphere &val)
+void SqBuffer::WriteSphere(const Sphere &val) const
 {
     Valid().Push< Sphere >(val);
 }
 
 // ------------------------------------------------------------------------------------------------
-void SqBuffer::WriteVector2(const Vector2 & val)
+void SqBuffer::WriteVector2(const Vector2 & val) const
 {
     Valid().Push< Vector2 >(val);
 }
 
 // ------------------------------------------------------------------------------------------------
-void SqBuffer::WriteVector2i(const Vector2i & val)
+void SqBuffer::WriteVector2i(const Vector2i & val) const
 {
     Valid().Push< Vector2i >(val);
 }
 
 // ------------------------------------------------------------------------------------------------
-void SqBuffer::WriteVector3(const Vector3 & val)
+void SqBuffer::WriteVector3(const Vector3 & val) const
 {
     Valid().Push< Vector3 >(val);
 }
 
 // ------------------------------------------------------------------------------------------------
-void SqBuffer::WriteVector4(const Vector4 & val)
+void SqBuffer::WriteVector4(const Vector4 & val) const
 {
     Valid().Push< Vector4 >(val);
 }
 
 // ------------------------------------------------------------------------------------------------
-SLongInt SqBuffer::ReadInt64()
+SQInteger SqBuffer::ReadInt64() const
 {
     // Validate the managed buffer reference
     ValidateDeeper();
@@ -144,11 +131,11 @@ SLongInt SqBuffer::ReadInt64()
     // Advance the buffer cursor
     m_Buffer->Advance< int64_t >(1);
     // Return the requested information
-    return SLongInt(value);
+    return static_cast< SQInteger >(value);
 }
 
 // ------------------------------------------------------------------------------------------------
-ULongInt SqBuffer::ReadUint64()
+SQInteger SqBuffer::ReadUint64() const
 {
     // Validate the managed buffer reference
     ValidateDeeper();
@@ -157,11 +144,11 @@ ULongInt SqBuffer::ReadUint64()
     // Advance the buffer cursor
     m_Buffer->Advance< uint64_t >(1);
     // Return the requested information
-    return ULongInt(value);
+    return static_cast< SQInteger >(value);
 }
 
 // ------------------------------------------------------------------------------------------------
-LightObj SqBuffer::ReadRawString(SQInteger length)
+LightObj SqBuffer::ReadRawString(SQInteger length) const
 {
     // Validate the managed buffer reference
     ValidateDeeper();
@@ -201,7 +188,7 @@ LightObj SqBuffer::ReadRawString(SQInteger length)
 }
 
 // ------------------------------------------------------------------------------------------------
-LightObj SqBuffer::ReadClientString()
+LightObj SqBuffer::ReadClientString() const
 {
     // Validate the managed buffer reference
     ValidateDeeper();
@@ -228,7 +215,7 @@ LightObj SqBuffer::ReadClientString()
 }
 
 // ------------------------------------------------------------------------------------------------
-AABB SqBuffer::ReadAABB()
+AABB SqBuffer::ReadAABB() const
 {
     // Validate the managed buffer reference
     ValidateDeeper();
@@ -241,7 +228,7 @@ AABB SqBuffer::ReadAABB()
 }
 
 // ------------------------------------------------------------------------------------------------
-Circle SqBuffer::ReadCircle()
+Circle SqBuffer::ReadCircle() const
 {
     // Validate the managed buffer reference
     ValidateDeeper();
@@ -254,7 +241,7 @@ Circle SqBuffer::ReadCircle()
 }
 
 // ------------------------------------------------------------------------------------------------
-Color3 SqBuffer::ReadColor3()
+Color3 SqBuffer::ReadColor3() const
 {
     // Validate the managed buffer reference
     ValidateDeeper();
@@ -267,7 +254,7 @@ Color3 SqBuffer::ReadColor3()
 }
 
 // ------------------------------------------------------------------------------------------------
-Color4 SqBuffer::ReadColor4()
+Color4 SqBuffer::ReadColor4() const
 {
     // Validate the managed buffer reference
     ValidateDeeper();
@@ -280,7 +267,7 @@ Color4 SqBuffer::ReadColor4()
 }
 
 // ------------------------------------------------------------------------------------------------
-Quaternion SqBuffer::ReadQuaternion()
+Quaternion SqBuffer::ReadQuaternion() const
 {
     // Validate the managed buffer reference
     ValidateDeeper();
@@ -293,7 +280,7 @@ Quaternion SqBuffer::ReadQuaternion()
 }
 
 // ------------------------------------------------------------------------------------------------
-Sphere SqBuffer::ReadSphere()
+Sphere SqBuffer::ReadSphere() const
 {
     // Validate the managed buffer reference
     ValidateDeeper();
@@ -306,7 +293,7 @@ Sphere SqBuffer::ReadSphere()
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2 SqBuffer::ReadVector2()
+Vector2 SqBuffer::ReadVector2() const
 {
     // Validate the managed buffer reference
     ValidateDeeper();
@@ -319,7 +306,7 @@ Vector2 SqBuffer::ReadVector2()
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector2i SqBuffer::ReadVector2i()
+Vector2i SqBuffer::ReadVector2i() const
 {
     // Validate the managed buffer reference
     ValidateDeeper();
@@ -332,7 +319,7 @@ Vector2i SqBuffer::ReadVector2i()
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector3 SqBuffer::ReadVector3()
+Vector3 SqBuffer::ReadVector3() const
 {
     // Validate the managed buffer reference
     ValidateDeeper();
@@ -345,7 +332,7 @@ Vector3 SqBuffer::ReadVector3()
 }
 
 // ------------------------------------------------------------------------------------------------
-Vector4 SqBuffer::ReadVector4()
+Vector4 SqBuffer::ReadVector4() const
 {
     // Validate the managed buffer reference
     ValidateDeeper();
@@ -358,7 +345,7 @@ Vector4 SqBuffer::ReadVector4()
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger SqBuffer::GetCRC32(SQInteger n)
+SQInteger SqBuffer::GetCRC32(SQInteger n) const
 {
     // Validate the managed buffer reference
     ValidateDeeper();
@@ -371,7 +358,7 @@ SQInteger SqBuffer::GetCRC32(SQInteger n)
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger SqBuffer::GetADLER32(SQInteger n)
+SQInteger SqBuffer::GetADLER32(SQInteger n) const
 {
     // Validate the managed buffer reference
     ValidateDeeper();

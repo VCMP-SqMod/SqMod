@@ -78,7 +78,6 @@ add_library(SqModule MODULE SqBase.hpp Main.cpp
     Library/MMDB.cpp Library/MMDB.hpp
     Library/Net.cpp Library/Net.hpp
     Library/Numeric.cpp Library/Numeric.hpp
-    Library/Numeric/Long.cpp Library/Numeric/Long.hpp
     Library/Numeric/Math.cpp Library/Numeric/Math.hpp
     Library/Numeric/Random.cpp Library/Numeric/Random.hpp
     Library/String.cpp Library/String.hpp

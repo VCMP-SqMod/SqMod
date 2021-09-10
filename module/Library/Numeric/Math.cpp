@@ -1,6 +1,5 @@
 // ------------------------------------------------------------------------------------------------
 #include "Library/Numeric/Math.hpp"
-#include "Library/Numeric/Long.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <cmath>
@@ -66,7 +65,7 @@ static SQInteger SqRemainder(HSQUIRRELVM vm)
     // Are we both arguments integers?
     else if ((sq_gettype(vm, 2) == OT_INTEGER) && sq_gettype(vm, 3) == OT_INTEGER)
     { // NOLINT(bugprone-branch-clone)
-        sq_pushinteger(vm, std::remainder(PopStackInteger(vm, 2), PopStackInteger(vm, 3)));
+        sq_pushinteger(vm, static_cast< SQInteger >(std::remainder(PopStackInteger(vm, 2), PopStackInteger(vm, 3))));
     }
     // Is the first argument float?
     else if ((sq_gettype(vm, 2) == OT_FLOAT))
@@ -76,7 +75,7 @@ static SQInteger SqRemainder(HSQUIRRELVM vm)
     // Is the first argument integer?
     else if ((sq_gettype(vm, 2) == OT_INTEGER))
     {
-        sq_pushinteger(vm, std::remainder(PopStackInteger(vm, 2), PopStackInteger(vm, 3)));
+        sq_pushinteger(vm, static_cast< SQInteger >(std::remainder(PopStackInteger(vm, 2), PopStackInteger(vm, 3))));
     }
     // Default to both arguments as float so we don't loos precision from the float one
     else
@@ -184,18 +183,7 @@ static SQInteger SqNanL(HSQUIRRELVM vm)
         return val.mRes; // Propagate the error!
     }
     // Fetch the arguments from the stack and perform the requested operation
-    try
-    {
-        Var< SLongInt * >::push(vm, new SLongInt(std::nanl(val.mPtr)));
-    }
-    catch (const std::exception & e)
-    {
-        return sq_throwerror(vm, e.what());
-    }
-    catch (...)
-    {
-        return sq_throwerror(vm, _SC("Failed to create a long integer instance"));
-    }
+    sq_pushinteger(vm, static_cast< SQInteger >(std::nanl(val.mPtr)));
     // Specify that we have a value on the stack
     return 1;
 }
@@ -659,11 +647,11 @@ static SQInteger SqRoundI(HSQUIRRELVM vm)
     // Fetch the arguments from the stack and perform the requested operation
     if (sq_gettype(vm, 2) == OT_FLOAT)
     {
-        sq_pushinteger(vm, ConvTo< SQInteger >::From(std::llround(PopStackFloat(vm, 2))));
+        sq_pushinteger(vm, static_cast< SQInteger >(std::llround(PopStackFloat(vm, 2))));
     }
     else
     {
-        sq_pushinteger(vm, ConvTo< SQInteger >::From(std::llround(PopStackInteger(vm, 2))));
+        sq_pushinteger(vm, static_cast< SQInteger >(std::llround(PopStackInteger(vm, 2))));
     }
     // Specify that we have a value on the stack
     return 1;
@@ -678,24 +666,13 @@ static SQInteger SqRoundL(HSQUIRRELVM vm)
         return sq_throwerror(vm, "Wrong number of arguments");
     }
     // Fetch the arguments from the stack and perform the requested operation
-    try
+    if (sq_gettype(vm, 2) == OT_FLOAT)
     {
-        if (sq_gettype(vm, 2) == OT_FLOAT)
-        {
-            Var< SLongInt * >::push(vm, new SLongInt(std::llround(PopStackFloat(vm, 2))));
-        }
-        else
-        {
-            Var< SLongInt * >::push(vm, new SLongInt(std::llround(PopStackInteger(vm, 2))));
-        }
+        sq_pushinteger(vm, static_cast< SQInteger >(std::llround(PopStackFloat(vm, 2))));
     }
-    catch (const std::exception & e)
+    else
     {
-        return sq_throwerror(vm, e.what());
-    }
-    catch (...)
-    {
-        return sq_throwerror(vm, _SC("Failed to create a long integer instance"));
+        sq_pushinteger(vm, static_cast< SQInteger >(std::llround(PopStackInteger(vm, 2))));
     }
     // Specify that we have a value on the stack
     return 1;
@@ -760,7 +737,7 @@ static SQInteger SqLdexp(HSQUIRRELVM vm)
         return sq_throwerror(vm, "Wrong number of arguments");
     }
     // Fetch the arguments from the stack and perform the requested operation
-    sq_pushfloat(vm, std::ldexp(PopStackFloat(vm, 2), PopStackInteger(vm, 3)));
+    sq_pushfloat(vm, std::ldexp(PopStackFloat(vm, 2), static_cast< int >(PopStackInteger(vm, 3))));
     // Specify that we have a value on the stack
     return 1;
 }
@@ -811,9 +788,9 @@ static SQInteger SqScalbn(HSQUIRRELVM vm)
     }
     // Fetch the arguments from the stack and perform the requested operation
 #ifdef _SQ64
-    sq_pushfloat(vm, std::scalbln(PopStackFloat(vm, 2), PopStackInteger(vm, 3)));
+    sq_pushfloat(vm, std::scalbln(PopStackFloat(vm, 2), static_cast< int >(PopStackInteger(vm, 3))));
 #else
-    sq_pushfloat(vm, std::scalbn(PopStackFloat(vm, 2), PopStackInteger(vm, 3)));
+    sq_pushfloat(vm, std::scalbn(PopStackFloat(vm, 2), static_cast< int >(PopStackInteger(vm, 3))));
 #endif // _SQ64
     // Specify that we have a value on the stack
     return 1;
@@ -1066,7 +1043,7 @@ static SQInteger SqDigits1(HSQUIRRELVM vm)
         return sq_throwerror(vm, "Wrong number of arguments");
     }
     // Fetch the integer value from the stack
-    int64_t n = std::llabs(PopStackSLong(vm, 2));
+    int64_t n = std::llabs(PopStackInteger(vm, 2));
     // Start with 0 digits
     uint8_t d = 0;
     // Identify the number of digits
@@ -1090,7 +1067,7 @@ static SQInteger SqDigits0(HSQUIRRELVM vm)
         return sq_throwerror(vm, "Wrong number of arguments");
     }
     // Fetch the integer value from the stack
-    int64_t n = std::llabs(PopStackSLong(vm, 2));
+    int64_t n = std::llabs(PopStackInteger(vm, 2));
     // Start with 0 digits
     uint8_t d = 0;
     // Identify the number of digits

@@ -5,7 +5,6 @@
 
 // ------------------------------------------------------------------------------------------------
 #include "Library/IO/Buffer.hpp"
-#include "Library/Numeric/Long.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <vector>
@@ -76,7 +75,7 @@ SQFloat GetEntryAsFloat(const MMDB_entry_data_s & ed);
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the value from the specified entry data as a long integer.
 */
-LightObj GetEntryAsLong(const MMDB_entry_data_s & ed);
+SQInteger GetEntryAsLong(const MMDB_entry_data_s & ed);
 
 /* ------------------------------------------------------------------------------------------------
  * Retrieve the value from the specified entry data as a string.
@@ -811,7 +810,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value from the current element as a long integer.
     */
-    SQMOD_NODISCARD LightObj GetLong() const
+    SQMOD_NODISCARD SQInteger GetLong() const
     {
         return GetEntryAsLong(SQMOD_GET_VALID(*this));
     }
@@ -1105,7 +1104,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value from the current element as a long integer.
     */
-    SQMOD_NODISCARD LightObj GetLong() const
+    SQMOD_NODISCARD SQInteger GetLong() const
     {
         return GetEntryAsLong(SQMOD_GET_VALID_ELEM(*this)->entry_data);
     }
@@ -1492,9 +1491,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the build epoch.
     */
-    SQMOD_NODISCARD Object GetBuildEpoch() const
+    SQMOD_NODISCARD SQInteger GetBuildEpoch() const
     {
-        return Object(SqTypeIdentity< ULongInt >{}, SqVM(), ConvTo< uint64_t >::From(SQMOD_GET_VALID(*this)->build_epoch));
+        return ConvTo< SQInteger >::From(SQMOD_GET_VALID(*this)->build_epoch);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1662,17 +1661,17 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the left record value.
     */
-    Object GetLeftRecord()
+    SQInteger GetLeftRecord()
     {
-        return Object(SqTypeIdentity< ULongInt >{}, SqVM(), ConvTo< uint64_t >::From(SQMOD_GET_VALID(*this).left_record));
+        return ConvTo< SQInteger >::From(SQMOD_GET_VALID(*this).left_record);
     }
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the right record value.
     */
-    Object GetRightRecord()
+    SQInteger GetRightRecord()
     {
-      return Object(SqTypeIdentity< ULongInt >{}, SqVM(), ConvTo< uint64_t >::From(SQMOD_GET_VALID(*this).right_record));
+      return ConvTo< SQInteger >::From(SQMOD_GET_VALID(*this).right_record);
     }
 
     /* --------------------------------------------------------------------------------------------

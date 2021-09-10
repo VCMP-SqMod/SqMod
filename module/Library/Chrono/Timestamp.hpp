@@ -43,11 +43,6 @@ public:
     /* --------------------------------------------------------------------------------------------
      *
     */
-    explicit Timestamp(const SLongInt & t);
-
-    /* --------------------------------------------------------------------------------------------
-     *
-    */
     Timestamp(const Timestamp & o) = default;
 
     /* --------------------------------------------------------------------------------------------
@@ -122,18 +117,18 @@ public:
     /* --------------------------------------------------------------------------------------------
      *
     */
-    SQMOD_NODISCARD SLongInt GetMicroseconds() const;
+    SQMOD_NODISCARD SQInteger GetMicroseconds() const;
 
     /* --------------------------------------------------------------------------------------------
      *
     */
-    void SetMicroseconds(const SLongInt & amount);
+    void SetMicroseconds(SQInteger amount);
 
     /* --------------------------------------------------------------------------------------------
      *
     */
-    Timestamp & AddMicroseconds(const SLongInt & amount);
-    Timestamp & SubMicroseconds(const SLongInt & amount);
+    Timestamp & AddMicroseconds(SQInteger amount);
+    Timestamp & SubMicroseconds(SQInteger amount);
 
     /* --------------------------------------------------------------------------------------------
      *
@@ -160,18 +155,18 @@ public:
     /* --------------------------------------------------------------------------------------------
      *
     */
-    SQMOD_NODISCARD SLongInt GetMilliseconds() const;
+    SQMOD_NODISCARD SQInteger GetMilliseconds() const;
 
     /* --------------------------------------------------------------------------------------------
      *
     */
-    void SetMilliseconds(const SLongInt & amount);
+    void SetMilliseconds(SQInteger amount);
 
     /* --------------------------------------------------------------------------------------------
      *
     */
-    Timestamp & AddMilliseconds(const SLongInt & amount);
-    Timestamp & SubMilliseconds(const SLongInt & amount);
+    Timestamp & AddMilliseconds(SQInteger amount);
+    Timestamp & SubMilliseconds(SQInteger amount);
 
     /* --------------------------------------------------------------------------------------------
      *
@@ -244,7 +239,7 @@ public:
     */
     SQMOD_NODISCARD SQFloat GetMinutesF() const
     {
-        return SQFloat(m_Timestamp / 60000000.0);
+        return SQFloat(m_Timestamp) / 60000000.0;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -288,7 +283,7 @@ public:
     */
     SQMOD_NODISCARD SQFloat GetHoursF() const
     {
-        return SQFloat(m_Timestamp / 3600000000.0);
+        return SQFloat(m_Timestamp) / 3600000000.0;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -332,7 +327,7 @@ public:
     */
     SQMOD_NODISCARD SQFloat GetDaysF() const
     {
-        return SQFloat(m_Timestamp / 86400000000.0);
+        return SQFloat(m_Timestamp) / 86400000000.0;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -376,7 +371,7 @@ public:
     */
     SQMOD_NODISCARD SQFloat GetYearsF() const
     {
-        return SQFloat(m_Timestamp / 31557600000000.0);
+        return SQFloat(m_Timestamp) / 31557600000000.0;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -466,7 +461,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      *
     */
-    std::time_t ToTimeT() const;
+    SQMOD_NODISCARD std::time_t ToTimeT() const;
 
 private:
 

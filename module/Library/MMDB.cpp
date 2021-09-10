@@ -36,7 +36,7 @@ static SQChar * Bin128ToDec(const uint32_t N[4])
         // Add s[] to itself in decimal, doubling it
         for (j = sizeof(s) - 2; j >= 0; j--)
         {
-            s[j] += s[j] - '0' + carry;
+            s[j] += s[j] - '0' + carry; // NOLINT(cppcoreguidelines-narrowing-conversions)
 
             carry = (s[j] > '9');
 
@@ -265,7 +265,7 @@ SQFloat GetEntryAsFloat(const MMDB_entry_data_s & ed)
 }
 
 // ------------------------------------------------------------------------------------------------
-LightObj GetEntryAsLong(const MMDB_entry_data_s & ed)
+SQInteger GetEntryAsLong(const MMDB_entry_data_s & ed)
 {
     uint64_t value = 0;
     // Identify the type of entry data
@@ -315,7 +315,7 @@ LightObj GetEntryAsLong(const MMDB_entry_data_s & ed)
             STHROWF("Unsupported conversion from ({}) to (long)", AsTypeStr(ed.type));
     }
     // Return a long integer instance with the requested value
-    return LightObj(SqTypeIdentity< ULongInt >{}, SqVM(), value);
+    return static_cast< SQInteger >(value);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -338,7 +338,7 @@ LightObj GetEntryAsString(const MMDB_entry_data_s & ed)
             sq_pushstring(vm, fmt::format("{}", ed.double_value).c_str(), -1);
         } break;
         case MMDB_DATA_TYPE_BYTES: {
-            sq_pushstring(vm, reinterpret_cast< const SQChar * >(ed.bytes), ed.data_size / sizeof(SQChar));
+            sq_pushstring(vm, reinterpret_cast< const SQChar * >(ed.bytes), static_cast< SQInteger >(ed.data_size) / sizeof(SQChar));
         } break;
         case MMDB_DATA_TYPE_UINT16: {
             sq_pushstring(vm, fmt::format("{}", ed.uint16).c_str(), -1);
@@ -1051,7 +1051,7 @@ Object LookupResult::GetEntryDataList()
 // ------------------------------------------------------------------------------------------------
 SQInteger LookupResult::GetValue(HSQUIRRELVM vm)
 {
-    const int32_t top = sq_gettop(vm);
+    const auto top = sq_gettop(vm);
     // The lookup result instance
     LookupResult * lookup;
     // Attempt to extract the lookup result instance
@@ -1294,7 +1294,7 @@ Object SearchNode::GetRightRecordEntryDataList()
 // ------------------------------------------------------------------------------------------------
 SQInteger SearchNode::GetRecordEntryData(HSQUIRRELVM vm, bool right)
 {
-    const int32_t top = sq_gettop(vm);
+    const auto top = sq_gettop(vm);
     // The search node result instance
     SearchNode * node;
     // Attempt to extract the search node result instance
