@@ -33,12 +33,13 @@
 */
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(_WIN) || defined(__WIN__)
+    #error Squirrel Module does not support 32-bit Windows anymore
     // Windows x32
-    #define SQMOD_OS_WINDOWS
-    #define SQMOD_OS_32
-    #define SQMOD_OS_WINDOWS32
-    #define SQMOD_ARCHITECTURE 1
-    #define SQMOD_PLATFORM 1
+    //#define SQMOD_OS_WINDOWS
+    //#define SQMOD_OS_32
+    //#define SQMOD_OS_WINDOWS32
+    //#define SQMOD_ARCHITECTURE 1
+    //#define SQMOD_PLATFORM 1
 #elif defined(_WIN64) || defined(__WIN64__)
     // Windows x64
     #define SQMOD_OS_WINDOWS
@@ -53,13 +54,14 @@
         #if __x86_64__ || __ppc64__
             #define SQMOD_OS_64
             #define SQMOD_OS_LINUX64
-             #define SQMOD_ARCHITECTURE 2
+            #define SQMOD_ARCHITECTURE 2
             #define SQMOD_PLATFORM 2
         #else
-            #define SQMOD_OS_32
-            #define SQMOD_OS_LINUX32
-            #define SQMOD_ARCHITECTURE 1
-            #define SQMOD_PLATFORM 2
+            #error Squirrel Module does not support 32-bit Linux anymore
+            //#define SQMOD_OS_32
+            //#define SQMOD_OS_LINUX32
+            //#define SQMOD_ARCHITECTURE 1
+            //#define SQMOD_PLATFORM 2
         #endif
     #endif
 #else
@@ -423,7 +425,7 @@ enum EntityType
 #define SQMOD_CONCAT(a,b) SQMOD_CONCAT_(a,b)
 
 // ------------------------------------------------------------------------------------------------
-#ifdef _WIN32
+#ifdef SQMOD_OS_WINDOWS
    #define sqmod_stricmp(a,b) stricmp(a,b)
    #define sqmod_strnicmp(a,b,n) strnicmp(a,b,n)
 #else
