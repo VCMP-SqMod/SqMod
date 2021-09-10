@@ -24,6 +24,9 @@ extern void ProcessRoutines();
 extern void ProcessTasks();
 extern void ProcessThreads();
 extern void ProcessNet();
+#ifdef VCMP_ENABLE_DISCORD
+    extern void ProcessDPP();
+#endif
 
 /* ------------------------------------------------------------------------------------------------
  * Will the scripts be reloaded at the end of the current event?
@@ -172,6 +175,10 @@ static void OnServerFrame(float elapsed_time)
     ProcessThreads();
     // Process network
     ProcessNet();
+    // Process DPP
+#ifdef VCMP_ENABLE_DISCORD
+    ProcessDPP();
+#endif
     // Process log messages from other threads
     Logger::Get().ProcessQueue();
     // See if a reload was requested

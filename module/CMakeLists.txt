@@ -133,6 +133,12 @@ if(WIN32 OR MINGW)
 endif()
 # Link to base libraries
 target_link_libraries(SqModule Squirrel fmt::fmt SimpleINI TinyDir xxHash ConcurrentQueue SAJSON CPR PUGIXML CivetWeb maxminddb libzmq-static)
+# Enable built-in Discord support
+if(ENABLE_DISCORD)
+    target_link_libraries(SqModule DPP)
+    target_compile_definitions(SqModule PRIVATE VCMP_ENABLE_DISCORD=1)
+    target_sources(SqModule PRIVATE Library/DPP.cpp Library/DPP.hpp Library/DPPEv.cpp Library/DPPEv.hpp Library/DPPTy.cpp Library/DPPTy.hpp)
+endif()
 # Link to POCO libraries
 target_link_libraries(SqModule Poco::Foundation Poco::Crypto Poco::Data Poco::Net Poco::JSON Poco::XML)
 # Does POCO have SQLite support?
