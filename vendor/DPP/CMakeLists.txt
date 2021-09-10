@@ -149,23 +149,26 @@ find_package(OpenSSL REQUIRED)
 target_link_libraries(DPP PUBLIC Threads::Threads ZLIB::ZLIB OpenSSL::Crypto OpenSSL::SSL)
 # Include the custom module folder
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake/")
-# Look for sodium and opus libraries
-include("cmake/FindSodium.cmake")
-include("cmake/FindOpus.cmake")
-# Was the opus library found?
-if(DEFINED OPUS_FOUND)
-    message(STATUS "Opus library was found")
-    # Link to opus library
-    target_include_directories(DPP PUBLIC ${OPUS_INCLUDE_DIRS})
-    target_link_libraries(DPP PUBLIC ${OPUS_LIBRARIES})
-    # Was the sodium library found?
-    if(DEFINED sodium_VERSION_STRING)
-        message(STATUS "Sodium library was found")
-        message(STATUS "DPP voice support enabled")
-        # Let the code know about this
-        target_compile_definitions(DPP PRIVATE HAVE_VOICE=1)
-        # Link to sodium library
-        target_include_directories(DPP PUBLIC ${sodium_INCLUDE_DIR})
-        target_link_libraries(DPP PUBLIC ${sodium_LIBRARY_RELEASE})
+# Enable voice support in discord library
+if (ENABLE_DISCORD_VOICE)
+    # Look for sodium and opus libraries
+    include("cmake/FindSodium.cmake")
+    include("cmake/FindOpus.cmake")
+    # Was the opus library found?
+    if(DEFINED OPUS_FOUND)
+        message(STATUS "Opus library was found")
+        # Link to opus library
+        target_include_directories(DPP PUBLIC ${OPUS_INCLUDE_DIRS})
+        target_link_libraries(DPP PUBLIC ${OPUS_LIBRARIES})
+        # Was the sodium library found?
+        if(DEFINED sodium_VERSION_STRING)
+            message(STATUS "Sodium library was found")
+            message(STATUS "DPP voice support enabled")
+            # Let the code know about this
+            target_compile_definitions(DPP PRIVATE HAVE_VOICE=1)
+            # Link to sodium library
+            target_include_directories(DPP PUBLIC ${sodium_INCLUDE_DIR})
+            target_link_libraries(DPP PUBLIC ${sodium_LIBRARY_RELEASE})
+        endif()
     endif()
 endif()
