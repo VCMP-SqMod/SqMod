@@ -327,7 +327,17 @@ static const EnumElement g_DpPresenceFlagsEnum[] = {
     {_SC("MobileIdle"),     static_cast< SQInteger >(dpp::p_mobile_idle)},
     {_SC("StatusOnline"),   static_cast< SQInteger >(dpp::p_status_online)},
     {_SC("StatusDND"),      static_cast< SQInteger >(dpp::p_status_dnd)},
-    {_SC("StatusIdle"),     static_cast< SQInteger >(dpp::p_status_idle)}
+    {_SC("StatusIdle"),     static_cast< SQInteger >(dpp::p_status_idle)},
+    // Helper bit-shift flags
+    {_SC("BitShiftDesktop"),    static_cast< SQInteger >(PF_SHIFT_DESKTOP)},
+    {_SC("BitShiftWeb"),        static_cast< SQInteger >(PF_SHIFT_WEB)},
+    {_SC("BitShiftMobile"),     static_cast< SQInteger >(PF_SHIFT_MOBILE)},
+    {_SC("BitShiftMain"),       static_cast< SQInteger >(PF_SHIFT_MAIN)},
+    {_SC("BitStatusMask"),      static_cast< SQInteger >(PF_STATUS_MASK)},
+    {_SC("BitClearDesktop"),    static_cast< SQInteger >(PF_CLEAR_DESKTOP)},
+    {_SC("BitClearWeb"),        static_cast< SQInteger >(PF_CLEAR_WEB)},
+    {_SC("BitClearMobile"),     static_cast< SQInteger >(PF_CLEAR_MOBILE)},
+    {_SC("BitClearStatus"),     static_cast< SQInteger >(PF_CLEAR_STATUS)},
 };
 
 // ------------------------------------------------------------------------------------------------
