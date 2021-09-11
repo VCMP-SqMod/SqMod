@@ -31,6 +31,9 @@
 
 #include <cstring>
 
+#include <map>
+#include <unordered_map>
+
 #include "sqratAllocator.h"
 #include "sqratTypes.h"
 #include "sqratOverloadMethods.h"
@@ -667,6 +670,128 @@ public:
             sq_pop(vm,2);
         }
         return res;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Inserts associative container values into the managed object.
+    ///
+    /// \param map Associative container to be inserted to the table
+    ///
+    /// \tparam K Type of key (usually doesnt need to be defined explicitly)
+    ///
+    /// \tparam V Type of value (usually doesnt need to be defined explicitly)
+    ///
+    /// \return Result value returned by squirrel.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template<class K, class V>
+    SQRESULT InsertFromMap(const std::unordered_map< K, V > & map, bool staticVar = false) {
+        HSQUIRRELVM vm = SqVM();
+        const StackGuard sg(vm);
+        sq_pushobject(vm, GetObj());
+        for (const auto & p : map)
+        {
+            Var< const K & >::push(vm, p.first);
+            Var< const V & >::push(vm, p.second);
+            const auto r = sq_newslot(vm, -3, staticVar);
+            if (SQ_FAILED(r)) return r;
+        }
+        //sq_pop(vm, 1); // pop object
+        return SQ_OK;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Inserts associative container values into the managed object.
+    ///
+    /// \param map Associative container to be inserted to the table
+    ///
+    /// \tparam K Type of key (usually doesnt need to be defined explicitly)
+    ///
+    /// \tparam V Type of value (usually doesnt need to be defined explicitly)
+    ///
+    /// \return Result value returned by squirrel.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template<class K, class V>
+    SQRESULT InsertFromMap(const std::map< K, V > & map, bool staticVar = false) {
+        HSQUIRRELVM vm = SqVM();
+        const StackGuard sg(vm);
+        sq_pushobject(vm, GetObj());
+        for (const auto & p : map)
+        {
+            Var< const K & >::push(vm, p.first);
+            Var< const V & >::push(vm, p.second);
+            const auto r = sq_newslot(vm, -3, staticVar);
+            if (SQ_FAILED(r)) return r;
+        }
+        //sq_pop(vm, 1); // pop object
+        return SQ_OK;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Inserts associative container values into the managed object.
+    ///
+    /// \param map Associative container to be inserted to the table
+    ///
+    /// \param func Functor that is continuously called to push values on the stack
+    ///
+    /// \tparam K Type of key (usually doesnt need to be defined explicitly)
+    ///
+    /// \tparam V Type of value (usually doesnt need to be defined explicitly)
+    ///
+    /// \tparam F Type of functor (usually doesnt need to be defined explicitly)
+    ///
+    /// \return Result value returned by squirrel.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template<class K, class V, class F>
+    SQRESULT InsertFromMapWith(const std::unordered_map< K, V > & map, F func, bool staticVar = false) {
+        HSQUIRRELVM vm = SqVM();
+        const StackGuard sg(vm);
+        sq_pushobject(vm, GetObj());
+        SQRESULT r = SQ_OK;
+        for (const auto & p : map)
+        {
+            r = func(vm, p.first, p.second);
+            if (SQ_FAILED(r)) break;
+            r = sq_newslot(vm, -3, staticVar);
+            if (SQ_FAILED(r)) return r;
+        }
+        //sq_pop(vm, 1); // pop object
+        return r;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Inserts associative container values into the managed object.
+    ///
+    /// \param map Associative container to be inserted to the table
+    ///
+    /// \param func Functor that is continuously called to push values on the stack
+    ///
+    /// \tparam K Type of key (usually doesnt need to be defined explicitly)
+    ///
+    /// \tparam V Type of value (usually doesnt need to be defined explicitly)
+    ///
+    /// \tparam F Type of functor (usually doesnt need to be defined explicitly)
+    ///
+    /// \return Result value returned by squirrel.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template<class K, class V, class F>
+    SQRESULT InsertFromMapWith(const std::map< K, V > & map, F func, bool staticVar = false) {
+        HSQUIRRELVM vm = SqVM();
+        const StackGuard sg(vm);
+        sq_pushobject(vm, GetObj());
+        SQRESULT r = SQ_OK;
+        for (const auto & p : map)
+        {
+            r = func(vm, p.first, p.second);
+            if (SQ_FAILED(r)) break;
+            r = sq_newslot(vm, -3, staticVar);
+            if (SQ_FAILED(r)) return r;
+        }
+        //sq_pop(vm, 1); // pop object
+        return r;
     }
 
 protected:
