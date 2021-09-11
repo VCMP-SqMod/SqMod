@@ -181,7 +181,7 @@ private:
 
     template <class T2, bool b>
     struct pushAsInt {
-        void push(HSQUIRRELVM vm, const T2& /*value*/) {
+        inline void push(HSQUIRRELVM vm, const T2& /*value*/) noexcept {
             assert(false); // fails because called before a Sqrat::Class for T exists and T is not convertible to SQInteger
             sq_pushnull(vm);
         }
@@ -189,8 +189,8 @@ private:
 
     template <class T2>
     struct pushAsInt<T2, true> {
-        void push(HSQUIRRELVM vm, const T2& value) {
-            sq_pushinteger(vm, static_cast<SQInteger>(value));
+        inline void push(HSQUIRRELVM vm, const T2& val) noexcept {
+            sq_pushinteger(vm, static_cast<SQInteger>(val));
         }
     };
 };
@@ -237,7 +237,7 @@ private:
 
     template <class T2, bool b>
     struct pushAsInt {
-        void push(HSQUIRRELVM vm, const T2& /*value*/) {
+        inline void push(HSQUIRRELVM vm, const T2& /*value*/) noexcept {
             assert(false); // fails because called before a Sqrat::Class for T exists and T is not convertible to SQInteger
             sq_pushnull(vm);
         }
@@ -245,8 +245,8 @@ private:
 
     template <class T2>
     struct pushAsInt<T2, true> {
-        void push(HSQUIRRELVM vm, const T2& value) {
-            sq_pushinteger(vm, static_cast<SQInteger>(value));
+        inline void push(HSQUIRRELVM vm, const T2& val) noexcept {
+            sq_pushinteger(vm, static_cast<SQInteger>(val));
         }
     };
 };
@@ -483,7 +483,7 @@ struct Var<SharedPtr<T> > {
      Var(HSQUIRRELVM vm, SQInteger idx) { \
          value = popAsInt<type, true>(vm, idx).value; \
      } \
-     static void push(HSQUIRRELVM vm, const type& value) { \
+     inline static void push(HSQUIRRELVM vm, const type& value) noexcept { \
          sq_pushinteger(vm, static_cast<SQInteger>(value)); \
      } \
  };\
@@ -494,7 +494,7 @@ struct Var<SharedPtr<T> > {
      Var(HSQUIRRELVM vm, SQInteger idx) { \
          value = popAsInt<type, true>(vm, idx).value; \
      } \
-     static void push(HSQUIRRELVM vm, const type& value) { \
+     inline static void push(HSQUIRRELVM vm, const type& value) noexcept { \
          sq_pushinteger(vm, static_cast<SQInteger>(value)); \
      } \
  };
@@ -525,7 +525,7 @@ SCRAT_INTEGER(signed __int64)
      Var(HSQUIRRELVM vm, SQInteger idx) { \
          value = popAsFloat<type>(vm, idx).value; \
      } \
-     static void push(HSQUIRRELVM vm, const type& value) { \
+     inline static void push(HSQUIRRELVM vm, const type& value) noexcept { \
          sq_pushfloat(vm, static_cast<SQFloat>(value)); \
      } \
  }; \
@@ -536,7 +536,7 @@ SCRAT_INTEGER(signed __int64)
      Var(HSQUIRRELVM vm, SQInteger idx) { \
          value = popAsFloat<type>(vm, idx).value; \
      } \
-     static void push(HSQUIRRELVM vm, const type& value) { \
+     inline static void push(HSQUIRRELVM vm, const type& value) noexcept { \
          sq_pushfloat(vm, static_cast<SQFloat>(value)); \
      } \
  };
@@ -572,7 +572,7 @@ struct Var<bool> {
     /// \param value Value to push on to the VM's stack
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    static void push(HSQUIRRELVM vm, const bool& value) {
+    inline static void push(HSQUIRRELVM vm, const bool& value) noexcept {
         sq_pushbool(vm, static_cast<SQBool>(value));
     }
 };
@@ -605,7 +605,7 @@ struct Var<const bool&> {
     /// \param value Value to push on to the VM's stack
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    static void push(HSQUIRRELVM vm, const bool& value) {
+    inline static void push(HSQUIRRELVM vm, const bool& value) noexcept {
         sq_pushbool(vm, static_cast<SQBool>(value));
     }
 };
@@ -615,7 +615,7 @@ struct Var<const bool&> {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<>
 struct Var<std::nullptr_t> {
-    std::nullptr_t value; ///< The actual value of get operations
+    std::nullptr_t value{}; ///< The actual value of get operations
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Attempts to get the value off the stack at idx as a nullptr_t
@@ -632,7 +632,7 @@ struct Var<std::nullptr_t> {
     /// \param vm    Target VM
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    static void push(HSQUIRRELVM vm) {
+    inline static void push(HSQUIRRELVM vm) noexcept {
         sq_pushnull(vm);
     }
 
@@ -643,7 +643,7 @@ struct Var<std::nullptr_t> {
     /// \param value Value to push on to the VM's stack
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    static void push(HSQUIRRELVM vm, std::nullptr_t SQ_UNUSED_ARG(value)) {
+    inline static void push(HSQUIRRELVM vm, std::nullptr_t SQ_UNUSED_ARG(value)) noexcept {
         sq_pushnull(vm);
     }
 };
@@ -655,13 +655,13 @@ template<>
 struct Var<SQChar*> {
 private:
 
-    HSQOBJECT obj; /* hold a reference to the object holding value during the Var struct lifetime*/
-    HSQUIRRELVM v;
+    HSQOBJECT obj{}; /* hold a reference to the object holding value during the Var struct lifetime*/
+    HSQUIRRELVM v{nullptr};
 
 public:
 
-    SQChar* value; ///< The actual value of get operations
-    SQInteger size; ///< The size of the obtained string
+    SQChar* value{nullptr}; ///< The actual value of get operations
+    SQInteger size{0}; ///< The size of the obtained string
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Attempts to get the value off the stack at idx as a character array
@@ -698,7 +698,7 @@ public:
     /// \param len   Length of the string (defaults to finding the length by searching for a terminating null-character)
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    static void push(HSQUIRRELVM vm, const SQChar* value, SQInteger len = -1) {
+    inline static void push(HSQUIRRELVM vm, const SQChar* value, SQInteger len = -1) noexcept {
         sq_pushstring(vm, value, len);
     }
 };
@@ -710,13 +710,13 @@ template<>
 struct Var<const SQChar*> {
 private:
 
-    HSQOBJECT obj; /* hold a reference to the object holding value during the Var struct lifetime*/
-    HSQUIRRELVM v;
+    HSQOBJECT obj{}; /* hold a reference to the object holding value during the Var struct lifetime*/
+    HSQUIRRELVM v{nullptr};
 
 public:
 
-    const SQChar* value; ///< The actual value of get operations
-    SQInteger size; ///< The size of the obtained string
+    const SQChar* value{nullptr}; ///< The actual value of get operations
+    SQInteger size{0}; ///< The size of the obtained string
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Attempts to get the value off the stack at idx as a character array
@@ -753,7 +753,7 @@ public:
     /// \param len   Length of the string (defaults to finding the length by searching for a terminating null-character)
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    static void push(HSQUIRRELVM vm, const SQChar* value, SQInteger len = -1) {
+    inline static void push(HSQUIRRELVM vm, const SQChar* value, SQInteger len = -1) noexcept {
         sq_pushstring(vm, value, len);
     }
 };
@@ -789,8 +789,8 @@ struct Var<string> {
     /// \param value Value to push on to the VM's stack
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    static void push(HSQUIRRELVM vm, const string& value) {
-        sq_pushstring(vm, value.c_str(), value.size());
+    inline static void push(HSQUIRRELVM vm, const string& value) noexcept {
+        sq_pushstring(vm, value.c_str(), static_cast< SQInteger >(value.size()));
     }
 };
 
@@ -825,8 +825,8 @@ struct Var<const string&> {
     /// \param value Value to push on to the VM's stack
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    static void push(HSQUIRRELVM vm, const string& value) {
-        sq_pushstring(vm, value.c_str(), value.size());
+    inline static void push(HSQUIRRELVM vm, const string& value) noexcept {
+        sq_pushstring(vm, value.c_str(), static_cast< SQInteger >(value.size()));
     }
 };
 
@@ -863,7 +863,7 @@ struct Var<std::wstring> {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     static void push(HSQUIRRELVM vm, const std::wstring& value) {
         std::string s(value.begin(), value.end());
-        sq_pushstring(vm, s.c_str(), s.size());
+        sq_pushstring(vm, s.c_str(), static_cast< SQInteger >(s.size()));
     }
 };
 
@@ -900,7 +900,7 @@ struct Var<const std::wstring&> {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     static void push(HSQUIRRELVM vm, const std::wstring& value) {
         std::string s(value.begin(), value.end());
-        sq_pushstring(vm, s.c_str(), s.size());
+        sq_pushstring(vm, s.c_str(), static_cast< SQInteger >(s.size()));
     }
 };
 
@@ -1173,7 +1173,7 @@ struct Var<StackStrF> {
     /// \param value Value to push on to the VM's stack
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    static void push(HSQUIRRELVM vm, const StackStrF& value) {
+    static void push(HSQUIRRELVM vm, const StackStrF& value) noexcept {
         if (sq_isstring(value.mObj)) {
             sq_pushobject(vm, value.mObj);
         } else {
@@ -1284,7 +1284,7 @@ inline void PushVars(HSQUIRRELVM /*vm*/) { }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<class T>
 inline void PushVars(HSQUIRRELVM vm, T value) {
-    PushVar(vm, value);
+    PushVar(vm, std::forward< T >(value));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1292,15 +1292,15 @@ inline void PushVars(HSQUIRRELVM vm, T value) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<class T, class... Ts>
 inline void PushVars(HSQUIRRELVM vm, T value, Ts &&... tail) {
-    PushVar(vm, value);
-    PushVars(vm, std::forward<Ts>(tail)...);
+    PushVar(vm, std::forward< T >(value));
+    PushVars(vm, std::forward< Ts >(tail)...);
 }
 
 /// @cond DEV
 template<class T, bool b>
 struct PushVarR_helper {
     inline static void push(HSQUIRRELVM vm, T value) {
-        PushVar<T>(vm, value);
+        PushVar<T>(vm, std::forward< T >(value));
     }
 };
 template<class T>
