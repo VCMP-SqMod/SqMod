@@ -14,6 +14,7 @@ SQMOD_DECL_TYPENAME(SqDppUptime, _SC("SqDppUptime"))
 SQMOD_DECL_TYPENAME(SqDppActivity, _SC("SqDppActivity"))
 SQMOD_DECL_TYPENAME(SqDppPresence, _SC("SqDppPresence"))
 SQMOD_DECL_TYPENAME(SqDppVoiceState, _SC("SqDppVoiceState"))
+SQMOD_DECL_TYPENAME(SqDppRole, _SC("SqDppRole"))
 SQMOD_DECL_TYPENAME(SqDppUser, _SC("SqDppUser"))
 SQMOD_DECL_TYPENAME(SqDppGuildMember, _SC("SqDppGuildMember"))
 SQMOD_DECL_TYPENAME(SqDppGuild, _SC("SqDppGuild"))
@@ -145,6 +146,66 @@ void Register_DPPTy(HSQUIRRELVM vm, Table & ns)
         .Prop(_SC("SelfStream"), &DpVoiceState::SelfStream)
         .Prop(_SC("SelfVideo"), &DpVoiceState::SelfVideo)
         .Prop(_SC("IsSupressed"), &DpVoiceState::IsSupressed)
+    );
+    // --------------------------------------------------------------------------------------------
+    ns.Bind(_SC("Role"),
+        Class< DpRole, NoConstructor< DpRole > >(vm, SqDppRole::Str)
+        // Meta-methods
+        .SquirrelFunc(_SC("_typename"), &SqDppRole::Fn)
+        .Func(_SC("_tojson"), &DpRole::BuildJSON)
+        // Member Properties
+        .Prop(_SC("Valid"), &DpRole::IsValid)
+        .Prop(_SC("JSON"), &DpRole::BuildJSON)
+        .Prop(_SC("Name"), &DpRole::GetName)
+        .Prop(_SC("GuildID"), &DpRole::GetGuildID)
+        .Prop(_SC("Color"), &DpRole::GetColour)
+        .Prop(_SC("Colour"), &DpRole::GetColour)
+        .Prop(_SC("Position"), &DpRole::GetPosition)
+        .Prop(_SC("Permissions"), &DpRole::GetPermissions)
+        .Prop(_SC("Flags"), &DpRole::GetFlags)
+        .Prop(_SC("IntegrationID"), &DpRole::GetIntegrationID)
+        .Prop(_SC("BotID"), &DpRole::GetBotID)
+        .Prop(_SC("IsHoisted"), &DpRole::IsHoisted)
+        .Prop(_SC("IsMentionable"), &DpRole::IsMentionable)
+        .Prop(_SC("IsManaged"), &DpRole::IsManaged)
+        .Prop(_SC("CanCreateInstantInvite"), &DpRole::CanCreateInstantInvite)
+        .Prop(_SC("CanKickMembers"), &DpRole::CanKickMembers)
+        .Prop(_SC("CanBanMembers"), &DpRole::CanBanMembers)
+        .Prop(_SC("IsAdministrator"), &DpRole::IsAdministrator)
+        .Prop(_SC("CanManageChannels"), &DpRole::CanManageChannels)
+        .Prop(_SC("CanManageGuild"), &DpRole::CanManageGuild)
+        .Prop(_SC("CanAddReactions"), &DpRole::CanAddReactions)
+        .Prop(_SC("CanViewAuditLog"), &DpRole::CanViewAuditLog)
+        .Prop(_SC("IsPrioritySpeaker"), &DpRole::IsPrioritySpeaker)
+        .Prop(_SC("CanStream"), &DpRole::CanStream)
+        .Prop(_SC("CanViewChannel"), &DpRole::CanViewChannel)
+        .Prop(_SC("CanSendMessages"), &DpRole::CanSendMessages)
+        .Prop(_SC("CanSendTtsMessages"), &DpRole::CanSendTtsMessages)
+        .Prop(_SC("CanManageMessages"), &DpRole::CanManageMessages)
+        .Prop(_SC("CanEmbedLinks"), &DpRole::CanEmbedLinks)
+        .Prop(_SC("CanAttachFiles"), &DpRole::CanAttachFiles)
+        .Prop(_SC("CanReadMessageHistory"), &DpRole::CanReadMessageHistory)
+        .Prop(_SC("CanMentionEveryone"), &DpRole::CanMentionEveryone)
+        .Prop(_SC("CanUseExternalEmojis"), &DpRole::CanUseExternalEmojis)
+        .Prop(_SC("CanViewGuildInsights"), &DpRole::CanViewGuildInsights)
+        .Prop(_SC("CanConnect"), &DpRole::CanConnect)
+        .Prop(_SC("CanSpeak"), &DpRole::CanSpeak)
+        .Prop(_SC("CanMuteMembers"), &DpRole::CanMuteMembers)
+        .Prop(_SC("CanDeafenMembers"), &DpRole::CanDeafenMembers)
+        .Prop(_SC("CanMoveMembers"), &DpRole::CanMoveMembers)
+        .Prop(_SC("CanUseVAT"), &DpRole::CanUseVAT)
+        .Prop(_SC("CanChangeNickname"), &DpRole::CanChangeNickname)
+        .Prop(_SC("CanManageNicknames"), &DpRole::CanManageNicknames)
+        .Prop(_SC("CanManageRoles"), &DpRole::CanManageRoles)
+        .Prop(_SC("CanManageWebhooks"), &DpRole::CanManageWebhooks)
+        .Prop(_SC("CanManageEmojis"), &DpRole::CanManageEmojis)
+        .Prop(_SC("CanUseSlashCommands"), &DpRole::CanUseSlashCommands)
+        .Prop(_SC("HasRequestToSpeak"), &DpRole::HasRequestToSpeak)
+        .Prop(_SC("CanManageThreads"), &DpRole::CanManageThreads)
+        .Prop(_SC("HasUsePublicThreads"), &DpRole::HasUsePublicThreads)
+        .Prop(_SC("HasUsePrivateThreads"), &DpRole::HasUsePrivateThreads)
+        // Member Methods
+        .Func(_SC("BuildJSON"), &DpRole::BuildJSON_)
     );
     // --------------------------------------------------------------------------------------------
     ns.Bind(_SC("User"),
@@ -392,6 +453,54 @@ static const EnumElement g_DpVoiceStateFlagsEnum[] = {
 };
 
 // ------------------------------------------------------------------------------------------------
+static const EnumElement g_DpRoleFlagsEnum[] = {
+    {_SC("Hoist"),              static_cast< SQInteger >(dpp::r_hoist)},
+    {_SC("Managed"),            static_cast< SQInteger >(dpp::r_managed)},
+    {_SC("Mentionable"),        static_cast< SQInteger >(dpp::r_mentionable)},
+    {_SC("PremiumSubscriber"),  static_cast< SQInteger >(dpp::r_premium_subscriber)}
+};
+
+// ------------------------------------------------------------------------------------------------
+static const EnumElement g_DpRolePermissionsEnum[] = {
+    {_SC("CreateInstantInvite"),  static_cast< SQInteger >(dpp::p_create_instant_invite)},
+    {_SC("KickMembers"),           static_cast< SQInteger >(dpp::p_kick_members)},
+    {_SC("BanMembers"),            static_cast< SQInteger >(dpp::p_ban_members)},
+    {_SC("Administrator"),          static_cast< SQInteger >(dpp::p_administrator)},
+    {_SC("ManageChannels"),        static_cast< SQInteger >(dpp::p_manage_channels)},
+    {_SC("ManageGuild"),           static_cast< SQInteger >(dpp::p_manage_guild)},
+    {_SC("AddReactions"),          static_cast< SQInteger >(dpp::p_add_reactions)},
+    {_SC("ViewAuditLog"),         static_cast< SQInteger >(dpp::p_view_audit_log)},
+    {_SC("PrioritySpeaker"),       static_cast< SQInteger >(dpp::p_priority_speaker)},
+    {_SC("Stream"),                 static_cast< SQInteger >(dpp::p_stream)},
+    {_SC("ViewChannel"),           static_cast< SQInteger >(dpp::p_view_channel)},
+    {_SC("SendMessages"),          static_cast< SQInteger >(dpp::p_send_messages)},
+    {_SC("SendTtsMessages"),      static_cast< SQInteger >(dpp::p_send_tts_messages)},
+    {_SC("ManageMessages"),        static_cast< SQInteger >(dpp::p_manage_messages)},
+    {_SC("EmbedLinks"),            static_cast< SQInteger >(dpp::p_embed_links)},
+    {_SC("AttachFiles"),           static_cast< SQInteger >(dpp::p_attach_files)},
+    {_SC("ReadMessageHistory"),   static_cast< SQInteger >(dpp::p_read_message_history)},
+    {_SC("MentionEveryone"),       static_cast< SQInteger >(dpp::p_mention_everyone)},
+    {_SC("UseExternalEmojis"),    static_cast< SQInteger >(dpp::p_use_external_emojis)},
+    {_SC("ViewGuildInsights"),    static_cast< SQInteger >(dpp::p_view_guild_insights)},
+    {_SC("Connect"),                static_cast< SQInteger >(dpp::p_connect)},
+    {_SC("Speak"),                  static_cast< SQInteger >(dpp::p_speak)},
+    {_SC("MuteMembers"),           static_cast< SQInteger >(dpp::p_mute_members)},
+    {_SC("DeafenMembers"),         static_cast< SQInteger >(dpp::p_deafen_members)},
+    {_SC("MoveMembers"),           static_cast< SQInteger >(dpp::p_move_members)},
+    {_SC("UseVAD"),                static_cast< SQInteger >(dpp::p_use_vad)},
+    {_SC("ChangeNickname"),        static_cast< SQInteger >(dpp::p_change_nickname)},
+    {_SC("ManageNicknames"),       static_cast< SQInteger >(dpp::p_manage_nicknames)},
+    {_SC("ManageRoles"),           static_cast< SQInteger >(dpp::p_manage_roles)},
+    {_SC("ManageWebHooks"),        static_cast< SQInteger >(dpp::p_manage_webhooks)},
+    {_SC("ManageEmojis"),          static_cast< SQInteger >(dpp::p_manage_emojis)},
+    {_SC("UseSlashCommands"),     static_cast< SQInteger >(dpp::p_use_slash_commands)},
+    {_SC("RequestToSpeak"),       static_cast< SQInteger >(dpp::p_request_to_speak)},
+    {_SC("ManageThreads"),         static_cast< SQInteger >(dpp::p_manage_threads)},
+    {_SC("UsePublicThreads"),     static_cast< SQInteger >(dpp::p_use_public_threads)},
+    {_SC("UsePrivateThreads"),    static_cast< SQInteger >(dpp::p_use_private_threads)}
+};
+
+// ------------------------------------------------------------------------------------------------
 static const EnumElement g_DpUserFlagsEnum[] = {
     {_SC("Bot"),                static_cast< SQInteger >(dpp::u_bot)},
     {_SC("System"),             static_cast< SQInteger >(dpp::u_system)},
@@ -464,17 +573,7 @@ static const EnumElement g_DpGuildMemberFlagsEnum[] = {
     {_SC("Mute"),       static_cast< SQInteger >(dpp::gm_mute)},
     {_SC("Pending"),    static_cast< SQInteger >(dpp::gm_pending)}
 };
-/*
-// ------------------------------------------------------------------------------------------------
-static const EnumElement g_DpEnum[] = {
 
-};
-
-// ------------------------------------------------------------------------------------------------
-static const EnumElement g_DpEnum[] = {
-
-};
-*/
 // ------------------------------------------------------------------------------------------------
 static const EnumElements g_EnumList[] = {
     {_SC("SqDiscordLogLevel"),              g_DpLogLevelEnum},
@@ -487,6 +586,8 @@ static const EnumElements g_EnumList[] = {
     {_SC("SqDiscordActivityType"),          g_DpActivityTypeEnum},
     {_SC("SqDiscordActivityFlags"),         g_DpActivityFlagsEnum},
     {_SC("SqDiscordVoiceStateFlags"),       g_DpVoiceStateFlagsEnum},
+    {_SC("SqDiscordRoleFlags"),             g_DpRoleFlagsEnum},
+    {_SC("SqDiscordRolePermissions"),       g_DpRolePermissionsEnum},
     {_SC("SqDiscordUserFlags"),             g_DpUserFlagsEnum},
     {_SC("SqDiscordRegion"),                g_DpRegionEnum},
     {_SC("SqDiscordGuildFlags"),            g_DpGuildFlagsEnum},
