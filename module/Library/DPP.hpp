@@ -265,7 +265,7 @@ struct DpCluster : public SqChainedInstances< DpCluster >
     */
     DpCluster & SetPresence(const DpPresence & p)
     {
-        mC->set_presence(p);
+        mC->set_presence(p.Valid());
         return *this;
     }
 

@@ -20,41 +20,32 @@ struct DpCachePolicy
     SQInteger mUserPolicy{dpp::cp_aggressive};
     SQInteger mEmojiPolicy{dpp::cp_aggressive};
     SQInteger mRolePolicy{dpp::cp_aggressive};
-
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
     DpCachePolicy() noexcept = default;
-
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
     explicit DpCachePolicy(SQInteger user) noexcept
         : mUserPolicy(user), mEmojiPolicy(dpp::cp_aggressive), mRolePolicy(dpp::cp_aggressive)
-    {
-    }
-
+    { }
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
     DpCachePolicy(SQInteger user, SQInteger emoji) noexcept
         : mUserPolicy(user), mEmojiPolicy(emoji), mRolePolicy(dpp::cp_aggressive)
-    {
-    }
-
+    { }
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
     DpCachePolicy(SQInteger user, SQInteger emoji, SQInteger role) noexcept
         : mUserPolicy(user), mEmojiPolicy(emoji), mRolePolicy(role)
-    {
-    }
-
+    { }
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
     DpCachePolicy(const DpCachePolicy &) noexcept = default;
-
     /* --------------------------------------------------------------------------------------------
      * Convert to native cache policy type.
     */
@@ -71,395 +62,384 @@ struct DpCachePolicy
 /* ------------------------------------------------------------------------------------------------
  * An activity is a representation of what a user is doing. It might be a game, or a website, or a movie. Whatever.
 */
-struct DpActivity : public dpp::activity
+struct DpActivity
 {
+    using Ptr = std::unique_ptr< dpp::activity >;
+    /* --------------------------------------------------------------------------------------------
+     * Referenced voice state instance.
+    */
+    Ptr mPtr{nullptr};
+    /* --------------------------------------------------------------------------------------------
+     * Wether the referenced pointer is owned.
+    */
+    bool mOwned{false};
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    DpActivity()
-        : dpp::activity()
-    {
-    }
-
+    DpActivity() noexcept
+        : DpActivity(new Ptr::element_type(), true)
+    { }
+    /* --------------------------------------------------------------------------------------------
+     * Explicit constructor.
+    */
+    explicit DpActivity(Ptr::pointer ptr, bool owned = false) noexcept
+        : mPtr(ptr), mOwned(owned)
+    { }
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor.
+    */
+    explicit DpActivity(const Ptr::element_type & o) noexcept
+        : DpActivity(new Ptr::element_type(o), true)
+    { }
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    explicit DpActivity(Ptr::element_type && o) noexcept
+        : DpActivity(new Ptr::element_type(std::forward< Ptr::element_type >(o)), true)
+    { }
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
     DpActivity(SQInteger type, StackStrF & name, StackStrF & state, StackStrF & url)
-        : dpp::activity(static_cast< dpp::activity_type >(type), name.ToStr(), state.ToStr(), url.ToStr())
-    {
-    }
-
+        : DpActivity(new Ptr::element_type(static_cast< dpp::activity_type >(type), name.ToStr(), state.ToStr(), url.ToStr()), true)
+    { }
     /* --------------------------------------------------------------------------------------------
-     * Copy constructor.
+     * Copy constructor (disabled).
     */
-    explicit DpActivity(const dpp::activity & o)
-        : dpp::activity(o)
+    DpActivity(const DpActivity & o) = delete;
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    DpActivity(DpActivity && o) noexcept = default;
+    /* --------------------------------------------------------------------------------------------
+     * Destructor.
+    */
+    ~DpActivity() noexcept
     {
+        // Do we own this to try delete it?
+        if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
     }
-
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator (disabled).
+    */
+    DpActivity & operator = (const DpActivity & o) = delete;
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator.
+    */
+    DpActivity & operator = (DpActivity && o) noexcept
+    {
+        if (this != &o) {
+            // Do we own this to try delete it?
+            if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
+            // Transfer members values
+            mPtr = std::move(o.mPtr);
+            mOwned = o.mOwned;
+        }
+        return *this;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed handle.
+    */
+    void Validate() const { if (!mPtr) STHROWF("Invalid discord activity handle"); }
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed handle and retrieve a const reference to it.
+    */
+    SQMOD_NODISCARD Ptr::element_type & Valid() const { Validate(); return *mPtr; }
+    /* --------------------------------------------------------------------------------------------
+     * Check wether a valid instance is managed.
+    */
+    SQMOD_NODISCARD bool IsValid() const { return static_cast< bool >(mPtr); }
     /* --------------------------------------------------------------------------------------------
      * Retrieve the name of the activity.
     */
-    SQMOD_NODISCARD const std::string & GetName() const noexcept
-    {
-        return dpp::activity::name;
-    }
-
+    SQMOD_NODISCARD const std::string & GetName() const { return Valid().name; }
     /* --------------------------------------------------------------------------------------------
      * Modify the name of the activity.
     */
-    void SetName(StackStrF & name)
-    {
-        dpp::activity::name = name.ToStr();
-    }
-
+    void SetName(StackStrF & name) const { Valid().name = name.ToStr(); }
     /* --------------------------------------------------------------------------------------------
      * Modify the name of the activity.
     */
-    DpActivity & ApplyName(StackStrF & name)
-    {
-        SetName(name);
-        return *this;
-    }
-
+    DpActivity & ApplyName(StackStrF & name) { SetName(name); return *this; }
     /* --------------------------------------------------------------------------------------------
      * Retrieve the state of the activity.
     */
-    SQMOD_NODISCARD const std::string & GetState() const noexcept
-    {
-        return dpp::activity::state;
-    }
-
+    SQMOD_NODISCARD const std::string & GetState() const { return Valid().state; }
     /* --------------------------------------------------------------------------------------------
      * Modify the state of the activity.
     */
-    void SetState(StackStrF & state)
-    {
-        dpp::activity::state = state.ToStr();
-    }
-
+    void SetState(StackStrF & state) const { Valid().state = state.ToStr(); }
     /* --------------------------------------------------------------------------------------------
      * Modify the state of the activity.
     */
-    DpActivity & ApplyState(StackStrF & state)
-    {
-        SetState(state);
-        return *this;
-    }
-
+    DpActivity & ApplyState(StackStrF & state) { SetState(state); return *this; }
     /* --------------------------------------------------------------------------------------------
      * Retrieve the url of the activity.
     */
-    SQMOD_NODISCARD const std::string & GetURL() const noexcept
-    {
-        return dpp::activity::url;
-    }
-
+    SQMOD_NODISCARD const std::string & GetURL() const { return Valid().url; }
     /* --------------------------------------------------------------------------------------------
      * Modify the url of the activity.
     */
-    void SetURL(StackStrF & url)
-    {
-        dpp::activity::url = url.ToStr();
-    }
-
+    void SetURL(StackStrF & url) const { Valid().url = url.ToStr(); }
     /* --------------------------------------------------------------------------------------------
      * Modify the url of the activity.
     */
-    DpActivity & ApplyURL(StackStrF & url)
-    {
-        SetURL(url);
-        return *this;
-    }
-
+    DpActivity & ApplyURL(StackStrF & url) { SetURL(url); return *this; }
     /* --------------------------------------------------------------------------------------------
      * Retrieve the type of the activity.
     */
-    SQMOD_NODISCARD SQInteger GetType() const noexcept
-    {
-        return static_cast< SQInteger >(dpp::activity::type);
-    }
-
+    SQMOD_NODISCARD SQInteger GetType() const { return static_cast< SQInteger >(Valid().type); }
     /* --------------------------------------------------------------------------------------------
      * Modify the type of the activity.
     */
-    void SetType(SQInteger s)
-    {
-        dpp::activity::type = static_cast< dpp::activity_type >(s);
-    }
-
+    void SetType(SQInteger s) const { Valid().type = static_cast< dpp::activity_type >(s); }
     /* --------------------------------------------------------------------------------------------
      * Modify the type of the activity.
     */
-    DpActivity & ApplyType(SQInteger s)
-    {
-        SetType(s);
-        return *this;
-    }
-
+    DpActivity & ApplyType(SQInteger s) { SetType(s); return *this; }
     /* --------------------------------------------------------------------------------------------
      * Retrieve when the activity was created.
     */
-    SQMOD_NODISCARD SQInteger GetCreatedAt() const noexcept
+    SQMOD_NODISCARD SQInteger GetCreatedAt() const
     {
-        return static_cast< SQInteger >(std::chrono::duration_cast< std::chrono::seconds >(std::chrono::system_clock::from_time_t(dpp::activity::created_at).time_since_epoch()).count());
+        return static_cast< SQInteger >(std::chrono::duration_cast< std::chrono::seconds >(std::chrono::system_clock::from_time_t(Valid().created_at).time_since_epoch()).count());
     }
-
     /* --------------------------------------------------------------------------------------------
      * Modify when the activity was created.
     */
-    void SetCreatedAt(SQInteger s)
+    void SetCreatedAt(SQInteger s) const
     {
-        dpp::activity::created_at = std::chrono::system_clock::to_time_t(std::chrono::time_point< std::chrono::system_clock >{std::chrono::seconds{s}});
+        Valid().created_at = std::chrono::system_clock::to_time_t(std::chrono::time_point< std::chrono::system_clock >{std::chrono::seconds{s}});
     }
-
     /* --------------------------------------------------------------------------------------------
      * Modify when the activity was created.
     */
-    DpActivity & ApplyCreatedAt(SQInteger s)
-    {
-        SetCreatedAt(s);
-        return *this;
-    }
-
+    DpActivity & ApplyCreatedAt(SQInteger s) { SetCreatedAt(s); return *this; }
     /* --------------------------------------------------------------------------------------------
      * Retrieve when the activity was started.
     */
-    SQMOD_NODISCARD SQInteger GetStart() const noexcept
+    SQMOD_NODISCARD SQInteger GetStart() const
     {
-        return static_cast< SQInteger >(std::chrono::duration_cast< std::chrono::seconds >(std::chrono::system_clock::from_time_t(dpp::activity::start).time_since_epoch()).count());
+        return static_cast< SQInteger >(std::chrono::duration_cast< std::chrono::seconds >(std::chrono::system_clock::from_time_t(Valid().start).time_since_epoch()).count());
     }
-
     /* --------------------------------------------------------------------------------------------
      * Modify when the activity was started.
     */
-    void SetStart(SQInteger s)
+    void SetStart(SQInteger s) const
     {
-        dpp::activity::start = std::chrono::system_clock::to_time_t(std::chrono::time_point< std::chrono::system_clock >{std::chrono::seconds{s}});
+        Valid().start = std::chrono::system_clock::to_time_t(std::chrono::time_point< std::chrono::system_clock >{std::chrono::seconds{s}});
     }
-
     /* --------------------------------------------------------------------------------------------
      * Modify when the activity was started.
     */
-    DpActivity & ApplyStart(SQInteger s)
-    {
-        SetStart(s);
-        return *this;
-    }
-
+    DpActivity & ApplyStart(SQInteger s) { SetStart(s); return *this; }
     /* --------------------------------------------------------------------------------------------
      * Retrieve when the activity was stopped.
     */
-    SQMOD_NODISCARD SQInteger GetEnd() const noexcept
+    SQMOD_NODISCARD SQInteger GetEnd() const
     {
-        return static_cast< SQInteger >(std::chrono::duration_cast< std::chrono::seconds >(std::chrono::system_clock::from_time_t(dpp::activity::end).time_since_epoch()).count());
+        return static_cast< SQInteger >(std::chrono::duration_cast< std::chrono::seconds >(std::chrono::system_clock::from_time_t(Valid().end).time_since_epoch()).count());
     }
-
     /* --------------------------------------------------------------------------------------------
      * Modify when the activity was stopped.
     */
-    void SetEnd(SQInteger s)
+    void SetEnd(SQInteger s) const
     {
-        dpp::activity::end = std::chrono::system_clock::to_time_t(std::chrono::time_point< std::chrono::system_clock >{std::chrono::seconds{s}});
+        Valid().end = std::chrono::system_clock::to_time_t(std::chrono::time_point< std::chrono::system_clock >{std::chrono::seconds{s}});
     }
-
     /* --------------------------------------------------------------------------------------------
      * Modify when the activity was stopped.
     */
-    DpActivity & ApplyEnd(SQInteger s)
-    {
-        SetEnd(s);
-        return *this;
-    }
+    DpActivity & ApplyEnd(SQInteger s) { SetEnd(s); return *this; }
 };
 
 /* ------------------------------------------------------------------------------------------------
  * Represents user presence, e.g. what game they are playing and if they are online.
 */
-struct DpPresence : public dpp::presence
+struct DpPresence
 {
+    using Ptr = std::unique_ptr< dpp::presence >;
+    /* --------------------------------------------------------------------------------------------
+     * Referenced voice state instance.
+    */
+    Ptr mPtr{nullptr};
+    /* --------------------------------------------------------------------------------------------
+     * Wether the referenced pointer is owned.
+    */
+    bool mOwned{false};
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    DpPresence()
-        : dpp::presence()
+    DpPresence() noexcept
+        : DpPresence(new Ptr::element_type(), true)
+    { }
+    /* --------------------------------------------------------------------------------------------
+     * Explicit constructor.
+    */
+    explicit DpPresence(Ptr::pointer ptr, bool owned = false) noexcept
+        : mPtr(ptr), mOwned(owned)
+    { }
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor.
+    */
+    explicit DpPresence(const Ptr::element_type & o) noexcept
+        : DpPresence(new Ptr::element_type(o), true)
+    { }
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    explicit DpPresence(Ptr::element_type && o) noexcept
+        : DpPresence(new Ptr::element_type(std::forward< Ptr::element_type >(o)), true)
+    { }
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor (disabled).
+    */
+    DpPresence(const DpPresence & o) = delete;
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    DpPresence(DpPresence && o) noexcept = default;
+    /* --------------------------------------------------------------------------------------------
+     * Destructor.
+    */
+    ~DpPresence() noexcept
     {
+        // Do we own this to try delete it?
+        if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
     }
-
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator (disabled).
+    */
+    DpPresence & operator = (const DpPresence & o) = delete;
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator.
+    */
+    DpPresence & operator = (DpPresence && o) noexcept
+    {
+        if (this != &o) {
+            // Do we own this to try delete it?
+            if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
+            // Transfer members values
+            mPtr = std::move(o.mPtr);
+            mOwned = o.mOwned;
+        }
+        return *this;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed handle.
+    */
+    void Validate() const { if (!mPtr) STHROWF("Invalid discord presence handle"); }
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed handle and retrieve a const reference to it.
+    */
+    SQMOD_NODISCARD Ptr::element_type & Valid() const { Validate(); return *mPtr; }
+    /* --------------------------------------------------------------------------------------------
+     * Check wether a valid instance is managed.
+    */
+    SQMOD_NODISCARD bool IsValid() const { return static_cast< bool >(mPtr); }
     /* --------------------------------------------------------------------------------------------
      * Retrieve the user that the presence applies to.
     */
-    SQMOD_NODISCARD dpp::snowflake GetUserID() const noexcept
-    {
-        return dpp::presence::user_id;
-    }
-
+    SQMOD_NODISCARD dpp::snowflake GetUserID() const { return Valid().user_id; }
     /* --------------------------------------------------------------------------------------------
      * Modify the user that the presence applies to.
     */
-    void SetUserID(dpp::snowflake id)
-    {
-        dpp::presence::user_id = id;
-    }
-
+    void SetUserID(dpp::snowflake id) const { Valid().user_id = id; }
     /* --------------------------------------------------------------------------------------------
      * Modify the user that the presence applies to.
     */
-    DpPresence & ApplyUserID(dpp::snowflake id)
-    {
-        SetUserID(id);
-        return *this;
-    }
-
+    DpPresence & ApplyUserID(dpp::snowflake id) { SetUserID(id); return *this; }
     /* --------------------------------------------------------------------------------------------
      * Retrieve the guild that the presence applies to.
     */
-    SQMOD_NODISCARD dpp::snowflake GetGuildID() const noexcept
-    {
-        return dpp::presence::guild_id;
-    }
-
+    SQMOD_NODISCARD dpp::snowflake GetGuildID() const { return Valid().guild_id; }
     /* --------------------------------------------------------------------------------------------
      * Modify the guild that the presence applies to.
     */
-    void SetGuildID(dpp::snowflake id)
-    {
-        dpp::presence::guild_id = id;
-    }
-
+    void SetGuildID(dpp::snowflake id) const { Valid().guild_id = id; }
     /* --------------------------------------------------------------------------------------------
      * Modify the guild that the presence applies to.
     */
-    DpPresence & ApplyGuildID(dpp::snowflake id)
-    {
-        SetGuildID(id);
-        return *this;
-    }
-
+    DpPresence & ApplyGuildID(dpp::snowflake id) { SetGuildID(id); return *this; }
     /* --------------------------------------------------------------------------------------------
      * Retrieve the presence bit-mask.
     */
-    SQMOD_NODISCARD SQInteger GetFlags() const noexcept
-    {
-        return static_cast< SQInteger >(dpp::presence::flags);
-    }
-
+    SQMOD_NODISCARD SQInteger GetFlags() const { return static_cast< SQInteger >(Valid().flags); }
     /* --------------------------------------------------------------------------------------------
      * Modify the presence bit-mask.
     */
-    void SetFlags(SQInteger f)
-    {
-        dpp::presence::flags = static_cast< uint8_t >(f);
-    }
-
+    void SetFlags(SQInteger f) const { Valid().flags = static_cast< uint8_t >(f); }
     /* --------------------------------------------------------------------------------------------
      * Modify the presence bit-mask.
     */
-    DpPresence & ApplyFlags(SQInteger f)
-    {
-        SetFlags(f);
-        return *this;
-    }
-
+    DpPresence & ApplyFlags(SQInteger f) { SetFlags(f); return *this; }
     /* --------------------------------------------------------------------------------------------
      * Retrieve the number of activities.
     */
-    SQMOD_NODISCARD SQInteger ActivityCount() const
-    {
-        return static_cast< SQInteger >(dpp::presence::activities.size());
-    }
-
+    SQMOD_NODISCARD SQInteger ActivityCount() const { return static_cast< SQInteger >(Valid().activities.size()); }
     /* --------------------------------------------------------------------------------------------
      * Add a new activity.
     */
-    DpPresence & AddActivity(const DpActivity & a)
-    {
-        dpp::presence::activities.push_back(a);
-        return *this;
-    }
-
+    DpPresence & AddActivity(const DpActivity & a) { Valid().activities.push_back(a.Valid()); return *this; }
     /* --------------------------------------------------------------------------------------------
      * Iterate all activities.
     */
     DpPresence & EachActivity(Function & fn)
     {
-        for (const auto & a : dpp::presence::activities)
+        for (const auto & a : Valid().activities)
         {
             fn.Execute(a);
         }
         return *this;
     }
-
     /* --------------------------------------------------------------------------------------------
      * Retrieve the number of activities.
     */
-    DpPresence & ClearActivities(const DpActivity & a)
-    {
-        dpp::presence::activities.clear();
-        return *this;
-    }
-
+    DpPresence & ClearActivities(const DpActivity & a) { Valid().activities.clear(); return *this; }
     /* --------------------------------------------------------------------------------------------
      * Filter activities.
     */
     DpPresence & FilterActivities(Function & fn)
     {
         std::vector< dpp::activity > list;
-        list.reserve(dpp::presence::activities.size());
-        for (const auto & a : dpp::presence::activities)
+        // Reserve memory in advance
+        list.reserve(Valid().activities.size());
+        // Process each activity individually
+        for (const auto & a : Valid().activities)
         {
             auto ret = fn.Eval(a);
             // (null || true) == keep & false == skip
             if (!ret.IsNull() || !ret.template Cast< bool >())
             {
-                list.push_back(a);
+                list.push_back(a); // Keep this activity
             }
         }
-        dpp::presence::activities.swap(list);
+        // Use filtered activities
+        Valid().activities.swap(list);
+        // Allow chaining
         return *this;
     }
-
     /* --------------------------------------------------------------------------------------------
      * Build JSON string from this object.
     */
-    SQMOD_NODISCARD std::string BuildJSON() const
-    {
-        return dpp::presence::build_json();
-    }
-
+    SQMOD_NODISCARD std::string BuildJSON() const { return Valid().build_json(); }
     /* --------------------------------------------------------------------------------------------
      * Retrieve the users status on desktop.
     */
-    SQMOD_NODISCARD SQInteger GetDesktopStatus() const noexcept
-    {
-        return static_cast< SQInteger >(dpp::presence::desktop_status());
-    }
-
+    SQMOD_NODISCARD SQInteger GetDesktopStatus() const { return static_cast< SQInteger >(Valid().desktop_status()); }
     /* --------------------------------------------------------------------------------------------
      * Retrieve the user's status on web.
     */
-    SQMOD_NODISCARD SQInteger GetWebStatus() const noexcept
-    {
-        return static_cast< SQInteger >(dpp::presence::web_status());
-    }
-
+    SQMOD_NODISCARD SQInteger GetWebStatus() const { return static_cast< SQInteger >(Valid().web_status()); }
     /* --------------------------------------------------------------------------------------------
      * Retrieve the user's status on mobile.
     */
-    SQMOD_NODISCARD SQInteger GetMobileStatus() const noexcept
-    {
-        return static_cast< SQInteger >(dpp::presence::mobile_status());
-    }
-
+    SQMOD_NODISCARD SQInteger GetMobileStatus() const { return static_cast< SQInteger >(Valid().mobile_status()); }
     /* --------------------------------------------------------------------------------------------
      * Retrieve the user's status as shown to other users.
     */
-    SQMOD_NODISCARD SQInteger GetStatus() const noexcept
-    {
-        return static_cast< SQInteger >(dpp::presence::status());
-    }
+    SQMOD_NODISCARD SQInteger GetStatus() const { return static_cast< SQInteger >(Valid().status()); }
 };
-
 /* ------------------------------------------------------------------------------------------------
  * Represents the voice state of a user on a guild.
  * These are stored in the DpGuild object, and accessible there, or via DpChannel::GetVoiceMembers.

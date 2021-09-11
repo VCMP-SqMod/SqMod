@@ -74,7 +74,7 @@ void Register_DPPTy(HSQUIRRELVM vm, Table & ns)
     );
     // --------------------------------------------------------------------------------------------
     ns.Bind(_SC("Activity"),
-        Class< DpActivity >(vm, SqDppActivity::Str)
+        Class< DpActivity, NoCopy< DpActivity > >(vm, SqDppActivity::Str)
         // Constructors
         .Ctor()
         .Ctor< SQInteger, StackStrF &, StackStrF &, StackStrF & >()
@@ -99,12 +99,13 @@ void Register_DPPTy(HSQUIRRELVM vm, Table & ns)
     );
     // --------------------------------------------------------------------------------------------
     ns.Bind(_SC("Presence"),
-        Class< DpPresence >(vm, SqDppPresence::Str)
+        Class< DpPresence, NoCopy< DpPresence > >(vm, SqDppPresence::Str)
         // Constructors
         .Ctor()
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &SqDppPresence::Fn)
         // Member Properties
+        .Prop(_SC("Valid"), &DpPresence::IsValid)
         .Prop(_SC("UserID"), &DpPresence::GetUserID, &DpPresence::SetUserID)
         .Prop(_SC("GuildID"), &DpPresence::GetGuildID, &DpPresence::SetGuildID)
         .Prop(_SC("Flags"), &DpPresence::GetFlags, &DpPresence::SetFlags)
@@ -370,6 +371,17 @@ static const EnumElement g_DpActivityFlagsEnum[] = {
 };
 
 // ------------------------------------------------------------------------------------------------
+static const EnumElement g_DpVoiceStateFlagsEnum[] = {
+    {_SC("Deaf"),       static_cast< SQInteger >(dpp::vs_deaf)},
+    {_SC("Mute"),       static_cast< SQInteger >(dpp::vs_mute)},
+    {_SC("SelfMute"),   static_cast< SQInteger >(dpp::vs_self_mute)},
+    {_SC("SelfDeaf"),   static_cast< SQInteger >(dpp::vs_self_deaf)},
+    {_SC("SelfStream"), static_cast< SQInteger >(dpp::vs_self_stream)},
+    {_SC("SelfVideo"),  static_cast< SQInteger >(dpp::vs_self_video)},
+    {_SC("Supress"),    static_cast< SQInteger >(dpp::vs_supress)},
+};
+
+// ------------------------------------------------------------------------------------------------
 static const EnumElement g_DpUserFlagsEnum[] = {
     {_SC("Bot"),                static_cast< SQInteger >(dpp::u_bot)},
     {_SC("System"),             static_cast< SQInteger >(dpp::u_system)},
@@ -464,6 +476,7 @@ static const EnumElements g_EnumList[] = {
     {_SC("SqDiscordDesktopStatusBits"),     g_DpDesktopStatusBitsEnum},
     {_SC("SqDiscordActivityType"),          g_DpActivityTypeEnum},
     {_SC("SqDiscordActivityFlags"),         g_DpActivityFlagsEnum},
+    {_SC("SqDiscordVoiceStateFlags"),       g_DpVoiceStateFlagsEnum},
     {_SC("SqDiscordUserFlags"),             g_DpUserFlagsEnum},
     {_SC("SqDiscordRegion"),                g_DpRegionEnum},
     {_SC("SqDiscordGuildFlags"),            g_DpGuildFlagsEnum},
