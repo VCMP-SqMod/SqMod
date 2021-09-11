@@ -612,6 +612,30 @@ public:
         //sq_pop(vm,1); // pop array
         return *this;
     }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Appends values to the end of the Array
+    ///
+    /// \param vec Vector to be appended to the array
+    ///
+    /// \tparam T Type of value (usually doesnt need to be defined explicitly)
+    ///
+    /// \return The Array itself so the call can be chained
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template<class T>
+    ArrayBase& AppendFromVector(const std::vector< T > & vec) {
+        HSQUIRRELVM vm = SqVM();
+        const StackGuard sg(vm);
+        sq_pushobject(vm, GetObj());
+        for (const auto & v : vec)
+        {
+            Var< const T & >::push(vm, v);
+            sq_arrayappend(vm, -2);
+        }
+        //sq_pop(vm,1); // pop array
+        return *this;
+    }
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
