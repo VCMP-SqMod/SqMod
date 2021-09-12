@@ -70,7 +70,7 @@ struct DpActivity
     */
     Ptr mPtr{nullptr};
     /* --------------------------------------------------------------------------------------------
-     * Wether the referenced pointer is owned.
+     * Whether the referenced pointer is owned.
     */
     bool mOwned{false};
     /* --------------------------------------------------------------------------------------------
@@ -146,7 +146,7 @@ struct DpActivity
     */
     SQMOD_NODISCARD Ptr::element_type & Valid() const { Validate(); return *mPtr; }
     /* --------------------------------------------------------------------------------------------
-     * Check wether a valid instance is managed.
+     * Check whether a valid instance is managed.
     */
     SQMOD_NODISCARD bool IsValid() const { return static_cast< bool >(mPtr); }
     /* --------------------------------------------------------------------------------------------
@@ -264,7 +264,7 @@ struct DpPresence
     */
     Ptr mPtr{nullptr};
     /* --------------------------------------------------------------------------------------------
-     * Wether the referenced pointer is owned.
+     * Whether the referenced pointer is owned.
     */
     bool mOwned{false};
     /* --------------------------------------------------------------------------------------------
@@ -334,7 +334,7 @@ struct DpPresence
     */
     SQMOD_NODISCARD Ptr::element_type & Valid() const { Validate(); return *mPtr; }
     /* --------------------------------------------------------------------------------------------
-     * Check wether a valid instance is managed.
+     * Check whether a valid instance is managed.
     */
     SQMOD_NODISCARD bool IsValid() const { return static_cast< bool >(mPtr); }
     /* --------------------------------------------------------------------------------------------
@@ -453,7 +453,7 @@ struct DpVoiceState
     */
     Ptr mPtr{nullptr};
     /* --------------------------------------------------------------------------------------------
-     * Wether the referenced pointer is owned.
+     * Whether the referenced pointer is owned.
     */
     bool mOwned{false};
     /* --------------------------------------------------------------------------------------------
@@ -521,7 +521,7 @@ struct DpVoiceState
     */
     SQMOD_NODISCARD Ptr::element_type & Valid() const { Validate(); return *mPtr; }
     /* --------------------------------------------------------------------------------------------
-     * Check wether a valid instance is managed.
+     * Check whether a valid instance is managed.
     */
     SQMOD_NODISCARD bool IsValid() const { return static_cast< bool >(mPtr); }
     /* --------------------------------------------------------------------------------------------
