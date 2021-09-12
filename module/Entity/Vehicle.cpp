@@ -148,18 +148,19 @@ void CVehicle::SetOption(int32_t option_id, bool toggle)
 {
     // Attempt to obtain the current value of the specified option
     const bool value = _Func->GetVehicleOption(m_ID, static_cast< vcmpVehicleOption >(option_id));
-    // Attempt to modify the current value of the specified option
-    if (_Func->SetVehicleOption(m_ID, static_cast< vcmpVehicleOption >(option_id),
-                                static_cast< uint8_t >(toggle)) == vcmpErrorArgumentOutOfBounds)
-    {
-        STHROWF("Invalid option identifier: {}", option_id);
-    }
-    else if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_OPTION))
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_OPTION))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_OPTION);
         // Now forward the event call
         Core::Get().EmitVehicleOption(m_ID, option_id, value, 0, NullLightObj());
+    }
+    // Attempt to modify the current value of the specified option
+    if (_Func->SetVehicleOption(m_ID, static_cast< vcmpVehicleOption >(option_id),
+                                static_cast< uint8_t >(toggle)) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Invalid option identifier: {}", option_id);
     }
 }
 
@@ -168,18 +169,19 @@ void CVehicle::SetOptionEx(int32_t option_id, bool toggle, int32_t header, Light
 {
     // Attempt to obtain the current value of the specified option
     const bool value = _Func->GetVehicleOption(m_ID, static_cast< vcmpVehicleOption >(option_id));
-    // Attempt to modify the current value of the specified option
-    if (_Func->SetVehicleOption(m_ID, static_cast< vcmpVehicleOption >(option_id),
-                                static_cast< uint8_t >(toggle)) == vcmpErrorArgumentOutOfBounds)
-    {
-        STHROWF("Invalid option identifier: {}", option_id);
-    }
-    else if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_OPTION))
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_OPTION))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_OPTION);
         // Now forward the event call
         Core::Get().EmitVehicleOption(m_ID, option_id, value, header, payload);
+    }
+    // Attempt to modify the current value of the specified option
+    if (_Func->SetVehicleOption(m_ID, static_cast< vcmpVehicleOption >(option_id),
+                                static_cast< uint8_t >(toggle)) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Invalid option identifier: {}", option_id);
     }
 }
 
@@ -222,8 +224,6 @@ void CVehicle::SetWorld(int32_t world)
     {
         return;
     }
-    // Avoid property unwind from a recursive call
-    _Func->SetVehicleWorld(m_ID, world);
     // Avoid infinite recursive event loops
     if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_WORLD))
     {
@@ -232,6 +232,8 @@ void CVehicle::SetWorld(int32_t world)
         // Now forward the event call
         Core::Get().EmitVehicleWorld(m_ID, current, world);
     }
+    // Avoid property unwind from a recursive call
+    _Func->SetVehicleWorld(m_ID, world);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -321,8 +323,6 @@ void CVehicle::SetImmunity(uint32_t flags)
     Validate();
     // Grab the current value for this property
     const uint32_t current = _Func->GetVehicleImmunityFlags(m_ID);
-    // Avoid property unwind from a recursive call
-    _Func->SetVehicleImmunityFlags(m_ID, static_cast< uint32_t >(flags));
     // Avoid infinite recursive event loops
     if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_IMMUNITY))
     {
@@ -331,6 +331,8 @@ void CVehicle::SetImmunity(uint32_t flags)
         // Now forward the event call
         Core::Get().EmitVehicleImmunity(m_ID, static_cast< int32_t >(current), static_cast< int32_t >(flags));
     }
+    // Avoid property unwind from a recursive call
+    _Func->SetVehicleImmunityFlags(m_ID, static_cast< uint32_t >(flags));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -914,8 +916,6 @@ void CVehicle::SetPartStatus(int32_t part, int32_t status)
     {
         return;
     }
-    // Avoid property unwind from a recursive call
-    _Func->SetVehiclePartStatus(m_ID, part, status);
     // Avoid infinite recursive event loops
     if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_PARTSTATUS))
     {
@@ -924,6 +924,8 @@ void CVehicle::SetPartStatus(int32_t part, int32_t status)
         // Now forward the event call
         Core::Get().EmitVehiclePartStatus(m_ID, part, current, status);
     }
+    // Avoid property unwind from a recursive call
+    _Func->SetVehiclePartStatus(m_ID, part, status);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -947,8 +949,6 @@ void CVehicle::SetTyreStatus(int32_t tyre, int32_t status)
     {
         return;
     }
-    // Avoid property unwind from a recursive call
-    _Func->SetVehicleTyreStatus(m_ID, tyre, status);
     // Avoid infinite recursive event loops
     if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_TYRESTATUS))
     {
@@ -957,6 +957,8 @@ void CVehicle::SetTyreStatus(int32_t tyre, int32_t status)
         // Now forward the event call
         Core::Get().EmitVehicleTyreStatus(m_ID, tyre, current, status);
     }
+    // Avoid property unwind from a recursive call
+    _Func->SetVehicleTyreStatus(m_ID, tyre, status);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -980,8 +982,6 @@ void CVehicle::SetDamageData(uint32_t data)
     {
         return;
     }
-    // Avoid property unwind from a recursive call
-    _Func->SetVehicleDamageData(m_ID, data);
     // Avoid infinite recursive event loops
     if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_DAMAGEDATA))
     {
@@ -990,6 +990,8 @@ void CVehicle::SetDamageData(uint32_t data)
         // Now forward the event call
         Core::Get().EmitVehicleDamageData(m_ID, current, data);
     }
+    // Avoid property unwind from a recursive call
+    _Func->SetVehicleDamageData(m_ID, data);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1013,8 +1015,6 @@ void CVehicle::SetRadio(int32_t radio)
     {
         return;
     }
-    // Avoid property unwind from a recursive call
-    _Func->SetVehicleRadio(m_ID, radio);
     // Avoid infinite recursive event loops
     if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_RADIO))
     {
@@ -1023,6 +1023,8 @@ void CVehicle::SetRadio(int32_t radio)
         // Now forward the event call
         Core::Get().EmitVehicleRadio(m_ID, current, radio);
     }
+    // Avoid property unwind from a recursive call
+    _Func->SetVehicleRadio(m_ID, radio);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1089,8 +1091,6 @@ void CVehicle::SetHandlingRule(int32_t rule, float data)
     Validate();
     // Grab the current value for this property
     const auto current = static_cast< SQFloat >(_Func->GetInstHandlingRule(m_ID, rule));
-    // Avoid property unwind from a recursive call
-    _Func->SetInstHandlingRule(m_ID, rule, data);
     // Avoid infinite recursive event loops
     if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_HANDLINGRULE))
     {
@@ -1099,6 +1099,8 @@ void CVehicle::SetHandlingRule(int32_t rule, float data)
         // Now forward the event call
         Core::Get().EmitVehicleHandlingRule(m_ID, rule, current, data);
     }
+    // Avoid property unwind from a recursive call
+    _Func->SetInstHandlingRule(m_ID, rule, data);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1108,8 +1110,6 @@ void CVehicle::ResetHandlingRule(int32_t rule)
     Validate();
     // Grab the current value for this property
     const auto current = static_cast< SQFloat >(_Func->GetInstHandlingRule(m_ID, rule));
-    // Avoid property unwind from a recursive call
-    _Func->ResetInstHandlingRule(m_ID, rule);
     // Avoid infinite recursive event loops
     if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_HANDLINGRULE))
     {
@@ -1118,6 +1118,8 @@ void CVehicle::ResetHandlingRule(int32_t rule)
         // Now forward the event call
         Core::Get().EmitVehicleHandlingRule(m_ID, rule, current, static_cast< SQFloat >(_Func->GetInstHandlingRule(m_ID, rule)));
     }
+    // Avoid property unwind from a recursive call
+    _Func->ResetInstHandlingRule(m_ID, rule);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1148,7 +1150,7 @@ void CVehicle::SetLightsData(int32_t data) const
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CVehicle::Embark(CPlayer & player) const
+bool CVehicle::Embark(CPlayer & player)
 {
     // Is the specified player even valid?
     if (!player.IsActive())
@@ -1157,6 +1159,19 @@ bool CVehicle::Embark(CPlayer & player) const
     }
     // Validate the managed identifier
     Validate();
+    // If the player embarks in the same vehicle then ignore
+    if (_Func->GetPlayerVehicleId(player.GetID()) == m_ID)
+    {
+        return true; // I guess this is somewhat successful
+    }
+    // Avoid infinite recursive event loops
+    else if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_EMBARK))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_EMBARK);
+        // Now forward the event call
+        Core::Get().EmitPlayerEmbarking(player.GetID(), m_ID, 0);
+    }
     // Perform the requested operation
     return (_Func->PutPlayerInVehicle(player.GetID(), m_ID, 0,
         static_cast< uint8_t >(true), static_cast< uint8_t >(true))
@@ -1164,7 +1179,7 @@ bool CVehicle::Embark(CPlayer & player) const
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CVehicle::EmbarkEx(CPlayer & player, int32_t slot, bool allocate, bool warp) const
+bool CVehicle::EmbarkEx(CPlayer & player, int32_t slot, bool allocate, bool warp)
 {
     // Is the specified player even valid?
     if (!player.IsActive())
@@ -1173,6 +1188,19 @@ bool CVehicle::EmbarkEx(CPlayer & player, int32_t slot, bool allocate, bool warp
     }
     // Validate the managed identifier
     Validate();
+    // If the player embarks in the same vehicle then ignore
+    if (_Func->GetPlayerVehicleId(player.GetID()) == m_ID)
+    {
+        return true; // I guess this is somewhat successful
+    }
+    // Avoid infinite recursive event loops
+    else if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_EMBARK))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_EMBARK);
+        // Now forward the event call
+        Core::Get().EmitPlayerEmbarking(player.GetID(), m_ID, 0);
+    }
     // Perform the requested operation
     return (_Func->PutPlayerInVehicle(player.GetID(), m_ID, slot,
         static_cast< uint8_t >(allocate), static_cast< uint8_t >(warp)) != vcmpErrorRequestDenied);

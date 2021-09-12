@@ -18,7 +18,8 @@ enum VehicleCircularLocks
     VEHICLECL_EMIT_VEHICLE_TYRESTATUS   = (1u << 4u),
     VEHICLECL_EMIT_VEHICLE_DAMAGEDATA   = (1u << 5u),
     VEHICLECL_EMIT_VEHICLE_RADIO        = (1u << 6u),
-    VEHICLECL_EMIT_VEHICLE_HANDLINGRULE = (1u << 7u)
+    VEHICLECL_EMIT_VEHICLE_HANDLINGRULE = (1u << 7u),
+    VEHICLECL_EMIT_VEHICLE_EMBARK       = (1u << 8u) // This should probably be shared with CPlayer
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -615,12 +616,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Embark the specified player entity into the managed vehicle entity.
     */
-    bool Embark(CPlayer & player) const;
+    bool Embark(CPlayer & player);
 
     /* --------------------------------------------------------------------------------------------
      * Embark the specified player entity into the managed vehicle entity.
     */
-    bool EmbarkEx(CPlayer & player, int32_t slot, bool allocate, bool warp) const;
+    bool EmbarkEx(CPlayer & player, int32_t slot, bool allocate, bool warp);
 #if SQMOD_SDK_LEAST(2, 1)
     /* --------------------------------------------------------------------------------------------
      * Set whether the target player will see an objective arrow over a vehicle.
