@@ -23,7 +23,7 @@ struct DpRole
     */
     Ptr mPtr{nullptr};
     /* --------------------------------------------------------------------------------------------
-     * Wether the referenced pointer is owned.
+     * Whether the referenced pointer is owned.
     */
     bool mOwned{false};
     /* --------------------------------------------------------------------------------------------
@@ -91,7 +91,7 @@ struct DpRole
     */
     SQMOD_NODISCARD Ptr::element_type & Valid() const { Validate(); return *mPtr; }
     /* --------------------------------------------------------------------------------------------
-     * Check wether a valid instance is managed.
+     * Check whether a valid instance is managed.
     */
     SQMOD_NODISCARD bool IsValid() const { return static_cast< bool >(mPtr); }
     /* --------------------------------------------------------------------------------------------
@@ -135,159 +135,159 @@ struct DpRole
     */
     SQMOD_NODISCARD std::string BuildJSON_(bool with_id) const { return Valid().build_json(with_id); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role is hoisted.
+     * Check whether the role is hoisted.
     */
     SQMOD_NODISCARD bool IsHoisted() const { return Valid().is_hoisted(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role is mentionable.
+     * Check whether the role is mentionable.
     */
     SQMOD_NODISCARD bool IsMentionable() const { return Valid().is_mentionable(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role is managed (belongs to a bot or application).
+     * Check whether the role is managed (belongs to a bot or application).
     */
     SQMOD_NODISCARD bool IsManaged() const { return Valid().is_managed(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has create instant invite permission.
+     * Check whether the role has create instant invite permission.
     */
     SQMOD_NODISCARD bool CanCreateInstantInvite() const { return Valid().has_create_instant_invite(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the kick members permission.
+     * Check whether the role has the kick members permission.
     */
     SQMOD_NODISCARD bool CanKickMembers() const { return Valid().has_kick_members(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the ban members permission.
+     * Check whether the role has the ban members permission.
     */
     SQMOD_NODISCARD bool CanBanMembers() const { return Valid().has_ban_members(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the administrator permission.
+     * Check whether the role has the administrator permission.
     */
     SQMOD_NODISCARD bool IsAdministrator() const { return Valid().has_administrator(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the manage channels permission.
+     * Check whether the role has the manage channels permission.
     */
     SQMOD_NODISCARD bool CanManageChannels() const { return Valid().has_manage_channels(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the manage guild permission.
+     * Check whether the role has the manage guild permission.
     */
     SQMOD_NODISCARD bool CanManageGuild() const { return Valid().has_manage_guild(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the add reactions permission.
+     * Check whether the role has the add reactions permission.
     */
     SQMOD_NODISCARD bool CanAddReactions() const { return Valid().has_add_reactions(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the view audit log permission.
+     * Check whether the role has the view audit log permission.
     */
     SQMOD_NODISCARD bool CanViewAuditLog() const { return Valid().has_view_audit_log(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the priority speaker permission.
+     * Check whether the role has the priority speaker permission.
     */
     SQMOD_NODISCARD bool IsPrioritySpeaker() const { return Valid().has_priority_speaker(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the stream permission.
+     * Check whether the role has the stream permission.
     */
     SQMOD_NODISCARD bool CanStream() const { return Valid().has_stream(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the view channel permission.
+     * Check whether the role has the view channel permission.
     */
     SQMOD_NODISCARD bool CanViewChannel() const { return Valid().has_view_channel(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the send messages permission.
+     * Check whether the role has the send messages permission.
     */
     SQMOD_NODISCARD bool CanSendMessages() const { return Valid().has_send_messages(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the send TTS messages permission.
+     * Check whether the role has the send TTS messages permission.
     */
     SQMOD_NODISCARD bool CanSendTtsMessages() const { return Valid().has_send_tts_messages(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the manage messages permission.
+     * Check whether the role has the manage messages permission.
     */
     SQMOD_NODISCARD bool CanManageMessages() const { return Valid().has_manage_messages(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the embed links permission.
+     * Check whether the role has the embed links permission.
     */
     SQMOD_NODISCARD bool CanEmbedLinks() const { return Valid().has_embed_links(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the attach files permission.
+     * Check whether the role has the attach files permission.
     */
     SQMOD_NODISCARD bool CanAttachFiles() const { return Valid().has_attach_files(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the read message history permission.
+     * Check whether the role has the read message history permission.
     */
     SQMOD_NODISCARD bool CanReadMessageHistory() const { return Valid().has_read_message_history(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the mention \@everyone and \@here permission.
+     * Check whether the role has the mention \@everyone and \@here permission.
     */
     SQMOD_NODISCARD bool CanMentionEveryone() const { return Valid().has_mention_everyone(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the use external emojis permission.
+     * Check whether the role has the use external emojis permission.
     */
     SQMOD_NODISCARD bool CanUseExternalEmojis() const { return Valid().has_use_external_emojis(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the view guild insights permission.
+     * Check whether the role has the view guild insights permission.
     */
     SQMOD_NODISCARD bool CanViewGuildInsights() const { return Valid().has_view_guild_insights(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the connect voice permission.
+     * Check whether the role has the connect voice permission.
     */
     SQMOD_NODISCARD bool CanConnect() const { return Valid().has_connect(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the speak permission.
+     * Check whether the role has the speak permission.
     */
     SQMOD_NODISCARD bool CanSpeak() const { return Valid().has_speak(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the mute members permission.
+     * Check whether the role has the mute members permission.
     */
     SQMOD_NODISCARD bool CanMuteMembers() const { return Valid().has_mute_members(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the deafen members permission.
+     * Check whether the role has the deafen members permission.
     */
     SQMOD_NODISCARD bool CanDeafenMembers() const { return Valid().has_deafen_members(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the move members permission.
+     * Check whether the role has the move members permission.
     */
     SQMOD_NODISCARD bool CanMoveMembers() const { return Valid().has_move_members(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has use voice activity detection permission.
+     * Check whether the role has use voice activity detection permission.
     */
     SQMOD_NODISCARD bool CanUseVAT() const { return Valid().has_use_vad(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the change nickname permission.
+     * Check whether the role has the change nickname permission.
     */
     SQMOD_NODISCARD bool CanChangeNickname() const { return Valid().has_change_nickname(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the manage nicknames permission.
+     * Check whether the role has the manage nicknames permission.
     */
     SQMOD_NODISCARD bool CanManageNicknames() const { return Valid().has_manage_nicknames(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the manage roles permission.
+     * Check whether the role has the manage roles permission.
     */
     SQMOD_NODISCARD bool CanManageRoles() const { return Valid().has_manage_roles(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the manage webhooks permission.
+     * Check whether the role has the manage webhooks permission.
     */
     SQMOD_NODISCARD bool CanManageWebhooks() const { return Valid().has_manage_webhooks(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the manage emojis permission.
+     * Check whether the role has the manage emojis permission.
     */
     SQMOD_NODISCARD bool CanManageEmojis() const { return Valid().has_manage_emojis(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the use slash commands permission.
+     * Check whether the role has the use slash commands permission.
     */
     SQMOD_NODISCARD bool CanUseSlashCommands() const { return Valid().has_use_slash_commands(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the request to speak permission.
+     * Check whether the role has the request to speak permission.
     */
     SQMOD_NODISCARD bool HasRequestToSpeak() const { return Valid().has_request_to_speak(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the manage threads permission.
+     * Check whether the role has the manage threads permission.
     */
     SQMOD_NODISCARD bool CanManageThreads() const { return Valid().has_manage_threads(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the use public threads permission.
+     * Check whether the role has the use public threads permission.
     */
     SQMOD_NODISCARD bool HasUsePublicThreads() const { return Valid().has_use_public_threads(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the role has the use private threads permission.
+     * Check whether the role has the use private threads permission.
     */
     SQMOD_NODISCARD bool HasUsePrivateThreads() const { return Valid().has_use_private_threads(); }
 };
