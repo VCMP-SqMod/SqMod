@@ -673,7 +673,7 @@ struct LgPlayer
     void SetCanAttack(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionCanAttack, static_cast< uint8_t >(toggle)); }
     void SetWeaponSlot(int slot) const { Get().SetWeaponSlot(slot); }
     void ShowMarkers(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionShowMarkers, static_cast< uint8_t >(toggle)); }
-    void SetSpectateTarget(LgPlayer & player) const { Get().SetSpectator(player.Get()); }
+    void SetSpectateTarget(LightObj & player) const { player.IsNull() ? Get().SetSpectatorID(-1) : Get().SetSpectator(player.CastI< LgPlayer >()->Get()); }
     void SetMarkerVisible(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionHasMarker, static_cast< uint8_t >(toggle)); }
     void SetCanUseColors(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionChatTagsEnabled, static_cast< uint8_t >(toggle)); }
     void SetDrunkStatus(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionDrunkEffects, static_cast< uint8_t >(toggle)); }
