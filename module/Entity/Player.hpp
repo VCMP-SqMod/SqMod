@@ -21,7 +21,8 @@ enum PlayerCircularLocks
     PLAYERCL_EMIT_PLAYER_SCORE           = (1u << 6u),
     PLAYERCL_EMIT_PLAYER_WANTED_LEVEL    = (1u << 7u),
     PLAYERCL_EMIT_PLAYER_IMMUNITY        = (1u << 8u),
-    PLAYERCL_EMIT_PLAYER_ALPHA           = (1u << 9u)
+    PLAYERCL_EMIT_PLAYER_ALPHA           = (1u << 9u),
+    PLAYERCL_EMIT_PLAYER_EMBARK          = (1u << 10u)
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -593,12 +594,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Embark the managed player entity into the specified vehicle entity.
     */
-    bool Embark(CVehicle & vehicle) const;
+    bool Embark(CVehicle & vehicle);
 
     /* --------------------------------------------------------------------------------------------
      * Embark the managed player entity into the specified vehicle entity.
     */
-    bool EmbarkEx(CVehicle & vehicle, int32_t slot, bool allocate, bool warp) const;
+    bool EmbarkEx(CVehicle & vehicle, int32_t slot, bool allocate, bool warp);
 
     /* --------------------------------------------------------------------------------------------
      * Disembark the managed player entity from the currently embarked vehicle entity.

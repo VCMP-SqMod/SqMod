@@ -168,8 +168,6 @@ void CPlayer::SetAdmin(bool toggle)
     {
         return;
     }
-    // Avoid property unwind from a recursive call
-    _Func->SetPlayerAdmin(m_ID, static_cast< uint8_t >(toggle));
     // Avoid infinite recursive event loops
     if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_ADMIN))
     {
@@ -178,6 +176,8 @@ void CPlayer::SetAdmin(bool toggle)
         // Now forward the event call
         Core::Get().EmitPlayerAdmin(m_ID, current, toggle);
     }
+    // Avoid property unwind from a recursive call
+    _Func->SetPlayerAdmin(m_ID, static_cast< uint8_t >(toggle));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -373,13 +373,6 @@ void CPlayer::SetOptionEx(int32_t option_id, bool toggle, int32_t header, LightO
     {
         return;
     }
-    // Avoid property unwind from a recursive call
-    else if (_Func->SetPlayerOption(m_ID,
-        static_cast< vcmpPlayerOption >(option_id),
-        static_cast< uint8_t >(toggle)) == vcmpErrorArgumentOutOfBounds)
-    {
-        STHROWF("Invalid option identifier: {}", option_id);
-    }
     // Avoid infinite recursive event loops
     else if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_OPTION))
     {
@@ -387,6 +380,13 @@ void CPlayer::SetOptionEx(int32_t option_id, bool toggle, int32_t header, LightO
         BitGuardU32 bg(m_CircularLocks, PLAYERCL_EMIT_PLAYER_OPTION);
         // Now forward the event call
         Core::Get().EmitPlayerOption(m_ID, option_id, current, header, payload);
+    }
+    // Avoid property unwind from a recursive call
+    if (_Func->SetPlayerOption(m_ID,
+        static_cast< vcmpPlayerOption >(option_id),
+        static_cast< uint8_t >(toggle)) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Invalid option identifier: {}", option_id);
     }
 }
 #if SQMOD_SDK_LEAST(2, 1)
@@ -433,8 +433,6 @@ void CPlayer::SetWorld(int32_t world)
     {
         return;
     }
-    // Avoid property unwind from a recursive call
-    _Func->SetPlayerWorld(m_ID, world);
     // Avoid infinite recursive event loops
     if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_WORLD))
     {
@@ -443,6 +441,8 @@ void CPlayer::SetWorld(int32_t world)
         // Now forward the event call
         Core::Get().EmitPlayerWorld(m_ID, current, world, false);
     }
+    // Avoid property unwind from a recursive call
+    _Func->SetPlayerWorld(m_ID, world);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -466,8 +466,6 @@ void CPlayer::SetSecondaryWorld(int32_t world)
     {
         return;
     }
-    // Avoid property unwind from a recursive call
-    _Func->SetPlayerSecondaryWorld(m_ID, world);
     // Avoid infinite recursive event loops
     if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_WORLD))
     {
@@ -476,6 +474,8 @@ void CPlayer::SetSecondaryWorld(int32_t world)
         // Now forward the event call
         Core::Get().EmitPlayerWorld(m_ID, current, world, true);
     }
+    // Avoid property unwind from a recursive call
+    _Func->SetPlayerSecondaryWorld(m_ID, world);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -526,11 +526,6 @@ void CPlayer::SetTeam(int32_t team)
     {
         return;
     }
-    // Avoid property unwind from a recursive call
-    else if (_Func->SetPlayerTeam(m_ID, team) == vcmpErrorArgumentOutOfBounds)
-    {
-        STHROWF("Invalid team identifier: {}", team);
-    }
     // Avoid infinite recursive event loops
     else if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_TEAM))
     {
@@ -538,6 +533,11 @@ void CPlayer::SetTeam(int32_t team)
         BitGuardU32 bg(m_CircularLocks, PLAYERCL_EMIT_PLAYER_TEAM);
         // Now forward the event call
         Core::Get().EmitPlayerTeam(m_ID, current, team);
+    }
+    // Avoid property unwind from a recursive call
+    if (_Func->SetPlayerTeam(m_ID, team) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Invalid team identifier: {}", team);
     }
 }
 
@@ -562,11 +562,6 @@ void CPlayer::SetSkin(int32_t skin)
     {
         return;
     }
-    // Avoid property unwind from a recursive call
-    else if (_Func->SetPlayerSkin(m_ID, skin) == vcmpErrorArgumentOutOfBounds)
-    {
-        STHROWF("Invalid skin identifier: {}", skin);
-    }
     // Avoid infinite recursive event loops
     else if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_SKIN))
     {
@@ -574,6 +569,11 @@ void CPlayer::SetSkin(int32_t skin)
         BitGuardU32 bg(m_CircularLocks, PLAYERCL_EMIT_PLAYER_SKIN);
         // Now forward the event call
         Core::Get().EmitPlayerSkin(m_ID, current, skin);
+    }
+    // Avoid property unwind from a recursive call
+    if (_Func->SetPlayerSkin(m_ID, skin) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Invalid skin identifier: {}", skin);
     }
 }
 
@@ -665,8 +665,6 @@ void CPlayer::SetMoney(int32_t amount)
     {
         return;
     }
-    // Avoid property unwind from a recursive call
-    _Func->SetPlayerMoney(m_ID, amount);
     // Avoid infinite recursive event loops
     if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_MONEY))
     {
@@ -675,6 +673,8 @@ void CPlayer::SetMoney(int32_t amount)
         // Now forward the event call
         Core::Get().EmitPlayerMoney(m_ID, current, amount);
     }
+    // Avoid property unwind from a recursive call
+    _Func->SetPlayerMoney(m_ID, amount);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -684,8 +684,6 @@ void CPlayer::GiveMoney(int32_t amount)
     Validate();
     // Grab the current value for this property
     const int32_t current = _Func->GetPlayerMoney(m_ID);
-    // Avoid property unwind from a recursive call
-    _Func->GivePlayerMoney(m_ID, amount);
     // Avoid infinite recursive event loops
     if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_MONEY))
     {
@@ -694,6 +692,8 @@ void CPlayer::GiveMoney(int32_t amount)
         // Now forward the event call
         Core::Get().EmitPlayerMoney(m_ID, current, current + amount);
     }
+    // Avoid property unwind from a recursive call
+    _Func->GivePlayerMoney(m_ID, amount);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -717,8 +717,6 @@ void CPlayer::SetScore(int32_t score)
     {
         return;
     }
-    // Avoid property unwind from a recursive call
-    _Func->SetPlayerScore(m_ID, score);
     // Avoid infinite recursive event loops
     if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_SCORE))
     {
@@ -727,6 +725,8 @@ void CPlayer::SetScore(int32_t score)
         // Now forward the event call
         Core::Get().EmitPlayerScore(m_ID, current, score);
     }
+    // Avoid property unwind from a recursive call
+    _Func->SetPlayerScore(m_ID, score);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -750,8 +750,6 @@ void CPlayer::SetWantedLevel(int32_t level)
     {
         return;
     }
-    // Avoid property unwind from a recursive call
-    _Func->SetPlayerWantedLevel(m_ID, level);
     // Avoid infinite recursive event loops
     if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_WANTED_LEVEL))
     {
@@ -760,6 +758,8 @@ void CPlayer::SetWantedLevel(int32_t level)
         // Now forward the event call
         Core::Get().EmitPlayerWantedLevel(m_ID, current, level);
     }
+    // Avoid property unwind from a recursive call
+    _Func->SetPlayerWantedLevel(m_ID, level);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -832,8 +832,6 @@ void CPlayer::SetImmunity(uint32_t flags)
     Validate();
     // Grab the current value for this property
     const uint32_t current = _Func->GetPlayerImmunityFlags(m_ID);
-    // Avoid property unwind from a recursive call
-    _Func->SetPlayerImmunityFlags(m_ID, static_cast< uint32_t >(flags));
     // Avoid infinite recursive event loops
     if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_IMMUNITY))
     {
@@ -842,6 +840,8 @@ void CPlayer::SetImmunity(uint32_t flags)
         // Now forward the event call
         Core::Get().EmitPlayerImmunity(m_ID, static_cast< int32_t >(current), static_cast< int32_t >(flags));
     }
+    // Avoid property unwind from a recursive call
+    _Func->SetPlayerImmunityFlags(m_ID, static_cast< uint32_t >(flags));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -969,8 +969,6 @@ void CPlayer::SetAlphaEx(int32_t alpha, int32_t fade)
     {
         return;
     }
-    // Avoid property unwind from a recursive call
-    _Func->SetPlayerAlpha(m_ID, alpha, static_cast< uint32_t >(fade));
     // Avoid infinite recursive event loops
     if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_ALPHA))
     {
@@ -979,6 +977,8 @@ void CPlayer::SetAlphaEx(int32_t alpha, int32_t fade)
         // Now forward the event call
         Core::Get().EmitPlayerAlpha(m_ID, current, alpha, fade);
     }
+    // Avoid property unwind from a recursive call
+    _Func->SetPlayerAlpha(m_ID, alpha, static_cast< uint32_t >(fade));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1044,7 +1044,7 @@ uint32_t CPlayer::GetGameKeys() const
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::Embark(CVehicle & vehicle) const
+bool CPlayer::Embark(CVehicle & vehicle)
 {
     // Is the specified vehicle even valid?
     if (!vehicle.IsActive())
@@ -1053,13 +1053,26 @@ bool CPlayer::Embark(CVehicle & vehicle) const
     }
     // Validate the managed identifier
     Validate();
+    // If the player embarks in the same vehicle then ignore
+    if (_Func->GetPlayerVehicleId(m_ID) == vehicle.GetID())
+    {
+        return true; // I guess this is somewhat successful
+    }
+    // Avoid infinite recursive event loops
+    else if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_EMBARK))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, PLAYERCL_EMIT_PLAYER_EMBARK);
+        // Now forward the event call
+        Core::Get().EmitPlayerEmbarking(m_ID, vehicle.GetID(), 0);
+    }
     // Perform the requested operation
     return (_Func->PutPlayerInVehicle(m_ID, vehicle.GetID(), 0,
         static_cast< uint8_t >(true), static_cast< uint8_t >(true)) != vcmpErrorRequestDenied);
 }
 
 // ------------------------------------------------------------------------------------------------
-bool CPlayer::EmbarkEx(CVehicle & vehicle, int32_t slot, bool allocate, bool warp) const
+bool CPlayer::EmbarkEx(CVehicle & vehicle, int32_t slot, bool allocate, bool warp)
 {
     // Is the specified vehicle even valid?
     if (!vehicle.IsActive())
@@ -1068,6 +1081,19 @@ bool CPlayer::EmbarkEx(CVehicle & vehicle, int32_t slot, bool allocate, bool war
     }
     // Validate the managed identifier
     Validate();
+    // If the player embarks in the same vehicle then ignore
+    if (_Func->GetPlayerVehicleId(m_ID) == vehicle.GetID())
+    {
+        return true; // I guess this is somewhat successful
+    }
+    // Avoid infinite recursive event loops
+    else if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_EMBARK))
+    {
+        // Prevent this event from triggering while executed
+        BitGuardU32 bg(m_CircularLocks, PLAYERCL_EMIT_PLAYER_EMBARK);
+        // Now forward the event call
+        Core::Get().EmitPlayerEmbarking(m_ID, vehicle.GetID(), slot);
+    }
     // Perform the requested operation
     return (_Func->PutPlayerInVehicle(m_ID, vehicle.GetID(), slot,
         static_cast< uint8_t >(allocate), static_cast< uint8_t >(warp)) != vcmpErrorRequestDenied);
