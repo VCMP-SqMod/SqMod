@@ -145,18 +145,19 @@ void CPickup::SetOption(int32_t option_id, bool toggle)
 {
     // Attempt to obtain the current value of the specified option
     const bool value = _Func->GetPickupOption(m_ID, static_cast< vcmpPickupOption >(option_id));
-    // Attempt to modify the current value of the specified option
-    if (_Func->SetPickupOption(m_ID, static_cast< vcmpPickupOption >(option_id),
-                               static_cast< uint8_t >(toggle)) == vcmpErrorArgumentOutOfBounds)
-    {
-        STHROWF("Invalid option identifier: {}", option_id);
-    }
-    else if (!(m_CircularLocks & PICKUPCL_EMIT_PICKUP_OPTION))
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & PICKUPCL_EMIT_PICKUP_OPTION))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, PICKUPCL_EMIT_PICKUP_OPTION);
         // Now forward the event call
         Core::Get().EmitPickupOption(m_ID, option_id, value, 0, NullLightObj());
+    }
+    // Attempt to modify the current value of the specified option
+    if (_Func->SetPickupOption(m_ID, static_cast< vcmpPickupOption >(option_id),
+                               static_cast< uint8_t >(toggle)) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Invalid option identifier: {}", option_id);
     }
 }
 
@@ -165,18 +166,19 @@ void CPickup::SetOptionEx(int32_t option_id, bool toggle, int32_t header, LightO
 {
     // Attempt to obtain the current value of the specified option
     const bool value = _Func->GetPickupOption(m_ID, static_cast< vcmpPickupOption >(option_id));
-    // Attempt to modify the current value of the specified option
-    if (_Func->SetPickupOption(m_ID, static_cast< vcmpPickupOption >(option_id),
-                               static_cast< uint8_t >(toggle)) == vcmpErrorArgumentOutOfBounds)
-    {
-        STHROWF("Invalid option identifier: {}", option_id);
-    }
-    else if (!(m_CircularLocks & PICKUPCL_EMIT_PICKUP_OPTION))
+    // Avoid infinite recursive event loops
+    if (!(m_CircularLocks & PICKUPCL_EMIT_PICKUP_OPTION))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, PICKUPCL_EMIT_PICKUP_OPTION);
         // Now forward the event call
         Core::Get().EmitPickupOption(m_ID, option_id, value, header, payload);
+    }
+    // Attempt to modify the current value of the specified option
+    if (_Func->SetPickupOption(m_ID, static_cast< vcmpPickupOption >(option_id),
+                               static_cast< uint8_t >(toggle)) == vcmpErrorArgumentOutOfBounds)
+    {
+        STHROWF("Invalid option identifier: {}", option_id);
     }
 }
 
@@ -201,16 +203,16 @@ void CPickup::SetWorld(int32_t world)
     {
         return;
     }
-    // Avoid property unwind from a recursive call
-    _Func->SetPickupWorld(m_ID, world);
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & PICKUPCL_EMIT_PICKUP_WORLD))
+    else if (!(m_CircularLocks & PICKUPCL_EMIT_PICKUP_WORLD))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, PICKUPCL_EMIT_PICKUP_WORLD);
         // Now forward the event call
         Core::Get().EmitPickupWorld(m_ID, current, world);
     }
+    // Avoid property unwind from a recursive call
+    _Func->SetPickupWorld(m_ID, world);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -234,16 +236,16 @@ void CPickup::SetAlpha(int32_t alpha)
     {
         return;
     }
-    // Avoid property unwind from a recursive call
-    _Func->SetPickupAlpha(m_ID, alpha);
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & PICKUPCL_EMIT_PICKUP_ALPHA))
+    else if (!(m_CircularLocks & PICKUPCL_EMIT_PICKUP_ALPHA))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, PICKUPCL_EMIT_PICKUP_ALPHA);
         // Now forward the event call
         Core::Get().EmitPickupAlpha(m_ID, current, alpha);
     }
+    // Avoid property unwind from a recursive call
+    _Func->SetPickupAlpha(m_ID, alpha);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -267,16 +269,16 @@ void CPickup::SetAutomatic(bool toggle)
     {
         return;
     }
-    // Avoid property unwind from a recursive call
-    _Func->SetPickupIsAutomatic(m_ID, static_cast< uint8_t >(toggle));
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & PICKUPCL_EMIT_PICKUP_AUTOMATIC))
+    else if (!(m_CircularLocks & PICKUPCL_EMIT_PICKUP_AUTOMATIC))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, PICKUPCL_EMIT_PICKUP_AUTOMATIC);
         // Now forward the event call
         Core::Get().EmitPickupAutomatic(m_ID, current, toggle);
     }
+    // Avoid property unwind from a recursive call
+    _Func->SetPickupIsAutomatic(m_ID, static_cast< uint8_t >(toggle));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -300,16 +302,16 @@ void CPickup::SetAutoTimer(int32_t timer)
     {
         return;
     }
-    // Avoid property unwind from a recursive call
-    _Func->SetPickupAutoTimer(m_ID, static_cast< uint32_t >(timer));
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & PICKUPCL_EMIT_PICKUP_AUTOTIMER))
+    else if (!(m_CircularLocks & PICKUPCL_EMIT_PICKUP_AUTOTIMER))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, PICKUPCL_EMIT_PICKUP_AUTOTIMER);
         // Now forward the event call
         Core::Get().EmitPickupAutoTimer(m_ID, current, timer);
     }
+    // Avoid property unwind from a recursive call
+    _Func->SetPickupAutoTimer(m_ID, static_cast< uint32_t >(timer));
 }
 
 // ------------------------------------------------------------------------------------------------
