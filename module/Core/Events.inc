@@ -444,7 +444,7 @@ void Core::EmitPlayerKilled(int32_t player_id, int32_t killer_id, int32_t reason
 #ifdef VCMP_ENABLE_OFFICIAL
     if (IsOfficial())
     {
-        if (!team_kill)
+        if (team_kill)
         {
             ExecuteLegacyEvent(m_VM, _SC("onPlayerTeamKill"), _killer.mLgObj, _player.mLgObj, reason, static_cast< int32_t >(body_part));
         }
