@@ -163,16 +163,16 @@ void CObject::SetWorld(int32_t world)
     {
         return;
     }
-    // Avoid property unwind from a recursive call
-    _Func->SetObjectWorld(m_ID, world);
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & OBJECTCL_EMIT_OBJECT_WORLD))
+    else if (!(m_CircularLocks & OBJECTCL_EMIT_OBJECT_WORLD))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, OBJECTCL_EMIT_OBJECT_WORLD);
         // Now forward the event call
         Core::Get().EmitObjectWorld(m_ID, current, world);
     }
+    // Avoid property unwind from a recursive call
+    _Func->SetObjectWorld(m_ID, world);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -202,16 +202,16 @@ void CObject::SetAlphaEx(int32_t alpha, uint32_t time)
     {
         return;
     }
-    // Avoid property unwind from a recursive call
-    _Func->SetObjectAlpha(m_ID, alpha, time);
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & OBJECTCL_EMIT_OBJECT_ALPHA))
+    else if (!(m_CircularLocks & OBJECTCL_EMIT_OBJECT_ALPHA))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, OBJECTCL_EMIT_OBJECT_ALPHA);
         // Now forward the event call
         Core::Get().EmitObjectAlpha(m_ID, current, alpha, time);
     }
+    // Avoid property unwind from a recursive call
+    _Func->SetObjectAlpha(m_ID, alpha, time);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -400,16 +400,16 @@ void CObject::SetShotReport(bool toggle)
     {
         return;
     }
-    // Avoid property unwind from a recursive call
-    _Func->SetObjectShotReportEnabled(m_ID, static_cast< uint8_t >(toggle));
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & OBJECTCL_EMIT_OBJECT_REPORT))
+    else if (!(m_CircularLocks & OBJECTCL_EMIT_OBJECT_REPORT))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, OBJECTCL_EMIT_OBJECT_REPORT);
         // Now forward the event call
         Core::Get().EmitObjectReport(m_ID, current, toggle, false);
     }
+    // Avoid property unwind from a recursive call
+    _Func->SetObjectShotReportEnabled(m_ID, static_cast< uint8_t >(toggle));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -433,16 +433,16 @@ void CObject::SetTouchedReport(bool toggle)
     {
         return;
     }
-    // Avoid property unwind from a recursive call
-    _Func->SetObjectTouchedReportEnabled(m_ID, static_cast< uint8_t >(toggle));
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & OBJECTCL_EMIT_OBJECT_REPORT))
+    else if (!(m_CircularLocks & OBJECTCL_EMIT_OBJECT_REPORT))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, OBJECTCL_EMIT_OBJECT_REPORT);
         // Now forward the event call
         Core::Get().EmitObjectReport(m_ID, current, toggle, true);
     }
+    // Avoid property unwind from a recursive call
+    _Func->SetObjectTouchedReportEnabled(m_ID, static_cast< uint8_t >(toggle));
 }
 
 // ------------------------------------------------------------------------------------------------
