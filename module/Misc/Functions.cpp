@@ -762,7 +762,7 @@ void SetSpawnCameraPositionEx(float x, float y, float z)
 // ------------------------------------------------------------------------------------------------
 void SetSpawnCameraLookAtEx(float x, float y, float z)
 {
-    _Func->SetSpawnPlayerPosition(x, y, z);
+    _Func->SetSpawnCameraLookAt(x, y, z);
 }
 
 // ------------------------------------------------------------------------------------------------
