@@ -169,7 +169,7 @@ void CPlayer::SetAdmin(bool toggle)
         return;
     }
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_ADMIN))
+    else if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_ADMIN))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, PLAYERCL_EMIT_PLAYER_ADMIN);
@@ -434,7 +434,7 @@ void CPlayer::SetWorld(int32_t world)
         return;
     }
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_WORLD))
+    else if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_WORLD))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, PLAYERCL_EMIT_PLAYER_WORLD);
@@ -467,7 +467,7 @@ void CPlayer::SetSecondaryWorld(int32_t world)
         return;
     }
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_WORLD))
+    else if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_WORLD))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, PLAYERCL_EMIT_PLAYER_WORLD);
@@ -666,7 +666,7 @@ void CPlayer::SetMoney(int32_t amount)
         return;
     }
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_MONEY))
+    else if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_MONEY))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, PLAYERCL_EMIT_PLAYER_MONEY);
@@ -718,7 +718,7 @@ void CPlayer::SetScore(int32_t score)
         return;
     }
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_SCORE))
+    else if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_SCORE))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, PLAYERCL_EMIT_PLAYER_SCORE);
@@ -751,7 +751,7 @@ void CPlayer::SetWantedLevel(int32_t level)
         return;
     }
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_WANTED_LEVEL))
+    else if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_WANTED_LEVEL))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, PLAYERCL_EMIT_PLAYER_WANTED_LEVEL);
@@ -970,7 +970,7 @@ void CPlayer::SetAlphaEx(int32_t alpha, int32_t fade)
         return;
     }
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_ALPHA))
+    else if (!(m_CircularLocks & PLAYERCL_EMIT_PLAYER_ALPHA))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, PLAYERCL_EMIT_PLAYER_ALPHA);
