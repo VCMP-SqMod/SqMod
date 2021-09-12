@@ -318,6 +318,72 @@ static const EnumElement g_DpGuildMemberFlagsEnum[] = {
 };
 
 // ------------------------------------------------------------------------------------------------
+static const EnumElement g_DpComponentTypeEnum[] = {
+    {_SC("ActionRow"),      static_cast< SQInteger >(dpp::cot_action_row)},
+    {_SC("Button"),         static_cast< SQInteger >(dpp::cot_button)},
+    {_SC("SelectMenu"),     static_cast< SQInteger >(dpp::cot_selectmenu)}
+};
+
+// ------------------------------------------------------------------------------------------------
+static const EnumElement g_DpComponentStyleEnum[] = {
+    {_SC("Primary"),        static_cast< SQInteger >(dpp::cos_primary)},
+    {_SC("Secondary"),      static_cast< SQInteger >(dpp::cos_secondary)},
+    {_SC("Success"),        static_cast< SQInteger >(dpp::cos_success)},
+    {_SC("Danger"),         static_cast< SQInteger >(dpp::cos_danger)},
+    {_SC("Link"),           static_cast< SQInteger >(dpp::cos_link)}
+};
+
+// ------------------------------------------------------------------------------------------------
+static const EnumElement g_DpStickerTypeEnum[] = {
+    {_SC("Standard"),      static_cast< SQInteger >(dpp::st_standard)},
+    {_SC("Guild"),         static_cast< SQInteger >(dpp::st_guild)}
+};
+
+// ------------------------------------------------------------------------------------------------
+static const EnumElement g_DpStickerFormatEnum[] = {
+    {_SC("PNG"),        static_cast< SQInteger >(dpp::sf_png)},
+    {_SC("APNG"),       static_cast< SQInteger >(dpp::sf_apng)},
+    {_SC("Lottie"),     static_cast< SQInteger >(dpp::sf_lottie)}
+};
+
+// ------------------------------------------------------------------------------------------------
+static const EnumElement g_DpMessageFlagsEnum[] = {
+    {_SC("Crossposted"),            static_cast< SQInteger >(dpp::m_crossposted)},
+    {_SC("IsCrosspost"),            static_cast< SQInteger >(dpp::m_is_crosspost)},
+    {_SC("SupressEmbeds"),          static_cast< SQInteger >(dpp::m_supress_embeds)},
+    {_SC("SourceMessageDeleted"),   static_cast< SQInteger >(dpp::m_source_message_deleted)},
+    {_SC("Urgent"),                 static_cast< SQInteger >(dpp::m_urgent)},
+    {_SC("Ephemeral"),              static_cast< SQInteger >(dpp::m_ephemeral)},
+    {_SC("Loading"),                static_cast< SQInteger >(dpp::m_loading)}
+};
+
+// ------------------------------------------------------------------------------------------------
+static const EnumElement g_DpMessageTypeEnum[] = {
+    {_SC("Default"),                                    static_cast< SQInteger >(dpp::mt_default)},
+    {_SC("RecipientAdd"),                               static_cast< SQInteger >(dpp::mt_recipient_add)},
+    {_SC("RecipientRemove"),                            static_cast< SQInteger >(dpp::mt_recipient_remove)},
+    {_SC("Call"),                                       static_cast< SQInteger >(dpp::mt_call)},
+    {_SC("ChannelNameChange"),                          static_cast< SQInteger >(dpp::mt_channel_name_change)},
+    {_SC("ChannelIconChange"),                          static_cast< SQInteger >(dpp::mt_channel_icon_change)},
+    {_SC("ChannelPinnedMessage"),                       static_cast< SQInteger >(dpp::mt_channel_pinned_message)},
+    {_SC("GuildMemberJoin"),                            static_cast< SQInteger >(dpp::mt_guild_member_join)},
+    {_SC("UserPremiumGuildSubscription"),               static_cast< SQInteger >(dpp::mt_user_premium_guild_subscription)},
+    {_SC("UserPremiumGuildSubscriptionTier1"),          static_cast< SQInteger >(dpp::mt_user_premium_guild_subscription_tier_1)},
+    {_SC("UserPremiumGuildSubscriptionTier2"),          static_cast< SQInteger >(dpp::mt_user_premium_guild_subscription_tier_2)},
+    {_SC("UserPremiumGuildSubscriptionTier3"),          static_cast< SQInteger >(dpp::mt_user_premium_guild_subscription_tier_3)},
+    {_SC("ChannelFollowAdd"),                           static_cast< SQInteger >(dpp::mt_channel_follow_add)},
+    {_SC("GuildDiscoveryDisqualified"),                 static_cast< SQInteger >(dpp::mt_guild_discovery_disqualified)},
+    {_SC("GuildDiscoveryRequalified"),                  static_cast< SQInteger >(dpp::mt_guild_discovery_requalified)},
+    {_SC("GuildDiscoveryGracePeriodInitialWarning"),    static_cast< SQInteger >(dpp::mt_guild_discovery_grace_period_initial_warning)},
+    {_SC("GuildDiscoveryGracePeriodFinalWarning"),      static_cast< SQInteger >(dpp::mt_guild_discovery_grace_period_final_warning)},
+    {_SC("ThreadCreated"),                              static_cast< SQInteger >(dpp::mt_thread_created)},
+    {_SC("Reply"),                                      static_cast< SQInteger >(dpp::mt_reply)},
+    {_SC("ApplicationCommand"),                         static_cast< SQInteger >(dpp::mt_application_command)},
+    {_SC("ThreadStarterMessage"),                       static_cast< SQInteger >(dpp::mt_thread_starter_message)},
+    {_SC("GuildInviteReminder"),                        static_cast< SQInteger >(dpp::mt_guild_invite_reminder)}
+};
+
+// ------------------------------------------------------------------------------------------------
 static const EnumElements g_EnumList[] = {
     {_SC("SqDiscordLogLevel"),              g_DpLogLevelEnum},
     {_SC("SqDiscordImageType"),             g_DpImageTypeEnum},
@@ -334,7 +400,13 @@ static const EnumElements g_EnumList[] = {
     {_SC("SqDiscordUserFlags"),             g_DpUserFlagsEnum},
     {_SC("SqDiscordRegion"),                g_DpRegionEnum},
     {_SC("SqDiscordGuildFlags"),            g_DpGuildFlagsEnum},
-    {_SC("SqDiscordGuildMemberFlags"),      g_DpGuildMemberFlagsEnum}
+    {_SC("SqDiscordGuildMemberFlags"),      g_DpGuildMemberFlagsEnum},
+    {_SC("SqDiscordComponentType"),         g_DpComponentTypeEnum},
+    {_SC("SqDiscordComponentStyle"),        g_DpComponentStyleEnum},
+    {_SC("SqDiscordStickerType"),           g_DpStickerTypeEnum},
+    {_SC("SqDiscordStickerFormat"),         g_DpStickerFormatEnum},
+    {_SC("SqDiscordMessageFlags"),          g_DpMessageFlagsEnum},
+    {_SC("SqDiscordMessageType"),           g_DpMessageTypeEnum}
 };
 
 // ------------------------------------------------------------------------------------------------
