@@ -23,7 +23,7 @@ struct DpGuildMember
     */
     Ptr mPtr{nullptr};
     /* --------------------------------------------------------------------------------------------
-     * Wether the referenced pointer is owned.
+     * Whether the referenced pointer is owned.
     */
     bool mOwned{false};
     /* --------------------------------------------------------------------------------------------
@@ -91,7 +91,7 @@ struct DpGuildMember
     */
     SQMOD_NODISCARD Ptr::element_type & Valid() const { Validate(); return *mPtr; }
     /* --------------------------------------------------------------------------------------------
-     * Check wether a valid instance is managed.
+     * Check whether a valid instance is managed.
     */
     SQMOD_NODISCARD bool IsValid() const { return static_cast< bool >(mPtr); }
     /* --------------------------------------------------------------------------------------------
@@ -141,15 +141,15 @@ struct DpGuildMember
     */
     SQMOD_NODISCARD std::string BuildJSON() const { return Valid().build_json(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the user is deafened.
+     * Check whether the user is deafened.
     */
     SQMOD_NODISCARD bool IsDeaf() const { return Valid().is_deaf(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the user is muted.
+     * Check whether the user is muted.
     */
     SQMOD_NODISCARD bool IsMuted() const { return Valid().is_muted(); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether the user is pending verification by membership screening.
+     * Check whether the user is pending verification by membership screening.
     */
     SQMOD_NODISCARD bool IsPending() const { return Valid().is_pending(); }
 };
@@ -165,7 +165,7 @@ struct DpGuild
     */
     Ptr mPtr{nullptr};
     /* --------------------------------------------------------------------------------------------
-     * Wether the referenced pointer is owned.
+     * Whether the referenced pointer is owned.
     */
     bool mOwned{false};
     /* --------------------------------------------------------------------------------------------
@@ -233,7 +233,7 @@ struct DpGuild
     */
     SQMOD_NODISCARD Ptr::element_type & Valid() const { Validate(); return *mPtr; }
     /* --------------------------------------------------------------------------------------------
-     * Check wether a valid instance is managed.
+     * Check whether a valid instance is managed.
     */
     SQMOD_NODISCARD bool IsValid() const { return static_cast< bool >(mPtr); }
     /* --------------------------------------------------------------------------------------------
@@ -297,11 +297,11 @@ struct DpGuild
     */
     SQMOD_NODISCARD SQInteger GetDefaultMessageNotifications() const { return static_cast< SQInteger >(Valid().default_message_notifications); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether or not explicit content filtering is enable and what setting it is.
+     * Check whether or not explicit content filtering is enable and what setting it is.
     */
     SQMOD_NODISCARD SQInteger GetExplicitContentFilter() const { return static_cast< SQInteger >(Valid().explicit_content_filter); }
     /* --------------------------------------------------------------------------------------------
-     * Check wether multi factor authentication is required for moderators or not.
+     * Check whether multi factor authentication is required for moderators or not.
     */
     SQMOD_NODISCARD SQInteger GetMfaLevel() const { return static_cast< SQInteger >(Valid().mfa_level); }
     /* --------------------------------------------------------------------------------------------
