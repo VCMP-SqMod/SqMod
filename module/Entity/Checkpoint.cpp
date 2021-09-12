@@ -157,16 +157,16 @@ void CCheckpoint::SetWorld(int32_t world)
     {
         return;
     }
-    // Avoid property unwind from a recursive call
-    _Func->SetCheckPointWorld(m_ID, world);
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & CHECKPOINTCL_EMIT_CHECKPOINT_WORLD))
+    else if (!(m_CircularLocks & CHECKPOINTCL_EMIT_CHECKPOINT_WORLD))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, CHECKPOINTCL_EMIT_CHECKPOINT_WORLD);
         // Now forward the event call
         Core::Get().EmitCheckpointWorld(m_ID, current, world);
     }
+    // Avoid property unwind from a recursive call
+    _Func->SetCheckPointWorld(m_ID, world);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -257,8 +257,6 @@ void CCheckpoint::SetRadius(float radius)
     Validate();
     // Grab the current value for this property
     const float current = _Func->GetCheckPointRadius(m_ID);
-    // Avoid property unwind from a recursive call
-    _Func->SetCheckPointRadius(m_ID, radius);
     // Avoid infinite recursive event loops
     if (!(m_CircularLocks & CHECKPOINTCL_EMIT_CHECKPOINT_RADIUS))
     {
@@ -267,6 +265,8 @@ void CCheckpoint::SetRadius(float radius)
         // Now forward the event call
         Core::Get().EmitCheckpointRadius(m_ID, current, radius);
     }
+    // Avoid property unwind from a recursive call
+    _Func->SetCheckPointRadius(m_ID, radius);
 }
 
 // ------------------------------------------------------------------------------------------------
