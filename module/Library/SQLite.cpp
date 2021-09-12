@@ -451,11 +451,15 @@ LightObj EscapeString(StackStrF & str)
     }
     // Allocate a memory buffer
     std::vector< SQChar > b;
-    b.reserve(static_cast< size_t >(str.mLen));
+    // Allocate extra space to make sure there's room for a null terminator since we need it
+    // This is a f* up from SQLite devs not returning the number of written characters from snprintf
+    // So we can figure out if we actually had room for the null terminator or not
+    b.reserve(static_cast< size_t >(str.mLen * 2));
     // Attempt to escape the specified string
     sqlite3_snprintf(static_cast<int>(b.capacity()), b.data(), "%q", str.mPtr);
     // Return the resulted string
-    return LightObj(b.data());
+    LightObj o(b.data(), -1);
+    return o;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -477,7 +481,8 @@ LightObj EscapeStringEx(SQChar spec, StackStrF & str)
     fs[1] = spec;
     // Allocate a memory buffer
     std::vector< SQChar > b;
-    b.reserve(static_cast< size_t >(str.mLen));
+    // Allocate extra space to make sure there's room for a null terminator since we need it (see above)
+    b.reserve(static_cast< size_t >(str.mLen * 2));
     // Attempt to escape the specified string
     sqlite3_snprintf(static_cast<int>(b.capacity()), b.data(), fs, str.mPtr);
     // Return the resulted string
