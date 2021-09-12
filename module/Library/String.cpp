@@ -961,23 +961,119 @@ static SQInteger SqLevenshtein(StackStrF & a, StackStrF & b)
 }
 
 // ------------------------------------------------------------------------------------------------
-static SQInteger SqStrToI(SQInteger base, StackStrF & s)
+static SQInteger SqStringToInt(SQInteger base, StackStrF & s)
 {
 #ifdef _SQ64
-	return std::stoll(s.mPtr, nullptr, ConvTo< int >::From((base)));
+	return std::stoll(s.ToStr(), nullptr, ConvTo< int >::From((base)));
 #else
-	return std::stoi(s.mPtr, nullptr, ConvTo< int >::From((base)));
+	return std::stoi(s.ToStr(), nullptr, ConvTo< int >::From((base)));
 #endif
 }
 
 // ------------------------------------------------------------------------------------------------
-static SQFloat SqStrToF(StackStrF & s)
+static SQFloat SqStringToFloat(StackStrF & s)
 {
 #ifdef SQUSEDOUBLE
 	return std::strtod(s.mPtr, nullptr);
 #else
 	return std::strtof(s.mPtr, nullptr);
 #endif
+}
+
+// ------------------------------------------------------------------------------------------------
+SQMOD_NODISCARD static Table SqStringToL(SQInteger base, StackStrF & s)
+{
+    SQChar * end = nullptr;
+    // Attempt to process the specified string
+    const auto r = std::strtol(s.mPtr, &end, ConvTo< int >::From((base)));
+    // Allocate a table for the result
+    Table t(SqVM(), 2);
+    // Insert the resulted value
+    t.SetValue(_SC("value"), r);
+    // Insert the end of the value
+    t.SetValue(_SC("end"), static_cast< intptr_t >(end - s.mPtr));
+    // Return the table containing the results
+    return t;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQMOD_NODISCARD static Table SqStringToLL(SQInteger base, StackStrF & s)
+{
+    SQChar * end = nullptr;
+    // Attempt to process the specified string
+    const auto r = std::strtoll(s.mPtr, &end, ConvTo< int >::From((base)));
+    // Allocate a table for the result
+    Table t(SqVM(), 2);
+    // Insert the resulted value
+    t.SetValue(_SC("value"), r);
+    // Insert the end of the value
+    t.SetValue(_SC("end"), static_cast< intptr_t >(end - s.mPtr));
+    // Return the table containing the results
+    return t;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQMOD_NODISCARD static Table SqStringToUL(SQInteger base, StackStrF & s)
+{
+    SQChar * end = nullptr;
+    // Attempt to process the specified string
+    const auto r = std::strtoul(s.mPtr, &end, ConvTo< int >::From((base)));
+    // Allocate a table for the result
+    Table t(SqVM(), 2);
+    // Insert the resulted value
+    t.SetValue(_SC("value"), r);
+    // Insert the end of the value
+    t.SetValue(_SC("end"), static_cast< intptr_t >(end - s.mPtr));
+    // Return the table containing the results
+    return t;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQMOD_NODISCARD static Table SqStringToULL(SQInteger base, StackStrF & s)
+{
+    SQChar * end = nullptr;
+    // Attempt to process the specified string
+    const auto r = std::strtoull(s.mPtr, &end, ConvTo< int >::From((base)));
+    // Allocate a table for the result
+    Table t(SqVM(), 2);
+    // Insert the resulted value
+    t.SetValue(_SC("value"), r);
+    // Insert the end of the value
+    t.SetValue(_SC("end"), static_cast< intptr_t >(end - s.mPtr));
+    // Return the table containing the results
+    return t;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQMOD_NODISCARD static Table SqStringToF(StackStrF & s)
+{
+    SQChar * end = nullptr;
+    // Attempt to process the specified string
+    const auto r = std::strtof(s.mPtr, &end);
+    // Allocate a table for the result
+    Table t(SqVM(), 2);
+    // Insert the resulted value
+    t.SetValue(_SC("value"), r);
+    // Insert the end of the value
+    t.SetValue(_SC("end"), static_cast< intptr_t >(end - s.mPtr));
+    // Return the table containing the results
+    return t;
+}
+
+// ------------------------------------------------------------------------------------------------
+SQMOD_NODISCARD static Table SqStringToD(StackStrF & s)
+{
+    SQChar * end = nullptr;
+    // Attempt to process the specified string
+    const auto r = std::strtod(s.mPtr, &end);
+    // Allocate a table for the result
+    Table t(SqVM(), 2);
+    // Insert the resulted value
+    t.SetValue(_SC("value"), r);
+    // Insert the end of the value
+    t.SetValue(_SC("end"), static_cast< intptr_t >(end - s.mPtr));
+    // Return the table containing the results
+    return t;
 }
 
 // ================================================================================================
@@ -1000,8 +1096,14 @@ void Register_String(HSQUIRRELVM vm)
     .FmtFunc(_SC("Lowercase"), &SqToLowercase)
     .FmtFunc(_SC("Uppercase"), &SqToUppercase)
     .FmtFunc(_SC("JustAlnum"), &SqJustAlphaNum)
-    .FmtFunc(_SC("ToInt"), &SqStrToI)
-    .FmtFunc(_SC("ToFloat"), &SqStrToF)
+    .FmtFunc(_SC("ToInt"), &SqStringToInt)
+    .FmtFunc(_SC("ToFloat"), &SqStringToFloat)
+    .FmtFunc(_SC("ToL"), &SqStringToL)
+    .FmtFunc(_SC("ToLL"), &SqStringToLL)
+    .FmtFunc(_SC("ToUL"), &SqStringToUL)
+    .FmtFunc(_SC("ToULL"), &SqStringToULL)
+    .FmtFunc(_SC("ToF"), &SqStringToF)
+    .FmtFunc(_SC("ToD"), &SqStringToD)
     .FmtFunc(_SC("Levenshtein"), &SqLevenshtein)
     .FmtFunc(_SC("AreAllSpace"), &SqAllChars< std::isspace >)
     .FmtFunc(_SC("AreAllPrint"), &SqAllChars< std::isprint >)
