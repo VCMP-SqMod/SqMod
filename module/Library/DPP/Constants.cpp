@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------------------------
-#include "Library/DPPTy.hpp"
+#include "Library/DPP/Constants.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <sqratConst.h>
@@ -8,326 +8,69 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-SQMOD_DECL_TYPENAME(SqDppCachePolicy, _SC("SqDppCachePolicy"))
-SQMOD_DECL_TYPENAME(SqDppIconHash, _SC("SqDppIconHash"))
-SQMOD_DECL_TYPENAME(SqDppUptime, _SC("SqDppUptime"))
-SQMOD_DECL_TYPENAME(SqDppActivity, _SC("SqDppActivity"))
-SQMOD_DECL_TYPENAME(SqDppPresence, _SC("SqDppPresence"))
-SQMOD_DECL_TYPENAME(SqDppVoiceState, _SC("SqDppVoiceState"))
-SQMOD_DECL_TYPENAME(SqDppRole, _SC("SqDppRole"))
-SQMOD_DECL_TYPENAME(SqDppUser, _SC("SqDppUser"))
-SQMOD_DECL_TYPENAME(SqDppGuildMember, _SC("SqDppGuildMember"))
-SQMOD_DECL_TYPENAME(SqDppGuild, _SC("SqDppGuild"))
-
-// ------------------------------------------------------------------------------------------------
-void Register_DPPConst(HSQUIRRELVM vm, Table & ns);
-
-// ------------------------------------------------------------------------------------------------
-void Register_DPPTy(HSQUIRRELVM vm, Table & ns)
-{
-	Register_DPPConst(vm, ns);
-    // --------------------------------------------------------------------------------------------
-    ns.Bind(_SC("Uptime"),
-        Class< dpp::utility::uptime >(vm, SqDppUptime::Str)
-        // Constructors
-        .Ctor()
-        // Meta-methods
-        .SquirrelFunc(_SC("_typename"), &SqDppUptime::Fn)
-        .Func(_SC("_tostring"), &dpp::utility::uptime::to_string)
-        // Member Variables
-        .Var(_SC("Days"), &dpp::utility::uptime::days)
-        .Var(_SC("Hours"), &dpp::utility::uptime::hours)
-        .Var(_SC("Minutes"), &dpp::utility::uptime::mins)
-        .Var(_SC("Seconds"), &dpp::utility::uptime::secs)
-        // Member Methods
-        .Func(_SC("ToSeconds"), &dpp::utility::uptime::to_secs)
-        .Func(_SC("ToMilliseconds"), &dpp::utility::uptime::to_msecs)
-    );
-    // --------------------------------------------------------------------------------------------
-    ns.Bind(_SC("IconHash"),
-        Class< dpp::utility::iconhash >(vm, SqDppIconHash::Str)
-        // Constructors
-        .Ctor()
-        .Ctor< const std::string & >()
-        // Meta-methods
-        .SquirrelFunc(_SC("_typename"), &SqDppIconHash::Fn)
-        .Func(_SC("_tostring"), &dpp::utility::iconhash::to_string)
-        // Member Variables
-        .Var(_SC("High"), &dpp::utility::iconhash::first)
-        .Var(_SC("Low"), &dpp::utility::iconhash::second)
-        // Member Methods
-        .Func(_SC("Set"), &dpp::utility::iconhash::set)
-    );
-    // --------------------------------------------------------------------------------------------
-    ns.Bind(_SC("CachePolicy"),
-        Class< DpCachePolicy >(vm, SqDppCachePolicy::Str)
-        // Constructors
-        .Ctor()
-        .Ctor< SQInteger >()
-        .Ctor< SQInteger, SQInteger >()
-        .Ctor< SQInteger, SQInteger, SQInteger >()
-        // Meta-methods
-        .SquirrelFunc(_SC("_typename"), &SqDppCachePolicy::Fn)
-        // Member Variables
-        .Var(_SC("UserPolicy"), &DpCachePolicy::mUserPolicy)
-        .Var(_SC("EmojiPolicy"), &DpCachePolicy::mEmojiPolicy)
-        .Var(_SC("RolePolicy"), &DpCachePolicy::mRolePolicy)
-    );
-    // --------------------------------------------------------------------------------------------
-    ns.Bind(_SC("Activity"),
-        Class< DpActivity, NoCopy< DpActivity > >(vm, SqDppActivity::Str)
-        // Constructors
-        .Ctor()
-        .Ctor< SQInteger, StackStrF &, StackStrF &, StackStrF & >()
-        // Meta-methods
-        .SquirrelFunc(_SC("_typename"), &SqDppActivity::Fn)
-        // Member Properties
-        .Prop(_SC("Name"), &DpActivity::GetName, &DpActivity::SetName)
-        .Prop(_SC("State"), &DpActivity::GetState, &DpActivity::SetState)
-        .Prop(_SC("URL"), &DpActivity::GetURL, &DpActivity::SetURL)
-        .Prop(_SC("Type"), &DpActivity::GetType, &DpActivity::SetType)
-        .Prop(_SC("CreatedAt"), &DpActivity::GetCreatedAt, &DpActivity::SetCreatedAt)
-        .Prop(_SC("Start"), &DpActivity::GetStart, &DpActivity::SetStart)
-        .Prop(_SC("End"), &DpActivity::GetEnd, &DpActivity::SetEnd)
-        // Member Methods
-        .Func(_SC("SetName"), &DpActivity::ApplyName)
-        .Func(_SC("SetState"), &DpActivity::ApplyState)
-        .Func(_SC("SetURL"), &DpActivity::ApplyURL)
-        .Func(_SC("SetType"), &DpActivity::ApplyType)
-        .Func(_SC("SetCreatedAt"), &DpActivity::ApplyCreatedAt)
-        .Func(_SC("SetStart"), &DpActivity::ApplyStart)
-        .Func(_SC("SetEnd"), &DpActivity::ApplyEnd)
-    );
-    // --------------------------------------------------------------------------------------------
-    ns.Bind(_SC("Presence"),
-        Class< DpPresence, NoCopy< DpPresence > >(vm, SqDppPresence::Str)
-        // Constructors
-        .Ctor()
-        // Meta-methods
-        .SquirrelFunc(_SC("_typename"), &SqDppPresence::Fn)
-        // Member Properties
-        .Prop(_SC("Valid"), &DpPresence::IsValid)
-        .Prop(_SC("UserID"), &DpPresence::GetUserID, &DpPresence::SetUserID)
-        .Prop(_SC("GuildID"), &DpPresence::GetGuildID, &DpPresence::SetGuildID)
-        .Prop(_SC("Flags"), &DpPresence::GetFlags, &DpPresence::SetFlags)
-        .Prop(_SC("ActivityCount"), &DpPresence::ActivityCount)
-        .Prop(_SC("DesktopStatus"), &DpPresence::GetDesktopStatus)
-        .Prop(_SC("WebStatus"), &DpPresence::GetWebStatus)
-        .Prop(_SC("MobileStatus"), &DpPresence::GetMobileStatus)
-        .Prop(_SC("Status"), &DpPresence::GetStatus)
-        // Member Methods
-        .Func(_SC("SetUserID"), &DpPresence::ApplyUserID)
-        .Func(_SC("SetGuildID"), &DpPresence::ApplyGuildID)
-        .Func(_SC("SetFlags"), &DpPresence::ApplyFlags)
-        .Func(_SC("AddActivity"), &DpPresence::AddActivity)
-        .Func(_SC("EachActivity"), &DpPresence::EachActivity)
-        .Func(_SC("ClearActivities"), &DpPresence::ClearActivities)
-        .Func(_SC("FilterActivities"), &DpPresence::FilterActivities)
-        .Func(_SC("BuildJSON"), &DpPresence::BuildJSON)
-    );
-    // --------------------------------------------------------------------------------------------
-    ns.Bind(_SC("VoiceState"),
-        Class< DpVoiceState, NoConstructor< DpVoiceState > >(vm, SqDppVoiceState::Str)
-        // Meta-methods
-        .SquirrelFunc(_SC("_typename"), &SqDppVoiceState::Fn)
-        .Func(_SC("_tojson"), &DpVoiceState::BuildJSON)
-        // Member Properties
-        .Prop(_SC("Valid"), &DpVoiceState::IsValid)
-        .Prop(_SC("JSON"), &DpVoiceState::BuildJSON)
-        .Prop(_SC("GuildID"), &DpVoiceState::GetGuildID)
-        .Prop(_SC("ChannelID"), &DpVoiceState::GetChannelID)
-        .Prop(_SC("UserID"), &DpVoiceState::GetUserID)
-        .Prop(_SC("SessionID"), &DpVoiceState::GetSessionID)
-        .Prop(_SC("Flags"), &DpVoiceState::GetFlags, &DpVoiceState::SetFlags)
-        .Prop(_SC("IsDeaf"), &DpVoiceState::IsDeaf)
-        .Prop(_SC("IsMute"), &DpVoiceState::IsMute)
-        .Prop(_SC("IsSelfMute"), &DpVoiceState::IsSelfMute)
-        .Prop(_SC("IsSelfDeaf"), &DpVoiceState::IsSelfDeaf)
-        .Prop(_SC("SelfStream"), &DpVoiceState::SelfStream)
-        .Prop(_SC("SelfVideo"), &DpVoiceState::SelfVideo)
-        .Prop(_SC("IsSupressed"), &DpVoiceState::IsSupressed)
-    );
-    // --------------------------------------------------------------------------------------------
-    ns.Bind(_SC("Role"),
-        Class< DpRole, NoConstructor< DpRole > >(vm, SqDppRole::Str)
-        // Meta-methods
-        .SquirrelFunc(_SC("_typename"), &SqDppRole::Fn)
-        .Func(_SC("_tojson"), &DpRole::BuildJSON)
-        // Member Properties
-        .Prop(_SC("Valid"), &DpRole::IsValid)
-        .Prop(_SC("JSON"), &DpRole::BuildJSON)
-        .Prop(_SC("Name"), &DpRole::GetName)
-        .Prop(_SC("GuildID"), &DpRole::GetGuildID)
-        .Prop(_SC("Color"), &DpRole::GetColour)
-        .Prop(_SC("Colour"), &DpRole::GetColour)
-        .Prop(_SC("Position"), &DpRole::GetPosition)
-        .Prop(_SC("Permissions"), &DpRole::GetPermissions)
-        .Prop(_SC("Flags"), &DpRole::GetFlags)
-        .Prop(_SC("IntegrationID"), &DpRole::GetIntegrationID)
-        .Prop(_SC("BotID"), &DpRole::GetBotID)
-        .Prop(_SC("IsHoisted"), &DpRole::IsHoisted)
-        .Prop(_SC("IsMentionable"), &DpRole::IsMentionable)
-        .Prop(_SC("IsManaged"), &DpRole::IsManaged)
-        .Prop(_SC("CanCreateInstantInvite"), &DpRole::CanCreateInstantInvite)
-        .Prop(_SC("CanKickMembers"), &DpRole::CanKickMembers)
-        .Prop(_SC("CanBanMembers"), &DpRole::CanBanMembers)
-        .Prop(_SC("IsAdministrator"), &DpRole::IsAdministrator)
-        .Prop(_SC("CanManageChannels"), &DpRole::CanManageChannels)
-        .Prop(_SC("CanManageGuild"), &DpRole::CanManageGuild)
-        .Prop(_SC("CanAddReactions"), &DpRole::CanAddReactions)
-        .Prop(_SC("CanViewAuditLog"), &DpRole::CanViewAuditLog)
-        .Prop(_SC("IsPrioritySpeaker"), &DpRole::IsPrioritySpeaker)
-        .Prop(_SC("CanStream"), &DpRole::CanStream)
-        .Prop(_SC("CanViewChannel"), &DpRole::CanViewChannel)
-        .Prop(_SC("CanSendMessages"), &DpRole::CanSendMessages)
-        .Prop(_SC("CanSendTtsMessages"), &DpRole::CanSendTtsMessages)
-        .Prop(_SC("CanManageMessages"), &DpRole::CanManageMessages)
-        .Prop(_SC("CanEmbedLinks"), &DpRole::CanEmbedLinks)
-        .Prop(_SC("CanAttachFiles"), &DpRole::CanAttachFiles)
-        .Prop(_SC("CanReadMessageHistory"), &DpRole::CanReadMessageHistory)
-        .Prop(_SC("CanMentionEveryone"), &DpRole::CanMentionEveryone)
-        .Prop(_SC("CanUseExternalEmojis"), &DpRole::CanUseExternalEmojis)
-        .Prop(_SC("CanViewGuildInsights"), &DpRole::CanViewGuildInsights)
-        .Prop(_SC("CanConnect"), &DpRole::CanConnect)
-        .Prop(_SC("CanSpeak"), &DpRole::CanSpeak)
-        .Prop(_SC("CanMuteMembers"), &DpRole::CanMuteMembers)
-        .Prop(_SC("CanDeafenMembers"), &DpRole::CanDeafenMembers)
-        .Prop(_SC("CanMoveMembers"), &DpRole::CanMoveMembers)
-        .Prop(_SC("CanUseVAT"), &DpRole::CanUseVAT)
-        .Prop(_SC("CanChangeNickname"), &DpRole::CanChangeNickname)
-        .Prop(_SC("CanManageNicknames"), &DpRole::CanManageNicknames)
-        .Prop(_SC("CanManageRoles"), &DpRole::CanManageRoles)
-        .Prop(_SC("CanManageWebhooks"), &DpRole::CanManageWebhooks)
-        .Prop(_SC("CanManageEmojis"), &DpRole::CanManageEmojis)
-        .Prop(_SC("CanUseSlashCommands"), &DpRole::CanUseSlashCommands)
-        .Prop(_SC("HasRequestToSpeak"), &DpRole::HasRequestToSpeak)
-        .Prop(_SC("CanManageThreads"), &DpRole::CanManageThreads)
-        .Prop(_SC("HasUsePublicThreads"), &DpRole::HasUsePublicThreads)
-        .Prop(_SC("HasUsePrivateThreads"), &DpRole::HasUsePrivateThreads)
-        // Member Methods
-        .Func(_SC("BuildJSON"), &DpRole::BuildJSON_)
-    );
-    // --------------------------------------------------------------------------------------------
-    ns.Bind(_SC("User"),
-        Class< DpUser, NoConstructor< DpUser > >(vm, SqDppUser::Str)
-        // Meta-methods
-        .SquirrelFunc(_SC("_typename"), &SqDppUser::Fn)
-        // Member Properties
-        .Prop(_SC("Valid"), &DpUser::IsValid)
-        .Prop(_SC("Username"), &DpUser::GetUsername)
-        .Prop(_SC("Discriminator"), &DpUser::GetDiscriminator)
-        .Prop(_SC("Avatar"), &DpUser::GetAvatar)
-        .Prop(_SC("Flags"), &DpUser::GetFlags)
-        .Prop(_SC("RefCount"), &DpUser::GetRefCount)
-        .Prop(_SC("AvatarURL"), &DpUser::GetAvatarURL)
-        .Prop(_SC("IsBot"), &DpUser::IsBot)
-        .Prop(_SC("IsSystem"), &DpUser::IsSystem)
-        .Prop(_SC("IsMfaEnabled"), &DpUser::IsMfaEnabled)
-        .Prop(_SC("IsVerified"), &DpUser::IsVerified)
-        .Prop(_SC("HasNitroFull"), &DpUser::HasNitroFull)
-        .Prop(_SC("HasNitroClassic"), &DpUser::HasNitroClassic)
-        .Prop(_SC("IsDiscordEmployee"), &DpUser::IsDiscordEmployee)
-        .Prop(_SC("IsPartneredOwner"), &DpUser::IsPartneredOwner)
-        .Prop(_SC("HasHypesquadEvents"), &DpUser::HasHypesquadEvents)
-        .Prop(_SC("IsBughunter1"), &DpUser::IsBughunter1)
-        .Prop(_SC("IsHouseBravery"), &DpUser::IsHouseBravery)
-        .Prop(_SC("IsHouseBrilliance"), &DpUser::IsHouseBrilliance)
-        .Prop(_SC("IsHouseBalanace"), &DpUser::IsHouseBalanace)
-        .Prop(_SC("IsEarlySupporter"), &DpUser::IsEarlySupporter)
-        .Prop(_SC("IsTeamUser"), &DpUser::IsTeamUser)
-        .Prop(_SC("IsBughunter2"), &DpUser::IsBughunter2)
-        .Prop(_SC("IsVerifiedBot"), &DpUser::IsVerifiedBot)
-        .Prop(_SC("IsVerifiedBotDev"), &DpUser::IsVerifiedBotDev)
-        .Prop(_SC("IsCertifiedDoderator"), &DpUser::IsCertifiedDoderator)
-        .Prop(_SC("HasAnimatedIcon"), &DpUser::HasAnimatedIcon)
-    );
-    // --------------------------------------------------------------------------------------------
-    ns.Bind(_SC("GuildMember"),
-        Class< DpGuildMember, NoConstructor< DpGuildMember > >(vm, SqDppGuildMember::Str)
-        // Meta-methods
-        .SquirrelFunc(_SC("_typename"), &SqDppGuildMember::Fn)
-        .Func(_SC("_tojson"), &DpGuildMember::BuildJSON)
-        // Member Properties
-        .Prop(_SC("Valid"), &DpGuildMember::IsValid)
-        .Prop(_SC("JSON"), &DpGuildMember::BuildJSON)
-        .Prop(_SC("Nickname"), &DpGuildMember::GetNickname)
-        .Prop(_SC("GuildID"), &DpGuildMember::GetGuildID)
-        .Prop(_SC("UserID"), &DpGuildMember::GetUserID)
-        .Prop(_SC("JoinedAt"), &DpGuildMember::GetJoinedAt)
-        .Prop(_SC("PremiumSince"), &DpGuildMember::GetPremiumSince)
-        .Prop(_SC("Flags"), &DpGuildMember::GetFlags)
-        .Prop(_SC("IsDeaf"), &DpGuildMember::IsDeaf)
-        .Prop(_SC("IsMuted"), &DpGuildMember::IsMuted)
-        .Prop(_SC("IsPending"), &DpGuildMember::IsPending)
-        // Member Methods
-        .Func(_SC("GetRoles"), &DpGuildMember::GetRoles)
-    );
-    // --------------------------------------------------------------------------------------------
-    ns.Bind(_SC("Guild"),
-        Class< DpGuild, NoConstructor< DpGuild > >(vm, SqDppGuild::Str)
-        // Meta-methods
-        .SquirrelFunc(_SC("_typename"), &SqDppGuild::Fn)
-        .Func(_SC("_tojson"), &DpGuild::BuildJSON)
-        // Member Properties
-        .Prop(_SC("Valid"), &DpGuild::IsValid)
-        .Prop(_SC("JSON"), &DpGuild::BuildJSON)
-        .Prop(_SC("ShardID"), &DpGuild::GetShardID)
-        .Prop(_SC("Flags"), &DpGuild::GetFlags)
-        .Prop(_SC("Name"), &DpGuild::GetName)
-        .Prop(_SC("Description"), &DpGuild::GetDescription)
-        .Prop(_SC("VanityUrlCode"), &DpGuild::GetVanityUrlCode)
-        .Prop(_SC("Icon"), &DpGuild::GetIcon)
-        .Prop(_SC("Splash"), &DpGuild::GetSplash)
-        .Prop(_SC("DiscoverySplash"), &DpGuild::GetDiscoverySplash)
-        .Prop(_SC("OwnerID"), &DpGuild::GetOwnerID)
-        .Prop(_SC("VoiceRegion"), &DpGuild::GetVoiceRegion)
-        .Prop(_SC("AfkChannelID"), &DpGuild::GetAfkChannelID)
-        .Prop(_SC("AfkTimeout"), &DpGuild::GetAfkTimeout)
-        .Prop(_SC("WidgetChannelID"), &DpGuild::GetWidgetChannelID)
-        .Prop(_SC("VerificationLevel"), &DpGuild::GetVerificationLevel)
-        .Prop(_SC("DefaultMessageNotifications"), &DpGuild::GetDefaultMessageNotifications)
-        .Prop(_SC("ExplicitContentFilter"), &DpGuild::GetExplicitContentFilter)
-        .Prop(_SC("MfaLevel"), &DpGuild::GetMfaLevel)
-        .Prop(_SC("ApplicationID"), &DpGuild::GetApplicationID)
-        .Prop(_SC("SystemChannelID"), &DpGuild::GetSystemChannelID)
-        .Prop(_SC("RulesChannelID"), &DpGuild::GetRulesChannelID)
-        .Prop(_SC("MemberCount"), &DpGuild::GetMemberCount)
-        .Prop(_SC("Banner"), &DpGuild::GetBanner)
-        .Prop(_SC("PremiumTier"), &DpGuild::GetPremiumTier)
-        .Prop(_SC("PremiumSubscriptionCount"), &DpGuild::GetPremiumSubscriptionCount)
-        .Prop(_SC("PublicUpdatesChannelID"), &DpGuild::GetPublicUpdatesChannelID)
-        .Prop(_SC("MaxVideoChannelUsers"), &DpGuild::GetMaxVideoChannelUsers)
-        .Prop(_SC("IsLarge"), &DpGuild::IsLarge)
-        .Prop(_SC("IsUnavailable"), &DpGuild::IsUnavailable)
-        .Prop(_SC("WidgetEnabled"), &DpGuild::WidgetEnabled)
-        .Prop(_SC("HasInviteSplash"), &DpGuild::HasInviteSplash)
-        .Prop(_SC("HasVipRegions"), &DpGuild::HasVipRegions)
-        .Prop(_SC("HasVanityURL"), &DpGuild::HasVanityURL)
-        .Prop(_SC("IsVerified"), &DpGuild::IsVerified)
-        .Prop(_SC("IsPartnered"), &DpGuild::IsPartnered)
-        .Prop(_SC("IsCommunity"), &DpGuild::IsCommunity)
-        .Prop(_SC("HasCommerce"), &DpGuild::HasCommerce)
-        .Prop(_SC("HasNews"), &DpGuild::HasNews)
-        .Prop(_SC("IsDiscoverable"), &DpGuild::IsDiscoverable)
-        .Prop(_SC("IsFeatureable"), &DpGuild::IsFeatureable)
-        .Prop(_SC("HasAnimatedIcon"), &DpGuild::HasAnimatedIcon)
-        .Prop(_SC("BasBanner"), &DpGuild::BasBanner)
-        .Prop(_SC("WelcomeScreenEnabled"), &DpGuild::WelcomeScreenEnabled)
-        .Prop(_SC("HasMemberVerificationGate"), &DpGuild::HasMemberVerificationGate)
-        .Prop(_SC("IsPreviewEnabled"), &DpGuild::IsPreviewEnabled)
-        .Prop(_SC("HasAnimatedIconHash"), &DpGuild::HasAnimatedIconHash)
-        // Member Methods
-        .Func(_SC("BuildJSON"), &DpGuild::BuildJSON_)
-        .Func(_SC("GetRoles"), &DpGuild::GetRoles)
-        .Func(_SC("GetChannels"), &DpGuild::GetChannels)
-        .Func(_SC("GetThreads"), &DpGuild::GetThreads)
-        .Func(_SC("GetMembers"), &DpGuild::GetMembers)
-        .Func(_SC("GetVoiceMembers"), &DpGuild::GetVoiceMembers)
-        .Func(_SC("GetEmojis"), &DpGuild::GetEmojis)
-        .Func(_SC("RehashMembers"), &DpGuild::RehashMembers)
-        .Func(_SC("ConnectMemberVoice"), &DpGuild::ConnectMemberVoice)
-    );
-}
+const std::array< const char *, static_cast< size_t >(DpEventID::Max) > DpEventID::NAME{
+    "VoiceStateUpdate",
+    "Log",
+    "GuildJoinRequestDelete",
+    "InteractionCreate",
+    "ButtonClick",
+    "SelectClick",
+    "GuildDelete",
+    "ChannelDelete",
+    "ChannelUpdate",
+    "Ready",
+    "MessageDelete",
+    "ApplicationCommandDelete",
+    "GuildMemberRemove",
+    "ApplicationCommandCreate",
+    "Resumed",
+    "GuildRoleCreate",
+    "TypingStart",
+    "MessageReactionAdd",
+    "GuildMembersChunk",
+    "MessageReactionRemove",
+    "GuildCreate",
+    "ChannelCreate",
+    "MessageReactionRemoveEmoji",
+    "MessageDeleteBulk",
+    "GuildRoleUpdate",
+    "GuildRoleDelete",
+    "ChannelPinsUpdate",
+    "MessageReactionRemoveAll",
+    "VoiceServerUpdate",
+    "GuildEmojisUpdate",
+    "GuildStickersUpdate",
+    "PresenceUpdate",
+    "WebhooksUpdate",
+    "GuildMemberAdd",
+    "InviteDelete",
+    "GuildUpdate",
+    "GuildIntegrationsUpdate",
+    "GuildMemberUpdate",
+    "ApplicationCommandUpdate",
+    "InviteCreate",
+    "MessageUpdate",
+    "UserUpdate",
+    "MessageCreate",
+    "GuildBanAdd",
+    "GuildBanRemove",
+    "IntegrationCreate",
+    "IntegrationUpdate",
+    "IntegrationDelete",
+    "ThreadCreate",
+    "ThreadUpdate",
+    "ThreadDelete",
+    "ThreadListSync",
+    "ThreadMemberUpdate",
+    "ThreadMembersUpdate",
+    "VoiceBufferSend",
+    "VoiceUserTalking",
+    "VoiceReady",
+    "VoiceReceive",
+    "VoiceTrackMarker",
+    "StageInstanceCreate",
+    "StageInstanceDelete"
+};
 
 // ------------------------------------------------------------------------------------------------
 static const EnumElement g_DpLogLevelEnum[] = {
@@ -595,9 +338,18 @@ static const EnumElements g_EnumList[] = {
 };
 
 // ------------------------------------------------------------------------------------------------
-void Register_DPPConst(HSQUIRRELVM vm, Table &)
+void Register_DPP_Constants(HSQUIRRELVM vm, Table & ns)
 {
     RegisterEnumerations(vm, g_EnumList);
+    // --------------------------------------------------------------------------------------------
+    Enumeration e(vm);
+    // Bind all events using their associated name
+    for (SQInteger i = 0; i < static_cast< SQInteger >(DpEventID::Max); ++i)
+    {
+        e.Const(DpEventID::NAME[i], i);
+    }
+    // Expose the constants
+    ConstTable(vm).Enum(_SC("SqDiscordEvent"), e);
 }
 
 } // Namespace:: SqMod

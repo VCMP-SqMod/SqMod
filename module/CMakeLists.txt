@@ -136,7 +136,21 @@ target_link_libraries(SqModule Squirrel fmt::fmt SimpleINI TinyDir xxHash Concur
 if(ENABLE_DISCORD)
     target_link_libraries(SqModule DPP)
     target_compile_definitions(SqModule PRIVATE VCMP_ENABLE_DISCORD=1)
-    target_sources(SqModule PRIVATE Library/DPP.cpp Library/DPP.hpp Library/DPPEv.cpp Library/DPPEv.hpp Library/DPPTy.cpp Library/DPPTy.hpp)
+    target_sources(SqModule PRIVATE
+        Library/DPP.cpp Library/DPP.hpp
+        Library/DPP/Channel.cpp Library/DPP/Channel.hpp
+        Library/DPP/Client.cpp Library/DPP/Client.hpp
+        Library/DPP/Cluster.cpp Library/DPP/Cluster.hpp
+        Library/DPP/Command.cpp Library/DPP/Command.hpp
+        Library/DPP/Constants.cpp Library/DPP/Constants.hpp
+        Library/DPP/Events.cpp Library/DPP/Events.hpp
+        Library/DPP/Guild.cpp Library/DPP/Guild.hpp
+        Library/DPP/Integration.cpp Library/DPP/Integration.hpp
+        Library/DPP/Message.cpp Library/DPP/Message.hpp
+        Library/DPP/Other.cpp Library/DPP/Other.hpp
+        Library/DPP/Role.cpp Library/DPP/Role.hpp
+        Library/DPP/User.cpp Library/DPP/User.hpp
+    )
 endif()
 # Link to POCO libraries
 target_link_libraries(SqModule Poco::Foundation Poco::Crypto Poco::Data Poco::Net Poco::JSON Poco::XML)

@@ -1,7 +1,15 @@
 #pragma once
 
 // ------------------------------------------------------------------------------------------------
-#include "Library/DPPTy.hpp"
+#include "Library/DPP/Channel.hpp"
+#include "Library/DPP/Client.hpp"
+#include "Library/DPP/Command.hpp"
+#include "Library/DPP/Guild.hpp"
+#include "Library/DPP/Integration.hpp"
+#include "Library/DPP/Message.hpp"
+#include "Library/DPP/Other.hpp"
+#include "Library/DPP/Role.hpp"
+#include "Library/DPP/User.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <chrono>
@@ -12,85 +20,6 @@
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
-
-/* ------------------------------------------------------------------------------------------------
- * Unique ID for each event.
-*/
-struct DpEventID
-{
-    /* --------------------------------------------------------------------------------------------
-     * ID enumeration.
-    */
-    enum Type
-    {
-        VoiceStateUpdate=0,
-        Log,
-        GuildJoinRequestDelete,
-        InteractionCreate,
-        ButtonClick,
-        SelectClick,
-        GuildDelete,
-        ChannelDelete,
-        ChannelUpdate,
-        Ready,
-        MessageDelete,
-        ApplicationCommandDelete,
-        GuildMemberRemove,
-        ApplicationCommandCreate,
-        Resumed,
-        GuildRoleCreate,
-        TypingStart,
-        MessageReactionAdd,
-        GuildMembersChunk,
-        MessageReactionRemove,
-        GuildCreate,
-        ChannelCreate,
-        MessageReactionRemoveEmoji,
-        MessageDeleteBulk,
-        GuildRoleUpdate,
-        GuildRoleDelete,
-        ChannelPinsUpdate,
-        MessageReactionRemoveAll,
-        VoiceServerUpdate,
-        GuildEmojisUpdate,
-        GuildStickersUpdate,
-        PresenceUpdate,
-        WebhooksUpdate,
-        GuildMemberAdd,
-        InviteDelete,
-        GuildUpdate,
-        GuildIntegrationsUpdate,
-        GuildMemberUpdate,
-        ApplicationCommandUpdate,
-        InviteCreate,
-        MessageUpdate,
-        UserUpdate,
-        MessageCreate,
-        GuildBanAdd,
-        GuildBanRemove,
-        IntegrationCreate,
-        IntegrationUpdate,
-        IntegrationDelete,
-        ThreadCreate,
-        ThreadUpdate,
-        ThreadDelete,
-        ThreadListSync,
-        ThreadMemberUpdate,
-        ThreadMembersUpdate,
-        VoiceBufferSend,
-        VoiceUserTalking,
-        VoiceReady,
-        VoiceReceive,
-        VoiceTrackMarker,
-        StageInstanceCreate,
-        StageInstanceDelete,
-        Max
-    };
-    /* --------------------------------------------------------------------------------------------
-     * String identification.
-    */
-    static const std::array< const char *, static_cast< size_t >(Max) > NAME;
-};
 
 /* ------------------------------------------------------------------------------------------------
  * Base class of an event handler.
