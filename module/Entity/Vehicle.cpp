@@ -225,7 +225,7 @@ void CVehicle::SetWorld(int32_t world)
         return;
     }
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_WORLD))
+    else if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_WORLD))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_WORLD);
@@ -917,7 +917,7 @@ void CVehicle::SetPartStatus(int32_t part, int32_t status)
         return;
     }
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_PARTSTATUS))
+    else if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_PARTSTATUS))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_PARTSTATUS);
@@ -950,7 +950,7 @@ void CVehicle::SetTyreStatus(int32_t tyre, int32_t status)
         return;
     }
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_TYRESTATUS))
+    else if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_TYRESTATUS))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_TYRESTATUS);
@@ -983,7 +983,7 @@ void CVehicle::SetDamageData(uint32_t data)
         return;
     }
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_DAMAGEDATA))
+    else if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_DAMAGEDATA))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_DAMAGEDATA);
@@ -1016,7 +1016,7 @@ void CVehicle::SetRadio(int32_t radio)
         return;
     }
     // Avoid infinite recursive event loops
-    if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_RADIO))
+    else if (!(m_CircularLocks & VEHICLECL_EMIT_VEHICLE_RADIO))
     {
         // Prevent this event from triggering while executed
         BitGuardU32 bg(m_CircularLocks, VEHICLECL_EMIT_VEHICLE_RADIO);
