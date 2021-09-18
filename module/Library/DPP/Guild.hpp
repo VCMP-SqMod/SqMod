@@ -59,11 +59,7 @@ struct DpGuildMember
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~DpGuildMember() noexcept
-    {
-        // Do we own this to try delete it?
-        if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
-    }
+    ~DpGuildMember() noexcept { Cleanup(); }
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator (disabled).
     */
@@ -75,12 +71,23 @@ struct DpGuildMember
     {
         if (this != &o) {
             // Do we own this to try delete it?
-            if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
+            Cleanup();
             // Transfer members values
             mPtr = std::move(o.mPtr);
             mOwned = o.mOwned;
         }
         return *this;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Release any referenced resources and default to an empty/invalid state.
+    */
+    void Cleanup()
+    {
+        // Do we own this to try delete it?
+        if (!mOwned && mPtr) {
+            // Not our job, simply forget about it
+            [[maybe_unused]] auto p = mPtr.release();
+        } else mPtr.reset(); // We own this so delete the instance
     }
     /* --------------------------------------------------------------------------------------------
      * Validate the managed handle.
@@ -201,11 +208,7 @@ struct DpGuild
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~DpGuild() noexcept
-    {
-        // Do we own this to try delete it?
-        if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
-    }
+    ~DpGuild() noexcept { Cleanup(); }
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator (disabled).
     */
@@ -217,12 +220,23 @@ struct DpGuild
     {
         if (this != &o) {
             // Do we own this to try delete it?
-            if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
+            Cleanup();
             // Transfer members values
             mPtr = std::move(o.mPtr);
             mOwned = o.mOwned;
         }
         return *this;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Release any referenced resources and default to an empty/invalid state.
+    */
+    void Cleanup()
+    {
+        // Do we own this to try delete it?
+        if (!mOwned && mPtr) {
+            // Not our job, simply forget about it
+            [[maybe_unused]] auto p = mPtr.release();
+        } else mPtr.reset(); // We own this so delete the instance
     }
     /* --------------------------------------------------------------------------------------------
      * Validate the managed handle.
