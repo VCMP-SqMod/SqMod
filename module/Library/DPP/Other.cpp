@@ -134,7 +134,7 @@ void Register_DPP_Other(HSQUIRRELVM vm, Table & ns)
         .Prop(_SC("IsSelfDeaf"), &DpVoiceState::IsSelfDeaf)
         .Prop(_SC("SelfStream"), &DpVoiceState::SelfStream)
         .Prop(_SC("SelfVideo"), &DpVoiceState::SelfVideo)
-        .Prop(_SC("IsSupressed"), &DpVoiceState::IsSupressed)
+        .Prop(_SC("IsSuppressed"), &DpVoiceState::IsSuppressed)
     );
 }
 

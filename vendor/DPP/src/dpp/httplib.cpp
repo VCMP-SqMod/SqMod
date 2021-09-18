@@ -386,6 +386,8 @@ int close_socket(socket_t sock) {
     if (sock >= 0 && sock < FD_SETSIZE) {
         return closesocket(sock);
     }
+    assert(0);
+    return -1;
 #else
   return close(sock);
 #endif

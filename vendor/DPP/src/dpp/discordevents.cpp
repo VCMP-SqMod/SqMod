@@ -42,7 +42,7 @@ char* strptime(const char* s, const char* f, struct tm* tm) {
 	input.imbue(std::locale(setlocale(LC_ALL, nullptr)));
 	input >> std::get_time(tm, f);
 	if (input.fail()) {
-		return "";
+		return const_cast<char*>("");
 	}
 	return (char*)(s + input.tellg());
 }

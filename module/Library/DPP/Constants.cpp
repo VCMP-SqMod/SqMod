@@ -192,7 +192,7 @@ static const EnumElement g_DpVoiceStateFlagsEnum[] = {
     {_SC("SelfDeaf"),   static_cast< SQInteger >(dpp::vs_self_deaf)},
     {_SC("SelfStream"), static_cast< SQInteger >(dpp::vs_self_stream)},
     {_SC("SelfVideo"),  static_cast< SQInteger >(dpp::vs_self_video)},
-    {_SC("Supress"),    static_cast< SQInteger >(dpp::vs_supress)},
+    {_SC("Suppress"),   static_cast< SQInteger >(dpp::vs_suppress)},
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -350,7 +350,7 @@ static const EnumElement g_DpStickerFormatEnum[] = {
 static const EnumElement g_DpMessageFlagsEnum[] = {
     {_SC("Crossposted"),            static_cast< SQInteger >(dpp::m_crossposted)},
     {_SC("IsCrosspost"),            static_cast< SQInteger >(dpp::m_is_crosspost)},
-    {_SC("SupressEmbeds"),          static_cast< SQInteger >(dpp::m_supress_embeds)},
+    {_SC("SuppressEmbeds"),         static_cast< SQInteger >(dpp::m_suppress_embeds)},
     {_SC("SourceMessageDeleted"),   static_cast< SQInteger >(dpp::m_source_message_deleted)},
     {_SC("Urgent"),                 static_cast< SQInteger >(dpp::m_urgent)},
     {_SC("Ephemeral"),              static_cast< SQInteger >(dpp::m_ephemeral)},
