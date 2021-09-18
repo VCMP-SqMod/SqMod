@@ -150,6 +150,7 @@ if(ENABLE_DISCORD)
         Library/DPP/Other.cpp Library/DPP/Other.hpp
         Library/DPP/Role.cpp Library/DPP/Role.hpp
         Library/DPP/User.cpp Library/DPP/User.hpp
+        Library/DPP/Utilities.cpp Library/DPP/Utilities.hpp
     )
 endif()
 # Link to POCO libraries
