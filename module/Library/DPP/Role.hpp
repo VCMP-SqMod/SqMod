@@ -59,11 +59,7 @@ struct DpRole
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~DpRole() noexcept
-    {
-        // Do we own this to try delete it?
-        if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
-    }
+    ~DpRole() noexcept { Cleanup(); }
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator (disabled).
     */
@@ -74,13 +70,23 @@ struct DpRole
     DpRole & operator = (DpRole && o) noexcept
     {
         if (this != &o) {
-            // Do we own this to try delete it?
-            if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
+            Cleanup();
             // Transfer members values
             mPtr = std::move(o.mPtr);
             mOwned = o.mOwned;
         }
         return *this;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Release any referenced resources and default to an empty/invalid state.
+    */
+    void Cleanup()
+    {
+        // Do we own this to try delete it?
+        if (!mOwned && mPtr) {
+            // Not our job, simply forget about it
+            [[maybe_unused]] auto p = mPtr.release();
+        } else mPtr.reset(); // We own this so delete the instance
     }
     /* --------------------------------------------------------------------------------------------
      * Validate the managed handle.
