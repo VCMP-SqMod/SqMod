@@ -73,11 +73,7 @@ struct DpSelectOption
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~DpSelectOption() noexcept
-    {
-        // Do we own this to try delete it?
-        if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
-    }
+    ~DpSelectOption() noexcept { Cleanup(); }
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator (disabled).
     */
@@ -88,13 +84,23 @@ struct DpSelectOption
     DpSelectOption & operator = (DpSelectOption && o) noexcept
     {
         if (this != &o) {
-            // Do we own this to try delete it?
-            if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
+            Cleanup();
             // Transfer members values
             mPtr = std::move(o.mPtr);
             mOwned = o.mOwned;
         }
         return *this;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Release any referenced resources and default to an empty/invalid state.
+    */
+    void Cleanup()
+    {
+        // Do we own this to try delete it?
+        if (!mOwned && mPtr) {
+            // Not our job, simply forget about it
+            [[maybe_unused]] auto p = mPtr.release();
+        } else mPtr.reset(); // We own this so delete the instance
     }
     /* --------------------------------------------------------------------------------------------
      * Validate the managed handle.
@@ -246,11 +252,7 @@ struct DpComponent
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~DpComponent() noexcept
-    {
-        // Do we own this to try delete it?
-        if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
-    }
+    ~DpComponent() noexcept { Cleanup(); }
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator (disabled).
     */
@@ -261,13 +263,23 @@ struct DpComponent
     DpComponent & operator = (DpComponent && o) noexcept
     {
         if (this != &o) {
-            // Do we own this to try delete it?
-            if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
+            Cleanup();
             // Transfer members values
             mPtr = std::move(o.mPtr);
             mOwned = o.mOwned;
         }
         return *this;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Release any referenced resources and default to an empty/invalid state.
+    */
+    void Cleanup()
+    {
+        // Do we own this to try delete it?
+        if (!mOwned && mPtr) {
+            // Not our job, simply forget about it
+            [[maybe_unused]] auto p = mPtr.release();
+        } else mPtr.reset(); // We own this so delete the instance
     }
     /* --------------------------------------------------------------------------------------------
      * Validate the managed handle.
@@ -331,11 +343,7 @@ struct DpEmbedFooter
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~DpEmbedFooter() noexcept
-    {
-        // Do we own this to try delete it?
-        if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
-    }
+    ~DpEmbedFooter() noexcept { Cleanup(); }
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator (disabled).
     */
@@ -346,13 +354,23 @@ struct DpEmbedFooter
     DpEmbedFooter & operator = (DpEmbedFooter && o) noexcept
     {
         if (this != &o) {
-            // Do we own this to try delete it?
-            if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
+            Cleanup();
             // Transfer members values
             mPtr = std::move(o.mPtr);
             mOwned = o.mOwned;
         }
         return *this;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Release any referenced resources and default to an empty/invalid state.
+    */
+    void Cleanup()
+    {
+        // Do we own this to try delete it?
+        if (!mOwned && mPtr) {
+            // Not our job, simply forget about it
+            [[maybe_unused]] auto p = mPtr.release();
+        } else mPtr.reset(); // We own this so delete the instance
     }
     /* --------------------------------------------------------------------------------------------
      * Validate the managed handle.
@@ -416,11 +434,7 @@ struct DpEmbedImage
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~DpEmbedImage() noexcept
-    {
-        // Do we own this to try delete it?
-        if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
-    }
+    ~DpEmbedImage() noexcept { Cleanup(); }
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator (disabled).
     */
@@ -431,13 +445,23 @@ struct DpEmbedImage
     DpEmbedImage & operator = (DpEmbedImage && o) noexcept
     {
         if (this != &o) {
-            // Do we own this to try delete it?
-            if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
+            Cleanup();
             // Transfer members values
             mPtr = std::move(o.mPtr);
             mOwned = o.mOwned;
         }
         return *this;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Release any referenced resources and default to an empty/invalid state.
+    */
+    void Cleanup()
+    {
+        // Do we own this to try delete it?
+        if (!mOwned && mPtr) {
+            // Not our job, simply forget about it
+            [[maybe_unused]] auto p = mPtr.release();
+        } else mPtr.reset(); // We own this so delete the instance
     }
     /* --------------------------------------------------------------------------------------------
      * Validate the managed handle.
@@ -501,11 +525,7 @@ struct DpEmbedProvider
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~DpEmbedProvider() noexcept
-    {
-        // Do we own this to try delete it?
-        if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
-    }
+    ~DpEmbedProvider() noexcept { Cleanup(); }
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator (disabled).
     */
@@ -516,13 +536,23 @@ struct DpEmbedProvider
     DpEmbedProvider & operator = (DpEmbedProvider && o) noexcept
     {
         if (this != &o) {
-            // Do we own this to try delete it?
-            if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
+            Cleanup();
             // Transfer members values
             mPtr = std::move(o.mPtr);
             mOwned = o.mOwned;
         }
         return *this;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Release any referenced resources and default to an empty/invalid state.
+    */
+    void Cleanup()
+    {
+        // Do we own this to try delete it?
+        if (!mOwned && mPtr) {
+            // Not our job, simply forget about it
+            [[maybe_unused]] auto p = mPtr.release();
+        } else mPtr.reset(); // We own this so delete the instance
     }
     /* --------------------------------------------------------------------------------------------
      * Validate the managed handle.
@@ -586,11 +616,7 @@ struct DpEmbedAuthor
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~DpEmbedAuthor() noexcept
-    {
-        // Do we own this to try delete it?
-        if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
-    }
+    ~DpEmbedAuthor() noexcept { Cleanup();  }
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator (disabled).
     */
@@ -601,13 +627,23 @@ struct DpEmbedAuthor
     DpEmbedAuthor & operator = (DpEmbedAuthor && o) noexcept
     {
         if (this != &o) {
-            // Do we own this to try delete it?
-            if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
+            Cleanup();
             // Transfer members values
             mPtr = std::move(o.mPtr);
             mOwned = o.mOwned;
         }
         return *this;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Release any referenced resources and default to an empty/invalid state.
+    */
+    void Cleanup()
+    {
+        // Do we own this to try delete it?
+        if (!mOwned && mPtr) {
+            // Not our job, simply forget about it
+            [[maybe_unused]] auto p = mPtr.release();
+        } else mPtr.reset(); // We own this so delete the instance
     }
     /* --------------------------------------------------------------------------------------------
      * Validate the managed handle.
@@ -671,11 +707,7 @@ struct DpEmbedField
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~DpEmbedField() noexcept
-    {
-        // Do we own this to try delete it?
-        if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
-    }
+    ~DpEmbedField() noexcept { Cleanup(); }
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator (disabled).
     */
@@ -686,13 +718,23 @@ struct DpEmbedField
     DpEmbedField & operator = (DpEmbedField && o) noexcept
     {
         if (this != &o) {
-            // Do we own this to try delete it?
-            if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
+            Cleanup();
             // Transfer members values
             mPtr = std::move(o.mPtr);
             mOwned = o.mOwned;
         }
         return *this;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Release any referenced resources and default to an empty/invalid state.
+    */
+    void Cleanup()
+    {
+        // Do we own this to try delete it?
+        if (!mOwned && mPtr) {
+            // Not our job, simply forget about it
+            [[maybe_unused]] auto p = mPtr.release();
+        } else mPtr.reset(); // We own this so delete the instance
     }
     /* --------------------------------------------------------------------------------------------
      * Validate the managed handle.
@@ -756,11 +798,7 @@ struct DpEmbed
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~DpEmbed() noexcept
-    {
-        // Do we own this to try delete it?
-        if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
-    }
+    ~DpEmbed() noexcept { Cleanup(); }
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator (disabled).
     */
@@ -771,13 +809,23 @@ struct DpEmbed
     DpEmbed & operator = (DpEmbed && o) noexcept
     {
         if (this != &o) {
-            // Do we own this to try delete it?
-            if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
+            Cleanup();
             // Transfer members values
             mPtr = std::move(o.mPtr);
             mOwned = o.mOwned;
         }
         return *this;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Release any referenced resources and default to an empty/invalid state.
+    */
+    void Cleanup()
+    {
+        // Do we own this to try delete it?
+        if (!mOwned && mPtr) {
+            // Not our job, simply forget about it
+            [[maybe_unused]] auto p = mPtr.release();
+        } else mPtr.reset(); // We own this so delete the instance
     }
     /* --------------------------------------------------------------------------------------------
      * Validate the managed handle.
@@ -841,11 +889,7 @@ struct DpReaction
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~DpReaction() noexcept
-    {
-        // Do we own this to try delete it?
-        if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
-    }
+    ~DpReaction() noexcept { Cleanup(); }
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator (disabled).
     */
@@ -856,13 +900,23 @@ struct DpReaction
     DpReaction & operator = (DpReaction && o) noexcept
     {
         if (this != &o) {
-            // Do we own this to try delete it?
-            if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
+            Cleanup();
             // Transfer members values
             mPtr = std::move(o.mPtr);
             mOwned = o.mOwned;
         }
         return *this;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Release any referenced resources and default to an empty/invalid state.
+    */
+    void Cleanup()
+    {
+        // Do we own this to try delete it?
+        if (!mOwned && mPtr) {
+            // Not our job, simply forget about it
+            [[maybe_unused]] auto p = mPtr.release();
+        } else mPtr.reset(); // We own this so delete the instance
     }
     /* --------------------------------------------------------------------------------------------
      * Validate the managed handle.
@@ -926,11 +980,7 @@ struct DpAttachment
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~DpAttachment() noexcept
-    {
-        // Do we own this to try delete it?
-        if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
-    }
+    ~DpAttachment() noexcept { Cleanup(); }
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator (disabled).
     */
@@ -941,13 +991,23 @@ struct DpAttachment
     DpAttachment & operator = (DpAttachment && o) noexcept
     {
         if (this != &o) {
-            // Do we own this to try delete it?
-            if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
+            Cleanup();
             // Transfer members values
             mPtr = std::move(o.mPtr);
             mOwned = o.mOwned;
         }
         return *this;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Release any referenced resources and default to an empty/invalid state.
+    */
+    void Cleanup()
+    {
+        // Do we own this to try delete it?
+        if (!mOwned && mPtr) {
+            // Not our job, simply forget about it
+            [[maybe_unused]] auto p = mPtr.release();
+        } else mPtr.reset(); // We own this so delete the instance
     }
     /* --------------------------------------------------------------------------------------------
      * Validate the managed handle.
@@ -1011,11 +1071,7 @@ struct DpSticker
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~DpSticker() noexcept
-    {
-        // Do we own this to try delete it?
-        if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
-    }
+    ~DpSticker() noexcept { Cleanup(); }
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator (disabled).
     */
@@ -1026,13 +1082,23 @@ struct DpSticker
     DpSticker & operator = (DpSticker && o) noexcept
     {
         if (this != &o) {
-            // Do we own this to try delete it?
-            if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
+            Cleanup();
             // Transfer members values
             mPtr = std::move(o.mPtr);
             mOwned = o.mOwned;
         }
         return *this;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Release any referenced resources and default to an empty/invalid state.
+    */
+    void Cleanup()
+    {
+        // Do we own this to try delete it?
+        if (!mOwned && mPtr) {
+            // Not our job, simply forget about it
+            [[maybe_unused]] auto p = mPtr.release();
+        } else mPtr.reset(); // We own this so delete the instance
     }
     /* --------------------------------------------------------------------------------------------
      * Validate the managed handle.
@@ -1096,11 +1162,7 @@ struct DpStickerPack
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~DpStickerPack() noexcept
-    {
-        // Do we own this to try delete it?
-        if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
-    }
+    ~DpStickerPack() noexcept { Cleanup(); }
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator (disabled).
     */
@@ -1111,13 +1173,23 @@ struct DpStickerPack
     DpStickerPack & operator = (DpStickerPack && o) noexcept
     {
         if (this != &o) {
-            // Do we own this to try delete it?
-            if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
+            Cleanup();
             // Transfer members values
             mPtr = std::move(o.mPtr);
             mOwned = o.mOwned;
         }
         return *this;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Release any referenced resources and default to an empty/invalid state.
+    */
+    void Cleanup()
+    {
+        // Do we own this to try delete it?
+        if (!mOwned && mPtr) {
+            // Not our job, simply forget about it
+            [[maybe_unused]] auto p = mPtr.release();
+        } else mPtr.reset(); // We own this so delete the instance
     }
     /* --------------------------------------------------------------------------------------------
      * Validate the managed handle.
@@ -1181,11 +1253,7 @@ struct DpMessage
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~DpMessage() noexcept
-    {
-        // Do we own this to try delete it?
-        if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
-    }
+    ~DpMessage() noexcept { Cleanup(); }
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator (disabled).
     */
@@ -1196,13 +1264,23 @@ struct DpMessage
     DpMessage & operator = (DpMessage && o) noexcept
     {
         if (this != &o) {
-            // Do we own this to try delete it?
-            if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
+            Cleanup();
             // Transfer members values
             mPtr = std::move(o.mPtr);
             mOwned = o.mOwned;
         }
         return *this;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Release any referenced resources and default to an empty/invalid state.
+    */
+    void Cleanup()
+    {
+        // Do we own this to try delete it?
+        if (!mOwned && mPtr) {
+            // Not our job, simply forget about it
+            [[maybe_unused]] auto p = mPtr.release();
+        } else mPtr.reset(); // We own this so delete the instance
     }
     /* --------------------------------------------------------------------------------------------
      * Validate the managed handle.
