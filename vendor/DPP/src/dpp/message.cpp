@@ -517,11 +517,13 @@ reaction::reaction(json* j) {
 	emoji_name = StringNotNull(&emoji, "name");
 }
 
-attachment::attachment() {
-	id = 0;
-	size = 0;
-	width = 0;
-	height = 0;
+attachment::attachment() 
+	: id(0)
+	, size(0)
+	, width(0)
+	, height(0)
+	, ephemeral(false)
+{
 }
 
 attachment::attachment(json *j) : attachment() {
@@ -533,6 +535,7 @@ attachment::attachment(json *j) : attachment() {
 	this->width = Int32NotNull(j, "width");
 	this->height = Int32NotNull(j, "height");
 	this->content_type = StringNotNull(j, "content_type");
+	this->ephemeral = BoolNotNull(j, "ephemeral");
 }
 
 std::string message::build_json(bool with_id, bool is_interaction_response) const {
@@ -552,6 +555,11 @@ std::string message::build_json(bool with_id, bool is_interaction_response) cons
 	if (!content.empty()) {
 		j["content"] = content;
 	}
+
+    if(author != nullptr) {
+        /* Used for webhooks */
+        j["username"] = author->username;
+    }
 
 	/* Populate message reference */
 	if (message_reference.channel_id || message_reference.guild_id || message_reference.message_id) {
@@ -740,8 +748,8 @@ bool message::is_crosspost() const {
 
 }
 
-bool message::supress_embeds() const {
-	return flags & m_supress_embeds;
+bool message::suppress_embeds() const {
+	return flags & m_suppress_embeds;
 }
 
 bool message::is_source_message_deleted() const {

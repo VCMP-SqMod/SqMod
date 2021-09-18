@@ -42,7 +42,7 @@ char* strptime(const char* s, const char* f, struct tm* tm) {
 	input.imbue(std::locale(setlocale(LC_ALL, nullptr)));
 	input >> std::get_time(tm, f);
 	if (input.fail()) {
-		return const_cast< char* >("");
+		return "";
 	}
 	return (char*)(s + input.tellg());
 }
@@ -79,7 +79,7 @@ std::string StringNotNull(const json* j, const char *keyname) {
 	if (k != j->end()) {
 		return !k->is_null() && k->is_string() ? k->get<std::string>() : "";
 	} else {
-		return "";
+		return const_cast< char* >("");
 	}
 }
 
@@ -311,7 +311,7 @@ void discord_client::HandleEvent(const std::string &event, json &j, const std::s
 	auto ev_iter = eventmap.find(event);
 	if (ev_iter != eventmap.end()) {
 		/* A handler with nullptr is silently ignored. We don't plan to make a handler for it
-		 * so this usually some user-only thing thats crept into the API and shown to bots
+		 * so this usually some user-only thing that's crept into the API and shown to bots
 		 * that we dont care about.
 		 */
 		if (ev_iter->second != nullptr) {

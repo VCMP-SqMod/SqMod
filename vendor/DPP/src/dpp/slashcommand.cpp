@@ -125,6 +125,7 @@ void to_json(json& j, const slashcommand& p) {
 	}
 
 	j["default_permission"] = p.default_permission;
+	j["application_id"] = std::to_string(p.application_id);
 }
 
 std::string slashcommand::build_json(bool with_id) const {
@@ -271,7 +272,6 @@ void from_json(const nlohmann::json& j, interaction& i) {
 		SetSnowflakeNotNull(&m, "id", i.message_id);
 	}
 
-
 	i.type = Int8NotNull(&j, "type");
 	i.token = StringNotNull(&j, "token");
 	i.version = Int8NotNull(&j, "version");
@@ -284,6 +284,47 @@ void from_json(const nlohmann::json& j, interaction& i) {
 	}
 
 	if (j.contains("data") && !j.at("data").is_null()) {
+
+		const json& data = j["data"];
+
+		/* Deal with 'resolved' data, e.g. users, members, roles, channels */
+		if (data.find("resolved") != data.end()) {
+			const json& d_resolved = data["resolved"];
+			/* Users */
+			if (d_resolved.find("users") != d_resolved.end()) {
+				for (auto v = d_resolved["users"].begin(); v != d_resolved["users"].end(); ++v) {
+					json f = *v;
+					dpp::snowflake id = strtoull(v.key().c_str(), nullptr, 10);
+					i.resolved.users[id] = dpp::user().fill_from_json(&f);
+				}
+			}
+			/* Roles */
+			if (d_resolved.find("roles") != d_resolved.end()) {
+				for (auto v = d_resolved["roles"].begin(); v != d_resolved["roles"].end(); ++v) {
+					json f = *v;
+					dpp::snowflake id = strtoull(v.key().c_str(), nullptr, 10);
+					i.resolved.roles[id] = dpp::role().fill_from_json(i.guild_id, &f);
+				}
+			}
+			/* Channels */
+			if (d_resolved.find("channels") != d_resolved.end()) {
+				for (auto v = d_resolved["channels"].begin(); v != d_resolved["channels"].end(); ++v) {
+					json f = *v;
+					dpp::snowflake id = strtoull(v.key().c_str(), nullptr, 10);
+					i.resolved.channels[id] = dpp::channel().fill_from_json(&f);
+				}
+			}
+			/* Members */
+			if (d_resolved.find("members") != d_resolved.end()) {
+				for (auto v = d_resolved["members"].begin(); v != d_resolved["members"].end(); ++v) {
+					json f = *v;
+					dpp::snowflake id = strtoull(v.key().c_str(), nullptr, 10);
+					i.resolved.members[id] = dpp::guild_member().fill_from_json(&f, i.guild_id, id);
+				}
+			}
+		}
+
+
 		if (i.type == it_application_command) {
 			command_interaction ci;
 			j.at("data").get_to(ci);

@@ -327,7 +327,7 @@ void cluster::interaction_response_edit(const std::string &token, const message 
 
 
 void cluster::global_command_create(slashcommand &s, command_completion_event_t callback) {
-	this->post_rest(API_PATH "/applications", std::to_string(me.id), "commands", m_post, s.build_json(false), [s, callback] (json &j, const http_request_completion_t& http) mutable {
+	this->post_rest(API_PATH "/applications", std::to_string(s.application_id ? s.application_id : me.id), "commands", m_post, s.build_json(false), [s, callback] (json &j, const http_request_completion_t& http) mutable {
 		if (j.contains("id")) {
 			s.id = SnowflakeNotNull(&j, "id");
 		}
@@ -339,7 +339,7 @@ void cluster::global_command_create(slashcommand &s, command_completion_event_t 
 }
 
 void cluster::guild_command_create(slashcommand &s, snowflake guild_id, command_completion_event_t callback) {
-	this->post_rest(API_PATH "/applications", std::to_string(me.id), "guilds/" + std::to_string(guild_id) + "/commands", m_post, s.build_json(false), [s, this, guild_id, callback] (json &j, const http_request_completion_t& http) mutable {
+	this->post_rest(API_PATH "/applications", std::to_string(s.application_id ? s.application_id : me.id), "guilds/" + std::to_string(guild_id) + "/commands", m_post, s.build_json(false), [s, this, guild_id, callback] (json &j, const http_request_completion_t& http) mutable {
 		if (j.contains("id")) {
 			s.id = SnowflakeNotNull(&j, "id");
 		}
@@ -355,11 +355,14 @@ void cluster::guild_command_create(slashcommand &s, snowflake guild_id, command_
 }
 
 void cluster::guild_bulk_command_create(const std::vector<slashcommand> &commands, snowflake guild_id, command_completion_event_t callback) {
+	if (commands.empty()) {
+		return;
+	}
 	json j = json::array();
 	for (auto & s : commands) {
 		j.push_back(json::parse(s.build_json(false)));
 	}
-	this->post_rest(API_PATH "/applications", std::to_string(me.id), "guilds/" + std::to_string(guild_id) + "/commands", m_put, j.dump(), [this, callback] (json &j, const http_request_completion_t& http) mutable {
+	this->post_rest(API_PATH "/applications", std::to_string(commands[0].application_id ? commands[0].application_id : me.id), "guilds/" + std::to_string(guild_id) + "/commands", m_put, j.dump(), [this, callback] (json &j, const http_request_completion_t& http) mutable {
 		slashcommand_map slashcommands;
 		for (auto & curr_slashcommand : j) {
 			slashcommands[SnowflakeNotNull(&curr_slashcommand, "id")] = slashcommand().fill_from_json(&curr_slashcommand);
@@ -371,11 +374,14 @@ void cluster::guild_bulk_command_create(const std::vector<slashcommand> &command
 }
 
 void cluster::global_bulk_command_create(const std::vector<slashcommand> &commands, command_completion_event_t callback) {
+	if (commands.empty()) {
+		return;
+	}
 	json j = json::array();
 	for (auto & s : commands) {
 		j.push_back(json::parse(s.build_json(false)));
 	}
-	this->post_rest(API_PATH "/applications", std::to_string(me.id), "commands", m_put, j.dump(), [this, callback] (json &j, const http_request_completion_t& http) mutable {
+	this->post_rest(API_PATH "/applications", std::to_string(commands[0].application_id ? commands[0].application_id : me.id), "commands", m_put, j.dump(), [this, callback] (json &j, const http_request_completion_t& http) mutable {
 		slashcommand_map slashcommands;
 		for (auto & curr_slashcommand : j) {
 			slashcommands[SnowflakeNotNull(&curr_slashcommand, "id")] = slashcommand().fill_from_json(&curr_slashcommand);
@@ -387,7 +393,7 @@ void cluster::global_bulk_command_create(const std::vector<slashcommand> &comman
 }
 
 void cluster::global_command_edit(const slashcommand &s, command_completion_event_t callback) {
-	this->post_rest(API_PATH "/applications", std::to_string(me.id), "commands/" + std::to_string(s.id), m_patch, s.build_json(true), [callback](json &j, const http_request_completion_t& http) {
+	this->post_rest(API_PATH "/applications", std::to_string(s.application_id ? s.application_id : me.id), "commands/" + std::to_string(s.id), m_patch, s.build_json(true), [callback](json &j, const http_request_completion_t& http) {
 		if (callback) {
 			callback(confirmation_callback_t("confirmation", confirmation(), http));
 		}
@@ -395,7 +401,7 @@ void cluster::global_command_edit(const slashcommand &s, command_completion_even
 }
 
 void cluster::guild_command_edit(const slashcommand &s, snowflake guild_id, command_completion_event_t callback) {
-	this->post_rest(API_PATH "/applications", std::to_string(me.id), "guilds/" + std::to_string(guild_id) + "/commands/" + std::to_string(s.id), m_patch, s.build_json(true), [callback](json &j, const http_request_completion_t& http) {
+	this->post_rest(API_PATH "/applications", std::to_string(s.application_id ? s.application_id : me.id), "guilds/" + std::to_string(guild_id) + "/commands/" + std::to_string(s.id), m_patch, s.build_json(true), [callback](json &j, const http_request_completion_t& http) {
 		if (callback) {
 			callback(confirmation_callback_t("confirmation", confirmation(), http));
 		}
@@ -414,7 +420,7 @@ void cluster::guild_command_edit_permissions(const slashcommand &s, snowflake gu
 		}
 	}
 
-	this->post_rest(API_PATH "/applications", std::to_string(me.id), "guilds/" + std::to_string(guild_id) + "/commands/" + std::to_string(s.id) + "/permissions", m_put, j.dump(), [callback](json &j, const http_request_completion_t& http) {
+	this->post_rest(API_PATH "/applications", std::to_string(s.application_id ? s.application_id : me.id), "guilds/" + std::to_string(guild_id) + "/commands/" + std::to_string(s.id) + "/permissions", m_put, j.dump(), [callback](json &j, const http_request_completion_t& http) {
 		if (callback) {
 			callback(confirmation_callback_t("confirmation", confirmation(), http));
 		}
@@ -1040,7 +1046,7 @@ void cluster::guild_ban_add(snowflake guild_id, snowflake user_id, uint32_t dele
 		j["reason"] = reason;
 	if (delete_message_days)
 		j["delete_message_days"] = delete_message_days;
-	this->post_rest(API_PATH "/guilds", std::to_string(guild_id), "bans/" + std::to_string(user_id), m_put, "", [callback](json &j, const http_request_completion_t& http) {
+	this->post_rest(API_PATH "/guilds", std::to_string(guild_id), "bans/" + std::to_string(user_id), m_put, j.dump(), [callback](json &j, const http_request_completion_t& http) {
 		if (callback) {
 			callback(confirmation_callback_t("confirmation", confirmation(), http));
 		}
@@ -1656,7 +1662,7 @@ void cluster::execute_webhook(const class webhook &wh, const struct message& m, 
 	if (thread_id) {
 		parameters.append("&thread_id=" + std::to_string(thread_id));
 	}
-	this->post_rest(API_PATH "/webhooks", std::to_string(wh.id), dpp::url_encode(token), m_post, m.build_json(false), [callback](json &j, const http_request_completion_t& http) {
+	this->post_rest(API_PATH "/webhooks", std::to_string(wh.id), dpp::url_encode(!wh.token.empty() ? wh.token: token), m_post, m.build_json(false), [callback](json &j, const http_request_completion_t& http) {
 		if (callback) {
 			callback(confirmation_callback_t("message", message().fill_from_json(&j), http));
 		}
@@ -1665,7 +1671,7 @@ void cluster::execute_webhook(const class webhook &wh, const struct message& m, 
 
 void cluster::get_webhook_message(const class webhook &wh, command_completion_event_t callback)
 {
-	this->post_rest(API_PATH "/webhooks", std::to_string(wh.id), dpp::url_encode(token) + "/messages/@original", m_get, "", [callback](json &j, const http_request_completion_t &http){
+	this->post_rest(API_PATH "/webhooks", std::to_string(wh.id), dpp::url_encode(!wh.token.empty() ? wh.token: token) + "/messages/@original", m_get, "", [callback](json &j, const http_request_completion_t &http){
 		if (callback){
 			callback(confirmation_callback_t("message", message().fill_from_json(&j), http));
 		}
@@ -1673,7 +1679,7 @@ void cluster::get_webhook_message(const class webhook &wh, command_completion_ev
 }
 
 void cluster::edit_webhook_message(const class webhook &wh, const struct message& m, command_completion_event_t callback) {
-	this->post_rest(API_PATH "/webhooks", std::to_string(wh.id), dpp::url_encode(token) + "/messages/" + std::to_string(m.id), m_patch, m.build_json(false), [callback](json &j, const http_request_completion_t& http) {
+	this->post_rest(API_PATH "/webhooks", std::to_string(wh.id), dpp::url_encode(!wh.token.empty() ? wh.token: token) + "/messages/" + std::to_string(m.id), m_patch, m.build_json(false), [callback](json &j, const http_request_completion_t& http) {
 		if (callback) {
 			callback(confirmation_callback_t("message", message().fill_from_json(&j), http));
 		}
@@ -1681,7 +1687,7 @@ void cluster::edit_webhook_message(const class webhook &wh, const struct message
 }
 
 void cluster::delete_webhook_message(const class webhook &wh, snowflake message_id, command_completion_event_t callback) {
-	this->post_rest(API_PATH "/webhooks", std::to_string(wh.id), dpp::url_encode(token) + "/messages/" + std::to_string(message_id), m_delete, "", [callback](json &j, const http_request_completion_t& http) {
+	this->post_rest(API_PATH "/webhooks", std::to_string(wh.id), dpp::url_encode(!wh.token.empty() ? wh.token: token) + "/messages/" + std::to_string(message_id), m_delete, "", [callback](json &j, const http_request_completion_t& http) {
 		if (callback) {
 			callback(confirmation_callback_t("confirmation", confirmation(), http));
 		}
