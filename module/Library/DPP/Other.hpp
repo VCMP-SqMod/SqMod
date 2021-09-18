@@ -114,11 +114,7 @@ struct DpActivity
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~DpActivity() noexcept
-    {
-        // Do we own this to try delete it?
-        if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
-    }
+    ~DpActivity() noexcept { Cleanup(); }
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator (disabled).
     */
@@ -129,13 +125,23 @@ struct DpActivity
     DpActivity & operator = (DpActivity && o) noexcept
     {
         if (this != &o) {
-            // Do we own this to try delete it?
-            if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
+            Cleanup();
             // Transfer members values
             mPtr = std::move(o.mPtr);
             mOwned = o.mOwned;
         }
         return *this;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Release any referenced resources and default to an empty/invalid state.
+    */
+    void Cleanup()
+    {
+        // Do we own this to try delete it?
+        if (!mOwned && mPtr) {
+            // Not our job, simply forget about it
+            [[maybe_unused]] auto p = mPtr.release();
+        } else mPtr.reset(); // We own this so delete the instance
     }
     /* --------------------------------------------------------------------------------------------
      * Validate the managed handle.
@@ -302,11 +308,7 @@ struct DpPresence
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~DpPresence() noexcept
-    {
-        // Do we own this to try delete it?
-        if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
-    }
+    ~DpPresence() noexcept { Cleanup(); }
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator (disabled).
     */
@@ -317,13 +319,23 @@ struct DpPresence
     DpPresence & operator = (DpPresence && o) noexcept
     {
         if (this != &o) {
-            // Do we own this to try delete it?
-            if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
+            Cleanup();
             // Transfer members values
             mPtr = std::move(o.mPtr);
             mOwned = o.mOwned;
         }
         return *this;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Release any referenced resources and default to an empty/invalid state.
+    */
+    void Cleanup()
+    {
+        // Do we own this to try delete it?
+        if (!mOwned && mPtr) {
+            // Not our job, simply forget about it
+            [[maybe_unused]] auto p = mPtr.release();
+        } else mPtr.reset(); // We own this so delete the instance
     }
     /* --------------------------------------------------------------------------------------------
      * Validate the managed handle.
@@ -489,11 +501,7 @@ struct DpVoiceState
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~DpVoiceState() noexcept
-    {
-        // Do we own this to try delete it?
-        if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
-    }
+    ~DpVoiceState() noexcept { Cleanup(); }
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator (disabled).
     */
@@ -504,13 +512,23 @@ struct DpVoiceState
     DpVoiceState & operator = (DpVoiceState && o) noexcept
     {
         if (this != &o) {
-            // Do we own this to try delete it?
-            if (!mOwned && mPtr) [[maybe_unused]] auto p = mPtr.release();
+            Cleanup();
             // Transfer members values
             mPtr = std::move(o.mPtr);
             mOwned = o.mOwned;
         }
         return *this;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Release any referenced resources and default to an empty/invalid state.
+    */
+    void Cleanup()
+    {
+        // Do we own this to try delete it?
+        if (!mOwned && mPtr) {
+            // Not our job, simply forget about it
+            [[maybe_unused]] auto p = mPtr.release();
+        } else mPtr.reset(); // We own this so delete the instance
     }
     /* --------------------------------------------------------------------------------------------
      * Validate the managed handle.
@@ -579,7 +597,7 @@ struct DpVoiceState
     /* --------------------------------------------------------------------------------------------
      * Check if user is surpressed.
     */
-    SQMOD_NODISCARD bool IsSupressed() const { return Valid().is_supressed(); }
+    SQMOD_NODISCARD bool IsSuppressed() const { return Valid().is_suppressed(); }
 };
 
 /* ------------------------------------------------------------------------------------------------
