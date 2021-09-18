@@ -1,7 +1,7 @@
 #pragma once
 
 // ------------------------------------------------------------------------------------------------
-#include "Core/Utility.hpp"
+#include "Library/DPP/Utilities.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include <chrono>
@@ -219,6 +219,12 @@ struct DpComponent
      * Whether the referenced pointer is owned.
     */
     bool mOwned{false};
+    // --------------------------------------------------------------------------------------------
+    using Components = DpVectorProxy< dpp::component, DpComponent >;
+    using Options = DpVectorProxy< dpp::select_option, DpSelectOption >;
+    // --------------------------------------------------------------------------------------------
+    LightObj mSqComponents{};
+    LightObj mSqOptions{};
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
@@ -275,6 +281,20 @@ struct DpComponent
     */
     void Cleanup()
     {
+        // Cleanup components, if any
+        if (!mSqComponents.IsNull())
+        {
+            mSqComponents.CastI< Components >()->Cleanup();
+            // Release script resources
+            mSqComponents.Release();
+        }
+        // Cleanup options, if any
+        if (!mSqOptions.IsNull())
+        {
+            mSqOptions.CastI< Components >()->Cleanup();
+            // Release script resources
+            mSqOptions.Release();
+        }
         // Do we own this to try delete it?
         if (!mOwned && mPtr) {
             // Not our job, simply forget about it
@@ -293,7 +313,164 @@ struct DpComponent
      * Check whether a valid instance is managed.
     */
     SQMOD_NODISCARD bool IsValid() const { return static_cast< bool >(mPtr); }
-
+    /* --------------------------------------------------------------------------------------------
+     * Build JSON string from this object.
+    */
+    SQMOD_NODISCARD std::string BuildJSON() const { return Valid().build_json(); }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated type.
+    */
+    SQMOD_NODISCARD SQInteger GetType() const { return static_cast< SQInteger >(Valid().type); }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated type.
+    */
+    void SetType(SQInteger type) const { Valid().set_type(static_cast< dpp::component_type >(type)); }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated label.
+    */
+    SQMOD_NODISCARD const String & GetLabel() const { return Valid().label; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated label.
+    */
+    void SetLabel(StackStrF & label) const { Valid().set_label(label.ToStr()); }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated label.
+    */
+    DpComponent & ApplyLabel(StackStrF & label) { SetLabel(label); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated style.
+    */
+    SQMOD_NODISCARD SQInteger GetStyle() const { return static_cast< SQInteger >(Valid().style); }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated style.
+    */
+    void SetStyle(SQInteger style) const { Valid().set_style(static_cast< dpp::component_style >(style)); }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated custom id.
+    */
+    SQMOD_NODISCARD const String & GetCustomID() const { return Valid().custom_id; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated custom id.
+    */
+    void SetCustomID(StackStrF & custom_id) const { Valid().set_label(custom_id.ToStr()); }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated custom id.
+    */
+    DpComponent & ApplyCustomID(StackStrF & custom_id) { SetCustomID(custom_id); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated URL.
+    */
+    SQMOD_NODISCARD const String & GetURL() const { return Valid().url; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated URL.
+    */
+    void SetURL(StackStrF & url) const { Valid().set_label(url.ToStr()); }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated URL.
+    */
+    DpComponent & ApplyURL(StackStrF & url) { SetURL(url); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated placeholder.
+    */
+    SQMOD_NODISCARD const String & GetPlaceholder() const { return Valid().placeholder; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated placeholder.
+    */
+    void SetPlaceholder(StackStrF & placeholder) const { Valid().set_label(placeholder.ToStr()); }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated placeholder.
+    */
+    DpComponent & ApplyPlaceholder(StackStrF & placeholder) { SetPlaceholder(placeholder); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated minimum values.
+    */
+    SQMOD_NODISCARD SQInteger GetMinValues() const { return static_cast< SQInteger >(Valid().min_values); }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated minimum values.
+    */
+    void SetMinValues(SQInteger value) const { Valid().set_min_values(static_cast< uint32_t >(value)); }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated maximum values.
+    */
+    SQMOD_NODISCARD SQInteger GetMaxValues() const { return static_cast< SQInteger >(Valid().max_values); }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated maximum values.
+    */
+    void SetMaxValues(SQInteger value) const { Valid().set_max_values(static_cast< uint32_t >(value)); }
+    /* --------------------------------------------------------------------------------------------
+     * Check whether this component is disabled.
+    */
+    SQMOD_NODISCARD bool IsDisabled() const { return Valid().disabled; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify whether this component is disabled.
+    */
+    DpComponent & SetDisabled(bool toggle) { Valid().set_disabled(toggle); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated emoji.
+    */
+    DpComponent & SetEmoji(StackStrF & name, dpp::snowflake id, bool animated) { Valid().set_emoji(name.ToStr(), id, animated); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Check whether the emoji is animated.
+    */
+    SQMOD_NODISCARD bool IsAnimated() const { return Valid().emoji.animated; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify whether the emoji is animated.
+    */
+    DpComponent & SetAnimated(bool anim) { Valid().emoji.animated = anim; return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated emoji name.
+    */
+    SQMOD_NODISCARD const String & GetEmojiName() const { return Valid().emoji.name; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated emoji name.
+    */
+    void SetEmojiName(StackStrF & name) const
+    {
+        if (name.mLen > 0)
+        {
+            Valid().emoji.name.assign(name.mPtr, static_cast< size_t >(name.mLen));
+        }
+        else
+        {
+            Valid().emoji.name.clear();
+        } 
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated emoji name.
+    */
+    DpComponent & ApplyEmojiName(StackStrF & name) { SetEmojiName(name); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated emoji id.
+    */
+    SQMOD_NODISCARD dpp::snowflake GetEmojiID() const { return Valid().emoji.id; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated emoji id.
+    */
+    void SetEmojiID(dpp::snowflake id) const { Valid().emoji.id = id; }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated components.
+    */
+    SQMOD_NODISCARD LightObj & GetComponents()
+    {
+        if (mSqComponents.IsNull())
+        {
+            mSqComponents = LightObj{SqTypeIdentity< Components >{}, SqVM(), &Valid().components, false};
+        }
+        // Return the associated script object
+        return mSqComponents;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated components.
+    */
+    SQMOD_NODISCARD LightObj & GetOptions()
+    {
+        if (mSqOptions.IsNull())
+        {
+            mSqOptions = LightObj{SqTypeIdentity< Options >{}, SqVM(), &Valid().options, false};
+        }
+        // Return the associated script object
+        return mSqOptions;
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------

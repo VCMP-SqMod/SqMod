@@ -6,7 +6,9 @@ namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
 SQMOD_DECL_TYPENAME(SqDppSelectOption, _SC("SqDppSelectOption"))
+SQMOD_DECL_TYPENAME(SqDppSelectOptions, _SC("SqDppSelectOptions"))
 SQMOD_DECL_TYPENAME(SqDppComponent, _SC("SqDppComponent"))
+SQMOD_DECL_TYPENAME(SqDppComponents, _SC("SqDppComponents"))
 SQMOD_DECL_TYPENAME(SqDppEmbedFooter, _SC("SqDppEmbedFooter"))
 SQMOD_DECL_TYPENAME(SqDppEmbedImage, _SC("SqDppEmbedImage"))
 SQMOD_DECL_TYPENAME(SqDppEmbedProvider, _SC("SqDppEmbedProvider"))
@@ -48,13 +50,38 @@ void Register_DPP_Message(HSQUIRRELVM vm, Table & ns)
         .FmtFunc(_SC("SetEmojiName"), &DpSelectOption::ApplyEmojiName)
     );
     // --------------------------------------------------------------------------------------------
+    Register_DPP_VectorProxy< dpp::select_option, DpSelectOption, SqDppSelectOptions >(vm, ns, _SC("SelectOptions"));
+    // --------------------------------------------------------------------------------------------
     ns.Bind(_SC("Component"),
         Class< DpComponent, NoConstructor< DpComponent > >(vm, SqDppComponent::Str)
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &SqDppComponent::Fn)
         // Member Properties
         .Prop(_SC("Valid"), &DpComponent::IsValid)
+        .Prop(_SC("JSON"), &DpComponent::BuildJSON)
+        .Prop(_SC("Type"), &DpComponent::GetType, &DpComponent::SetType)
+        .Prop(_SC("Label"), &DpComponent::GetLabel, &DpComponent::SetLabel)
+        .Prop(_SC("Style"), &DpComponent::GetStyle, &DpComponent::SetStyle)
+        .Prop(_SC("CustomID"), &DpComponent::GetCustomID, &DpComponent::SetCustomID)
+        .Prop(_SC("URL"), &DpComponent::GetURL, &DpComponent::SetURL)
+        .Prop(_SC("Placeholder"), &DpComponent::GetPlaceholder, &DpComponent::SetPlaceholder)
+        .Prop(_SC("MinValues"), &DpComponent::GetMinValues, &DpComponent::SetMinValues)
+        .Prop(_SC("MaxValues"), &DpComponent::GetMaxValues, &DpComponent::SetMaxValues)
+        .Prop(_SC("Disabled"), &DpComponent::IsDisabled, &DpComponent::SetDisabled)
+        .Prop(_SC("IsAnimated"), &DpComponent::IsAnimated, &DpComponent::SetAnimated)
+        .Prop(_SC("EmojiName"), &DpComponent::GetEmojiName, &DpComponent::SetEmojiName)
+        .Prop(_SC("EmojiID"), &DpComponent::GetEmojiID, &DpComponent::SetEmojiID)
+        // Member Methods
+        .FmtFunc(_SC("SetLabel"), &DpComponent::ApplyLabel)
+        .FmtFunc(_SC("SetCustomID"), &DpComponent::ApplyCustomID)
+        .FmtFunc(_SC("SetURL"), &DpComponent::ApplyURL)
+        .FmtFunc(_SC("SetPlaceholder"), &DpComponent::ApplyPlaceholder)
+        .FmtFunc(_SC("SetDisabled"), &DpComponent::SetDisabled)
+        .FmtFunc(_SC("SetAnimated"), &DpComponent::SetAnimated)
+        .FmtFunc(_SC("SetEmojiName"), &DpComponent::ApplyEmojiName)
     );
+    // --------------------------------------------------------------------------------------------
+    Register_DPP_VectorProxy< dpp::component, DpComponent, SqDppComponent >(vm, ns, _SC("Components"));
     // --------------------------------------------------------------------------------------------
     ns.Bind(_SC("EmbedFooter"),
         Class< DpEmbedFooter, NoConstructor< DpEmbedFooter > >(vm, SqDppEmbedFooter::Str)
