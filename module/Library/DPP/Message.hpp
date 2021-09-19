@@ -471,6 +471,41 @@ struct DpComponent
         // Return the associated script object
         return mSqOptions;
     }
+    /* --------------------------------------------------------------------------------------------
+     * Add a sub-component, only valid for action rows.
+     * Adding subcomponents to a component will automatically set this component's type to SqDiscordComponentType.ActionRow.
+    */
+    DpComponent & AddComponent(DpComponent & comp)
+    {
+        Valid().add_component(comp.Valid());
+        // Do we have to sync a script wrapper?
+        if (!mSqComponents.IsNull())
+        {
+            mSqComponents.CastI< Components >()->mVec.emplace_back();
+        }
+        // Allow chaining
+        return *this;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Add a select-option. Limited to 25 options.
+    */
+    DpComponent & AddSelectOption(DpSelectOption & opt)
+    {
+        // Make sure we are within bounds
+        if (Valid().options.size() >= 25)
+        {
+            STHROWF("Maximum of 25 select options was reached");
+        }
+        // Perform the request
+        mPtr->add_select_option(opt.Valid());
+        // Do we have to sync a script wrapper?
+        if (!mSqOptions.IsNull())
+        {
+            mSqOptions.CastI< Options >()->mVec.emplace_back();
+        }
+        // Allow chaining
+        return *this;
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -561,7 +596,42 @@ struct DpEmbedFooter
      * Check whether a valid instance is managed.
     */
     SQMOD_NODISCARD bool IsValid() const { return static_cast< bool >(mPtr); }
-
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated footer's text.
+    */
+    SQMOD_NODISCARD const String & GetText() const { return Valid().text; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated footer's text.
+    */
+    void SetText(StackStrF & text) const { Valid().set_text(text.ToStr()); }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated footer's text.
+    */
+    DpEmbedFooter & ApplyText(StackStrF & text) { SetText(text); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated footer's icon url.
+    */
+    SQMOD_NODISCARD const String & GetIconURL() const { return Valid().icon_url; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated footer's icon url.
+    */
+    void SetIconURL(StackStrF & icon_url) const { Valid().set_icon(icon_url.ToStr()); }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated footer's icon url.
+    */
+    DpEmbedFooter & ApplyIconURL(StackStrF & icon_url) { SetIconURL(icon_url); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated footer's proxied icon url.
+    */
+    SQMOD_NODISCARD const String & GetProxyURL() const { return Valid().proxy_url; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated footer's proxied icon url.
+    */
+    void SetProxyURL(StackStrF & proxy_url) const { Valid().set_proxy(proxy_url.ToStr()); }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated footer's proxied icon url.
+    */
+    DpEmbedFooter & ApplyProxyURL(StackStrF & proxy_url) { SetProxyURL(proxy_url); return *this; }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -652,7 +722,94 @@ struct DpEmbedImage
      * Check whether a valid instance is managed.
     */
     SQMOD_NODISCARD bool IsValid() const { return static_cast< bool >(mPtr); }
-
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated URL to image or video.
+    */
+    SQMOD_NODISCARD const String & GetURL() const { return Valid().url; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated URL to image or video.
+    */
+    void SetURL(StackStrF & url) const
+    {
+        if (url.mLen > 0)
+        {
+            Valid().url.assign(url.mPtr, static_cast< size_t >(url.mLen));
+        }
+        else
+        {
+            Valid().url.clear();
+        } 
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated URL to image or video.
+    */
+    DpEmbedImage & ApplyURL(StackStrF & url) { SetURL(url); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated proxied image url.
+    */
+    SQMOD_NODISCARD const String & GetProxyURL() const { return Valid().proxy_url; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated proxied image url.
+    */
+    void SetProxyURL(StackStrF & proxy_url) const
+    {
+        if (proxy_url.mLen > 0)
+        {
+            Valid().proxy_url.assign(proxy_url.mPtr, static_cast< size_t >(proxy_url.mLen));
+        }
+        else
+        {
+            Valid().proxy_url.clear();
+        } 
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated proxied image url.
+    */
+    DpEmbedImage & ApplyProxyURL(StackStrF & proxy_url) { SetProxyURL(proxy_url); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated height (calculated by discord).
+    */
+    SQMOD_NODISCARD const String & GetHeight() const { return Valid().height; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated height (calculated by discord).
+    */
+    void SetHeight(StackStrF & height) const
+    {
+        if (height.mLen > 0)
+        {
+            Valid().height.assign(height.mPtr, static_cast< size_t >(height.mLen));
+        }
+        else
+        {
+            Valid().height.clear();
+        } 
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated height (calculated by discord).
+    */
+    DpEmbedImage & ApplyHeight(StackStrF & height) { SetHeight(height); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated width (calculated by discord).
+    */
+    SQMOD_NODISCARD const String & GetWidth() const { return Valid().width; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated width (calculated by discord).
+    */
+    void SetWidth(StackStrF & width) const
+    {
+        if (width.mLen > 0)
+        {
+            Valid().width.assign(width.mPtr, static_cast< size_t >(width.mLen));
+        }
+        else
+        {
+            Valid().width.clear();
+        } 
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated width (calculated by discord).
+    */
+    DpEmbedImage & ApplyWidth(StackStrF & width) { SetWidth(width); return *this; }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -743,7 +900,50 @@ struct DpEmbedProvider
      * Check whether a valid instance is managed.
     */
     SQMOD_NODISCARD bool IsValid() const { return static_cast< bool >(mPtr); }
-
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated provider name.
+    */
+    SQMOD_NODISCARD const String & GetName() const { return Valid().name; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated provider name.
+    */
+    void SetName(StackStrF & name) const
+    {
+        if (name.mLen > 0)
+        {
+            Valid().name.assign(name.mPtr, static_cast< size_t >(name.mLen));
+        }
+        else
+        {
+            Valid().name.clear();
+        } 
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated provider name.
+    */
+    DpEmbedProvider & ApplyName(StackStrF & name) { SetName(name); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated provider URL.
+    */
+    SQMOD_NODISCARD const String & GetURL() const { return Valid().url; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated provider URL.
+    */
+    void SetURL(StackStrF & url) const
+    {
+        if (url.mLen > 0)
+        {
+            Valid().url.assign(url.mPtr, static_cast< size_t >(url.mLen));
+        }
+        else
+        {
+            Valid().url.clear();
+        } 
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated provider URL.
+    */
+    DpEmbedProvider & ApplyURL(StackStrF & url) { SetURL(url); return *this; }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -834,7 +1034,94 @@ struct DpEmbedAuthor
      * Check whether a valid instance is managed.
     */
     SQMOD_NODISCARD bool IsValid() const { return static_cast< bool >(mPtr); }
-
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated author name.
+    */
+    SQMOD_NODISCARD const String & GetName() const { return Valid().name; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated author name.
+    */
+    void SetName(StackStrF & name) const
+    {
+        if (name.mLen > 0)
+        {
+            Valid().name.assign(name.mPtr, static_cast< size_t >(name.mLen));
+        }
+        else
+        {
+            Valid().name.clear();
+        } 
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated author name.
+    */
+    DpEmbedAuthor & ApplyName(StackStrF & name) { SetName(name); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated author URL.
+    */
+    SQMOD_NODISCARD const String & GetURL() const { return Valid().url; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated author URL.
+    */
+    void SetURL(StackStrF & url) const
+    {
+        if (url.mLen > 0)
+        {
+            Valid().url.assign(url.mPtr, static_cast< size_t >(url.mLen));
+        }
+        else
+        {
+            Valid().url.clear();
+        } 
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated author URL.
+    */
+    DpEmbedAuthor & ApplyURL(StackStrF & url) { SetURL(url); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated author icon URL.
+    */
+    SQMOD_NODISCARD const String & GetIconURL() const { return Valid().icon_url; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated author icon URL.
+    */
+    void SetIconURL(StackStrF & icon_url) const
+    {
+        if (icon_url.mLen > 0)
+        {
+            Valid().icon_url.assign(icon_url.mPtr, static_cast< size_t >(icon_url.mLen));
+        }
+        else
+        {
+            Valid().icon_url.clear();
+        } 
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated author icon URL.
+    */
+    DpEmbedAuthor & ApplyIconURL(StackStrF & icon_url) { SetIconURL(icon_url); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated proxied icon URL.
+    */
+    SQMOD_NODISCARD const String & GetProxyIconURL() const { return Valid().proxy_icon_url; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated proxied icon URL.
+    */
+    void SetProxyIconURL(StackStrF & proxy_icon_url) const
+    {
+        if (proxy_icon_url.mLen > 0)
+        {
+            Valid().proxy_icon_url.assign(proxy_icon_url.mPtr, static_cast< size_t >(proxy_icon_url.mLen));
+        }
+        else
+        {
+            Valid().proxy_icon_url.clear();
+        } 
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated proxied icon URL.
+    */
+    DpEmbedAuthor & ApplyProxyIconURL(StackStrF & proxy_icon_url) { SetProxyIconURL(proxy_icon_url); return *this; }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -925,7 +1212,66 @@ struct DpEmbedField
      * Check whether a valid instance is managed.
     */
     SQMOD_NODISCARD bool IsValid() const { return static_cast< bool >(mPtr); }
-
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated field name.
+    */
+    SQMOD_NODISCARD const String & GetName() const { return Valid().name; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated field name.
+    */
+    void SetName(StackStrF & name) const
+    {
+        if (name.mLen > 0)
+        {
+            Valid().name.assign(name.mPtr, static_cast< size_t >(name.mLen));
+        }
+        else
+        {
+            Valid().name.clear();
+        } 
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated field name.
+    */
+    DpEmbedField & ApplyName(StackStrF & name) { SetName(name); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated field value (max length 1000).
+    */
+    SQMOD_NODISCARD const String & GetValue() const { return Valid().value; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated field value (max length 1000).
+    */
+    void SetValue(StackStrF & value) const
+    {
+        if (value.mLen > 0)
+        {
+            auto str = value.ToStr();
+            auto len = dpp::utility::utf8len(str);
+            // Make sure we are within bounds
+            if (len > 1000)
+            {
+                STHROWF("Field value exceeds the 1000 character limit");
+            }
+            // Assign the specified string
+            Valid().value = std::move(str);
+        }
+        else
+        {
+            Valid().value.clear();
+        }
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated field value (max length 1000).
+    */
+    DpEmbedField & ApplyValue(StackStrF & value) { SetValue(value); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Check whether the field is to be displayed inline.
+    */
+    SQMOD_NODISCARD bool IsInline() const { return Valid().is_inline; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify whether the field is to be displayed inline.
+    */
+    DpEmbedField & SetInline(bool toggle) { Valid().is_inline = toggle; return *this; }
 };
 
 /* ------------------------------------------------------------------------------------------------

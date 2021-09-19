@@ -79,6 +79,10 @@ void Register_DPP_Message(HSQUIRRELVM vm, Table & ns)
         .FmtFunc(_SC("SetDisabled"), &DpComponent::SetDisabled)
         .FmtFunc(_SC("SetAnimated"), &DpComponent::SetAnimated)
         .FmtFunc(_SC("SetEmojiName"), &DpComponent::ApplyEmojiName)
+        .FmtFunc(_SC("GetComponents"), &DpComponent::GetComponents)
+        .FmtFunc(_SC("GetOptions"), &DpComponent::GetOptions)
+        .FmtFunc(_SC("AddComponent"), &DpComponent::AddComponent)
+        .FmtFunc(_SC("AddOption"), &DpComponent::AddSelectOption)
     );
     // --------------------------------------------------------------------------------------------
     Register_DPP_VectorProxy< dpp::component, DpComponent, SqDppComponent >(vm, ns, _SC("Components"));
@@ -89,6 +93,13 @@ void Register_DPP_Message(HSQUIRRELVM vm, Table & ns)
         .SquirrelFunc(_SC("_typename"), &SqDppEmbedFooter::Fn)
         // Member Properties
         .Prop(_SC("Valid"), &DpEmbedFooter::IsValid)
+        .Prop(_SC("Text"), &DpEmbedFooter::GetText, &DpEmbedFooter::SetText)
+        .Prop(_SC("Icon"), &DpEmbedFooter::GetIconURL, &DpEmbedFooter::SetIconURL)
+        .Prop(_SC("Proxy"), &DpEmbedFooter::GetProxyURL, &DpEmbedFooter::SetProxyURL)
+        // Member Methods
+        .FmtFunc(_SC("SetText"), &DpEmbedFooter::ApplyText)
+        .FmtFunc(_SC("SetIcon"), &DpEmbedFooter::ApplyIconURL)
+        .FmtFunc(_SC("SetProxy"), &DpEmbedFooter::ApplyProxyURL)
     );
     // --------------------------------------------------------------------------------------------
     ns.Bind(_SC("EmbedImage"),
@@ -97,6 +108,15 @@ void Register_DPP_Message(HSQUIRRELVM vm, Table & ns)
         .SquirrelFunc(_SC("_typename"), &SqDppEmbedImage::Fn)
         // Member Properties
         .Prop(_SC("Valid"), &DpEmbedImage::IsValid)
+        .Prop(_SC("URL"), &DpEmbedImage::GetURL, &DpEmbedImage::SetURL)
+        .Prop(_SC("Proxy"), &DpEmbedImage::GetProxyURL, &DpEmbedImage::SetProxyURL)
+        .Prop(_SC("Height"), &DpEmbedImage::GetHeight, &DpEmbedImage::SetHeight)
+        .Prop(_SC("Width"), &DpEmbedImage::GetWidth, &DpEmbedImage::SetWidth)
+        // Member Methods
+        .FmtFunc(_SC("SetURL"), &DpEmbedImage::ApplyURL)
+        .FmtFunc(_SC("SetProxy"), &DpEmbedImage::ApplyProxyURL)
+        .FmtFunc(_SC("SetHeight"), &DpEmbedImage::ApplyHeight)
+        .FmtFunc(_SC("SetWidth"), &DpEmbedImage::ApplyWidth)
     );
     // --------------------------------------------------------------------------------------------
     ns.Bind(_SC("EmbedProvider"),
@@ -105,6 +125,11 @@ void Register_DPP_Message(HSQUIRRELVM vm, Table & ns)
         .SquirrelFunc(_SC("_typename"), &SqDppEmbedProvider::Fn)
         // Member Properties
         .Prop(_SC("Valid"), &DpEmbedProvider::IsValid)
+        .Prop(_SC("Name"), &DpEmbedProvider::GetName, &DpEmbedProvider::SetName)
+        .Prop(_SC("URL"), &DpEmbedProvider::GetURL, &DpEmbedProvider::SetURL)
+        // Member Methods
+        .FmtFunc(_SC("SetName"), &DpEmbedProvider::ApplyName)
+        .FmtFunc(_SC("SetURL"), &DpEmbedProvider::ApplyURL)
     );
     // --------------------------------------------------------------------------------------------
     ns.Bind(_SC("EmbedAuthor"),
@@ -113,6 +138,15 @@ void Register_DPP_Message(HSQUIRRELVM vm, Table & ns)
         .SquirrelFunc(_SC("_typename"), &SqDppEmbedAuthor::Fn)
         // Member Properties
         .Prop(_SC("Valid"), &DpEmbedAuthor::IsValid)
+        .Prop(_SC("Name"), &DpEmbedAuthor::GetName, &DpEmbedAuthor::SetName)
+        .Prop(_SC("URL"), &DpEmbedAuthor::GetURL, &DpEmbedAuthor::SetURL)
+        .Prop(_SC("Icon"), &DpEmbedAuthor::GetIconURL, &DpEmbedAuthor::SetIconURL)
+        .Prop(_SC("ProxyIcon"), &DpEmbedAuthor::GetProxyIconURL, &DpEmbedAuthor::SetProxyIconURL)
+        // Member Methods
+        .FmtFunc(_SC("SetName"), &DpEmbedAuthor::ApplyName)
+        .FmtFunc(_SC("SetURL"), &DpEmbedAuthor::ApplyURL)
+        .FmtFunc(_SC("SetIcon"), &DpEmbedAuthor::ApplyIconURL)
+        .FmtFunc(_SC("SetProxyIcon"), &DpEmbedAuthor::ApplyProxyIconURL)
     );
     // --------------------------------------------------------------------------------------------
     ns.Bind(_SC("EmbedField"),
@@ -121,6 +155,13 @@ void Register_DPP_Message(HSQUIRRELVM vm, Table & ns)
         .SquirrelFunc(_SC("_typename"), &SqDppEmbedField::Fn)
         // Member Properties
         .Prop(_SC("Valid"), &DpEmbedField::IsValid)
+        .Prop(_SC("Name"), &DpEmbedField::GetName, &DpEmbedField::SetName)
+        .Prop(_SC("Value"), &DpEmbedField::GetValue, &DpEmbedField::SetValue)
+        .Prop(_SC("Inline"), &DpEmbedField::IsInline, &DpEmbedField::SetInline)
+        // Member Methods
+        .FmtFunc(_SC("SetName"), &DpEmbedField::ApplyName)
+        .FmtFunc(_SC("SetValue"), &DpEmbedField::ApplyValue)
+        .FmtFunc(_SC("SetInline"), &DpEmbedField::SetInline)
     );
     // --------------------------------------------------------------------------------------------
     ns.Bind(_SC("Embed"),
