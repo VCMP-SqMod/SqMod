@@ -169,7 +169,21 @@ template < class T, class W > struct DpVectorProxy
         // Return the object from the cache
         return mVec[static_cast< size_t >(i)].first;
     }
-    SQMOD_NODISCARD LightObj & Get(SQInteger i) { ValidIdx_(i); return Get_(i); }
+    SQMOD_NODISCARD LightObj & Get(SQInteger i)
+    {
+        // Was the referenced vector modified?
+        if (mVec.size() < Valid().size())
+        {
+            // Synchronize the size
+            mVec.resize(mPtr->size());
+            // Synchronize the cache
+            CacheSync();
+        }
+        // Validate index
+        ValidIdx_(i);
+        // Perform the request
+        return Get_(i);
+    }
     /* --------------------------------------------------------------------------------------------
      * Modify a value from the container.
     */
