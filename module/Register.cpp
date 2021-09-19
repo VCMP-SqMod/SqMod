@@ -41,6 +41,7 @@ extern void Register_Net(HSQUIRRELVM vm);
 extern void Register_Numeric(HSQUIRRELVM vm);
 extern void Register_String(HSQUIRRELVM vm);
 extern void Register_System(HSQUIRRELVM vm);
+extern void Register_UTF8(HSQUIRRELVM vm);
 extern void Register_Utils(HSQUIRRELVM vm);
 extern void Register_XML(HSQUIRRELVM vm);
 extern void Register_ZMQ(HSQUIRRELVM vm);
@@ -110,6 +111,7 @@ bool RegisterAPI(HSQUIRRELVM vm)
     Register_Numeric(vm);
     Register_String(vm);
     Register_System(vm);
+    Register_UTF8(vm);
     Register_Utils(vm);
     Register_XML(vm);
     Register_ZMQ(vm);

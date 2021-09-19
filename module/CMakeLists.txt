@@ -85,6 +85,7 @@ add_library(SqModule MODULE SqBase.hpp Main.cpp
     Library/System/Dir.cpp Library/System/Dir.hpp
     Library/System/Env.cpp Library/System/Env.hpp
     Library/System/Path.cpp Library/System/Path.hpp
+    Library/UTF8.cpp Library/UTF8.hpp
     Library/Utils.cpp Library/Utils.hpp
     Library/Utils/Announce.cpp Library/Utils/Announce.hpp
     Library/Utils/String.cpp Library/Utils/String.hpp
@@ -131,7 +132,7 @@ if(WIN32 OR MINGW)
     target_link_libraries(SqModule wsock32 ws2_32 shlwapi)
 endif()
 # Link to base libraries
-target_link_libraries(SqModule Squirrel fmt::fmt SimpleINI TinyDir xxHash ConcurrentQueue SAJSON CPR PUGIXML CivetWeb maxminddb libzmq-static)
+target_link_libraries(SqModule Squirrel fmt::fmt SimpleINI TinyDir xxHash ConcurrentQueue SAJSON CPR UTF8Lib PUGIXML CivetWeb maxminddb libzmq-static)
 # Enable built-in Discord support
 if(ENABLE_DISCORD)
     target_link_libraries(SqModule DPP)
