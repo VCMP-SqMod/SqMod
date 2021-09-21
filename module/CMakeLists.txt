@@ -155,7 +155,7 @@ if(ENABLE_DISCORD)
     )
 endif()
 # Link to POCO libraries
-target_link_libraries(SqModule Poco::Foundation Poco::Crypto Poco::Data Poco::Net Poco::JSON Poco::XML)
+target_link_libraries(SqModule Poco::Foundation Poco::Crypto Poco::Data Poco::Net)
 # Does POCO have SQLite support?
 if(ENABLE_DATA_SQLITE)
     if(NOT POCO_UNBUNDLED)
@@ -170,9 +170,12 @@ if(ENABLE_DATA_SQLITE)
     # Include legacy implementation sources
     target_sources(SqModule PRIVATE Library/SQLite.hpp Library/SQLite.cpp)
 endif()
+# Do we have built-in MYSQL enabled?
+if (NOT ENABLE_BUILTIN_MYSQL_C)
+    find_package(MySQL)
+endif()
 # Does POCO have MySLQ support?
-find_package(MySQL)
-if(MYSQL_FOUND)
+if(ENABLE_BUILTIN_MYSQL_C OR MYSQL_FOUND)
     message(STATUS "MySQL was enabled")
     # Link the libraries
     target_link_libraries(SqModule Poco::DataMySQL)

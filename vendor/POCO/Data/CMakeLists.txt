@@ -45,7 +45,7 @@ else(ENABLE_DATA_SQLITE)
 	message(STATUS "SQLite Support Disabled")
 endif()
 
-if(MYSQL_FOUND AND ENABLE_DATA_MYSQL)
+if((ENABLE_BUILTIN_MYSQL_C OR MYSQL_FOUND) AND ENABLE_DATA_MYSQL)
 	message(STATUS "MySQL Support Enabled")
 	add_subdirectory(MySQL)
 else()

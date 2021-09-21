@@ -20,8 +20,11 @@ set_target_properties(DataMySQL
 	OUTPUT_NAME PocoDataMySQL
 	DEFINE_SYMBOL MySQL_EXPORTS
 )
-
-target_link_libraries(DataMySQL PUBLIC Poco::Data MySQL::client)
+if (ENABLE_BUILTIN_MYSQL_C)
+	target_link_libraries(DataMySQL PUBLIC Poco::Data mariadbclient)
+else()
+	target_link_libraries(DataMySQL PUBLIC Poco::Data MySQL::client)
+endif()
 target_include_directories(DataMySQL
 	PUBLIC
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -43,8 +46,11 @@ if(UNIX)
     endif()
 endif()
 
-POCO_INSTALL(DataMySQL)
-POCO_GENERATE_PACKAGE(DataMySQL)
+# Meh...
+if (NOT ENABLE_BUILTIN_MYSQL_C)
+	POCO_INSTALL(DataMySQL)
+	POCO_GENERATE_PACKAGE(DataMySQL)
+endif()
 
 if(ENABLE_TESTS)
 	add_subdirectory(testsuite)

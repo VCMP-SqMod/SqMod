@@ -15,6 +15,8 @@ option(ENABLE_API21 "Build for 2.1 API." OFF)
 option(ENABLE_DISCORD "Enable built-in Discord support" ON)
 option(ENABLE_DISCORD_VOICE "Enable voice support in Discord library" OFF)
 option(ENABLE_OFFICIAL "Enable compatibility with official legacy plug-in" ON)
+# As a fall-back for certain situations (mainly some docker ubuntu containers)
+option(ENABLE_BUILTIN_MYSQL_C "Enable built-in MySQL connector library" ON)
 #option(FORCE_32BIT_BIN "Create a 32-bit executable binary if the compiler defaults to 64-bit." OFF)
 # This option should only be available in certain conditions
 if(WIN32 AND MINGW)
