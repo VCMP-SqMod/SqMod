@@ -291,7 +291,7 @@ struct DpComponent
         // Cleanup options, if any
         if (!mSqOptions.IsNull())
         {
-            mSqOptions.CastI< Components >()->Cleanup();
+            mSqOptions.CastI< Options >()->Cleanup();
             // Release script resources
             mSqOptions.Release();
         }
@@ -473,7 +473,7 @@ struct DpComponent
     }
     /* --------------------------------------------------------------------------------------------
      * Add a sub-component, only valid for action rows.
-     * Adding subcomponents to a component will automatically set this component's type to SqDiscordComponentType.ActionRow.
+     * Adding sub-components to a component will automatically set this component's type to SqDiscordComponentType.ActionRow.
     */
     DpComponent & AddComponent(DpComponent & comp)
     {
@@ -1288,6 +1288,16 @@ struct DpEmbed
      * Whether the referenced pointer is owned.
     */
     bool mOwned{false};
+    // --------------------------------------------------------------------------------------------
+    using Fields = DpVectorProxy< dpp::embed_field, DpEmbedField >;
+    // --------------------------------------------------------------------------------------------
+    LightObj mSqFooter{};
+    LightObj mSqImage{};
+    LightObj mSqThumbnail{};
+    LightObj mSqVideo{};
+    LightObj mSqProvider{};
+    LightObj mSqAuthor{};
+    LightObj mSqFields{};
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
@@ -1344,6 +1354,19 @@ struct DpEmbed
     */
     void Cleanup()
     {
+        DropObject< DpEmbedFooter >(mSqFooter);
+        DropObject< DpEmbedImage >(mSqImage);
+        DropObject< DpEmbedImage >(mSqThumbnail);
+        DropObject< DpEmbedImage >(mSqVideo);
+        DropObject< DpEmbedProvider >(mSqProvider);
+        DropObject< DpEmbedAuthor >(mSqAuthor);
+        // Cleanup fields, if any
+        if (!mSqFields.IsNull())
+        {
+            mSqFields.CastI< Fields >()->Cleanup();
+            // Release script resources
+            mSqFields.Release();
+        }
         // Do we own this to try delete it?
         if (!mOwned && mPtr) {
             // Not our job, simply forget about it
@@ -1362,11 +1385,441 @@ struct DpEmbed
      * Check whether a valid instance is managed.
     */
     SQMOD_NODISCARD bool IsValid() const { return static_cast< bool >(mPtr); }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated title of embed.
+    */
+    SQMOD_NODISCARD const String & GetTitle() const { return Valid().title; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated title of embed.
+    */
+    void SetTitle(StackStrF & title) const { Valid().set_title(title.ToStr()); }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated title of embed.
+    */
+    DpEmbed & ApplyTitle(StackStrF & title) { SetTitle(title); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated type of embed (always "rich" for web-hook embeds).
+    */
+    SQMOD_NODISCARD const String & GetType() const { return Valid().type; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated type of embed.
+    */
+    void SetType(StackStrF & type) const
+    {
+        if (type.mLen > 0)
+        {
+            Valid().type.assign(type.mPtr, static_cast< size_t >(type.mLen));
+        }
+        else
+        {
+            Valid().type.clear();
+        } 
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated type of embed.
+    */
+    DpEmbed & ApplyType(StackStrF & type) { SetType(type); return *this; }
 
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated description of embed.
+    */
+    SQMOD_NODISCARD const String & GetDescription() const { return Valid().description; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated description of embed.
+    */
+    void SetDescription(StackStrF & description) const { Valid().set_description(description.ToStr()); }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated description of embed.
+    */
+    DpEmbed & ApplyDescription(StackStrF & description) { SetDescription(description); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated URL of embed.
+    */
+    SQMOD_NODISCARD const String & GetURL() const { return Valid().url; }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated URL of embed.
+    */
+    void SetURL(StackStrF & url) const { Valid().set_url(url.ToStr()); }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated URL of embed.
+    */
+    DpEmbed & ApplyURL(StackStrF & url) { SetURL(url); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve time-stamp of embed content.
+    */
+    SQMOD_NODISCARD SQInteger GetTimeStamp() const
+    {
+        return static_cast< SQInteger >(std::chrono::duration_cast< std::chrono::seconds >(std::chrono::system_clock::from_time_t(Valid().timestamp).time_since_epoch()).count());
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify time-stamp of embed content.
+    */
+    void SetTimeStamp(SQInteger s) const
+    {
+        Valid().timestamp = std::chrono::system_clock::to_time_t(std::chrono::time_point< std::chrono::system_clock >{std::chrono::seconds{s}});
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify time-stamp of embed content.
+    */
+    DpEmbed & ApplyTimeStamp(SQInteger s) { SetTimeStamp(s); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated color code of the embed.
+    */
+    SQMOD_NODISCARD SQInteger GetColor() const { return static_cast< SQInteger >(Valid().color); }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated color code of the embed.
+    */
+    void SetColor(SQInteger color) const { Valid().set_color(static_cast< dpp::component_style >(color)); }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated footer information.
+    */
+    SQMOD_NODISCARD LightObj & GetFooter()
+    {
+        // Do we have a value assigned?
+        if (Valid().footer.has_value())
+        {
+            // Do we have a script object associated with it?
+            if (mSqFooter.IsNull())
+            {
+                // Create the script object with non-owning reference
+                mSqFooter = LightObj(SqTypeIdentity< DpEmbedFooter >{}, SqVM(), &(mPtr->footer.value()), false);
+            }
+        } else mSqFooter.Release(); // Make sure this is null
+        // Return the associated script object
+        return mSqFooter;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated footer information.
+    */
+    void SetFooter(LightObj & o)
+    {
+        Validate();
+        // Is the specified object null?
+        if (o.IsNull())
+        {
+            DropObject< DpEmbedFooter >(mSqFooter);
+            // Finally release the instance
+            mPtr->footer.reset();
+        }
+        else
+        {
+            auto * p = o.CastI< DpEmbedFooter >();
+            // Is this the same instance?
+            if (&p->Valid() == &(mPtr->footer.value()))
+            {
+                return; // Ignore (someone is playing dumb)
+            }
+            // Drop currently associated script object, if any
+            DropObject< DpEmbedFooter >(mSqFooter);
+            // Assign the new object
+            mPtr->footer = *(p->mPtr);
+        }
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated footer information.
+    */
+    DpEmbed & ApplyFooter(LightObj & o) { SetFooter(o); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated image information.
+    */
+    SQMOD_NODISCARD LightObj & GetImage()
+    {
+        // Do we have a value assigned?
+        if (Valid().image.has_value())
+        {
+            // Do we have a script object associated with it?
+            if (mSqImage.IsNull())
+            {
+                // Create the script object with non-owning reference
+                mSqImage = LightObj(SqTypeIdentity< DpEmbedImage >{}, SqVM(), &(mPtr->image.value()), false);
+            }
+        } else mSqImage.Release(); // Make sure this is null
+        // Return the associated script object
+        return mSqImage;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated image information.
+    */
+    void SetImage(LightObj & o)
+    {
+        Validate();
+        // Is the specified object null?
+        if (o.IsNull())
+        {
+            DropObject< DpEmbedImage >(mSqImage);
+            // Finally release the instance
+            mPtr->image.reset();
+        }
+        else
+        {
+            auto * p = o.CastI< DpEmbedImage >();
+            // Is this the same instance?
+            if (&p->Valid() == &(mPtr->image.value()))
+            {
+                return; // Ignore (someone is playing dumb)
+            }
+            // Drop currently associated script object, if any
+            DropObject< DpEmbedImage >(mSqImage);
+            // Assign the new object
+            mPtr->image = *(p->mPtr);
+        }
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated image information.
+    */
+    DpEmbed & ApplyImage(LightObj & o) { SetImage(o); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated thumbnail information.
+    */
+    SQMOD_NODISCARD LightObj & GetThumbnail()
+    {
+        // Do we have a value assigned?
+        if (Valid().thumbnail.has_value())
+        {
+            // Do we have a script object associated with it?
+            if (mSqThumbnail.IsNull())
+            {
+                // Create the script object with non-owning reference
+                mSqThumbnail = LightObj(SqTypeIdentity< DpEmbedImage >{}, SqVM(), &(mPtr->thumbnail.value()), false);
+            }
+        } else mSqThumbnail.Release(); // Make sure this is null
+        // Return the associated script object
+        return mSqThumbnail;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated thumbnail information.
+    */
+    void SetThumbnail(LightObj & o)
+    {
+        Validate();
+        // Is the specified object null?
+        if (o.IsNull())
+        {
+            DropObject< DpEmbedImage >(mSqThumbnail);
+            // Finally release the instance
+            mPtr->thumbnail.reset();
+        }
+        else
+        {
+            auto * p = o.CastI< DpEmbedImage >();
+            // Is this the same instance?
+            if (&p->Valid() == &(mPtr->thumbnail.value()))
+            {
+                return; // Ignore (someone is playing dumb)
+            }
+            // Drop currently associated script object, if any
+            DropObject< DpEmbedImage >(mSqThumbnail);
+            // Assign the new object
+            mPtr->thumbnail = *(p->mPtr);
+        }
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated thumbnail information.
+    */
+    DpEmbed & ApplyThumbnail(LightObj & o) { SetThumbnail(o); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated video information (can't send these).
+    */
+    SQMOD_NODISCARD LightObj & GetVideo()
+    {
+        // Do we have a value assigned?
+        if (Valid().video.has_value())
+        {
+            // Do we have a script object associated with it?
+            if (mSqVideo.IsNull())
+            {
+                // Create the script object with non-owning reference
+                mSqVideo = LightObj(SqTypeIdentity< DpEmbedImage >{}, SqVM(), &(mPtr->video.value()), false);
+            }
+        } else mSqVideo.Release(); // Make sure this is null
+        // Return the associated script object
+        return mSqVideo;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated video information (can't send these).
+    */
+    void SetVideo(LightObj & o)
+    {
+        Validate();
+        // Is the specified object null?
+        if (o.IsNull())
+        {
+            DropObject< DpEmbedImage >(mSqVideo);
+            // Finally release the instance
+            mPtr->video.reset();
+        }
+        else
+        {
+            auto * p = o.CastI< DpEmbedImage >();
+            // Is this the same instance?
+            if (&p->Valid() == &(mPtr->video.value()))
+            {
+                return; // Ignore (someone is playing dumb)
+            }
+            // Drop currently associated script object, if any
+            DropObject< DpEmbedImage >(mSqVideo);
+            // Assign the new object
+            mPtr->video = *(p->mPtr);
+        }
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated video information (can't send these).
+    */
+    DpEmbed & ApplyVideo(LightObj & o) { SetVideo(o); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated provider information (can't send these).
+    */
+    SQMOD_NODISCARD LightObj & GetProvider()
+    {
+        // Do we have a value assigned?
+        if (Valid().provider.has_value())
+        {
+            // Do we have a script object associated with it?
+            if (mSqProvider.IsNull())
+            {
+                // Create the script object with non-owning reference
+                mSqProvider = LightObj(SqTypeIdentity< DpEmbedProvider >{}, SqVM(), &(mPtr->provider.value()), false);
+            }
+        } else mSqProvider.Release(); // Make sure this is null
+        // Return the associated script object
+        return mSqProvider;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated provider information (can't send these).
+    */
+    void SetProvider(LightObj & o)
+    {
+        Validate();
+        // Is the specified object null?
+        if (o.IsNull())
+        {
+            DropObject< DpEmbedProvider >(mSqProvider);
+            // Finally release the instance
+            mPtr->provider.reset();
+        }
+        else
+        {
+            auto * p = o.CastI< DpEmbedProvider >();
+            // Is this the same instance?
+            if (&p->Valid() == &(mPtr->provider.value()))
+            {
+                return; // Ignore (someone is playing dumb)
+            }
+            // Drop currently associated script object, if any
+            DropObject< DpEmbedProvider >(mSqProvider);
+            // Assign the new object
+            mPtr->provider = *(p->mPtr);
+        }
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated provider information (can't send these).
+    */
+    DpEmbed & ApplyProvider(LightObj & o) { SetProvider(o); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated author information.
+    */
+    SQMOD_NODISCARD LightObj & GetAuthor()
+    {
+        // Do we have a value assigned?
+        if (Valid().author.has_value())
+        {
+            // Do we have a script object associated with it?
+            if (mSqAuthor.IsNull())
+            {
+                // Create the script object with non-owning reference
+                mSqAuthor = LightObj(SqTypeIdentity< DpEmbedAuthor >{}, SqVM(), &(mPtr->author.value()), false);
+            }
+        } else mSqAuthor.Release(); // Make sure this is null
+        // Return the associated script object
+        return mSqAuthor;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated author information.
+    */
+    void SetAuthor(LightObj & o)
+    {
+        Validate();
+        // Is the specified object null?
+        if (o.IsNull())
+        {
+            DropObject< DpEmbedAuthor >(mSqAuthor);
+            // Finally release the instance
+            mPtr->author.reset();
+        }
+        else
+        {
+            auto * p = o.CastI< DpEmbedAuthor >();
+            // Is this the same instance?
+            if (&p->Valid() == &(mPtr->author.value()))
+            {
+                return; // Ignore (someone is playing dumb)
+            }
+            // Drop currently associated script object, if any
+            DropObject< DpEmbedAuthor >(mSqAuthor);
+            // Assign the new object
+            mPtr->author = *(p->mPtr);
+        }
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Modify the associated author information.
+    */
+    DpEmbed & ApplyAuthor(LightObj & o) { SetAuthor(o); return *this; }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the associated embed fields.
+    */
+    SQMOD_NODISCARD LightObj & GetFields()
+    {
+        if (mSqFields.IsNull())
+        {
+            mSqFields = LightObj{SqTypeIdentity< Fields >{}, SqVM(), &Valid().fields, false};
+        }
+        // Return the associated script object
+        return mSqFields;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Add an embed field.
+    */
+    DpEmbed & AddField(StackStrF & name, StackStrF & value)
+    {
+        return AddField_(name, value, false); *this;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Add an embed field.
+    */
+    DpEmbed & AddField_(StackStrF & name, StackStrF & value, bool inl)
+    {
+        // Perform the request
+        mPtr->add_field(name.ToStr(), value.ToStr(), inl);
+        // Do we have to sync a script wrapper?
+        if (!mSqFields.IsNull())
+        {
+            mSqFields.CastI< Fields >()->mVec.emplace_back();
+        }
+        // Allow chaining
+        return *this;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Cleanup script object.
+    */
+    template < class T > static void DropObject(LightObj & o)
+    {
+        // Do we have a script object associated with it?
+        if (!o.IsNull())
+        {
+            auto * p = o.CastI< T >();
+            // Is this script object the owner of the instance?
+            if (!p->mOwned)
+            {
+                p->Cleanup(); // Invalidate
+            }
+            // Release it and revert to null
+            o.Release();
+        }
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
- * Represets a reaction to a DpMessage.
+ * Represents a reaction to a DpMessage.
 */
 struct DpReaction
 {
