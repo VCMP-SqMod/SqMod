@@ -45,9 +45,6 @@ extern void Register_UTF8(HSQUIRRELVM vm);
 extern void Register_Utils(HSQUIRRELVM vm);
 extern void Register_XML(HSQUIRRELVM vm);
 extern void Register_ZMQ(HSQUIRRELVM vm);
-#ifdef VCMP_ENABLE_DISCORD
-    extern void Register_DPP(HSQUIRRELVM vm);
-#endif
 #ifdef SQMOD_POCO_HAS_SQLITE
     extern void Register_SQLite(HSQUIRRELVM vm);
 #endif
@@ -115,9 +112,6 @@ bool RegisterAPI(HSQUIRRELVM vm)
     Register_Utils(vm);
     Register_XML(vm);
     Register_ZMQ(vm);
-#ifdef VCMP_ENABLE_DISCORD
-    Register_DPP(vm);
-#endif
 #ifdef SQMOD_POCO_HAS_SQLITE
     Register_SQLite(vm);
 #endif

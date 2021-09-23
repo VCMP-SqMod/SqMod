@@ -49,9 +49,6 @@ extern void TerminateRoutines();
 extern void TerminateCommands();
 extern void TerminateSignals();
 extern void TerminateNet();
-#ifdef VCMP_ENABLE_DISCORD
-    extern void TerminateDPP();
-#endif
 extern void TerminatePocoNet();
 extern void TerminatePocoData();
 
@@ -552,11 +549,6 @@ void Core::Terminate(bool shutdown)
     // Release announcers
     AnnounceTerminate();
     cLogDbg(m_Verbosity >= 1, "Announcer terminated");
-    // Release DPP
-#ifdef VCMP_ENABLE_DISCORD
-    TerminateDPP();
-    cLogDbg(m_Verbosity >= 1, "Discord terminated");
-#endif
     // Release network
     TerminateNet();
     cLogDbg(m_Verbosity >= 1, "Network terminated");

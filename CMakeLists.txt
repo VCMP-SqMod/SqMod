@@ -12,8 +12,6 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/vendor/POCO/cmake)
 
 # Several plugin options
 option(ENABLE_API21 "Build for 2.1 API." OFF)
-option(ENABLE_DISCORD "Enable built-in Discord support" OFF)
-option(ENABLE_DISCORD_VOICE "Enable voice support in Discord library" OFF)
 option(ENABLE_OFFICIAL "Enable compatibility with official legacy plug-in" ON)
 # As a fall-back for certain situations (mainly some docker ubuntu containers)
 option(ENABLE_BUILTIN_MYSQL_C "Enable built-in MySQL connector library" OFF)

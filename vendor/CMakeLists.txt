@@ -70,7 +70,3 @@ if (WIN32 OR MINGW)
     set(ZMQ_HAVE_IPC OFF CACHE INTERNAL "" FORCE)
 endif()
 add_subdirectory(ZMQ)
-# Should we include DPP?
-if (ENABLE_DISCORD)
-    add_subdirectory(DPP)
-endif()
