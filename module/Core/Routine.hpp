@@ -408,7 +408,6 @@ public:
         }
         // Unable to find such routine
         STHROWF("Unable to fetch a routine with tag ({}). No such routine", tag.mPtr);
-        SQ_UNREACHABLE
         // Should not reach this point but if it did, we have to return something
 #ifdef __clang__
     #pragma clang diagnostic push
@@ -418,6 +417,7 @@ public:
 #ifdef __clang__
     #pragma clang diagnostic pop
 #endif
+        SQ_UNREACHABLE
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -802,6 +802,32 @@ public:
     SQMOD_NODISCARD bool GetTerminated() const
     {
         return (m_Slot == SQMOD_MAX_ROUTINES);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the time elapsed since the routine was created or invoked.
+    */
+    SQMOD_NODISCARD SQInteger GetElapsed() const
+    {
+        if (m_Slot >= SQMOD_MAX_ROUTINES)
+        {
+            STHROWF("This instance does not reference a valid routine");
+        }
+        // We know it's valid so let's return it
+        return s_Instances[m_Slot].mInterval - s_Intervals[m_Slot];
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the time remaining until the routine is invoked.
+    */
+    SQMOD_NODISCARD SQInteger GetRemaining() const
+    {
+        if (m_Slot >= SQMOD_MAX_ROUTINES)
+        {
+            STHROWF("This instance does not reference a valid routine");
+        }
+        // We know it's valid so let's return it
+        return s_Intervals[m_Slot];
     }
 
     /* --------------------------------------------------------------------------------------------

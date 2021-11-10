@@ -549,6 +549,8 @@ void Register_Routine(HSQUIRRELVM vm)
         .Prop(_SC("Inactive"), &Routine::GetInactive)
         .Prop(_SC("Persistent"), &Routine::GetPersistent, &Routine::SetPersistent)
         .Prop(_SC("Yields"), &Routine::GetYields, &Routine::SetYields)
+        .Prop(_SC("Elapsed"), &Routine::GetElapsed)
+        .Prop(_SC("Remaining"), &Routine::GetRemaining)
         .Prop(_SC("Terminated"), &Routine::GetTerminated)
         .Prop(_SC("Arguments"), &Routine::GetArguments)
         // Member Methods
