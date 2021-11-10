@@ -1547,7 +1547,7 @@ SQMOD_NODISCARD SQInteger LgGetObjectCount() {
 }
 SQMOD_NODISCARD SQInteger LgGetPlayers() { return ForeachConnectedPlayerCount([](int32_t) { return true; }); }
 // ------------------------------------------------------------------------------------------------
-static void LgSetVehiclesForcedRespawnHeight(SQFloat height) { _Func->SetVehiclesForcedRespawnHeight(height); }
+static void LgSetVehiclesForcedRespawnHeight(SQFloat height) { _Func->SetVehiclesForcedRespawnHeight(static_cast< float >(height)); }
 SQMOD_NODISCARD static SQFloat LgGetVehiclesForcedRespawnHeight() { return _Func->GetVehiclesForcedRespawnHeight(); }
 // ------------------------------------------------------------------------------------------------
 SQMOD_NODISCARD static SQInteger LgFindPlayer(HSQUIRRELVM vm) {
@@ -1634,10 +1634,11 @@ SQMOD_NODISCARD static SQInteger LgInPolyProcStack(HSQUIRRELVM vm) {
     points.reserve(static_cast<unsigned long long int>((top - 1) / 2));
     for (SQInteger idx = 4; idx < top;) {
         points.emplace_back();
-        points.back().x = PopStackFloat(vm, idx++);
-        points.back().y = PopStackFloat(vm, idx++);
+        points.back().x = SQMOD_DOUBLE_OR(static_cast< Vector2::Value >(PopStackFloat(vm, idx++)), PopStackFloat(vm, idx++));
+        points.back().y = SQMOD_DOUBLE_OR(static_cast< Vector2::Value >(PopStackFloat(vm, idx++)), PopStackFloat(vm, idx++));
     }
-    sq_pushbool(vm, static_cast< SQBool >(LgInternal_InPoly(x, y, points.size(), points.data())));
+    sq_pushbool(vm, static_cast< SQBool >(LgInternal_InPoly(SQMOD_DOUBLE_OR(static_cast< float >(x), x),
+                                                            SQMOD_DOUBLE_OR(static_cast< float >(y), y), points.size(), points.data())));
     return 1;
 }
 SQMOD_NODISCARD static SQInteger LgInPolyProcString(HSQUIRRELVM vm) {
@@ -1654,7 +1655,8 @@ SQMOD_NODISCARD static SQInteger LgInPolyProcString(HSQUIRRELVM vm) {
             ss >> points.back().y >> c;
         else break;
     }
-    sq_pushbool(vm, static_cast< SQBool >(LgInternal_InPoly(x, y, points.size(), points.data())));
+    sq_pushbool(vm, static_cast< SQBool >(LgInternal_InPoly(SQMOD_DOUBLE_OR(static_cast< float >(x), x),
+                                                            SQMOD_DOUBLE_OR(static_cast< float >(y), y), points.size(), points.data())));
     return 1;
 }
 SQMOD_NODISCARD static SQInteger LgInPolyProcArray(HSQUIRRELVM vm) {
@@ -1665,13 +1667,14 @@ SQMOD_NODISCARD static SQInteger LgInPolyProcArray(HSQUIRRELVM vm) {
     arr.Foreach([&](HSQUIRRELVM vm, SQInteger i) -> SQRESULT {
         if ((i & 1) == 0) {
             points.emplace_back();
-            points.back().x = PopStackFloat(vm, -1);
+            points.back().x = SQMOD_DOUBLE_OR(static_cast< Vector2::Value >(PopStackFloat(vm, -1)), PopStackFloat(vm, -1));
         } else {
-            points.back().y = PopStackFloat(vm, -1);
+            points.back().y = SQMOD_DOUBLE_OR(static_cast< Vector2::Value >(PopStackFloat(vm, -1)), PopStackFloat(vm, -1));
         }
         return SQ_OK;
     });
-    sq_pushbool(vm, static_cast< SQBool >(LgInternal_InPoly(x, y, points.size(), points.data())));
+    sq_pushbool(vm, static_cast< SQBool >(LgInternal_InPoly(SQMOD_DOUBLE_OR(static_cast< float >(x), x),
+                                                            SQMOD_DOUBLE_OR(static_cast< float >(y), y), points.size(), points.data())));
     return 1;
 }
 SQMOD_NODISCARD static SQInteger LgInPoly(HSQUIRRELVM vm) {
