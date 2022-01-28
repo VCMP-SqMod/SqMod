@@ -594,7 +594,7 @@ public:
 #if defined(UNICODE) || defined(_UNICODE)
         return String(mHandle->extension, mHandle->extension + std::wcslen(mHandle->extension));
 #else
-        return String(mHandle->name);
+        return String(mHandle->extension);
 #endif
     }
 };
