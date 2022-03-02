@@ -37,9 +37,9 @@ private:
         LightObj    mData; // A reference to the arbitrary data associated with this instance.
         Iterator    mIterations; // Number of iterations before self destruct.
         Interval    mInterval; // Interval between task invocations.
-        int16_t       mEntity; // The identifier of the entity to which is belongs.
-        uint8_t       mType; // The type of the entity to which is belongs.
-        uint8_t       mArgc; // The number of arguments that the task must forward.
+        int16_t     mEntity; // The identifier of the entity to which is belongs.
+        uint8_t     mType; // The type of the entity to which is belongs.
+        uint8_t     mArgc; // The number of arguments that the task must forward.
         Argument    mArgv[8]; // The arguments that the task must forward.
 
         /* ----------------------------------------------------------------------------------------

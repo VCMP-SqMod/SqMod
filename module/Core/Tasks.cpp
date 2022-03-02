@@ -328,17 +328,40 @@ SQInteger Tasks::Find(int32_t id, int32_t type, SQInteger & pos, HSQUIRRELVM vm)
 {
     // Grab the top of the stack
     const SQInteger top = sq_gettop(vm);
-    // Was there a callback specified?
+    // Was there a callback or tag specified?
     if (top <= 1)
     {
-        return sq_throwerror(vm, "Missing task callback");
+        return sq_throwerror(vm, "Missing task callback or tag");
     }
-
     SQRESULT res = SQ_OK;
-    // Grab the hash of the callback object
-    const SQHash chash = sq_gethash(vm, 2);
+    // Fetch the task identifier type
+    const SQObjectType ot = sq_gettype(vm, 2);
+    // Are we looking for a task with a specific tag?
+    if (ot == OT_STRING)
+    {
+        // Attempt to retrieve the value from the stack as a string
+        StackStrF tag(vm, 2);
+        // Have we failed to retrieve the string?
+        if (SQ_FAILED(tag.Proc(true)))
+        {
+            return tag.mRes; // Propagate the error!
+        }
+        // Attempt to find the requested task
+        for (const auto & t : s_Tasks)
+        {
+            if (t.mEntity == id && t.mType == type && t.mTag.compare(0, String::npos, tag.mPtr) == 0)
+            {
+                pos = static_cast< SQInteger >(&t - s_Tasks); // Store the index of this element
+            }
+        }
+    }
+    // Validate the callback type
+    else if (ot != OT_CLOSURE && ot != OT_NATIVECLOSURE)
+    {
+        return sq_throwerror(vm, "Invalid callback type");
+    }
     // Should we include the iterations in the criteria?
-    if (top > 3)
+    else if (top > 3)
     {
         SQInteger intrv = 0;
         // Grab the interval from the stack
@@ -348,6 +371,8 @@ SQInteger Tasks::Find(int32_t id, int32_t type, SQInteger & pos, HSQUIRRELVM vm)
         {
             return res; // Propagate the error
         }
+        // Grab the hash of the callback object
+        const SQHash chash = sq_gethash(vm, 2);
         // Attempt to find the requested task
         for (const auto & t : s_Tasks)
         {
@@ -375,6 +400,8 @@ SQInteger Tasks::Find(int32_t id, int32_t type, SQInteger & pos, HSQUIRRELVM vm)
         {
             return res; // Propagate the error
         }
+        // Grab the hash of the callback object
+        const SQHash chash = sq_gethash(vm, 2);
         // Cast iterations to the right type
         const Iterator itr = ConvTo< Iterator >::From(sqitr);
         // Attempt to find the requested task
@@ -388,6 +415,8 @@ SQInteger Tasks::Find(int32_t id, int32_t type, SQInteger & pos, HSQUIRRELVM vm)
     }
     else
     {
+        // Grab the hash of the callback object
+        const SQHash chash = sq_gethash(vm, 2);
         // Attempt to find the requested task
         for (const auto & t : s_Tasks)
         {
@@ -416,7 +445,7 @@ SQInteger Tasks::Remove(int32_t id, int32_t type, HSQUIRRELVM vm)
     // Did we find anything?
     else if (pos < 0)
     {
-        return sq_throwerror(vm, "Unable to locate such task");
+        sq_pushbool(vm, SQFalse); // Unable to locate such task
     }
     else
     {
@@ -424,9 +453,11 @@ SQInteger Tasks::Remove(int32_t id, int32_t type, HSQUIRRELVM vm)
         s_Tasks[pos].Terminate();
         // Reset the timer
         s_Intervals[pos] = 0;
+        // A task was successfully removed
+        sq_pushbool(vm, SQTrue);
     }
-    // Specify that we don't return anything
-    return 0;
+    // Specify that we return a value
+    return 1;
 }
 
 // ------------------------------------------------------------------------------------------------
