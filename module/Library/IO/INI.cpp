@@ -381,7 +381,7 @@ void Register_INI(HSQUIRRELVM vm)
         .Func(_SC("Check"), &IniResult::Check)
     );
 
-    inins.Bind(_SC("IniEntries"),
+    inins.Bind(_SC("Entries"),
         Class< IniEntries >(vm, EntriesTypename::Str)
         // Constructors
         .Ctor()
@@ -409,7 +409,7 @@ void Register_INI(HSQUIRRELVM vm)
         .Func(_SC("SortByLoadOrder"), &IniEntries::SortByLoadOrder)
     );
 
-    inins.Bind(_SC("IniDocument"),
+    inins.Bind(_SC("Document"),
         Class< IniDocument, NoCopy< IniDocument > >(vm, DocumentTypename::Str)
         // Constructors
         .Ctor()
