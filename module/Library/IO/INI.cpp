@@ -464,7 +464,7 @@ void Register_INI(HSQUIRRELVM vm)
         .Overload< bool (IniDocument::*)(const SQChar *, const SQChar *, const SQChar *, bool) >(_SC("DeleteValue"), &IniDocument::DeleteValue)
     );
 
-    RootTable(vm).Bind(_SC("SqIni"), inins);
+    RootTable(vm).Bind(_SC("SqINI"), inins);
 
     ConstTable(vm).Enum(_SC("SqIniError"), Enumeration(vm)
         .Const(_SC("Ok"),                       int32_t(SI_OK))
