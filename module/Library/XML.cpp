@@ -138,9 +138,10 @@ SQInteger XmlAttribute::GetLong() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void XmlAttribute::SetLong(SQInteger value)
+XmlAttribute & XmlAttribute::SetLong(SQInteger value)
 {
     m_Attr = value;
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -150,9 +151,10 @@ SQInteger XmlAttribute::GetUlong() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void XmlAttribute::SetUlong(SQInteger value)
+XmlAttribute & XmlAttribute::SetUlong(SQInteger value)
 {
     m_Attr = static_cast< uint64_t >(value);
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -186,9 +188,10 @@ SQInteger XmlText::GetLong() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void XmlText::SetLong(SQInteger value)
+XmlText & XmlText::SetLong(SQInteger value)
 {
     m_Text = value;
+    return &this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -198,9 +201,10 @@ SQInteger XmlText::GetUlong() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void XmlText::SetUlong(SQInteger value)
+XmlText & XmlText::SetUlong(SQInteger value)
 {
     m_Text = static_cast< uint64_t >(value);
+    return &this;
 }
 
 // ------------------------------------------------------------------------------------------------

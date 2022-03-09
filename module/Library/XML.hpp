@@ -777,12 +777,13 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify node name.
     */
-    void SetName(StackStrF & name)
+    XmlNode & SetName(StackStrF & name)
     {
         if (!m_Node.set_name(name.mPtr))
         {
             STHROWF("Unable to set XML node name");
         }
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -804,12 +805,13 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify node value.
     */
-    void SetValue(StackStrF & name)
+    XmlNode & SetValue(StackStrF & name)
     {
         if (!m_Node.set_value(name.mPtr))
         {
             STHROWF("Unable to set XML node value");
         }
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1331,12 +1333,13 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve attribute name.
     */
-    void SetName(StackStrF & name)
+    XmlAttribute SetName(StackStrF & name)
     {
         if (!m_Attr.set_name(name.mPtr))
         {
             STHROWF("Unable to set XML attribute name");
         }
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1358,12 +1361,13 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve attribute value.
     */
-    void SetValue(StackStrF & name)
+    XmlAttribute SetValue(StackStrF & name)
     {
         if (!m_Attr.set_value(name.mPtr))
         {
             STHROWF("Unable to set XML attribute value");
         }
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1501,9 +1505,10 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the value as a string.
     */
-    void SetString(StackStrF & value)
+    XmlAttribute & SetString(StackStrF & value)
     {
         m_Attr = value.mPtr;
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1517,9 +1522,10 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the value as a integer.
     */
-    void SetInt(int32_t value)
+    XmlAttribute & SetInt(int32_t value)
     {
         m_Attr = value;
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1533,9 +1539,10 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the value as a unsigned integer.
     */
-    void SetUint(uint32_t value)
+    XmlAttribute & SetUint(uint32_t value)
     {
         m_Attr = value;
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1549,9 +1556,10 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the value as a floating point.
     */
-    void SetFloat(SQFloat value)
+    XmlAttribute & SetFloat(SQFloat value)
     {
         m_Attr = value;
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1565,9 +1573,10 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the value as a double floating point.
     */
-    void SetDouble(SQFloat value)
+    XmlAttribute & SetDouble(SQFloat value)
     {
         m_Attr = value;
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1578,7 +1587,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the value as a long integer.
     */
-    void SetLong(SQInteger value);
+    XmlAttribute & SetLong(SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value as a unsigned long integer.
@@ -1588,7 +1597,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the value as a unsigned long integer.
     */
-    void SetUlong(SQInteger value);
+    XmlAttribute & SetUlong(SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value as a boolean.
@@ -1601,9 +1610,10 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the value as a boolean.
     */
-    void SetBool(bool value)
+    XmlAttribute & SetBool(bool value)
     {
         m_Attr = value;
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1853,9 +1863,10 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the value as a string.
     */
-    void SetString(StackStrF & value)
+    XmlText & SetString(StackStrF & value)
     {
         m_Text = value.mPtr;
+        return &this;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1869,9 +1880,10 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the value as a integer.
     */
-    void SetInt(int32_t value)
+    XmlText & SetInt(int32_t value)
     {
         m_Text = value;
+        return &this;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1885,9 +1897,10 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the value as a unsigned integer.
     */
-    void SetUint(uint32_t value)
+    XmlText & SetUint(uint32_t value)
     {
         m_Text = value;
+        return &this;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1901,9 +1914,10 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the value as a floating point.
     */
-    void SetFloat(SQFloat value)
+    XmlText & SetFloat(SQFloat value)
     {
         m_Text = value;
+        return &this;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1917,9 +1931,10 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the value as a double floating point.
     */
-    void SetDouble(SQFloat value)
+    XmlText & SetDouble(SQFloat value)
     {
         m_Text = value;
+        return &this;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1930,7 +1945,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the value as a long integer.
     */
-    void SetLong(SQInteger value);
+    XmlText & SetLong(SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value as a unsigned long integer.
@@ -1940,7 +1955,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the value as a unsigned long integer.
     */
-    void SetUlong(SQInteger value);
+    XmlText & SetUlong(SQInteger value);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the value as a boolean.
@@ -1953,9 +1968,10 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Modify the value as a boolean.
     */
-    void SetBool(bool value)
+    XmlText & SetBool(bool value)
     {
         m_Text = value;
+        return &this;
     }
 
     /* --------------------------------------------------------------------------------------------
