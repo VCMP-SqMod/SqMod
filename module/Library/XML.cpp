@@ -191,7 +191,7 @@ SQInteger XmlText::GetLong() const
 XmlText & XmlText::SetLong(SQInteger value)
 {
     m_Text = value;
-    return &this;
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -204,7 +204,7 @@ SQInteger XmlText::GetUlong() const
 XmlText & XmlText::SetUlong(SQInteger value)
 {
     m_Text = static_cast< uint64_t >(value);
-    return &this;
+    return *this;
 }
 
 // ------------------------------------------------------------------------------------------------

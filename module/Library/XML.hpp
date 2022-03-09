@@ -1866,7 +1866,7 @@ public:
     XmlText & SetString(StackStrF & value)
     {
         m_Text = value.mPtr;
-        return &this;
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1883,7 +1883,7 @@ public:
     XmlText & SetInt(int32_t value)
     {
         m_Text = value;
-        return &this;
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1900,7 +1900,7 @@ public:
     XmlText & SetUint(uint32_t value)
     {
         m_Text = value;
-        return &this;
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1917,7 +1917,7 @@ public:
     XmlText & SetFloat(SQFloat value)
     {
         m_Text = value;
-        return &this;
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1934,7 +1934,7 @@ public:
     XmlText & SetDouble(SQFloat value)
     {
         m_Text = value;
-        return &this;
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1971,7 +1971,7 @@ public:
     XmlText & SetBool(bool value)
     {
         m_Text = value;
-        return &this;
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
