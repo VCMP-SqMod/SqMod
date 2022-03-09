@@ -421,7 +421,7 @@ void Register_XML(HSQUIRRELVM vm)
         .Overload(_SC("SaveFile"), &XmlDocument::SaveFile4)
     );
 
-    RootTable(vm).Bind(_SC("SqXml"), xmlns);
+    RootTable(vm).Bind(_SC("SqXML"), xmlns);
 
     ConstTable(vm).Enum(_SC("SqXmlNodeType"), Enumeration(vm)
         .Const(_SC("Null"),                     static_cast< int32_t >(node_null))
