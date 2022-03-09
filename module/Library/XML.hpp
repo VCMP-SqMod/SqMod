@@ -663,7 +663,7 @@ protected:
      * Explicit constructor.
     */
     XmlNode(DocumentRef doc, const Type & node)
-        : m_Doc(std::move(doc)), m_Node(node)
+        : m_Node(node), m_Doc(std::move(doc))
     {
         /* ... */
     }
@@ -671,8 +671,8 @@ protected:
 private:
 
     // ---------------------------------------------------------------------------------------------
-    DocumentRef  m_Doc{}; // The main xml document instance.
     Type         m_Node{}; // The managed document node.
+    DocumentRef  m_Doc{}; // The main xml document instance.
 
 public:
 
@@ -781,7 +781,7 @@ public:
     {
         if (!m_Node.set_name(name.mPtr))
         {
-            STHROWF("Unable to set XML node name `{s}`", name.ToStr());
+            STHROWF("Unable to set XML node name `{}`", name.ToStr());
         }
         return *this;
     }
@@ -1329,7 +1329,7 @@ public:
     {
         if (!m_Attr.set_name(name.mPtr))
         {
-            STHROWF("Unable to set XML attribute name `{s}`", name.ToStr());
+            STHROWF("Unable to set XML attribute name `{}`", name.ToStr());
         }
         return *this;
     }
