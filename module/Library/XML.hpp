@@ -1333,7 +1333,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve attribute name.
     */
-    XmlAttribute SetName(StackStrF & name)
+    XmlAttribute & SetName(StackStrF & name)
     {
         if (!m_Attr.set_name(name.mPtr))
         {
