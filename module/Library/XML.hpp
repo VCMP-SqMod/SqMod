@@ -781,17 +781,9 @@ public:
     {
         if (!m_Node.set_name(name.mPtr))
         {
-            STHROWF("Unable to set XML node name");
+            STHROWF("Unable to set XML node name `{s}`", name.ToStr());
         }
         return *this;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Modify the node name.
-    */
-    bool ApplyName(StackStrF & name)
-    {
-        return m_Node.set_name(name.mPtr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1337,17 +1329,9 @@ public:
     {
         if (!m_Attr.set_name(name.mPtr))
         {
-            STHROWF("Unable to set XML attribute name");
+            STHROWF("Unable to set XML attribute name `{s}`", name.ToStr());
         }
         return *this;
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Modify the attribute name.
-    */
-    bool ApplyName(StackStrF & name)
-    {
-        return m_Attr.set_name(name.mPtr);
     }
 
     /* --------------------------------------------------------------------------------------------
