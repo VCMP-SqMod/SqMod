@@ -363,7 +363,7 @@ Vector2i AreaManager::LocateCell(float x, float y)
             }
         }
     }
-    // Not found
+    // Point is out of bounds
     return {NOCELL, NOCELL};
 /*
     // Transform the world coordinates into a cell coordinates
