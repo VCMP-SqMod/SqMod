@@ -171,66 +171,31 @@ def main():
     normal1 = compress_normal(normal1)
 
     print("""\
-struct singleton {
-  unsigned char upper;
-  unsigned char lowercount;
-};
-
-inline auto check(uint16_t x, const singleton* singletonuppers,
-                  size_t singletonuppers_size,
-                  const unsigned char* singletonlowers,
-                  const unsigned char* normal, size_t normal_size) -> bool {
-  auto xupper = x >> 8;
-  auto lowerstart = 0;
-  for (size_t i = 0; i < singletonuppers_size; ++i) {
-    auto su = singletonuppers[i];
-    auto lowerend = lowerstart + su.lowercount;
-    if (xupper < su.upper) break;
-    if (xupper == su.upper) {
-      for (auto j = lowerstart; j < lowerend; ++j) {
-        if (singletonlowers[j] == x) return false;
-      }
-    }
-    lowerstart = lowerend;
-  }
-
-  auto xsigned = static_cast<int>(x);
-  auto current = true;
-  for (size_t i = 0; i < normal_size; ++i) {
-    auto v = static_cast<int>(normal[i]);
-    auto len = v & 0x80 != 0 ? (v & 0x7f) << 8 | normal[i++] : v;
-    xsigned -= len;
-    if (xsigned < 0) break;
-    current = !current;
-  }
-  return current;
-}
-
-inline auto is_printable(uint32_t cp) -> bool {\
+FMT_FUNC auto is_printable(uint32_t cp) -> bool {\
 """)
-    print_singletons(singletons0u, singletons0l, 'singletons0u', 'singletons0l')
-    print_singletons(singletons1u, singletons1l, 'singletons1u', 'singletons1l')
+    print_singletons(singletons0u, singletons0l, 'singletons0', 'singletons0_lower')
+    print_singletons(singletons1u, singletons1l, 'singletons1', 'singletons1_lower')
     print_normal(normal0, 'normal0')
     print_normal(normal1, 'normal1')
     print("""\
   auto lower = static_cast<uint16_t>(cp);
   if (cp < 0x10000) {
-    return check(lower, singletons0u,
-                 sizeof(singletons0u) / sizeof(*singletons0u), singletons0l,
-                 normal0, sizeof(normal0));
+    return is_printable(lower, singletons0,
+                        sizeof(singletons0) / sizeof(*singletons0),
+                        singletons0_lower, normal0, sizeof(normal0));
   }
   if (cp < 0x20000) {
-    return check(lower, singletons1u,
-                 sizeof(singletons1u) / sizeof(*singletons1u), singletons1l,
-                 normal1, sizeof(normal1));
+    return is_printable(lower, singletons1,
+                        sizeof(singletons1) / sizeof(*singletons1),
+                        singletons1_lower, normal1, sizeof(normal1));
   }\
 """)
     for a, b in extra:
         print("  if (0x{:x} <= cp && cp < 0x{:x}) return false;".format(a, a + b))
     print("""\
-  return true;
-}\
-""")
+  return cp < 0x{:x};
+}}\
+""".format(NUM_CODEPOINTS))
 
 if __name__ == '__main__':
     main()

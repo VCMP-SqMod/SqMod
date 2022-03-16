@@ -4,22 +4,9 @@ set(TEST_MAIN_SRC test-main.cc gtest-extra.cc gtest-extra.h util.cc)
 add_library(test-main STATIC ${TEST_MAIN_SRC})
 target_include_directories(test-main PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
-target_link_libraries(test-main gtest)
+target_link_libraries(test-main gtest fmt)
 
 include(CheckCXXCompilerFlag)
-
-# Workaround GTest bug https://github.com/google/googletest/issues/705.
-check_cxx_compiler_flag(
-  -fno-delete-null-pointer-checks HAVE_FNO_DELETE_NULL_POINTER_CHECKS)
-if (HAVE_FNO_DELETE_NULL_POINTER_CHECKS)
-  target_compile_options(test-main PUBLIC -fno-delete-null-pointer-checks)
-endif ()
-
-# Use less strict pedantic flags for the tests because GMock doesn't compile
-# cleanly with -pedantic and -std=c++98.
-if (CMAKE_COMPILER_IS_GNUCXX OR (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
-    #set(PEDANTIC_COMPILE_FLAGS -Wall -Wextra -Wno-long-long -Wno-variadic-macros)
-endif ()
 
 function(add_fmt_executable name)
   add_executable(${name} ${ARGN})
@@ -84,8 +71,13 @@ if (NOT (MSVC AND BUILD_SHARED_LIBS))
 endif ()
 add_fmt_test(ostream-test)
 add_fmt_test(compile-test)
+add_fmt_test(compile-fp-test HEADER_ONLY)
+if (MSVC)
+  # Without this option, MSVC returns 199711L for the __cplusplus macro.
+  target_compile_options(compile-fp-test PRIVATE /Zc:__cplusplus)
+endif()
 add_fmt_test(printf-test)
-add_fmt_test(ranges-test)
+add_fmt_test(ranges-test ranges-odr-test.cc)
 add_fmt_test(scan-test)
 add_fmt_test(unicode-test HEADER_ONLY)
 if (MSVC)
@@ -136,29 +128,20 @@ if (NOT MSVC_STATIC_RUNTIME)
   if (FMT_PEDANTIC)
     target_compile_options(posix-mock-test PRIVATE ${PEDANTIC_COMPILE_FLAGS})
   endif ()
-  if (HAVE_STRTOD_L)
-    target_compile_definitions(posix-mock-test PRIVATE FMT_LOCALE)
-  endif ()
   add_test(NAME posix-mock-test COMMAND posix-mock-test)
   add_fmt_test(os-test)
 endif ()
 
 message(STATUS "FMT_PEDANTIC: ${FMT_PEDANTIC}")
 
-if (FMT_PEDANTIC AND CXX_STANDARD LESS 20)
-  # MSVC fails to compile GMock when C++17 is enabled.
-  if (FMT_HAS_VARIANT AND NOT MSVC)
-    add_fmt_test(std-format-test)
-    set_property(TARGET std-format-test PROPERTY CXX_STANDARD 17)
-  endif ()
-
+if (FMT_PEDANTIC)
   # Test that the library can be compiled with exceptions disabled.
   # -fno-exception is broken in icc: https://github.com/fmtlib/fmt/issues/822.
   if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
     check_cxx_compiler_flag(-fno-exceptions HAVE_FNO_EXCEPTIONS_FLAG)
   endif ()
   if (HAVE_FNO_EXCEPTIONS_FLAG)
-    add_library(noexception-test ../src/format.cc)
+    add_library(noexception-test ../src/format.cc noexception-test.cc)
     target_include_directories(
       noexception-test PRIVATE ${PROJECT_SOURCE_DIR}/include)
     target_compile_options(noexception-test PRIVATE -fno-exceptions)
@@ -173,7 +156,11 @@ if (FMT_PEDANTIC AND CXX_STANDARD LESS 20)
     nolocale-test PRIVATE ${PROJECT_SOURCE_DIR}/include)
   target_compile_definitions(
     nolocale-test PRIVATE FMT_STATIC_THOUSANDS_SEPARATOR=1)
+endif ()
 
+# These tests are disabled on Windows because they take too long.
+if (FMT_PEDANTIC AND NOT WIN32)
+  # Test if incorrect API usages produce compilation error.
   add_test(compile-error-test ${CMAKE_CTEST_COMMAND}
     --build-and-test
     "${CMAKE_CURRENT_SOURCE_DIR}/compile-error-test"
@@ -182,14 +169,11 @@ if (FMT_PEDANTIC AND CXX_STANDARD LESS 20)
     --build-makeprogram ${CMAKE_MAKE_PROGRAM}
     --build-options
     "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
+    "-DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}"
     "-DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}"
-    "-DCXX_STANDARD_FLAG=${CXX_STANDARD_FLAG}"
-    "-DPEDANTIC_COMPILE_FLAGS=${PEDANTIC_COMPILE_FLAGS}"
+    "-DFMT_DIR=${CMAKE_SOURCE_DIR}"
     "-DSUPPORTS_USER_DEFINED_LITERALS=${SUPPORTS_USER_DEFINED_LITERALS}")
-endif ()
 
-# These tests are disabled on Windows because they take too long.
-if (FMT_PEDANTIC AND NOT WIN32)
   # Test if the targets are found from the build directory.
   add_test(find-package-test ${CMAKE_CTEST_COMMAND}
     -C ${CMAKE_BUILD_TYPE}
