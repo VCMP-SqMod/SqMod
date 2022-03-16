@@ -392,7 +392,8 @@ void Core::EmitPlayerRequestSpawn(int32_t player_id)
 #ifdef VCMP_ENABLE_OFFICIAL
     if (IsOfficial())
     {
-        ExecuteLegacyEvent(m_VM, _SC("onPlayerRequestSpawn"), _player.mLgObj);
+        LightObj r = EvaluateLegacyEvent(m_VM, _SC("onPlayerRequestSpawn"), _player.mLgObj);
+        SetState(r.IsNull() ? 1 : r.Cast< int32_t >());
     }
 #endif
 }
