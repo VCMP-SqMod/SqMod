@@ -2063,7 +2063,7 @@ public:
         // Do we have a valid handle?
         if (m_Handle)
         {
-            fmt::format("{}", m_Handle->mFieldCount);
+            return fmt::format("{}", m_Handle->mFieldCount);
         }
         // Default to a negative value
         return "-1";
