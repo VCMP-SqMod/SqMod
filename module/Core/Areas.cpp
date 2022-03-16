@@ -161,7 +161,7 @@ bool Area::IsInside(float x, float y) const
 
 // ------------------------------------------------------------------------------------------------
 AreaManager::AreaManager(size_t sz) noexcept
-    : m_Queue(), m_ProcList(), m_Grid{}
+    : m_Queue(), m_ProcList(), m_Grid{}, m_Cells{}
 {
     // Negative half grid size (left)
     int l = (-GRIDH * CELLD);
@@ -171,21 +171,30 @@ AreaManager::AreaManager(size_t sz) noexcept
     int r = (l + CELLD);
     // Positive half grid size (top)
     int t = abs(l);
+    // Row/Column of the grid
+    int row = 0, col = 0;
     // Initialize the grid cells
     for (auto & a : m_Grid)
     {
+        // Reset the column
+        col = 0;
+        // Process row
         for (auto & c : a)
         {
+            auto & cx = m_Cells[row][col];
             // Grab a reference to the cell
             // Configure the range of the cell
-            c.mL = static_cast< float >(l);
-            c.mB = static_cast< float >(b);
-            c.mR = static_cast< float >(r);
-            c.mT = static_cast< float >(t);
+            c.mL = cx.mL = static_cast< float >(l);
+            c.mB = cx.mB = static_cast< float >(b);
+            c.mR = cx.mR = static_cast< float >(r);
+            c.mT = cx.mT = static_cast< float >(t);
             // Reserve area memory if requested
             c.mAreas.reserve(sz);
             // Reset the locks on this area
             c.mLocks = 0;
+            // Set the row and column
+            c.mRow = row;
+            c.mCol = col++;
             // Advance the left side
             l = r;
             // Advance the right side
@@ -203,6 +212,8 @@ AreaManager::AreaManager(size_t sz) noexcept
                 t -= CELLD;
             }
         }
+        // Advance row
+        ++row;
     }
     // Reserve some space in the queue
     m_Queue.reserve(128);
@@ -340,6 +351,21 @@ void AreaManager::RemoveArea(Area & a)
 // ------------------------------------------------------------------------------------------------
 Vector2i AreaManager::LocateCell(float x, float y)
 {
+    for (int r = 0; r < GRIDN; ++r)
+    {
+        for (int c = 0; c < GRIDN; ++c)
+        {
+            auto & bb = m_Cells[r][c];
+            // Check whether point is inside cell
+            if (bb.mL <= x && bb.mR >= x && bb.mB <= y && bb.mT >= y)
+            {
+                return {r, c}; // Is inside
+            }
+        }
+    }
+    // Not found
+    return {NOCELL, NOCELL};
+/*
     // Transform the world coordinates into a cell coordinates
     // and cast to integral after rounding the value
     int xc = static_cast< int >(std::round(x / CELLD));
@@ -364,6 +390,7 @@ Vector2i AreaManager::LocateCell(float x, float y)
     }
     // Return the identified cell row and column
     return {GRIDH+xc, GRIDH-yc};
+*/
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -469,6 +496,7 @@ void Register_Areas(HSQUIRRELVM vm)
         .Func(_SC("TestEx"), &Area::TestEx)
         .Func(_SC("Manage"), &Area::Manage)
         .Func(_SC("Unmanage"), &Area::Unmanage)
+        .CbFunc(_SC("EachCell"), &Area::EachCell)
         // Static Functions
         .StaticFunc(_SC("GlobalTest"), &Areas_TestPoint)
         .StaticFunc(_SC("GlobalTestEx"), &Areas_TestPointEx)

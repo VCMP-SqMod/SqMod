@@ -29,14 +29,24 @@ struct AreaCell
     Areas   mAreas; // Areas that intersect with the cell.
     // --------------------------------------------------------------------------------------------
     int     mLocks; // The amount of locks on the cell.
+    int     mRow; // Row location in the grid.
+    int     mCol; // Column location in the grid.
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
     AreaCell()
-        : mL(0), mB(0), mR(0), mT(0), mAreas(0), mLocks(0)
+        : mL(0), mB(0), mR(0), mT(0), mAreas(0), mLocks(0), mRow(0), mCol(0)
     {
         //...
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Show information (mainly for debug purposes).
+    */
+    String Dump()
+    {
+        return fmt::format("({} : {} | {} : {}) {} : {}", mL, mB, mR, mT, mRow, mCol);
     }
 };
 
@@ -454,6 +464,17 @@ struct Area
     */
     bool Unmanage();
 
+    /* --------------------------------------------------------------------------------------------
+     * Iterate all managed cells through a functor.
+    */
+    void EachCell(Function & fn) const
+    {
+        for (const auto & e : mCells)
+        {
+            fn.Execute(static_cast< SQInteger >(e->mRow), static_cast< SQInteger >(e->mCol));
+        }
+    }
+
 protected:
 
     /* --------------------------------------------------------------------------------------------
@@ -610,7 +631,10 @@ private:
     ProcList    m_ProcList; // Actions ready to be completed.
     // --------------------------------------------------------------------------------------------
     AreaCell    m_Grid[GRIDN][GRIDN]; // A grid of area lists.
-
+    // --------------------------------------------------------------------------------------------
+    struct {
+        float   mL, mB, mR, mT;
+    } m_Cells[GRIDN][GRIDN];
 public:
 
     /* --------------------------------------------------------------------------------------------
@@ -664,7 +688,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Clear all cell lists and release any script references.
     */
-    static Vector2i LocateCell(float x, float y);
+    Vector2i LocateCell(float x, float y);
 
     /* --------------------------------------------------------------------------------------------
      * Test a point to see whether it intersects with any areas
@@ -679,7 +703,7 @@ public:
             return; // Not our problem
         }
         // Retrieve a reference to the identified cell
-        AreaCell & c = m_Grid[cc.y][cc.x];
+        AreaCell & c = m_Grid[cc.x][cc.y];
         // Is this cell empty?
         if (c.mAreas.empty())
         {
