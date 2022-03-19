@@ -994,26 +994,58 @@ template < class F > inline void ForeachActivePlayer(F f) { ForeachActiveEntity(
 template < class F > inline void ForeachActiveVehicle(F f) { ForeachActiveEntity(Core::Get().GetVehicles(), std::forward< F >(f)); }
 
 /* ------------------------------------------------------------------------------------------------
+ * Process the identifier of each player slot.
+*/
+template < class F > inline void ForeachPlayerSlot(F f) {
+    for (int32_t i = 0, n = static_cast< int32_t >(_Func->GetMaxPlayers()); i < n; ++i) {
+        f(i);
+    }
+}
+/* ------------------------------------------------------------------------------------------------
+ * Process the identifier of each player slot and count processed players.
+*/
+template < class F > SQMOD_NODISCARD inline int32_t ForeachPlayerSlotCount(F f) {
+    int32_t c = 0;
+    for (int32_t i = 0, n = static_cast< int32_t >(_Func->GetMaxPlayers()); i < n; ++i) {
+        if (f(i)) ++c;
+    }
+    return c;
+}
+/* ------------------------------------------------------------------------------------------------
+ * Process the identifier of each player slot until a certain criteria is met.
+*/
+template < class F > SQMOD_NODISCARD inline int32_t ForeachPlayerSlotUntil(F f) {
+    for (int32_t i = 0, n = static_cast< int32_t >(_Func->GetMaxPlayers()); i < n; ++i) {
+        if (f(i)) return i;
+    }
+    return -1;
+}
+
+/* ------------------------------------------------------------------------------------------------
  * Process the identifier of each connected player.
 */
 template < class F > inline void ForeachConnectedPlayer(F f) {
-    for (int32_t i = 0, n = _Func->GetMaxPlayers(); i < n; ++i) f(i);
+    for (int32_t i = 0, n = static_cast< int32_t >(_Func->GetMaxPlayers()); i < n; ++i) {
+        if (_Func->IsPlayerConnected(i) != 0) f(i);
+    }
 }
 /* ------------------------------------------------------------------------------------------------
  * Process the identifier of each connected player and count processed players.
 */
 template < class F > SQMOD_NODISCARD inline int32_t ForeachConnectedPlayerCount(F f) {
     int32_t c = 0;
-    for (int32_t i = 0, n = _Func->GetMaxPlayers(); i < n; ++i)
-        if (f(i)) ++c;
+    for (int32_t i = 0, n = static_cast< int32_t >(_Func->GetMaxPlayers()); i < n; ++i) {
+        if (_Func->IsPlayerConnected(i) != 0 && f(i)) ++c;
+    }
     return c;
 }
 /* ------------------------------------------------------------------------------------------------
  * Process the identifier of each connected player until a certain criteria is met.
 */
 template < class F > SQMOD_NODISCARD inline int32_t ForeachConnectedPlayerUntil(F f) {
-    for (int32_t i = 0, n = _Func->GetMaxPlayers(); i < n; ++i)
-        if (f(i)) return i;
+    for (int32_t i = 0, n = static_cast< int32_t >(_Func->GetMaxPlayers()); i < n; ++i) {
+        if (_Func->IsPlayerConnected(i) != 0 && f(i)) return i;
+    }
     return -1;
 }
 

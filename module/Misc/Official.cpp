@@ -523,7 +523,7 @@ struct LgObject
     void RotateToEuler(const Vector3 & rotation, int time) const { Get().RotateToEuler(rotation, static_cast< uint32_t >(time)); }
     void RotateByEuler(const Vector3 & rotOffset, int time) const { Get().RotateByEuler(rotOffset, static_cast< uint32_t >(time)); }
     void SetAlpha(int alpha, int fadeTime) const { Get().SetAlphaEx(alpha, static_cast< uint32_t >(fadeTime)); }
-    SQMOD_NODISCARD bool StreamedToPlayer(LgPlayer & player) const;    
+    SQMOD_NODISCARD bool StreamedToPlayer(LgPlayer & player) const;
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -943,8 +943,8 @@ struct LgVehicle
 
 // ------------------------------------------------------------------------------------------------
 inline bool LgCheckpoint::StreamedToPlayer(LgPlayer & player) const { return Get().IsStreamedFor(player.Get()); }
-inline bool LgObject::StreamedToPlayer(LgPlayer & player) const { return Get().IsStreamedFor(player.Get()); }   
-inline bool LgPickup::StreamedToPlayer(LgPlayer & player) const { return Get().IsStreamedFor(player.Get()); }   
+inline bool LgObject::StreamedToPlayer(LgPlayer & player) const { return Get().IsStreamedFor(player.Get()); }
+inline bool LgPickup::StreamedToPlayer(LgPlayer & player) const { return Get().IsStreamedFor(player.Get()); }
 inline void LgPlayer::SetVehicle(LgVehicle & vehicle) const { Get().Embark(vehicle.Get()); }
 inline void LgPlayer::SetVehicleSlot(const LgVehicle & vehicle, int slot) const { Get().EmbarkEx(vehicle.Get(), slot, true, false); }
 
@@ -1545,7 +1545,7 @@ SQMOD_NODISCARD SQInteger LgGetObjectCount() {
     }
     return count;
 }
-SQMOD_NODISCARD SQInteger LgGetPlayers() { return ForeachConnectedPlayerCount([](int32_t) { return true; }); }
+SQMOD_NODISCARD SQInteger LgGetPlayers() { return ForeachPlayerSlotCount([](int32_t idx) -> bool { return _Func->IsPlayerConnected(idx)  != 0; }); }
 // ------------------------------------------------------------------------------------------------
 static void LgSetVehiclesForcedRespawnHeight(SQFloat height) { _Func->SetVehiclesForcedRespawnHeight(static_cast< float >(height)); }
 SQMOD_NODISCARD static SQFloat LgGetVehiclesForcedRespawnHeight() { return _Func->GetVehiclesForcedRespawnHeight(); }
@@ -1569,7 +1569,7 @@ SQMOD_NODISCARD static SQInteger LgFindPlayer(HSQUIRRELVM vm) {
             char name_buf[SQMOD_NAMELENGTH];
             const int32_t id = ForeachConnectedPlayerUntil([&](int32_t id) -> bool {
                 _Func->GetPlayerName(id, name_buf, 64);
-                std::transform(name_buf, name_buf + strlen(name_buf), name_buf, [](unsigned char c){ return std::tolower(c); });
+                std::transform(name_buf, name_buf + strlen(name_buf), name_buf, [](unsigned char c) { return std::tolower(c); });
                 return name.compare(name_buf) == 0; // NOLINT(readability-string-compare)
             });
             if (VALID_ENTITYEX(id, SQMOD_PLAYER_POOL)) Var< LightObj >::push(vm, Core::Get().GetPlayer(id).mLgObj);
