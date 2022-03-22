@@ -250,10 +250,10 @@ void LgEntityQuaternion::Set()
         case LgEntityType::Vehicle:
             switch (mFlag)
             {
-                case LgVehicleVectorFlag::Angle:
+                case LgVehicleQuaternionFlag::Angle:
                     _Func->SetVehicleRotation(mID, x, y, z, w);
                 break;
-                case LgVehicleVectorFlag::SpawnAngle:
+                case LgVehicleQuaternionFlag::SpawnAngle:
                     _Func->SetVehicleSpawnRotation(mID, x, y, z, w);
                 break;
                 default: break;
