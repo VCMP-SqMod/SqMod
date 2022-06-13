@@ -117,6 +117,11 @@ struct RxMatch
     */
     [[nodiscard]] LightObj SubStr(StackStrF & str) const
     {
+        if ((mOffset + mLength) > str.mLen)
+        {
+            STHROWF("Rx: Match is outside the range of the specified string.");
+        }
+        // Return the sub-string
         return LightObj{str.mPtr + mOffset, mLength};
     }
 };
@@ -371,6 +376,12 @@ struct RxMatches
     [[nodiscard]] LightObj SubStr(SQInteger i, StackStrF & str) const
     {
         const RxMatch & m = ValidIdx(i)[i];
+        // Check if match is within range
+        if ((m.mOffset + m.mLength) > str.mLen)
+        {
+            STHROWF("Rx: Match is outside the range of the specified string.");
+        }
+        // Return the sub-string
         return LightObj{str.mPtr + m.mOffset, m.mLength};
     }
 };
