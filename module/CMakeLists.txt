@@ -80,6 +80,7 @@ add_library(SqModule MODULE SqBase.hpp Main.cpp
     Library/Numeric.cpp Library/Numeric.hpp
     Library/Numeric/Math.cpp Library/Numeric/Math.hpp
     Library/Numeric/Random.cpp Library/Numeric/Random.hpp
+    Library/RegEx.cpp Library/RegEx.hpp
     Library/String.cpp Library/String.hpp
     Library/System.cpp Library/System.hpp
     Library/System/Dir.cpp Library/System/Dir.hpp
@@ -203,6 +204,15 @@ endif(WIN32)
 target_include_directories(SqModule PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_include_directories(SqModule PRIVATE ${CMAKE_CURRENT_LIST_DIR}/VCMP)
 target_include_directories(SqModule PRIVATE ${CMAKE_CURRENT_LIST_DIR}/Sqrat)
+# Include PCRE directory in the header search path
+if (POCO_UNBUNDLED)
+    find_package(PCRE REQUIRED)
+    target_link_libraries(SqModule PRIVATE Pcre::Pcre)
+else()
+    # Get the foundation source folder path
+    get_target_property(POCO_FOUNDATION_SOURCE_DIR Foundation SOURCE_DIR)
+    target_include_directories(SqModule PRIVATE "${POCO_FOUNDATION_SOURCE_DIR}/src")
+endif()
 # Copy module into the plug-ins folder
 add_custom_command(TARGET SqModule POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:SqModule> "${PROJECT_SOURCE_DIR}/bin/plugins")
 # Copy several dependent DLLs on windows to make distribution easier (used mainly by people that distribute builds)
