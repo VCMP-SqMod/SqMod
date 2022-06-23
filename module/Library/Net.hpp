@@ -756,5 +756,4 @@ protected:
     }
 };
 
-
 } // Namespace:: SqMod
