@@ -505,7 +505,7 @@ struct RxInstance
     RxInstance & operator = (const RxInstance &) = delete;
 
     /* --------------------------------------------------------------------------------------------
-     * Move constructor.
+     * Move assignment operator.
     */
     RxInstance & operator = (RxInstance && o) noexcept
     {
