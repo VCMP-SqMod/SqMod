@@ -557,6 +557,21 @@ void Logger::ProcessMessage()
 }
 
 // ------------------------------------------------------------------------------------------------
+void Logger::Send(uint8_t level, bool sub, const char * msg)
+{
+    // Is this level even allowed?
+    if ((m_ConsoleLevels & level) || (m_LogFileLevels & level))
+    {
+        // Create a new message builder
+        MsgPtr message(new Message(level, sub));
+        // Generate the log message
+        message->Append(msg);
+        // Process the message in the buffer
+        PushMessage(message);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 void Logger::Send(uint8_t level, bool sub, const char * msg, size_t len)
 {
     // Is this level even allowed?
