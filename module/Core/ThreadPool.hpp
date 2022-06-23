@@ -171,7 +171,7 @@ public:
     void Process();
 
     /* --------------------------------------------------------------------------------------------
-     * Queue an item to be processed.
+     * Queue an item to be processed. Will take ownership of the given pointer!
     */
     void Enqueue(ThreadPoolItem * item)
     {
@@ -191,16 +191,18 @@ public:
         }
         else
         {
+            // Take ownership
+            Item i{item};
             // Perform the task in-place
-            if (item->OnPrepare())
+            if (i->OnPrepare())
             {
-                if (item->OnProcess())
+                if (i->OnProcess())
                 {
-                    item->OnAborted(true); // Not accepted in single thread
+                    i->OnAborted(true); // Not accepted in single thread
                 }
             }
-            // Item was finished in main thread
-            item->OnCompleted();
+            // Task is completed in processing stage
+            m_Finished.enqueue(std::move(i));
         }
     }
 
