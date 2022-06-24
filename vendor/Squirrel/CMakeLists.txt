@@ -67,3 +67,5 @@ endif()
 target_include_directories(Squirrel PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_include_directories(Squirrel PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 target_include_directories(Squirrel PRIVATE ${CMAKE_CURRENT_LIST_DIR}/stdlib)
+# Link to base libraries
+target_link_libraries(Squirrel PUBLIC RPMalloc)
