@@ -251,6 +251,20 @@ template < class Key, class T, class Pred = std::equal_to< Key > > struct VecMap
         return m_Storage.back().second;
     }
 
+    /* --------------------------------------------------------------------------------------------
+     * Retrieves a reference to the front of the container.
+     * Available for internal use only.
+    */
+    reference front() { return m_Storage.front(); }
+    const_reference front() const { return m_Storage.front(); }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieves a reference to the back of the container.
+     * Available for internal use only.
+    */
+    reference back() { return m_Storage.back(); }
+    const_reference back() const { return m_Storage.back(); }
+
 private:
 
     /* --------------------------------------------------------------------------------------------
