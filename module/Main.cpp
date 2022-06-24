@@ -966,6 +966,11 @@ static void OnServerPerformanceReport(size_t /*entry_count*/, const char * * /*d
 } // Namespace:: SqMod
 
 /* ------------------------------------------------------------------------------------------------
+ * Automatically terminate the third-party allocator.
+*/
+static std::unique_ptr< SqMod::RPMallocInit > gsRPMallocInit;
+
+/* ------------------------------------------------------------------------------------------------
  * Plug-in initialization procedure.
 */
 SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallbacks * calls, PluginInfo * info)
@@ -989,6 +994,8 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
     _Info->apiMinorVersion = PLUGIN_API_MINOR;
     // Assign the plug-in name
     std::snprintf(_Info->name, sizeof(_Info->name), "%s", SQMOD_HOST_NAME);
+    // Initialize third-party allocator
+    gsRPMallocInit = std::make_unique< RPMallocInit >();
     // Attempt to initialize the logger before anything else
     Logger::Get().Initialize(nullptr);
     // Attempt to initialize the plug-in core

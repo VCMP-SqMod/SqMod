@@ -1,6 +1,7 @@
 add_subdirectory(ConcurrentQueue)
 add_subdirectory(Fmt)
 add_subdirectory(xxHash)
+add_subdirectory(RPMalloc)
 add_subdirectory(Squirrel)
 add_subdirectory(SimpleIni)
 add_subdirectory(TinyDir)

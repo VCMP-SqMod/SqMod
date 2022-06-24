@@ -138,6 +138,8 @@ void ThreadPool::WorkerProc()
     bool retry = false;
     // Pointer to the dequeued item
     Item item;
+    // Initialize third-party allocator for this thread
+    auto rpmallocinit = std::make_unique< RPMallocThreadInit >();
     // Constantly process items from the queue
     while (true)
     {

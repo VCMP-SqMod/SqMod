@@ -40,6 +40,7 @@
 #include <sqratTable.h>
 #include <sqratUtil.h>
 #include <fmt/core.h>
+#include <rpmalloc.h>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -173,7 +174,7 @@ void OutputError(const char * msg, ...);
 /* ------------------------------------------------------------------------------------------------
  * Generate a formatted string and throw it as a Sqrat exception.
 */
-template < class... Args > void SqThrowF(Args &&... args)
+template < class... Args > inline void SqThrowF(Args &&... args)
 {
     throw Sqrat::Exception(fmt::format(std::forward< Args >(args)...));
 }
@@ -181,7 +182,7 @@ template < class... Args > void SqThrowF(Args &&... args)
 /* ------------------------------------------------------------------------------------------------
  * Generate a formatted string and throw it as a squirrel exception.
 */
-template < class... Args > SQRESULT SqThrowErrorF(HSQUIRRELVM vm, Args &&... args)
+template < class... Args > inline SQRESULT SqThrowErrorF(HSQUIRRELVM vm, Args &&... args)
 {
     String msg;
     try
@@ -265,5 +266,94 @@ SQMOD_NODISCARD SQFloat PopStackFloat(HSQUIRRELVM vm, SQInteger idx);
  * Simple function to check whether the specified string can be considered as a boolean value
 */
 SQMOD_NODISCARD bool SToB(const SQChar * str);
+
+/* ------------------------------------------------------------------------------------------------
+ * RAII allocator initializer.
+*/
+struct RPMallocInit
+{
+    /* --------------------------------------------------------------------------------------------
+     * Default constructor.
+    */
+    RPMallocInit()
+    {
+        if (rpmalloc_initialize() != 0)
+        {
+             OutputError("Failed to initialize memory allocator");
+        }
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor (disabled).
+    */
+    RPMallocInit(const RPMallocInit &) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor (disabled).
+    */
+    RPMallocInit(RPMallocInit &&) noexcept = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Destructor.
+    */
+    ~RPMallocInit()
+    {
+        if (rpmalloc_is_thread_initialized()) rpmalloc_finalize();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator (disabled).
+    */
+    RPMallocInit & operator = (const RPMallocInit &) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator (disabled).
+    */
+    RPMallocInit & operator = (RPMallocInit &&) noexcept = delete;
+
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * RAII allocator thread initializer.
+*/
+struct RPMallocThreadInit
+{
+    /* --------------------------------------------------------------------------------------------
+     * Default constructor.
+    */
+    RPMallocThreadInit()
+    {
+        rpmalloc_thread_initialize();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor (disabled).
+    */
+    RPMallocThreadInit(const RPMallocThreadInit &) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor (disabled).
+    */
+    RPMallocThreadInit(RPMallocThreadInit &&) noexcept = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Destructor.
+    */
+    ~RPMallocThreadInit()
+    {
+        if (rpmalloc_is_thread_initialized()) rpmalloc_thread_finalize(1);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator (disabled).
+    */
+    RPMallocThreadInit & operator = (const RPMallocThreadInit &) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator (disabled).
+    */
+    RPMallocThreadInit & operator = (RPMallocThreadInit &&) noexcept = delete;
+
+};
 
 } // Namespace:: SqMod
