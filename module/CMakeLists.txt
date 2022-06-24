@@ -107,7 +107,6 @@ add_library(SqModule MODULE SqBase.hpp Main.cpp
     PocoLib/Crypto.cpp PocoLib/Crypto.hpp
     PocoLib/Data.cpp PocoLib/Data.hpp
     PocoLib/Net.cpp PocoLib/Net.hpp
-    PocoLib/RegEx.cpp PocoLib/RegEx.hpp
     PocoLib/Register.cpp PocoLib/Register.hpp
     PocoLib/Time.cpp PocoLib/Time.hpp
     PocoLib/Util.cpp PocoLib/Util.hpp
