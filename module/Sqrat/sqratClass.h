@@ -29,6 +29,7 @@
 
 #include <squirrelex.h>
 
+#include <cstring>
 #include <typeinfo>
 
 #include "sqratObject.h"
@@ -659,6 +660,80 @@ public:
         sq_pop(vm, 1); // pop table
 
         return *this;
+    }
+
+protected:
+
+    // Used internally to proxy calls to wrapped squirrel methods.
+    template < class T = C, SQInteger(T::*Mptr)(HSQUIRRELVM) > static SQInteger SquirrelMethodProxy(HSQUIRRELVM vm) noexcept
+    {
+        try {
+            return ((::Sqrat::Var<T*>(vm, 1).value)->*Mptr)(vm);
+        } catch (const Poco::Exception& e) {
+            return sq_throwerror(vm, e.displayText().c_str());
+        } catch (const std::exception& e) {
+            return sq_throwerror(vm, e.what());
+        } catch (...) {
+            return sq_throwerror(vm, _SC("unknown exception occured"));
+        }
+    }
+
+    // Used internally to proxy calls to wrapped squirrel methods.
+    template < class T = C, SQInteger(T::*Mptr)(HSQUIRRELVM) const > static SQInteger SquirrelMethodProxy(HSQUIRRELVM vm) noexcept
+    {
+        try {
+            return ((::Sqrat::Var<T*>(vm, 1).value)->*Mptr)(vm);
+        } catch (const Poco::Exception& e) {
+            return sq_throwerror(vm, e.displayText().c_str());
+        } catch (const std::exception& e) {
+            return sq_throwerror(vm, e.what());
+        } catch (...) {
+            return sq_throwerror(vm, _SC("unknown exception occured"));
+        }
+    }
+
+public:
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Binds a class method that is treated as a squirrel function but invoked on the instance itself
+    ///
+    /// \param name Name of the function as it will appear in Squirrel
+    /// \param func Function to bind
+    ///
+    /// \return The Class itself so the call can be chained
+    ///
+    /// \remarks
+    /// Inside of the function, the class instance the function was called with will be at index 1 on the
+    /// stack and all arguments will be after that index in the order they were given to the function.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template < class T = C, SQInteger(T::*Mptr)(HSQUIRRELVM) > Class& SquirrelMethod(const SQChar* name) {
+        return SquirrelFunc(name, &SquirrelMethodProxy< T, Mptr >);
+    }
+    template < class T = C, SQInteger(T::*Mptr)(HSQUIRRELVM) const > Class& SquirrelMethod(const SQChar* name) {
+        return SquirrelFunc(name, &SquirrelMethodProxy< T, Mptr >);
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Binds a class method that is treated as a squirrel function but invoked on the instance itself
+    ///
+    /// \param name Name of the function as it will appear in Squirrel
+    /// \param func Function to bind
+    /// \param pnum Number of parameters the function expects.
+    /// \param mask Types of parameters the function expects.
+    ///
+    /// \return The Class itself so the call can be chained
+    ///
+    /// \remarks
+    /// Inside of the function, the class instance the function was called with will be at index 1 on the
+    /// stack and all arguments will be after that index in the order they were given to the function.
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template < class T = C, SQInteger(T::*Mptr)(HSQUIRRELVM) > Class& SquirrelMethod(const SQChar* name, SQInteger pnum, const SQChar * mask) {
+        return SquirrelFunc(name, &SquirrelMethodProxy< T, Mptr >, pnum, mask);
+    }
+    template < class T = C, SQInteger(T::*Mptr)(HSQUIRRELVM) const > Class& SquirrelMethod(const SQChar* name, SQInteger pnum, const SQChar * mask) {
+        return SquirrelFunc(name, &SquirrelMethodProxy< T, Mptr >, pnum, mask);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
