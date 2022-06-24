@@ -113,8 +113,8 @@ int32_t GetSkinID(StackStrF & name)
 {
     // Clone the string into an editable version
     String str(name.mPtr, static_cast< size_t >(name.mLen));
-    // Strip non alphanumeric characters from the name
-    str.erase(std::remove_if(str.begin(), str.end(), std::not1(std::ptr_fun(::isalnum))), str.end());
+    // Strip non-alphanumeric characters from the name
+    str.erase(std::remove_if(str.begin(), str.end(), std::function<int(int)>(::isalnum)), str.end());
     // Convert the string to lowercase
     std::transform(str.begin(), str.end(), str.begin(), ::tolower);
     // See if we still have a valid name after the cleanup
