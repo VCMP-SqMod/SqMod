@@ -157,7 +157,7 @@ template <class C,class R> struct SqMember {
             } catch (const std::exception& e) {
                 return sq_throwerror(vm, e.what());
             } catch (...) {
-                return sq_throwerror(vm, _SC("unknown exception occured"));
+                return sq_throwerror(vm, _SC("unknown exception occurred"));
             }
             SQ_UNREACHABLE
         };
@@ -178,7 +178,7 @@ template <class C,class R> struct SqMember {
             } catch (const std::exception& e) {
                 return sq_throwerror(vm, e.what());
             } catch (...) {
-                return sq_throwerror(vm, _SC("unknown exception occured"));
+                return sq_throwerror(vm, _SC("unknown exception occurred"));
             }
             SQ_UNREACHABLE
         };
@@ -206,7 +206,7 @@ template <class C, class R> struct SqMember<C,R&> {
             } catch (const std::exception& e) {
                 return sq_throwerror(vm, e.what());
             } catch (...) {
-                return sq_throwerror(vm, _SC("unknown exception occured"));
+                return sq_throwerror(vm, _SC("unknown exception occurred"));
             }
             SQ_UNREACHABLE
         };
@@ -227,7 +227,7 @@ template <class C, class R> struct SqMember<C,R&> {
             } catch (const std::exception& e) {
                 return sq_throwerror(vm, e.what());
             } catch (...) {
-                return sq_throwerror(vm, _SC("unknown exception occured"));
+                return sq_throwerror(vm, _SC("unknown exception occurred"));
             }
             SQ_UNREACHABLE
         };
@@ -256,7 +256,7 @@ template <class C> struct SqMember<C, void> {
             } catch (const std::exception& e) {
                 return sq_throwerror(vm, e.what());
             } catch (...) {
-                return sq_throwerror(vm, _SC("unknown exception occured"));
+                return sq_throwerror(vm, _SC("unknown exception occurred"));
             }
             SQ_UNREACHABLE
         };
@@ -277,7 +277,7 @@ template <class C> struct SqMember<C, void> {
             } catch (const std::exception& e) {
                 return sq_throwerror(vm, e.what());
             } catch (...) {
-                return sq_throwerror(vm, _SC("unknown exception occured"));
+                return sq_throwerror(vm, _SC("unknown exception occurred"));
             }
             SQ_UNREACHABLE
         };
