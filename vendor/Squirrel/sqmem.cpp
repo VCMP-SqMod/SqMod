@@ -2,14 +2,14 @@
     see copyright notice in squirrel.h
 */
 #include "sqpcheader.h"
-#include <rpmalloc.h>
+//#include <rpmalloc.h>
 #ifndef SQ_EXCLUDE_DEFAULT_MEMFUNCTIONS
-//void *sq_vm_malloc(SQUnsignedInteger size){ return malloc(size); }
-void *sq_vm_malloc(SQUnsignedInteger size){ return rpmalloc(size); }
+void *sq_vm_malloc(SQUnsignedInteger size){ return malloc(size); }
+//void *sq_vm_malloc(SQUnsignedInteger size){ return rpmalloc(size); }
 
-//void *sq_vm_realloc(void *p, SQUnsignedInteger SQ_UNUSED_ARG(oldsize), SQUnsignedInteger size){ return realloc(p, size); }
-void *sq_vm_realloc(void *p, SQUnsignedInteger SQ_UNUSED_ARG(oldsize), SQUnsignedInteger size){ return rprealloc(p, size); }
+void *sq_vm_realloc(void *p, SQUnsignedInteger SQ_UNUSED_ARG(oldsize), SQUnsignedInteger size){ return realloc(p, size); }
+//void *sq_vm_realloc(void *p, SQUnsignedInteger SQ_UNUSED_ARG(oldsize), SQUnsignedInteger size){ return rprealloc(p, size); }
 
-//void sq_vm_free(void *p, SQUnsignedInteger SQ_UNUSED_ARG(size)){ free(p); }
-void sq_vm_free(void *p, SQUnsignedInteger SQ_UNUSED_ARG(size)){ rpfree(p); }
+void sq_vm_free(void *p, SQUnsignedInteger SQ_UNUSED_ARG(size)){ free(p); }
+//void sq_vm_free(void *p, SQUnsignedInteger SQ_UNUSED_ARG(size)){ rpfree(p); }
 #endif
