@@ -491,10 +491,8 @@ LightObj SqDataSessionPool::GetSq()
     {
         return GteMySQLFromSession(session_impl);
     }
-    else
-    {
-        STHROWF("Unknown connector type {}", connector);
-    }
+    STHROWF("Unknown connector type {}", connector);
+    SQ_UNREACHABLE
 }
 
 // ------------------------------------------------------------------------------------------------
