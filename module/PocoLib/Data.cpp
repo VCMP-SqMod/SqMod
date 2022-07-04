@@ -1,5 +1,6 @@
 // ------------------------------------------------------------------------------------------------
 #include "PocoLib/Data.hpp"
+#include "Poco/Data/SessionImpl.h"
 
 // ------------------------------------------------------------------------------------------------
 #include <sqratConst.h>
@@ -471,6 +472,32 @@ SqDataStatement & SqDataStatement::Into_(LightObj & obj, LightObj & def)
 }
 
 // ------------------------------------------------------------------------------------------------
+extern LightObj GteSQLiteFromSession(Poco::Data::SessionImpl * session);
+extern LightObj GteMySQLFromSession(Poco::Data::SessionImpl * session);
+
+// ------------------------------------------------------------------------------------------------
+LightObj SqDataSessionPool::GetSq()
+{
+    auto session = get();
+    auto * session_impl = session.impl();
+    auto & connector = session_impl->connectorName();
+    // Is this a SQLite session?
+    if (connector == "sqlite")
+    {
+        return GteSQLiteFromSession(session_impl);
+    }
+    // Is this a MySQL session?
+    else if (connector == "mysql")
+    {
+        return GteMySQLFromSession(session_impl);
+    }
+    else
+    {
+        STHROWF("Unknown connector type {}", connector);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 LightObj SqDataSessionPool::GetProperty(StackStrF & name)
 {
     HSQUIRRELVM vm = name.mVM;
@@ -764,6 +791,7 @@ void Register_POCO_Data(HSQUIRRELVM vm, Table &)
         .Prop(_SC("IsActive"), &SqDataSessionPool::IsActive)
         // Member Methods
         .Func(_SC("Get"), &SqDataSessionPool::Get)
+        .Func(_SC("GetSq"), &SqDataSessionPool::GetSq)
         .FmtFunc(_SC("GetWithProperty"), &SqDataSessionPool::GetWithProperty)
         .FmtFunc(_SC("GetWithFeature"), &SqDataSessionPool::GetWithFeature)
         .FmtFunc(_SC("SetFeature"), &SqDataSessionPool::SetFeature)

@@ -12,6 +12,10 @@
 #include "Library/Chrono/Timestamp.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include "Poco/AutoPtr.h"
+#include "Poco/Data/SessionImpl.h"
+
+// ------------------------------------------------------------------------------------------------
 #include <cstdbool>
 #include <unordered_map>
 
@@ -53,24 +57,24 @@ namespace SqMod {
 /* ------------------------------------------------------------------------------------------------
  * Forward declarations.
 */
-struct ConnHnd;
-struct StmtHnd;
-struct ResHnd;
+struct MySQLConnHnd;
+struct MySQLStmtHnd;
+struct MySQLResHnd;
 
 // ------------------------------------------------------------------------------------------------
-class Account;
+class MySQLAccount;
 class Column;
-class Connection;
-class ResultSet;
-class Statement;
-class Transaction;
+class MySQLConnection;
+class MySQLResultSet;
+class MySQLStatement;
+class MySQLTransaction;
 
 /* ------------------------------------------------------------------------------------------------
  * Common typedefs.
 */
-typedef SharedPtr< ConnHnd > ConnRef;
-typedef SharedPtr< StmtHnd > StmtRef;
-typedef SharedPtr< ResHnd > ResRef;
+typedef SharedPtr< MySQLConnHnd > MySQLConnRef;
+typedef SharedPtr< MySQLStmtHnd > MySQLStmtRef;
+typedef SharedPtr< MySQLResHnd > MySQLResRef;
 
 /* ------------------------------------------------------------------------------------------------
  * Replicate the values of a script Date type to a database time type.
@@ -201,7 +205,7 @@ template < > struct DbConvTo< char >
 /* ------------------------------------------------------------------------------------------------
  * The structure that holds the data associated with a certain connection.
 */
-struct ConnHnd
+struct MySQLConnHnd
 {
 public:
 
@@ -229,6 +233,9 @@ public:
     String      mErrStr; // Last received error message.
 
     // --------------------------------------------------------------------------------------------
+    Poco::AutoPtr< Poco::Data::SessionImpl > mSession; // POCO session when this connection comes from a pool.
+
+    // --------------------------------------------------------------------------------------------
     uint16_t        mPort; // Server port.
     String          mHost; // Host address.
     String          mUser; // User name user.
@@ -254,12 +261,17 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    ConnHnd();
+    MySQLConnHnd();
+
+    /* --------------------------------------------------------------------------------------------
+     * Explicit constructor.
+    */
+    explicit MySQLConnHnd(Poco::Data::SessionImpl * session);
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~ConnHnd();
+    ~MySQLConnHnd();
 
     /* --------------------------------------------------------------------------------------------
      * Grab the current error in the connection handle.
@@ -278,7 +290,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create the connection handle.
     */
-    void Create(const Account & acc);
+    void Create(const MySQLAccount & acc);
 
     /* --------------------------------------------------------------------------------------------
      * Disconnect the managed connection handle.
@@ -294,7 +306,7 @@ public:
 /* ------------------------------------------------------------------------------------------------
  * The structure that holds the data associated with a certain bind point.
 */
-struct StmtBind // NOLINT(cppcoreguidelines-pro-type-member-init)
+struct MySQLStmtBind // NOLINT(cppcoreguidelines-pro-type-member-init)
 {
 public:
 
@@ -342,27 +354,27 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    StmtBind() = default;
+    MySQLStmtBind() = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
     */
-    StmtBind(const StmtBind & o) = delete;
+    MySQLStmtBind(const MySQLStmtBind & o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor. (disabled)
     */
-    StmtBind(StmtBind && o) = delete;
+    MySQLStmtBind(MySQLStmtBind && o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator. (disabled)
     */
-    StmtBind & operator = (const StmtBind & o) = delete;
+    MySQLStmtBind & operator = (const MySQLStmtBind & o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator. (disabled)
     */
-    StmtBind & operator = (StmtBind && o) = delete;
+    MySQLStmtBind & operator = (MySQLStmtBind && o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the used buffer.
@@ -389,7 +401,7 @@ public:
 /* ------------------------------------------------------------------------------------------------
  * The structure that holds the data associated with a certain statement handle.
 */
-struct StmtHnd
+struct MySQLStmtHnd
 {
 public:
 
@@ -424,22 +436,22 @@ public:
 
     // --------------------------------------------------------------------------------------------
     unsigned long   mParams; // Number of parameters in the statement.
-    StmtBind *      mBinds; // List of parameter binds.
+    MySQLStmtBind *      mBinds; // List of parameter binds.
     BindType *      mMyBinds; // List of parameter binds.
 
     // --------------------------------------------------------------------------------------------
-    ConnRef         mConnection; // Reference to the associated connection.
+    MySQLConnRef         mConnection; // Reference to the associated connection.
     String          mQuery; // The query string.
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    StmtHnd();
+    MySQLStmtHnd();
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~StmtHnd();
+    ~MySQLStmtHnd();
 
     /* --------------------------------------------------------------------------------------------
      * Grab the current error in the associated statement handle.
@@ -475,13 +487,13 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create the actual statement.
     */
-    void Create(const ConnRef & conn, const SQChar * query);
+    void Create(const MySQLConnRef & conn, const SQChar * query);
 };
 
 /* ------------------------------------------------------------------------------------------------
  * The structure that holds the data associated with a certain field.
 */
-struct ResBind // NOLINT(cppcoreguidelines-pro-type-member-init)
+struct MySQLResBind // NOLINT(cppcoreguidelines-pro-type-member-init)
 {
 public:
 
@@ -534,27 +546,27 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    ResBind() = default;
+    MySQLResBind() = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
     */
-    ResBind(const ResBind & o) = delete;
+    MySQLResBind(const MySQLResBind & o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor. (disabled)
     */
-    ResBind(ResBind && o) = delete;
+    MySQLResBind(MySQLResBind && o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator. (disabled)
     */
-    ResBind & operator = (const ResBind & o) = delete;
+    MySQLResBind & operator = (const MySQLResBind & o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator. (disabled)
     */
-    ResBind & operator = (ResBind && o) = delete;
+    MySQLResBind & operator = (MySQLResBind && o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve the used buffer.
@@ -581,7 +593,7 @@ public:
 /* ------------------------------------------------------------------------------------------------
  * The structure that holds the data associated with a certain result-set handle.
 */
-struct ResHnd
+struct MySQLResHnd
 {
 public:
 
@@ -619,26 +631,26 @@ public:
     uint32_t        mFieldCount; // Number of fields in the result-set.
     unsigned long * mLengths; // Data length when the result-set came from a connection.
     FieldType *     mFields; // Fields in the results set.
-    ResBind *       mBinds; // Bind wrappers.
+    MySQLResBind *       mBinds; // Bind wrappers.
     BindType *      mMyBinds; // Bind points.
     RowType         mRow; // Row data.
 
     // --------------------------------------------------------------------------------------------
-    ConnRef         mConnection; // Associated connection.
-    StmtRef         mStatement; // Associated statement.
-    IndexMap        mIndexes; // Field names and their associated index.
+    MySQLConnRef         mConnection; // Associated connection.
+    MySQLStmtRef         mStatement; // Associated statement.
+    IndexMap        mIndexes; // MySQLField names and their associated index.
 
 public:
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    ResHnd();
+    MySQLResHnd();
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~ResHnd();
+    ~MySQLResHnd();
 
     /* --------------------------------------------------------------------------------------------
      * Grab the current error in the associated statement or connection handle.
@@ -677,14 +689,14 @@ public:
     uint32_t GetFieldIndex(const SQChar * name);
 
     /* --------------------------------------------------------------------------------------------
-     * Create the result-set from a Connection.
+     * Create the result-set from a MySQLConnection.
     */
-    void Create(const ConnRef & conn);
+    void Create(const MySQLConnRef & conn);
 
     /* --------------------------------------------------------------------------------------------
-     * Create the result-set from a Statement.
+     * Create the result-set from a MySQLStatement.
     */
-    void Create(const StmtRef & stmt);
+    void Create(const MySQLStmtRef & stmt);
 
     /* --------------------------------------------------------------------------------------------
      * Returns the current position of the row cursor for the last Next().
@@ -711,7 +723,7 @@ public:
 /* ------------------------------------------------------------------------------------------------
  * Helper class containing shared connection information to avoid repetition.
 */
-class Account
+class MySQLAccount
 {
 public:
 
@@ -750,8 +762,8 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Base Constructor.
     */
-    Account(const SQChar * host, const SQChar * user)
-        : Account(host, user, _SC(""), _SC(""), 3306, _SC(""))
+    MySQLAccount(const SQChar * host, const SQChar * user)
+        : MySQLAccount(host, user, _SC(""), _SC(""), 3306, _SC(""))
     {
         /* ... */
     }
@@ -759,8 +771,8 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Base Constructor.
     */
-    Account(const SQChar * host, const SQChar * user, const SQChar * pass)
-        : Account(host, user, pass, _SC(""), 3306, _SC(""))
+    MySQLAccount(const SQChar * host, const SQChar * user, const SQChar * pass)
+        : MySQLAccount(host, user, pass, _SC(""), 3306, _SC(""))
     {
         /* ... */
     }
@@ -768,8 +780,8 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Base Constructor.
     */
-    Account(const SQChar * host, const SQChar * user, const SQChar * pass, const SQChar * name)
-        : Account(host, user, pass, name, 3306, _SC(""))
+    MySQLAccount(const SQChar * host, const SQChar * user, const SQChar * pass, const SQChar * name)
+        : MySQLAccount(host, user, pass, name, 3306, _SC(""))
     {
         /* ... */
     }
@@ -777,8 +789,8 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Base Constructor.
     */
-    Account(const SQChar * host, const SQChar * user, const SQChar * pass, const SQChar * name, SQInteger port)
-        : Account(host, user, pass, name, port, _SC(""))
+    MySQLAccount(const SQChar * host, const SQChar * user, const SQChar * pass, const SQChar * name, SQInteger port)
+        : MySQLAccount(host, user, pass, name, port, _SC(""))
     {
         /* ... */
     }
@@ -786,37 +798,37 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Base Constructor.
     */
-    Account(const SQChar * host, const SQChar * user, const SQChar * pass, const SQChar * name, SQInteger port, const SQChar * socket);
+    MySQLAccount(const SQChar * host, const SQChar * user, const SQChar * pass, const SQChar * name, SQInteger port, const SQChar * socket);
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    Account(const Account & o) = default;
+    MySQLAccount(const MySQLAccount & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    Account(Account && o) = default;
+    MySQLAccount(MySQLAccount && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~Account() = default;
+    ~MySQLAccount() = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    Account & operator = (const Account & o) = default;
+    MySQLAccount & operator = (const MySQLAccount & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator.
     */
-    Account & operator = (Account && o) = default;
+    MySQLAccount & operator = (MySQLAccount && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    int32_t Cmp(const Account & o) const;
+    int32_t Cmp(const MySQLAccount & o) const;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to convert an instance of this type to a string.
@@ -1107,18 +1119,18 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Create a connection with the current account information.
     */
-    Connection Connect() const;
+    MySQLConnection Connect() const;
 };
 
 /* ------------------------------------------------------------------------------------------------
  * Allows management and interaction with a connection handle.
 */
-class Connection
+class MySQLConnection
 {
 private:
 
     // --------------------------------------------------------------------------------------------
-    ConnRef     m_Handle{}; // Reference to the actual database connection.
+    MySQLConnRef     m_Handle{}; // Reference to the actual database connection.
 
 protected:
 
@@ -1144,18 +1156,18 @@ protected:
      * Validate the managed connection handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    const ConnRef & GetValid(const char * file, int32_t line) const;
+    const MySQLConnRef & GetValid(const char * file, int32_t line) const;
 #else
-    SQMOD_NODISCARD const ConnRef & GetValid() const;
+    SQMOD_NODISCARD const MySQLConnRef & GetValid() const;
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
      * Validate the managed connection handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    const ConnRef & GetCreated(const char * file, int32_t line) const;
+    const MySQLConnRef & GetCreated(const char * file, int32_t line) const;
 #else
-    SQMOD_NODISCARD const ConnRef & GetCreated() const;
+    SQMOD_NODISCARD const MySQLConnRef & GetCreated() const;
 #endif // _DEBUG
 
 public:
@@ -1163,13 +1175,13 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Connection() = default;
+    MySQLConnection() = default;
 
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    explicit Connection(const Account & acc)
-        : m_Handle(new ConnHnd())
+    explicit MySQLConnection(const MySQLAccount & acc)
+        : m_Handle(new MySQLConnHnd())
     {
         m_Handle->Create(acc);
     }
@@ -1177,7 +1189,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Base constructor.
     */
-    explicit Connection(const ConnRef & conn) // NOLINT(modernize-pass-by-value)
+    explicit MySQLConnection(const MySQLConnRef & conn) // NOLINT(modernize-pass-by-value)
         : m_Handle(conn)
     {
         /* ... */
@@ -1186,27 +1198,27 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    Connection(const Connection & o) = default;
+    MySQLConnection(const MySQLConnection & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    Connection(Connection && o) = default;
+    MySQLConnection(MySQLConnection && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    Connection & operator = (const Connection & o) = default;
+    MySQLConnection & operator = (const MySQLConnection & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator.
     */
-    Connection & operator = (Connection && o) = default;
+    MySQLConnection & operator = (MySQLConnection && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    SQMOD_NODISCARD int32_t Cmp(const Connection & o) const
+    SQMOD_NODISCARD int32_t Cmp(const MySQLConnection & o) const
     {
         if (m_Handle.Get() == o.m_Handle.Get())
         {
@@ -1238,7 +1250,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated connection handle.
     */
-    SQMOD_NODISCARD const ConnRef & GetHandle() const
+    SQMOD_NODISCARD const MySQLConnRef & GetHandle() const
     {
         return m_Handle;
     }
@@ -1456,7 +1468,7 @@ public:
     {
         // Attempt to toggle auto-commit if necessary
         if (SQMOD_GET_CREATED(*this)->mAutoCommit != toggle &&
-            mysql_autocommit(m_Handle->mPtr, static_cast< StmtBind::BoolType >(toggle)) != 0)
+            mysql_autocommit(m_Handle->mPtr, static_cast< MySQLStmtBind::BoolType >(toggle)) != 0)
         {
             SQMOD_THROW_CURRENT(*m_Handle, "Cannot toggle auto-commit");
         }
@@ -1498,17 +1510,17 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Execute a query on the server.
     */
-    ResultSet Query(const SQChar * query);
+    MySQLResultSet Query(const SQChar * query);
 
     /* --------------------------------------------------------------------------------------------
      * Create a new statement on the managed connection.
     */
-    SQMOD_NODISCARD Statement GetStatement(const SQChar * query);
+    SQMOD_NODISCARD MySQLStatement GetStatement(const SQChar * query);
 
     /* --------------------------------------------------------------------------------------------
      * Create a new transaction on the managed connection.
     */
-    //SQMOD_NODISCARD Transaction GetTransaction();
+    //SQMOD_NODISCARD MySQLTransaction GetTransaction();
 
     /* --------------------------------------------------------------------------------------------
      * Escape unwanted characters from a given string.
@@ -1534,16 +1546,16 @@ public:
 /* ------------------------------------------------------------------------------------------------
  * Used to manage and interact with fields from result-sets.
 */
-class Field
+class MySQLField
 {
     // --------------------------------------------------------------------------------------------
-    friend class ResultSet;
+    friend class MySQLResultSet;
 
 private:
 
     // --------------------------------------------------------------------------------------------
     uint32_t    m_Index; // The actual index of the referenced field.
-    ResRef      m_Handle; // Reference to the actual database result-set.
+    MySQLResRef m_Handle; // Reference to the actual database result-set.
 
 protected:
 
@@ -1578,27 +1590,27 @@ protected:
      * Validate the associated result-set handle and field index, and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    SQMOD_NODISCARD const ResRef & GetValid(const char * file, int32_t line) const;
+    SQMOD_NODISCARD const MySQLResRef & GetValid(const char * file, int32_t line) const;
 #else
-    SQMOD_NODISCARD const ResRef & GetValid() const;
+    SQMOD_NODISCARD const MySQLResRef & GetValid() const;
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
      * Validate the associated result-set handle and field index, and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    SQMOD_NODISCARD const ResRef & GetCreated(const char * file, int32_t line) const;
+    SQMOD_NODISCARD const MySQLResRef & GetCreated(const char * file, int32_t line) const;
 #else
-    SQMOD_NODISCARD const ResRef & GetCreated() const;
+    SQMOD_NODISCARD const MySQLResRef & GetCreated() const;
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
      * Validate the associated result-set handle field index and row, and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    SQMOD_NODISCARD const ResRef & GetStepped(const char * file, int32_t line) const;
+    SQMOD_NODISCARD const MySQLResRef & GetStepped(const char * file, int32_t line) const;
 #else
-    SQMOD_NODISCARD const ResRef & GetStepped() const;
+    SQMOD_NODISCARD const MySQLResRef & GetStepped() const;
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
@@ -1641,7 +1653,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor (null).
     */
-    Field()
+    MySQLField()
         : m_Index(INVALID_INDEX), m_Handle()
     {
         /* ... */
@@ -1650,7 +1662,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * No field constructor.
     */
-    explicit Field(const ResRef & rset) // NOLINT(modernize-pass-by-value)
+    explicit MySQLField(const MySQLResRef & rset) // NOLINT(modernize-pass-by-value)
         : m_Index(INVALID_INDEX), m_Handle(rset)
     {
         /* ... */
@@ -1659,7 +1671,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Index constructor.
     */
-    Field(const ResRef & rset, uint32_t idx) // NOLINT(modernize-pass-by-value)
+    MySQLField(const MySQLResRef & rset, uint32_t idx) // NOLINT(modernize-pass-by-value)
         : m_Index(idx), m_Handle(rset)
     {
         SQMOD_VALIDATE_FIELD(*this, m_Index);
@@ -1668,7 +1680,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Name constructor.
     */
-    Field(const ResRef & rset, const SQChar * name)
+    MySQLField(const MySQLResRef & rset, const SQChar * name)
         : m_Index(rset ? rset->GetFieldIndex(name) : -1), m_Handle(rset)
     {
         SQMOD_VALIDATE_FIELD(*this, m_Index);
@@ -1677,7 +1689,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Dynamic constructor.
     */
-    Field(const ResRef & rset, const Object & field) // NOLINT(modernize-pass-by-value)
+    MySQLField(const MySQLResRef & rset, const Object & field) // NOLINT(modernize-pass-by-value)
         : m_Index(INVALID_INDEX), m_Handle(rset)
     {
         if (!m_Handle)
@@ -1691,27 +1703,27 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    Field(const Field & o) = default;
+    MySQLField(const MySQLField & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    Field(Field && o) = default;
+    MySQLField(MySQLField && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    Field & operator = (const Field & o) = default;
+    MySQLField & operator = (const MySQLField & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator.
     */
-    Field & operator = (Field && o) = default;
+    MySQLField & operator = (MySQLField && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Perform an equality comparison between two result-set field indexes.
     */
-    bool operator == (const Field & o) const
+    bool operator == (const MySQLField & o) const
     {
         return (m_Index == o.m_Index);
     }
@@ -1719,7 +1731,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Perform an inequality comparison between two result-set field indexes.
     */
-    bool operator != (const Field & o) const
+    bool operator != (const MySQLField & o) const
     {
         return (m_Index != o.m_Index);
     }
@@ -1735,7 +1747,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    SQMOD_NODISCARD int32_t Cmp(const Field & o) const
+    SQMOD_NODISCARD int32_t Cmp(const MySQLField & o) const
     {
         if (m_Index == o.m_Index)
         {
@@ -1901,12 +1913,12 @@ public:
 /* ------------------------------------------------------------------------------------------------
  * Allows management and interaction with a result set handle.
 */
-class ResultSet
+class MySQLResultSet
 {
 private:
 
     // --------------------------------------------------------------------------------------------
-    ResRef  m_Handle; // Reference to the actual database result-set.
+    MySQLResRef  m_Handle; // Reference to the actual database result-set.
 
 protected:
 
@@ -1941,27 +1953,27 @@ protected:
      * Validate the managed statement handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    SQMOD_NODISCARD const ResRef & GetValid(const char * file, int32_t line) const;
+    SQMOD_NODISCARD const MySQLResRef & GetValid(const char * file, int32_t line) const;
 #else
-    SQMOD_NODISCARD const ResRef & GetValid() const;
+    SQMOD_NODISCARD const MySQLResRef & GetValid() const;
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
      * Validate the managed statement handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    SQMOD_NODISCARD const ResRef & GetCreated(const char * file, int32_t line) const;
+    SQMOD_NODISCARD const MySQLResRef & GetCreated(const char * file, int32_t line) const;
 #else
-    SQMOD_NODISCARD const ResRef & GetCreated() const;
+    SQMOD_NODISCARD const MySQLResRef & GetCreated() const;
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
      * Validate the managed statement handle and row, and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    SQMOD_NODISCARD const ResRef & GetStepped(const char * file, int32_t line) const;
+    SQMOD_NODISCARD const MySQLResRef & GetStepped(const char * file, int32_t line) const;
 #else
-    SQMOD_NODISCARD const ResRef & GetStepped() const;
+    SQMOD_NODISCARD const MySQLResRef & GetStepped() const;
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
@@ -1978,26 +1990,26 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    ResultSet()
+    MySQLResultSet()
         : m_Handle()
     {
         /* ... */
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Connection constructor.
+     * MySQLConnection constructor.
     */
-    explicit ResultSet(const ConnRef & conn)
-        : m_Handle(new ResHnd())
+    explicit MySQLResultSet(const MySQLConnRef & conn)
+        : m_Handle(new MySQLResHnd())
     {
         m_Handle->Create(conn);
     }
 
     /* --------------------------------------------------------------------------------------------
-     * Statement constructor.
+     * MySQLStatement constructor.
     */
-    explicit ResultSet(const StmtRef & stmt)
-        : m_Handle(new ResHnd())
+    explicit MySQLResultSet(const MySQLStmtRef & stmt)
+        : m_Handle(new MySQLResHnd())
     {
         m_Handle->Create(stmt);
     }
@@ -2005,7 +2017,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Handle constructor.
     */
-    explicit ResultSet(ResRef hnd)
+    explicit MySQLResultSet(MySQLResRef hnd)
         : m_Handle(std::move(hnd))
     {
         /* ... */
@@ -2014,32 +2026,32 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    ResultSet(const ResultSet & o) = default;
+    MySQLResultSet(const MySQLResultSet & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    ResultSet(ResultSet && o) = default;
+    MySQLResultSet(MySQLResultSet && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~ResultSet() = default;
+    ~MySQLResultSet() = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    ResultSet & operator = (const ResultSet & o) = default;
+    MySQLResultSet & operator = (const MySQLResultSet & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator.
     */
-    ResultSet & operator = (ResultSet && o) = default;
+    MySQLResultSet & operator = (MySQLResultSet && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    SQMOD_NODISCARD int32_t Cmp(const ResultSet & o) const
+    SQMOD_NODISCARD int32_t Cmp(const MySQLResultSet & o) const
     {
         if (m_Handle.Get() == o.m_Handle.Get())
         {
@@ -2150,9 +2162,9 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the field with the specified name or index.
     */
-    SQMOD_NODISCARD Field GetField(const Object & field) const
+    SQMOD_NODISCARD MySQLField GetField(const Object & field) const
     {
-        return Field(SQMOD_GET_STEPPED(*this), field);
+        return MySQLField(SQMOD_GET_STEPPED(*this), field);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2160,7 +2172,7 @@ public:
     */
     SQMOD_NODISCARD bool GetBoolean(const Object & field) const
     {
-        return Field(SQMOD_GET_STEPPED(*this), field).GetBoolean();
+        return MySQLField(SQMOD_GET_STEPPED(*this), field).GetBoolean();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2168,7 +2180,7 @@ public:
     */
     SQMOD_NODISCARD SQChar GetChar(const Object & field) const
     {
-        return Field(SQMOD_GET_STEPPED(*this), field).GetChar();
+        return MySQLField(SQMOD_GET_STEPPED(*this), field).GetChar();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2176,7 +2188,7 @@ public:
     */
     SQMOD_NODISCARD SQInteger GetInteger(const Object & field) const
     {
-        return Field(SQMOD_GET_STEPPED(*this), field).GetInteger();
+        return MySQLField(SQMOD_GET_STEPPED(*this), field).GetInteger();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2184,7 +2196,7 @@ public:
     */
     SQMOD_NODISCARD SQFloat GetFloat(const Object & field) const
     {
-        return Field(SQMOD_GET_STEPPED(*this), field).GetFloat();
+        return MySQLField(SQMOD_GET_STEPPED(*this), field).GetFloat();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2192,7 +2204,7 @@ public:
     */
     SQMOD_NODISCARD SQInteger GetInt8(const Object & field) const
     {
-        return Field(SQMOD_GET_STEPPED(*this), field).GetInt8();
+        return MySQLField(SQMOD_GET_STEPPED(*this), field).GetInt8();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2200,7 +2212,7 @@ public:
     */
     SQMOD_NODISCARD SQInteger GetUint8(const Object & field) const
     {
-        return Field(SQMOD_GET_STEPPED(*this), field).GetUint8();
+        return MySQLField(SQMOD_GET_STEPPED(*this), field).GetUint8();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2208,7 +2220,7 @@ public:
     */
     SQMOD_NODISCARD SQInteger GetInt16(const Object & field) const
     {
-        return Field(SQMOD_GET_STEPPED(*this), field).GetInt16();
+        return MySQLField(SQMOD_GET_STEPPED(*this), field).GetInt16();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2216,7 +2228,7 @@ public:
     */
     SQMOD_NODISCARD SQInteger GetUint16(const Object & field) const
     {
-        return Field(SQMOD_GET_STEPPED(*this), field).GetUint16();
+        return MySQLField(SQMOD_GET_STEPPED(*this), field).GetUint16();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2224,7 +2236,7 @@ public:
     */
     SQMOD_NODISCARD SQInteger GetInt32(const Object & field) const
     {
-        return Field(SQMOD_GET_STEPPED(*this), field).GetInt32();
+        return MySQLField(SQMOD_GET_STEPPED(*this), field).GetInt32();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2232,7 +2244,7 @@ public:
     */
     SQMOD_NODISCARD SQInteger GetUint32(const Object & field) const
     {
-        return Field(SQMOD_GET_STEPPED(*this), field).GetUint32();
+        return MySQLField(SQMOD_GET_STEPPED(*this), field).GetUint32();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2240,7 +2252,7 @@ public:
     */
     SQMOD_NODISCARD Object GetInt64(const Object & field) const
     {
-        return Field(SQMOD_GET_STEPPED(*this), field).GetInt64();
+        return MySQLField(SQMOD_GET_STEPPED(*this), field).GetInt64();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2248,7 +2260,7 @@ public:
     */
     SQMOD_NODISCARD Object GetUint64(const Object & field) const
     {
-        return Field(SQMOD_GET_STEPPED(*this), field).GetUint64();
+        return MySQLField(SQMOD_GET_STEPPED(*this), field).GetUint64();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2256,7 +2268,7 @@ public:
     */
     SQMOD_NODISCARD SQFloat GetFloat32(const Object & field) const
     {
-        return Field(SQMOD_GET_STEPPED(*this), field).GetFloat32();
+        return MySQLField(SQMOD_GET_STEPPED(*this), field).GetFloat32();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2264,7 +2276,7 @@ public:
     */
     SQMOD_NODISCARD SQFloat GetFloat64(const Object & field) const
     {
-        return Field(SQMOD_GET_STEPPED(*this), field).GetFloat64();
+        return MySQLField(SQMOD_GET_STEPPED(*this), field).GetFloat64();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2272,7 +2284,7 @@ public:
     */
     SQMOD_NODISCARD Object GetString(const Object & field) const
     {
-        return Field(SQMOD_GET_STEPPED(*this), field).GetString();
+        return MySQLField(SQMOD_GET_STEPPED(*this), field).GetString();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2280,7 +2292,7 @@ public:
     */
     SQMOD_NODISCARD Object GetBuffer(const Object & field) const
     {
-        return Field(SQMOD_GET_STEPPED(*this), field).GetBuffer();
+        return MySQLField(SQMOD_GET_STEPPED(*this), field).GetBuffer();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -2288,19 +2300,19 @@ public:
     */
     SQMOD_NODISCARD Object GetBlob(const Object & field) const
     {
-        return Field(SQMOD_GET_STEPPED(*this), field).GetBlob();
+        return MySQLField(SQMOD_GET_STEPPED(*this), field).GetBlob();
     }
 };
 
 /* ------------------------------------------------------------------------------------------------
  * Allows management and interaction with a statement handle.
 */
-class Statement
+class MySQLStatement
 {
 private:
 
     // --------------------------------------------------------------------------------------------
-    StmtRef m_Handle; // Reference to the actual database statement.
+    MySQLStmtRef m_Handle; // Reference to the actual database statement.
 
 protected:
 
@@ -2326,18 +2338,18 @@ protected:
      * Validate the managed statement handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    const StmtRef & GetValid(const char * file, int32_t line) const;
+    const MySQLStmtRef & GetValid(const char * file, int32_t line) const;
 #else
-    SQMOD_NODISCARD const StmtRef & GetValid() const;
+    SQMOD_NODISCARD const MySQLStmtRef & GetValid() const;
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
      * Validate the managed statement handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    const StmtRef & GetCreated(const char * file, int32_t line) const;
+    const MySQLStmtRef & GetCreated(const char * file, int32_t line) const;
 #else
-    SQMOD_NODISCARD const StmtRef & GetCreated() const;
+    SQMOD_NODISCARD const MySQLStmtRef & GetCreated() const;
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
@@ -2354,7 +2366,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Statement()
+    MySQLStatement()
         : m_Handle()
     {
         /* ... */
@@ -2363,8 +2375,8 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Construct a statement under the specified connection using the specified string.
     */
-    Statement(const ConnRef & connection, const SQChar * query)
-        : m_Handle(new StmtHnd())
+    MySQLStatement(const MySQLConnRef & connection, const SQChar * query)
+        : m_Handle(new MySQLStmtHnd())
     {
         m_Handle->Create(connection, query);
     }
@@ -2372,32 +2384,32 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Construct a statement under the specified connection using the specified string.
     */
-    Statement(const Connection & connection, const SQChar * query);
+    MySQLStatement(const MySQLConnection & connection, const SQChar * query);
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    Statement(const Statement & o) = default;
+    MySQLStatement(const MySQLStatement & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    Statement(Statement && o) = default;
+    MySQLStatement(MySQLStatement && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    Statement & operator = (const Statement & o) = default;
+    MySQLStatement & operator = (const MySQLStatement & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator.
     */
-    Statement & operator = (Statement && o) = default;
+    MySQLStatement & operator = (MySQLStatement && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Used by the script engine to compare two instances of this type.
     */
-    SQMOD_NODISCARD int32_t Cmp(const Statement & o) const
+    SQMOD_NODISCARD int32_t Cmp(const MySQLStatement & o) const
     {
         if (m_Handle.Get() == o.m_Handle.Get())
         {
@@ -2435,7 +2447,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated connection handle.
     */
-    SQMOD_NODISCARD const StmtRef & GetHandle() const
+    SQMOD_NODISCARD const MySQLStmtRef & GetHandle() const
     {
         return m_Handle;
     }
@@ -2451,12 +2463,12 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the currently associated statement connection.
     */
-    SQMOD_NODISCARD Connection GetConnection() const;
+    SQMOD_NODISCARD MySQLConnection GetConnection() const;
 
     /* --------------------------------------------------------------------------------------------
      * Modify the currently associated statement connection.
     */
-    void SetConnection(const Connection & conn);
+    void SetConnection(const MySQLConnection & conn);
 
     /* --------------------------------------------------------------------------------------------
      * Execute the statement.
@@ -2471,7 +2483,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Execute the statement.
     */
-    SQMOD_NODISCARD ResultSet Query();
+    SQMOD_NODISCARD MySQLResultSet Query();
 
     /* --------------------------------------------------------------------------------------------
      * Assign a signed 8bit integer to a parameter.
@@ -2597,73 +2609,73 @@ public:
 /* ------------------------------------------------------------------------------------------------
  * ...
 */
-struct Parameter
+struct MySQLParameter
 {
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Parameter() = default;
+    MySQLParameter() = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
-    Parameter(const Parameter & o) = default;
+    MySQLParameter(const MySQLParameter & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor.
     */
-    Parameter(Parameter && o) = default;
+    MySQLParameter(MySQLParameter && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~Parameter() = default;
+    ~MySQLParameter() = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator.
     */
-    Parameter & operator = (const Parameter & o) = default;
+    MySQLParameter & operator = (const MySQLParameter & o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator.
     */
-    Parameter & operator = (Parameter && o) = default;
+    MySQLParameter & operator = (MySQLParameter && o) = default;
 };
 
 /* ------------------------------------------------------------------------------------------------
  * ...
 */
-struct Transaction
+struct MySQLTransaction
 {
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    Transaction() = default;
+    MySQLTransaction() = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
     */
-    Transaction(const Transaction & o) = delete;
+    MySQLTransaction(const MySQLTransaction & o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Move constructor. (disabled)
     */
-    Transaction(Transaction && o) = default;
+    MySQLTransaction(MySQLTransaction && o) = default;
 
     /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
-    ~Transaction() = default;
+    ~MySQLTransaction() = default;
 
     /* --------------------------------------------------------------------------------------------
      * Copy assignment operator. (disabled)
     */
-    Transaction & operator = (const Transaction & o) = delete;
+    MySQLTransaction & operator = (const MySQLTransaction & o) = delete;
 
     /* --------------------------------------------------------------------------------------------
      * Move assignment operator. (disabled)
     */
-    Transaction & operator = (Transaction && o) = default;
+    MySQLTransaction & operator = (MySQLTransaction && o) = default;
 };
 
 } // Namespace:: SqMod

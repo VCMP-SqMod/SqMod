@@ -18,6 +18,15 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+LightObj GteMySQLFromSession(Poco::Data::SessionImpl * session)
+{
+    // Create a reference counted connection handle instance
+    MySQLConnRef ref(new MySQLConnHnd(session));
+    // Transform it into a connection instance and yield it as a script object
+    return LightObj(SqTypeIdentity< MySQLConnection >{}, SqVM(), ref);
+}
+
+// ------------------------------------------------------------------------------------------------
 static inline bool IsDigitsOnly(const SQChar * str)
 {
     while (std::isdigit(*str) || std::isspace(*str))
@@ -540,7 +549,7 @@ char DbConvTo< char >::From(const SQChar * value, unsigned long length, enum_fie
 }
 
 // ------------------------------------------------------------------------------------------------
-void ConnHnd::GrabCurrent()
+void MySQLConnHnd::GrabCurrent()
 {
     mErrNo = mysql_errno(mPtr);
     mErrStr.assign(mysql_error(mPtr));
@@ -548,14 +557,14 @@ void ConnHnd::GrabCurrent()
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void ConnHnd::ThrowCurrent(const char * act, const char * file, int32_t line)
+void MySQLConnHnd::ThrowCurrent(const char * act, const char * file, int32_t line)
 {
     GrabCurrent();
     // Throw the exception with the resulted message
     throw Sqrat::Exception(fmt::format("{} ({}) : {} =>[{}:{}]", act, mErrNo, mErrStr, file, line));
 }
 #else
-void ConnHnd::ThrowCurrent(const char * act)
+void MySQLConnHnd::ThrowCurrent(const char * act)
 {
     GrabCurrent();
     // Throw the exception with the resulted message
@@ -564,10 +573,11 @@ void ConnHnd::ThrowCurrent(const char * act)
 #endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
-ConnHnd::ConnHnd()
+MySQLConnHnd::MySQLConnHnd()
     : mPtr(nullptr)
     , mErrNo(0)
     , mErrStr()
+    , mSession()
     , mPort()
     , mHost()
     , mUser()
@@ -588,13 +598,22 @@ ConnHnd::ConnHnd()
 }
 
 // ------------------------------------------------------------------------------------------------
-ConnHnd::~ConnHnd()
+MySQLConnHnd::MySQLConnHnd(Poco::Data::SessionImpl * session)
+    : MySQLConnHnd()
+{
+    mSession.assign(session);
+    // Retrieve the internal handle property
+    mPtr = Poco::AnyCast< MYSQL * >(session->getProperty("handle"));
+}
+
+// ------------------------------------------------------------------------------------------------
+MySQLConnHnd::~MySQLConnHnd()
 {
     Disconnect();
 }
 
 // ------------------------------------------------------------------------------------------------
-void ConnHnd::Create(const Account & acc)
+void MySQLConnHnd::Create(const MySQLAccount & acc)
 {
     // Is this connection already created?
     if (mPtr != nullptr)
@@ -636,7 +655,7 @@ void ConnHnd::Create(const Account & acc)
         SQMOD_THROW_CURRENT(*this, "Cannot connect to database");
     }
     // Attempt configure the auto-commit option
-    else if (mysql_autocommit(mPtr, static_cast< StmtBind::BoolType >(mAutoCommit)) != 0)
+    else if (mysql_autocommit(mPtr, static_cast< MySQLStmtBind::BoolType >(mAutoCommit)) != 0)
     {
         SQMOD_THROW_CURRENT(*this, "Cannot configure auto-commit");
     }
@@ -668,21 +687,29 @@ void ConnHnd::Create(const Account & acc)
 }
 
 // ------------------------------------------------------------------------------------------------
-void ConnHnd::Disconnect()
+void MySQLConnHnd::Disconnect()
 {
     if (mPtr != nullptr)
     {
-        mysql_close(mPtr);
-        // mysql_init() called mysql_thread_init() therefore it needs to clear memory
-        // when the MYSQL handle is closed
-        mysql_thread_end();
+        // If this connection is a pooled session then let it clean itself up
+        if (mSession.isNull())
+        {
+            mysql_close(mPtr);
+            // mysql_init() called mysql_thread_init() therefore it needs to clear memory
+            // when the MYSQL handle is closed
+            mysql_thread_end();
+        }
+        else
+        {
+            mSession.reset();
+        }
         // Prevent further use of this handle
         mPtr = nullptr;
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-uint64_t ConnHnd::Execute(const SQChar * query, unsigned long size)
+uint64_t MySQLConnHnd::Execute(const SQChar * query, unsigned long size)
 {
     // Make sure that we are connected
     if (!mPtr)
@@ -750,7 +777,7 @@ uint64_t ConnHnd::Execute(const SQChar * query, unsigned long size)
 }
 
 // ------------------------------------------------------------------------------------------------
-void StmtBind::SetInput(enum_field_types type, BindType * bind, const char * buffer, unsigned long length)
+void MySQLStmtBind::SetInput(enum_field_types type, BindType * bind, const char * buffer, unsigned long length)
 {
     // Associate the library bind point with our bind wrapper
     mBind = bind;
@@ -834,7 +861,7 @@ void StmtBind::SetInput(enum_field_types type, BindType * bind, const char * buf
 }
 
 // ------------------------------------------------------------------------------------------------
-void StmtHnd::GrabCurrent()
+void MySQLStmtHnd::GrabCurrent()
 {
     mErrNo = mysql_stmt_errno(mPtr);
     mErrStr.assign(mysql_stmt_error(mPtr));
@@ -842,14 +869,14 @@ void StmtHnd::GrabCurrent()
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void StmtHnd::ThrowCurrent(const char * act, const char * file, int32_t line)
+void MySQLStmtHnd::ThrowCurrent(const char * act, const char * file, int32_t line)
 {
     GrabCurrent();
     // Throw the exception with the resulted message
     throw Sqrat::Exception(fmt::format("{} ({}) : {} =>[{}:{}]", act, mErrNo, mErrStr, file, line));
 }
 #else
-void StmtHnd::ThrowCurrent(const char * act)
+void MySQLStmtHnd::ThrowCurrent(const char * act)
 {
     GrabCurrent();
     // Throw the exception with the resulted message
@@ -859,7 +886,7 @@ void StmtHnd::ThrowCurrent(const char * act)
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void StmtHnd::ValidateParam(uint32_t idx, const char * file, int32_t line) const
+void MySQLStmtHnd::ValidateParam(uint32_t idx, const char * file, int32_t line) const
 {
     // Is the handle valid?
     if (mPtr == nullptr)
@@ -872,7 +899,7 @@ void StmtHnd::ValidateParam(uint32_t idx, const char * file, int32_t line) const
     }
 }
 #else
-void StmtHnd::ValidateParam(uint32_t idx) const
+void MySQLStmtHnd::ValidateParam(uint32_t idx) const
 {
     // Is the handle valid?
     if (mPtr == nullptr)
@@ -887,7 +914,7 @@ void StmtHnd::ValidateParam(uint32_t idx) const
 #endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
-StmtHnd::StmtHnd()
+MySQLStmtHnd::MySQLStmtHnd()
     : mPtr(nullptr)
     , mErrNo(0)
     , mErrStr()
@@ -901,7 +928,7 @@ StmtHnd::StmtHnd()
 }
 
 // ------------------------------------------------------------------------------------------------
-StmtHnd::~StmtHnd()
+MySQLStmtHnd::~MySQLStmtHnd()
 {
     // Should delete native bindings?
     if (mMyBinds)
@@ -921,7 +948,7 @@ StmtHnd::~StmtHnd()
 }
 
 // ------------------------------------------------------------------------------------------------
-void StmtHnd::Create(const ConnRef & conn, const SQChar * query)
+void MySQLStmtHnd::Create(const MySQLConnRef & conn, const SQChar * query)
 {
     // Is this statement already created?
     if (mPtr != nullptr)
@@ -966,7 +993,7 @@ void StmtHnd::Create(const ConnRef & conn, const SQChar * query)
         return;
     }
     // Allocate the binding wrappers
-    mBinds = new StmtBind[mParams];
+    mBinds = new MySQLStmtBind[mParams];
     // Validate the allocated memory
     if (!mBinds)
     {
@@ -984,7 +1011,7 @@ void StmtHnd::Create(const ConnRef & conn, const SQChar * query)
 }
 
 // ------------------------------------------------------------------------------------------------
-void ResBind::SetOutput(const FieldType & field, BindType * bind)
+void MySQLResBind::SetOutput(const FieldType & field, BindType * bind)
 {
     // Associate the library bind point with our bind wrapper
     mBind = bind;
@@ -1063,7 +1090,7 @@ void ResBind::SetOutput(const FieldType & field, BindType * bind)
 }
 
 // ------------------------------------------------------------------------------------------------
-ResHnd::ResHnd()
+MySQLResHnd::MySQLResHnd()
     : mPtr(nullptr)
     , mFieldCount(0)
     , mLengths(nullptr)
@@ -1079,7 +1106,7 @@ ResHnd::ResHnd()
 }
 
 // ------------------------------------------------------------------------------------------------
-ResHnd::~ResHnd()
+MySQLResHnd::~MySQLResHnd()
 {
     // Is there a result-set that we should free?
     if (mPtr)
@@ -1110,7 +1137,7 @@ ResHnd::~ResHnd()
 }
 
 // ------------------------------------------------------------------------------------------------
-void ResHnd::GrabCurrent() const
+void MySQLResHnd::GrabCurrent() const
 {
     if (mConnection)
     {
@@ -1124,7 +1151,7 @@ void ResHnd::GrabCurrent() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void ResHnd::ThrowCurrent(const char * act, const char * file, int32_t line) const
+void MySQLResHnd::ThrowCurrent(const char * act, const char * file, int32_t line) const
 {
     GrabCurrent();
     // Throw the exception with the resulted message
@@ -1138,7 +1165,7 @@ void ResHnd::ThrowCurrent(const char * act, const char * file, int32_t line) con
     }
 }
 #else
-void ResHnd::ThrowCurrent(const char * act) const
+void MySQLResHnd::ThrowCurrent(const char * act) const
 {
     GrabCurrent();
     // Throw the exception with the resulted message
@@ -1155,7 +1182,7 @@ void ResHnd::ThrowCurrent(const char * act) const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void ResHnd::ValidateField(uint32_t idx, const char * file, int32_t line) const
+void MySQLResHnd::ValidateField(uint32_t idx, const char * file, int32_t line) const
 {
     // Is the handle valid?
     if (mPtr == nullptr)
@@ -1168,7 +1195,7 @@ void ResHnd::ValidateField(uint32_t idx, const char * file, int32_t line) const
     }
 }
 #else
-void ResHnd::ValidateField(uint32_t idx) const
+void MySQLResHnd::ValidateField(uint32_t idx) const
 {
     // Is the handle valid?
     if (mPtr == nullptr)
@@ -1183,7 +1210,7 @@ void ResHnd::ValidateField(uint32_t idx) const
 #endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
-uint32_t ResHnd::GetFieldIndex(const SQChar * name)
+uint32_t MySQLResHnd::GetFieldIndex(const SQChar * name)
 {
     // Validate the handle
     if (!mPtr)
@@ -1202,7 +1229,7 @@ uint32_t ResHnd::GetFieldIndex(const SQChar * name)
 }
 
 // ------------------------------------------------------------------------------------------------
-void ResHnd::Create(const ConnRef & conn)
+void MySQLResHnd::Create(const MySQLConnRef & conn)
 {
     // Is this result-set already created?
     if (mPtr != nullptr)
@@ -1249,7 +1276,7 @@ void ResHnd::Create(const ConnRef & conn)
 }
 
 // ------------------------------------------------------------------------------------------------
-void ResHnd::Create(const StmtRef & stmt)
+void MySQLResHnd::Create(const MySQLStmtRef & stmt)
 {
     // Is this result-set already created?
     if (mPtr != nullptr)
@@ -1289,7 +1316,7 @@ void ResHnd::Create(const StmtRef & stmt)
     if (mFieldCount > 0)
     {
         // Allocate the bind wrappers
-        mBinds = new ResBind[mFieldCount];
+        mBinds = new MySQLResBind[mFieldCount];
         // Validate the allocated structures
         if (!mBinds)
         {
@@ -1339,7 +1366,7 @@ void ResHnd::Create(const StmtRef & stmt)
 }
 
 // ------------------------------------------------------------------------------------------------
-uint64_t ResHnd::RowIndex() const
+uint64_t MySQLResHnd::RowIndex() const
 {
     // Is this result-set even valid?
     if (!mPtr)
@@ -1356,7 +1383,7 @@ uint64_t ResHnd::RowIndex() const
 }
 
 // ------------------------------------------------------------------------------------------------
-uint64_t ResHnd::RowCount() const
+uint64_t MySQLResHnd::RowCount() const
 {
     // Is this result-set even valid?
     if (!mPtr)
@@ -1373,7 +1400,7 @@ uint64_t ResHnd::RowCount() const
 }
 
 // ------------------------------------------------------------------------------------------------
-bool ResHnd::Next()
+bool MySQLResHnd::Next()
 {
     // Is this result-set even valid?
     if (!mPtr)
@@ -1395,7 +1422,7 @@ bool ResHnd::Next()
 }
 
 // ------------------------------------------------------------------------------------------------
-bool ResHnd::SetRowIndex(uint64_t index)
+bool MySQLResHnd::SetRowIndex(uint64_t index)
 {
     // Is this result-set even valid?
     if (!mPtr)
@@ -1416,10 +1443,10 @@ bool ResHnd::SetRowIndex(uint64_t index)
 }
 
 // ------------------------------------------------------------------------------------------------
-const String Account::s_String{}; // NOLINT(cert-err58-cpp)
+const String MySQLAccount::s_String{}; // NOLINT(cert-err58-cpp)
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Account::Typename(HSQUIRRELVM vm)
+SQInteger MySQLAccount::Typename(HSQUIRRELVM vm)
 {
     static const SQChar name[] = _SC("SqMySQLAccount");
     sq_pushstring(vm, name, sizeof(name));
@@ -1427,7 +1454,7 @@ SQInteger Account::Typename(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-Account::Account(const SQChar * host, const SQChar * user, const SQChar * pass, const SQChar * name, SQInteger port, const SQChar * socket)
+MySQLAccount::MySQLAccount(const SQChar * host, const SQChar * user, const SQChar * pass, const SQChar * name, SQInteger port, const SQChar * socket)
     : m_Port(0)
     , m_Host()
     , m_User()
@@ -1462,7 +1489,7 @@ Account::Account(const SQChar * host, const SQChar * user, const SQChar * pass, 
 }
 
 // ------------------------------------------------------------------------------------------------
-int32_t Account::Cmp(const Account & o) const
+int32_t MySQLAccount::Cmp(const MySQLAccount & o) const
 {
     if (m_User == o.m_User && m_Pass == o.m_Pass)
     {
@@ -1479,13 +1506,13 @@ int32_t Account::Cmp(const Account & o) const
 }
 
 // ------------------------------------------------------------------------------------------------
-String Account::ToString() const
+String MySQLAccount::ToString() const
 {
     return fmt::format("{}:{}@{}:{}", m_User, m_Pass, m_Host, m_Port);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Account::SetHost(const SQChar * addr)
+void MySQLAccount::SetHost(const SQChar * addr)
 {
     // Clear the current host address
     m_Host.assign(_SC(""));
@@ -1519,7 +1546,7 @@ void Account::SetHost(const SQChar * addr)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Account::SetPortNum(SQInteger port)
+void MySQLAccount::SetPortNum(SQInteger port)
 {
     // Validate the specified port number
     if (port >= 0xFFFF)
@@ -1531,7 +1558,7 @@ void Account::SetPortNum(SQInteger port)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Account::SetSSL(const SQChar * key, const SQChar * cert, const SQChar * ca, const SQChar * ca_path, const SQChar * cipher)
+void MySQLAccount::SetSSL(const SQChar * key, const SQChar * cert, const SQChar * ca, const SQChar * ca_path, const SQChar * cipher)
 {
     if (!key || *key == '\0')
     {
@@ -1552,7 +1579,7 @@ void Account::SetSSL(const SQChar * key, const SQChar * cert, const SQChar * ca,
 }
 
 // ------------------------------------------------------------------------------------------------
-Table Account::GetOptionsTable() const
+Table MySQLAccount::GetOptionsTable() const
 {
     // Allocate an empty table
     Table tbl(SqVM(), static_cast< SQInteger >(m_Options.size()));
@@ -1566,7 +1593,7 @@ Table Account::GetOptionsTable() const
 }
 
 // ------------------------------------------------------------------------------------------------
-const String & Account::GetOption(const SQChar * name) const
+const String & MySQLAccount::GetOption(const SQChar * name) const
 {
     // Make sure the specified name is valid
     if (!name || *name == '\0')
@@ -1580,7 +1607,7 @@ const String & Account::GetOption(const SQChar * name) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Account::SetOption(const SQChar * name, const SQChar * value)
+void MySQLAccount::SetOption(const SQChar * name, const SQChar * value)
 {
     // Make sure the specified name is valid
     if (!name || *name == '\0')
@@ -1592,7 +1619,7 @@ void Account::SetOption(const SQChar * name, const SQChar * value)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Account::RemoveOption(const SQChar * name)
+void MySQLAccount::RemoveOption(const SQChar * name)
 {
     // Make sure the specified name is valid
     if (!name || *name == '\0')
@@ -1604,13 +1631,13 @@ void Account::RemoveOption(const SQChar * name)
 }
 
 // ------------------------------------------------------------------------------------------------
-Connection Account::Connect() const
+MySQLConnection MySQLAccount::Connect() const
 {
-    return Connection(*this);
+    return MySQLConnection(*this);
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Connection::Typename(HSQUIRRELVM vm)
+SQInteger MySQLConnection::Typename(HSQUIRRELVM vm)
 {
     static const SQChar name[] = _SC("SqMySQLConnection");
     sq_pushstring(vm, name, sizeof(name));
@@ -1619,7 +1646,7 @@ SQInteger Connection::Typename(HSQUIRRELVM vm)
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void Connection::Validate(const char * file, int32_t line) const
+void MySQLConnection::Validate(const char * file, int32_t line) const
 {
     if (!m_Handle)
     {
@@ -1627,7 +1654,7 @@ void Connection::Validate(const char * file, int32_t line) const
     }
 }
 #else
-void Connection::Validate() const
+void MySQLConnection::Validate() const
 {
     if (!m_Handle)
     {
@@ -1638,7 +1665,7 @@ void Connection::Validate() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void Connection::ValidateCreated(const char * file, int32_t line) const
+void MySQLConnection::ValidateCreated(const char * file, int32_t line) const
 {
     if (!m_Handle)
     {
@@ -1650,7 +1677,7 @@ void Connection::ValidateCreated(const char * file, int32_t line) const
     }
 }
 #else
-void Connection::ValidateCreated() const
+void MySQLConnection::ValidateCreated() const
 {
     if (!m_Handle)
     {
@@ -1665,13 +1692,13 @@ void Connection::ValidateCreated() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const ConnRef & Connection::GetValid(const char * file, int32_t line) const
+const MySQLConnRef & MySQLConnection::GetValid(const char * file, int32_t line) const
 {
     Validate(file, line);
     return m_Handle;
 }
 #else
-const ConnRef & Connection::GetValid() const
+const MySQLConnRef & MySQLConnection::GetValid() const
 {
     Validate();
     return m_Handle;
@@ -1680,13 +1707,13 @@ const ConnRef & Connection::GetValid() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const ConnRef & Connection::GetCreated(const char * file, int32_t line) const
+const MySQLConnRef & MySQLConnection::GetCreated(const char * file, int32_t line) const
 {
     ValidateCreated(file, line);
     return m_Handle;
 }
 #else
-const ConnRef & Connection::GetCreated() const
+const MySQLConnRef & MySQLConnection::GetCreated() const
 {
     ValidateCreated();
     return m_Handle;
@@ -1694,7 +1721,7 @@ const ConnRef & Connection::GetCreated() const
 #endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Connection::Insert(const SQChar * query)
+SQInteger MySQLConnection::Insert(const SQChar * query)
 {
     // Make sure the specified query is valid
     if (!query || *query == '\0')
@@ -1711,7 +1738,7 @@ SQInteger Connection::Insert(const SQChar * query)
 }
 
 // ------------------------------------------------------------------------------------------------
-ResultSet Connection::Query(const SQChar * query)
+MySQLResultSet MySQLConnection::Query(const SQChar * query)
 {
     // Make sure the specified query is valid
     if (!query || *query == '\0')
@@ -1724,17 +1751,17 @@ ResultSet Connection::Query(const SQChar * query)
         SQMOD_THROW_CURRENT(*m_Handle, "Unable to execute MySQL query");
     }
     // Return the identifier of the inserted row
-    return ResultSet(m_Handle);
+    return MySQLResultSet(m_Handle);
 }
 
 // ------------------------------------------------------------------------------------------------
-Statement Connection::GetStatement(const SQChar * query)
+MySQLStatement MySQLConnection::GetStatement(const SQChar * query)
 {
-    return Statement(SQMOD_GET_CREATED(*this), query);
+    return MySQLStatement(SQMOD_GET_CREATED(*this), query);
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Connection::ExecuteF(HSQUIRRELVM vm)
+SQInteger MySQLConnection::ExecuteF(HSQUIRRELVM vm)
 {
     const auto top = static_cast<const int32_t>(sq_gettop(vm));
     // Was the query value specified?
@@ -1743,11 +1770,11 @@ SQInteger Connection::ExecuteF(HSQUIRRELVM vm)
         return sq_throwerror(vm, "Missing query value");
     }
     // The connection instance
-    Connection * conn = nullptr;
+    MySQLConnection * conn = nullptr;
     // Attempt to extract the argument values
     try
     {
-        conn = Var< Connection * >(vm, 1).value;
+        conn = Var< MySQLConnection * >(vm, 1).value;
     }
     catch (const Sqrat::Exception & e)
     {
@@ -1795,7 +1822,7 @@ SQInteger Connection::ExecuteF(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Connection::InsertF(HSQUIRRELVM vm)
+SQInteger MySQLConnection::InsertF(HSQUIRRELVM vm)
 {
     const auto top = static_cast<const int32_t>(sq_gettop(vm));
     // Was the query value specified?
@@ -1804,11 +1831,11 @@ SQInteger Connection::InsertF(HSQUIRRELVM vm)
         return sq_throwerror(vm, "Missing query value");
     }
     // The connection instance
-    Connection * conn = nullptr;
+    MySQLConnection * conn = nullptr;
     // Attempt to extract the argument values
     try
     {
-        conn = Var< Connection * >(vm, 1).value;
+        conn = Var< MySQLConnection * >(vm, 1).value;
     }
     catch (const Sqrat::Exception & e)
     {
@@ -1862,7 +1889,7 @@ SQInteger Connection::InsertF(HSQUIRRELVM vm)
 
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Connection::QueryF(HSQUIRRELVM vm)
+SQInteger MySQLConnection::QueryF(HSQUIRRELVM vm)
 {
     const auto top = static_cast<const int32_t>(sq_gettop(vm));
     // Was the query value specified?
@@ -1871,11 +1898,11 @@ SQInteger Connection::QueryF(HSQUIRRELVM vm)
         return sq_throwerror(vm, "Missing query value");
     }
     // The connection instance
-    Connection * conn = nullptr;
+    MySQLConnection * conn = nullptr;
     // Attempt to extract the argument values
     try
     {
-        conn = Var< Connection * >(vm, 1).value;
+        conn = Var< MySQLConnection * >(vm, 1).value;
     }
     catch (const Sqrat::Exception & e)
     {
@@ -1917,7 +1944,7 @@ SQInteger Connection::QueryF(HSQUIRRELVM vm)
             SQMOD_THROW_CURRENT(*(conn->m_Handle), "Unable to execute MySQL query");
         }
         // Return a new instance with the obtained result set
-        Var< ResultSet * >::push(vm, new ResultSet(conn->m_Handle));
+        Var< MySQLResultSet * >::push(vm, new MySQLResultSet(conn->m_Handle));
     }
     catch (const Sqrat::Exception & e)
     {
@@ -1929,7 +1956,7 @@ SQInteger Connection::QueryF(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-LightObj Connection::EscapeString(StackStrF & str)
+LightObj MySQLConnection::EscapeString(StackStrF & str)
 {
     // Is there even a string to escape?
     if (str.mLen <= 0)
@@ -1946,7 +1973,7 @@ LightObj Connection::EscapeString(StackStrF & str)
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Field::Typename(HSQUIRRELVM vm)
+SQInteger MySQLField::Typename(HSQUIRRELVM vm)
 {
     static const SQChar name[] = _SC("SqMySQLField");
     sq_pushstring(vm, name, sizeof(name));
@@ -1955,7 +1982,7 @@ SQInteger Field::Typename(HSQUIRRELVM vm)
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void Field::Validate(const char * file, int32_t line) const
+void MySQLField::Validate(const char * file, int32_t line) const
 {
     // Do we have a valid result-set handle?
     if (!m_Handle)
@@ -1969,7 +1996,7 @@ void Field::Validate(const char * file, int32_t line) const
     }
 }
 #else
-void Field::Validate() const
+void MySQLField::Validate() const
 {
     // Do we have a valid result-set handle?
     if (!m_Handle)
@@ -1986,7 +2013,7 @@ void Field::Validate() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void Field::ValidateCreated(const char * file, int32_t line) const
+void MySQLField::ValidateCreated(const char * file, int32_t line) const
 {
     // Do we have a valid result-set handle?
     if (!m_Handle)
@@ -1997,7 +2024,7 @@ void Field::ValidateCreated(const char * file, int32_t line) const
     m_Handle->ValidateField(m_Index, file, line);
 }
 #else
-void Field::ValidateCreated() const
+void MySQLField::ValidateCreated() const
 {
     // Do we have a valid result-set handle?
     if (!m_Handle)
@@ -2011,7 +2038,7 @@ void Field::ValidateCreated() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void Field::ValidateStepped(const char * file, int32_t line) const
+void MySQLField::ValidateStepped(const char * file, int32_t line) const
 {
     // Do we have a valid result-set handle?
     if (!m_Handle)
@@ -2027,7 +2054,7 @@ void Field::ValidateStepped(const char * file, int32_t line) const
     m_Handle->ValidateField(m_Index, file, line);
 }
 #else
-void Field::ValidateStepped() const
+void MySQLField::ValidateStepped() const
 {
     // Do we have a valid result-set handle?
     if (!m_Handle)
@@ -2046,13 +2073,13 @@ void Field::ValidateStepped() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const ResRef & Field::GetValid(const char * file, int32_t line) const
+const MySQLResRef & MySQLField::GetValid(const char * file, int32_t line) const
 {
     Validate(file, line);
     return m_Handle;
 }
 #else
-const ResRef & Field::GetValid() const
+const MySQLResRef & MySQLField::GetValid() const
 {
     Validate();
     return m_Handle;
@@ -2061,13 +2088,13 @@ const ResRef & Field::GetValid() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const ResRef & Field::GetCreated(const char * file, int32_t line) const
+const MySQLResRef & MySQLField::GetCreated(const char * file, int32_t line) const
 {
     ValidateCreated(file, line);
     return m_Handle;
 }
 #else
-const ResRef & Field::GetCreated() const
+const MySQLResRef & MySQLField::GetCreated() const
 {
     ValidateCreated();
     return m_Handle;
@@ -2076,13 +2103,13 @@ const ResRef & Field::GetCreated() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const ResRef & Field::GetStepped(const char * file, int32_t line) const
+const MySQLResRef & MySQLField::GetStepped(const char * file, int32_t line) const
 {
     ValidateStepped(file, line);
     return m_Handle;
 }
 #else
-const ResRef & Field::GetStepped() const
+const MySQLResRef & MySQLField::GetStepped() const
 {
     ValidateStepped();
     return m_Handle;
@@ -2091,7 +2118,7 @@ const ResRef & Field::GetStepped() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void Field::ValidateField(uint32_t idx, const char * file, int32_t line) const
+void MySQLField::ValidateField(uint32_t idx, const char * file, int32_t line) const
 {
     // Do we have a valid result-set handle?
     if (!m_Handle)
@@ -2102,7 +2129,7 @@ void Field::ValidateField(uint32_t idx, const char * file, int32_t line) const
     m_Handle->ValidateField(idx, file, line);
 }
 #else
-void Field::ValidateField(uint32_t idx) const
+void MySQLField::ValidateField(uint32_t idx) const
 {
     // Do we have a valid result-set handle?
     if (!m_Handle)
@@ -2115,7 +2142,7 @@ void Field::ValidateField(uint32_t idx) const
 #endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
-void Field::SetIndex(const Object & field)
+void MySQLField::SetIndex(const Object & field)
 {
     // Where the index will be extracted
     uint32_t idx = INVALID_INDEX;
@@ -2189,19 +2216,19 @@ void Field::SetIndex(const Object & field)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Field::GetResultSet() const // NOLINT(readability-convert-member-functions-to-static)
+Object MySQLField::GetResultSet() const // NOLINT(readability-convert-member-functions-to-static)
 {
     return Object();
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Field::GetConnection() const // NOLINT(readability-convert-member-functions-to-static)
+Object MySQLField::GetConnection() const // NOLINT(readability-convert-member-functions-to-static)
 {
     return Object();
 }
 
 // ------------------------------------------------------------------------------------------------
-bool Field::GetBoolean() const
+bool MySQLField::GetBoolean() const
 {
     SQMOD_VALIDATE_STEPPED(*this);
     // Should we retrieve the value from the bind wrapper?
@@ -2216,7 +2243,7 @@ bool Field::GetBoolean() const
 }
 
 // ------------------------------------------------------------------------------------------------
-SQChar Field::GetChar() const
+SQChar MySQLField::GetChar() const
 {
     SQMOD_VALIDATE_STEPPED(*this);
     // Should we retrieve the value from the bind wrapper?
@@ -2231,7 +2258,7 @@ SQChar Field::GetChar() const
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Field::GetInteger() const
+SQInteger MySQLField::GetInteger() const
 {
     SQMOD_VALIDATE_STEPPED(*this);
     // Should we retrieve the value from the bind wrapper?
@@ -2250,7 +2277,7 @@ SQInteger Field::GetInteger() const
 }
 
 // ------------------------------------------------------------------------------------------------
-SQFloat Field::GetFloat() const
+SQFloat MySQLField::GetFloat() const
 {
     SQMOD_VALIDATE_STEPPED(*this);
     // Should we retrieve the value from the bind wrapper?
@@ -2269,7 +2296,7 @@ SQFloat Field::GetFloat() const
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Field::GetInt8() const
+SQInteger MySQLField::GetInt8() const
 {
     SQMOD_VALIDATE_STEPPED(*this);
     // Should we retrieve the value from the bind wrapper?
@@ -2284,7 +2311,7 @@ SQInteger Field::GetInt8() const
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Field::GetUint8() const
+SQInteger MySQLField::GetUint8() const
 {
     SQMOD_VALIDATE_STEPPED(*this);
     // Should we retrieve the value from the bind wrapper?
@@ -2299,7 +2326,7 @@ SQInteger Field::GetUint8() const
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Field::GetInt16() const
+SQInteger MySQLField::GetInt16() const
 {
     SQMOD_VALIDATE_STEPPED(*this);
     // Should we retrieve the value from the bind wrapper?
@@ -2314,7 +2341,7 @@ SQInteger Field::GetInt16() const
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Field::GetUint16() const
+SQInteger MySQLField::GetUint16() const
 {
     SQMOD_VALIDATE_STEPPED(*this);
     // Should we retrieve the value from the bind wrapper?
@@ -2329,7 +2356,7 @@ SQInteger Field::GetUint16() const
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Field::GetInt32() const
+SQInteger MySQLField::GetInt32() const
 {
     SQMOD_VALIDATE_STEPPED(*this);
     // Should we retrieve the value from the bind wrapper?
@@ -2344,7 +2371,7 @@ SQInteger Field::GetInt32() const
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Field::GetUint32() const
+SQInteger MySQLField::GetUint32() const
 {
     SQMOD_VALIDATE_STEPPED(*this);
     // Should we retrieve the value from the bind wrapper?
@@ -2359,7 +2386,7 @@ SQInteger Field::GetUint32() const
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Field::GetInt64() const
+SQInteger MySQLField::GetInt64() const
 {
     SQMOD_VALIDATE_STEPPED(*this);
     // Obtain the initial stack size
@@ -2376,7 +2403,7 @@ SQInteger Field::GetInt64() const
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Field::GetUint64() const
+SQInteger MySQLField::GetUint64() const
 {
     SQMOD_VALIDATE_STEPPED(*this);
     // Obtain the initial stack size
@@ -2393,7 +2420,7 @@ SQInteger Field::GetUint64() const
 }
 
 // ------------------------------------------------------------------------------------------------
-SQFloat Field::GetFloat32() const
+SQFloat MySQLField::GetFloat32() const
 {
     SQMOD_VALIDATE_STEPPED(*this);
     // Should we retrieve the value from the bind wrapper?
@@ -2408,7 +2435,7 @@ SQFloat Field::GetFloat32() const
 }
 
 // ------------------------------------------------------------------------------------------------
-SQFloat Field::GetFloat64() const
+SQFloat MySQLField::GetFloat64() const
 {
     SQMOD_VALIDATE_STEPPED(*this);
     // Should we retrieve the value from the bind wrapper?
@@ -2423,7 +2450,7 @@ SQFloat Field::GetFloat64() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Field::GetString() const
+Object MySQLField::GetString() const
 {
     SQMOD_VALIDATE_STEPPED(*this);
     // Obtain the initial stack size
@@ -2439,19 +2466,19 @@ Object Field::GetString() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Field::GetBuffer() const // NOLINT(readability-convert-member-functions-to-static)
+Object MySQLField::GetBuffer() const // NOLINT(readability-convert-member-functions-to-static)
 {
     return NullObject();
 }
 
 // ------------------------------------------------------------------------------------------------
-Object Field::GetBlob() const // NOLINT(readability-convert-member-functions-to-static)
+Object MySQLField::GetBlob() const // NOLINT(readability-convert-member-functions-to-static)
 {
     return NullObject();
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger ResultSet::Typename(HSQUIRRELVM vm)
+SQInteger MySQLResultSet::Typename(HSQUIRRELVM vm)
 {
     static const SQChar name[] = _SC("SqMySQLResultSet");
     sq_pushstring(vm, name, sizeof(name));
@@ -2460,7 +2487,7 @@ SQInteger ResultSet::Typename(HSQUIRRELVM vm)
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void ResultSet::Validate(const char * file, int32_t line) const
+void MySQLResultSet::Validate(const char * file, int32_t line) const
 {
     // Do we have a valid result-set handle?
     if (!m_Handle)
@@ -2469,7 +2496,7 @@ void ResultSet::Validate(const char * file, int32_t line) const
     }
 }
 #else
-void ResultSet::Validate() const
+void MySQLResultSet::Validate() const
 {
     // Do we have a valid result-set handle?
     if (!m_Handle)
@@ -2481,7 +2508,7 @@ void ResultSet::Validate() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void ResultSet::ValidateCreated(const char * file, int32_t line) const
+void MySQLResultSet::ValidateCreated(const char * file, int32_t line) const
 {
     // Do we have a valid result-set handle?
     if (!m_Handle)
@@ -2494,7 +2521,7 @@ void ResultSet::ValidateCreated(const char * file, int32_t line) const
     }
 }
 #else
-void ResultSet::ValidateCreated() const
+void MySQLResultSet::ValidateCreated() const
 {
     // Do we have a valid result-set handle?
     if (!m_Handle)
@@ -2510,7 +2537,7 @@ void ResultSet::ValidateCreated() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void ResultSet::ValidateStepped(const char * file, int32_t line) const
+void MySQLResultSet::ValidateStepped(const char * file, int32_t line) const
 {
     // Do we have a valid result-set handle?
     if (!m_Handle)
@@ -2524,7 +2551,7 @@ void ResultSet::ValidateStepped(const char * file, int32_t line) const
     }
 }
 #else
-void ResultSet::ValidateStepped() const
+void MySQLResultSet::ValidateStepped() const
 {
     // Do we have a valid result-set handle?
     if (!m_Handle)
@@ -2541,13 +2568,13 @@ void ResultSet::ValidateStepped() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const ResRef & ResultSet::GetValid(const char * file, int32_t line) const
+const MySQLResRef & MySQLResultSet::GetValid(const char * file, int32_t line) const
 {
     Validate(file, line);
     return m_Handle;
 }
 #else
-const ResRef & ResultSet::GetValid() const
+const MySQLResRef & MySQLResultSet::GetValid() const
 {
     Validate();
     return m_Handle;
@@ -2556,13 +2583,13 @@ const ResRef & ResultSet::GetValid() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const ResRef & ResultSet::GetCreated(const char * file, int32_t line) const
+const MySQLResRef & MySQLResultSet::GetCreated(const char * file, int32_t line) const
 {
     ValidateCreated(file, line);
     return m_Handle;
 }
 #else
-const ResRef & ResultSet::GetCreated() const
+const MySQLResRef & MySQLResultSet::GetCreated() const
 {
     ValidateCreated();
     return m_Handle;
@@ -2571,13 +2598,13 @@ const ResRef & ResultSet::GetCreated() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const ResRef & ResultSet::GetStepped(const char * file, int32_t line) const
+const MySQLResRef & MySQLResultSet::GetStepped(const char * file, int32_t line) const
 {
     ValidateStepped(file, line);
     return m_Handle;
 }
 #else
-const ResRef & ResultSet::GetStepped() const
+const MySQLResRef & MySQLResultSet::GetStepped() const
 {
     ValidateStepped();
     return m_Handle;
@@ -2586,13 +2613,13 @@ const ResRef & ResultSet::GetStepped() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void ResultSet::ValidateField(int32_t idx, const char * file, int32_t line) const
+void MySQLResultSet::ValidateField(int32_t idx, const char * file, int32_t line) const
 {
     ValidateCreated(file, line);
     m_Handle->ValidateField(idx, file, line);
 }
 #else
-void ResultSet::ValidateField(int32_t idx) const
+void MySQLResultSet::ValidateField(int32_t idx) const
 {
     ValidateCreated();
     m_Handle->ValidateField(static_cast<uint32_t>(idx));
@@ -2600,13 +2627,13 @@ void ResultSet::ValidateField(int32_t idx) const
 #endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
-Array ResultSet::GetFieldNames() const
+Array MySQLResultSet::GetFieldNames() const
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Grab the number of available fields
     const SQInteger field_count = ConvTo< SQInteger >::From(m_Handle->mFieldCount);
     // Grab the array with field instances
-    const ResHnd::FieldType * fields = m_Handle->mFields;
+    const MySQLResHnd::FieldType * fields = m_Handle->mFields;
     // Is there even something to process?
     if (!field_count || !fields)
     {
@@ -2624,7 +2651,7 @@ Array ResultSet::GetFieldNames() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Array ResultSet::GetFieldsArray() const
+Array MySQLResultSet::GetFieldsArray() const
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Grab the number of available fields
@@ -2635,7 +2662,7 @@ Array ResultSet::GetFieldsArray() const
         return Array(SqVM(), 0);
     }
     // Create a field instance to insert as copy
-    Field field(m_Handle);
+    MySQLField field(m_Handle);
     // Allocate an array with the same amount of elements as the number of fields
     Array arr(SqVM(), field_count);
     // Iterate over all the available fields and insert them into the created array
@@ -2651,7 +2678,7 @@ Array ResultSet::GetFieldsArray() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Array ResultSet::FetchFieldsArray(Array & fields) const
+Array MySQLResultSet::FetchFieldsArray(Array & fields) const
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Is there even something to process?
@@ -2660,7 +2687,7 @@ Array ResultSet::FetchFieldsArray(Array & fields) const
         return Array(SqVM(), 0);
     }
     // Create a field instance to insert as copy
-    Field field(m_Handle);
+    MySQLField field(m_Handle);
     // Allocate an array with the same amount of elements as the number of fields
     Array arr(SqVM(), fields.Length());
     // Iterate the specified fields array
@@ -2677,20 +2704,20 @@ Array ResultSet::FetchFieldsArray(Array & fields) const
 }
 
 // ------------------------------------------------------------------------------------------------
-Table ResultSet::GetFieldsTable() const
+Table MySQLResultSet::GetFieldsTable() const
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Grab the number of available fields
     const SQInteger field_count = ConvTo< SQInteger >::From(m_Handle->mFieldCount);
     // Grab the array with field instances
-    const ResHnd::FieldType * fields = m_Handle->mFields;
+    const MySQLResHnd::FieldType * fields = m_Handle->mFields;
     // Is there even something to process?
     if (!field_count || !fields)
     {
         return Table();
     }
     // Create a field instance to insert as copy
-    Field field(m_Handle);
+    MySQLField field(m_Handle);
     // Allocate a table to be populated with field instances
     Table tbl(SqVM(), field_count);
     // Iterate over all the available fields and insert them into the created table
@@ -2706,7 +2733,7 @@ Table ResultSet::GetFieldsTable() const
 }
 
 // ------------------------------------------------------------------------------------------------
-Table ResultSet::FetchFieldsTable(Array & fields) const
+Table MySQLResultSet::FetchFieldsTable(Array & fields) const
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Is there even something to process?
@@ -2715,11 +2742,11 @@ Table ResultSet::FetchFieldsTable(Array & fields) const
         return Table();
     }
     // Create a field instance to insert as copy
-    Field field(m_Handle);
+    MySQLField field(m_Handle);
     // Allocate a table to be populated with field instances
     Table tbl(SqVM(), fields.Length());
     // Grab the array with field instances
-    const ResHnd::FieldType * fields_ptr = m_Handle->mFields;
+    const MySQLResHnd::FieldType * fields_ptr = m_Handle->mFields;
     // Iterate the specified fields array
     fields.Foreach([&field, &tbl, fields_ptr](HSQUIRRELVM vm, SQInteger i) -> SQRESULT {
         // Update the field index
@@ -2734,7 +2761,7 @@ Table ResultSet::FetchFieldsTable(Array & fields) const
 }
 
 // ------------------------------------------------------------------------------------------------
-SQInteger Statement::Typename(HSQUIRRELVM vm)
+SQInteger MySQLStatement::Typename(HSQUIRRELVM vm)
 {
     static const SQChar name[] = _SC("SqMySQLStatement");
     sq_pushstring(vm, name, sizeof(name));
@@ -2743,7 +2770,7 @@ SQInteger Statement::Typename(HSQUIRRELVM vm)
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void Statement::Validate(const char * file, int32_t line) const
+void MySQLStatement::Validate(const char * file, int32_t line) const
 {
     if (!m_Handle)
     {
@@ -2751,7 +2778,7 @@ void Statement::Validate(const char * file, int32_t line) const
     }
 }
 #else
-void Statement::Validate() const
+void MySQLStatement::Validate() const
 {
     if (!m_Handle)
     {
@@ -2762,7 +2789,7 @@ void Statement::Validate() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void Statement::ValidateCreated(const char * file, int32_t line) const
+void MySQLStatement::ValidateCreated(const char * file, int32_t line) const
 {
     if (!m_Handle)
     {
@@ -2774,7 +2801,7 @@ void Statement::ValidateCreated(const char * file, int32_t line) const
     }
 }
 #else
-void Statement::ValidateCreated() const
+void MySQLStatement::ValidateCreated() const
 {
     if (!m_Handle)
     {
@@ -2789,13 +2816,13 @@ void Statement::ValidateCreated() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const StmtRef & Statement::GetValid(const char * file, int32_t line) const
+const MySQLStmtRef & MySQLStatement::GetValid(const char * file, int32_t line) const
 {
     Validate(file, line);
     return m_Handle;
 }
 #else
-const StmtRef & Statement::GetValid() const
+const MySQLStmtRef & MySQLStatement::GetValid() const
 {
     Validate();
     return m_Handle;
@@ -2804,13 +2831,13 @@ const StmtRef & Statement::GetValid() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const StmtRef & Statement::GetCreated(const char * file, int32_t line) const
+const MySQLStmtRef & MySQLStatement::GetCreated(const char * file, int32_t line) const
 {
     ValidateCreated(file, line);
     return m_Handle;
 }
 #else
-const StmtRef & Statement::GetCreated() const
+const MySQLStmtRef & MySQLStatement::GetCreated() const
 {
     ValidateCreated();
     return m_Handle;
@@ -2819,13 +2846,13 @@ const StmtRef & Statement::GetCreated() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-void Statement::ValidateParam(int32_t idx, const char * file, int32_t line) const
+void MySQLStatement::ValidateParam(int32_t idx, const char * file, int32_t line) const
 {
     ValidateCreated(file, line);
     m_Handle->ValidateParam(idx, file, line);
 }
 #else
-void Statement::ValidateParam(int32_t idx) const
+void MySQLStatement::ValidateParam(int32_t idx) const
 {
     ValidateCreated();
     m_Handle->ValidateParam(static_cast< uint32_t >(idx));
@@ -2833,26 +2860,26 @@ void Statement::ValidateParam(int32_t idx) const
 #endif // _DEBUG
 
 // ------------------------------------------------------------------------------------------------
-Statement::Statement(const Connection & connection, const SQChar * query)
-    : Statement(connection.GetHandle(), query)
+MySQLStatement::MySQLStatement(const MySQLConnection & connection, const SQChar * query)
+    : MySQLStatement(connection.GetHandle(), query)
 {
     /* ... */
 }
 
 // ------------------------------------------------------------------------------------------------
-Connection Statement::GetConnection() const
+MySQLConnection MySQLStatement::GetConnection() const
 {
-    return Connection(SQMOD_GET_VALID(*this)->mConnection);
+    return MySQLConnection(SQMOD_GET_VALID(*this)->mConnection);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetConnection(const Connection & conn)
+void MySQLStatement::SetConnection(const MySQLConnection & conn)
 {
     SQMOD_GET_VALID(*this)->mConnection = conn.GetHandle();
 }
 
 // ------------------------------------------------------------------------------------------------
-int32_t Statement::Execute()
+int32_t MySQLStatement::Execute()
 {
     // Attempt to bind the parameters
     if (mysql_stmt_bind_param(SQMOD_GET_CREATED(*this)->mPtr, m_Handle->mMyBinds))
@@ -2869,7 +2896,7 @@ int32_t Statement::Execute()
 }
 
 // ------------------------------------------------------------------------------------------------
-uint32_t Statement::Insert()
+uint32_t MySQLStatement::Insert()
 {
     // Attempt to bind the parameters
     if (mysql_stmt_bind_param(SQMOD_GET_CREATED(*this)->mPtr, m_Handle->mMyBinds))
@@ -2886,7 +2913,7 @@ uint32_t Statement::Insert()
 }
 
 // ------------------------------------------------------------------------------------------------
-ResultSet Statement::Query()
+MySQLResultSet MySQLStatement::Query()
 {
     // Attempt to bind the parameters
     if (mysql_stmt_bind_param(SQMOD_GET_CREATED(*this)->mPtr, m_Handle->mMyBinds))
@@ -2899,11 +2926,11 @@ ResultSet Statement::Query()
         SQMOD_THROW_CURRENT(*m_Handle, "Cannot execute MySQL statement");
     }
     // Return the results of this query
-    return ResultSet(m_Handle);
+    return MySQLResultSet(m_Handle);
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetInt8(uint32_t idx, SQInteger val) const
+void MySQLStatement::SetInt8(uint32_t idx, SQInteger val) const
 {
     SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
@@ -2913,7 +2940,7 @@ void Statement::SetInt8(uint32_t idx, SQInteger val) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetUint8(uint32_t idx, SQInteger val) const
+void MySQLStatement::SetUint8(uint32_t idx, SQInteger val) const
 {
     SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
@@ -2925,7 +2952,7 @@ void Statement::SetUint8(uint32_t idx, SQInteger val) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetInt16(uint32_t idx, SQInteger val) const
+void MySQLStatement::SetInt16(uint32_t idx, SQInteger val) const
 {
     SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
@@ -2935,7 +2962,7 @@ void Statement::SetInt16(uint32_t idx, SQInteger val) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetUint16(uint32_t idx, SQInteger val) const
+void MySQLStatement::SetUint16(uint32_t idx, SQInteger val) const
 {
     SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
@@ -2947,7 +2974,7 @@ void Statement::SetUint16(uint32_t idx, SQInteger val) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetInt32(uint32_t idx, SQInteger val) const
+void MySQLStatement::SetInt32(uint32_t idx, SQInteger val) const
 {
     SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
@@ -2957,7 +2984,7 @@ void Statement::SetInt32(uint32_t idx, SQInteger val) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetUint32(uint32_t idx, SQInteger val) const
+void MySQLStatement::SetUint32(uint32_t idx, SQInteger val) const
 {
     SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
@@ -2969,7 +2996,7 @@ void Statement::SetUint32(uint32_t idx, SQInteger val) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetInt64(uint32_t idx, SQInteger val) const
+void MySQLStatement::SetInt64(uint32_t idx, SQInteger val) const
 {
     SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
@@ -2979,7 +3006,7 @@ void Statement::SetInt64(uint32_t idx, SQInteger val) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetUint64(uint32_t idx, SQInteger val) const
+void MySQLStatement::SetUint64(uint32_t idx, SQInteger val) const
 {
     SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
@@ -2991,7 +3018,7 @@ void Statement::SetUint64(uint32_t idx, SQInteger val) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetSLongInt(uint32_t idx, SQInteger val) const
+void MySQLStatement::SetSLongInt(uint32_t idx, SQInteger val) const
 {
     SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
@@ -3001,7 +3028,7 @@ void Statement::SetSLongInt(uint32_t idx, SQInteger val) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetULongInt(uint32_t idx, SQInteger val) const
+void MySQLStatement::SetULongInt(uint32_t idx, SQInteger val) const
 {
     SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
@@ -3013,7 +3040,7 @@ void Statement::SetULongInt(uint32_t idx, SQInteger val) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetInteger(uint32_t idx, SQInteger val) const
+void MySQLStatement::SetInteger(uint32_t idx, SQInteger val) const
 {
 #ifdef _SQ64
     SetInt64(idx, val);
@@ -3023,7 +3050,7 @@ void Statement::SetInteger(uint32_t idx, SQInteger val) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetFloat32(uint32_t idx, SQFloat val) const
+void MySQLStatement::SetFloat32(uint32_t idx, SQFloat val) const
 {
     SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
@@ -3033,7 +3060,7 @@ void Statement::SetFloat32(uint32_t idx, SQFloat val) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetFloat64(uint32_t idx, SQFloat val) const
+void MySQLStatement::SetFloat64(uint32_t idx, SQFloat val) const
 {
     SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
@@ -3043,7 +3070,7 @@ void Statement::SetFloat64(uint32_t idx, SQFloat val) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetFloat(uint32_t idx, SQFloat val) const
+void MySQLStatement::SetFloat(uint32_t idx, SQFloat val) const
 {
 #ifdef SQUSEDOUBLE
     SetFloat64(idx, val);
@@ -3053,7 +3080,7 @@ void Statement::SetFloat(uint32_t idx, SQFloat val) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetBoolean(uint32_t idx, bool val) const
+void MySQLStatement::SetBoolean(uint32_t idx, bool val) const
 {
     SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
@@ -3063,7 +3090,7 @@ void Statement::SetBoolean(uint32_t idx, bool val) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetDate(uint32_t idx, const Date & val) const
+void MySQLStatement::SetDate(uint32_t idx, const Date & val) const
 {
     SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
@@ -3073,7 +3100,7 @@ void Statement::SetDate(uint32_t idx, const Date & val) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetTime(uint32_t idx, const Time & val) const
+void MySQLStatement::SetTime(uint32_t idx, const Time & val) const
 {
     SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
@@ -3083,7 +3110,7 @@ void Statement::SetTime(uint32_t idx, const Time & val) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetDatetime(uint32_t idx, const Datetime & val) const
+void MySQLStatement::SetDatetime(uint32_t idx, const Datetime & val) const
 {
     SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
@@ -3093,7 +3120,7 @@ void Statement::SetDatetime(uint32_t idx, const Datetime & val) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetString(uint32_t idx, const SQChar * val) const
+void MySQLStatement::SetString(uint32_t idx, const SQChar * val) const
 {
     SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
@@ -3102,7 +3129,7 @@ void Statement::SetString(uint32_t idx, const SQChar * val) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetEnum(uint32_t idx, const SQChar * val) const
+void MySQLStatement::SetEnum(uint32_t idx, const SQChar * val) const
 {
     SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
@@ -3111,7 +3138,7 @@ void Statement::SetEnum(uint32_t idx, const SQChar * val) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetSet(uint32_t idx, const SQChar * val) const
+void MySQLStatement::SetSet(uint32_t idx, const SQChar * val) const
 {
     SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
@@ -3120,19 +3147,19 @@ void Statement::SetSet(uint32_t idx, const SQChar * val) const
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetBlob(uint32_t /*idx*/, Object & /*val*/) const
+void MySQLStatement::SetBlob(uint32_t /*idx*/, Object & /*val*/) const
 {
     // TODO: implement
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetData(uint32_t /*idx*/, Object & /*val*/) const
+void MySQLStatement::SetData(uint32_t /*idx*/, Object & /*val*/) const
 {
     // TODO: implement
 }
 
 // ------------------------------------------------------------------------------------------------
-void Statement::SetNull(uint32_t idx) const
+void MySQLStatement::SetNull(uint32_t idx) const
 {
     SQMOD_VALIDATE_PARAM(*this, idx);
     // Attempt to set the input value
@@ -3144,217 +3171,217 @@ void Register_MySQL(HSQUIRRELVM vm)
 {
     Table sqlns(vm);
 
-    sqlns.Bind(_SC("Account")
-        , Class< Account >(sqlns.GetVM(), _SC("SqMySQLAccount"))
+    sqlns.Bind(_SC("MySQLAccount")
+        , Class< MySQLAccount >(sqlns.GetVM(), _SC("SqMySQLAccount"))
         // Constructors
-        .Ctor< const Account & >()
+        .Ctor< const MySQLAccount & >()
         .Ctor< const SQChar *, const SQChar * >()
         .Ctor< const SQChar *, const SQChar *, const SQChar * >()
         .Ctor< const SQChar *, const SQChar *, const SQChar *, const SQChar * >()
         .Ctor< const SQChar *, const SQChar *, const SQChar *, const SQChar *, SQInteger >()
         .Ctor< const SQChar *, const SQChar *, const SQChar *, const SQChar *, SQInteger, const SQChar * >()
         // Core Meta-methods
-        .Func(_SC("_cmp"), &Account::Cmp)
-        .SquirrelFunc(_SC("_typename"), &Account::Typename)
-        .Func(_SC("_tostring"), &Account::ToString)
+        .Func(_SC("_cmp"), &MySQLAccount::Cmp)
+        .SquirrelFunc(_SC("_typename"), &MySQLAccount::Typename)
+        .Func(_SC("_tostring"), &MySQLAccount::ToString)
         // Properties
-        .Prop(_SC("Port"), &Account::GetPortNum, &Account::SetPortNum)
-        .Prop(_SC("Host"), &Account::GetHost, &Account::SetHost)
-        .Prop(_SC("User"), &Account::GetUser, &Account::SetUser)
-        .Prop(_SC("Pass"), &Account::GetPass, &Account::SetPass)
-        .Prop(_SC("Socket"), &Account::GetSocket, &Account::SetSocket)
-        .Prop(_SC("Flags"), &Account::GetFlags, &Account::SetFlags)
-        .Prop(_SC("SSL_Key"), &Account::GetSSL_Key, &Account::SetSSL_Key)
-        .Prop(_SC("SSL_Cert"), &Account::GetSSL_Cert, &Account::SetSSL_Cert)
-        .Prop(_SC("SSL_CA"), &Account::GetSSL_CA, &Account::SetSSL_CA)
-        .Prop(_SC("SSL_CA_Path"), &Account::GetSSL_CA_Path, &Account::SetSSL_CA_Path)
-        .Prop(_SC("SSL_Cipher"), &Account::GetSSL_Cipher, &Account::SetSSL_Cipher)
-        .Prop(_SC("AutoCommit"), &Account::GetAutoCommit, &Account::SetAutoCommit)
-        .Prop(_SC("Options"), &Account::GetOptionsTable)
-        .Prop(_SC("OptionsCount"), &Account::OptionsCount)
-        .Prop(_SC("OptionsEmpty"), &Account::OptionsEmpty)
+        .Prop(_SC("Port"), &MySQLAccount::GetPortNum, &MySQLAccount::SetPortNum)
+        .Prop(_SC("Host"), &MySQLAccount::GetHost, &MySQLAccount::SetHost)
+        .Prop(_SC("User"), &MySQLAccount::GetUser, &MySQLAccount::SetUser)
+        .Prop(_SC("Pass"), &MySQLAccount::GetPass, &MySQLAccount::SetPass)
+        .Prop(_SC("Socket"), &MySQLAccount::GetSocket, &MySQLAccount::SetSocket)
+        .Prop(_SC("Flags"), &MySQLAccount::GetFlags, &MySQLAccount::SetFlags)
+        .Prop(_SC("SSL_Key"), &MySQLAccount::GetSSL_Key, &MySQLAccount::SetSSL_Key)
+        .Prop(_SC("SSL_Cert"), &MySQLAccount::GetSSL_Cert, &MySQLAccount::SetSSL_Cert)
+        .Prop(_SC("SSL_CA"), &MySQLAccount::GetSSL_CA, &MySQLAccount::SetSSL_CA)
+        .Prop(_SC("SSL_CA_Path"), &MySQLAccount::GetSSL_CA_Path, &MySQLAccount::SetSSL_CA_Path)
+        .Prop(_SC("SSL_Cipher"), &MySQLAccount::GetSSL_Cipher, &MySQLAccount::SetSSL_Cipher)
+        .Prop(_SC("AutoCommit"), &MySQLAccount::GetAutoCommit, &MySQLAccount::SetAutoCommit)
+        .Prop(_SC("Options"), &MySQLAccount::GetOptionsTable)
+        .Prop(_SC("OptionsCount"), &MySQLAccount::OptionsCount)
+        .Prop(_SC("OptionsEmpty"), &MySQLAccount::OptionsEmpty)
         // Member Methods
-        .Func(_SC("EnableFlags"), &Account::EnableFlags)
-        .Func(_SC("DisableFlags"), &Account::DisableFlags)
-        .Func(_SC("SetSSL"), &Account::SetSSL)
-        .Func(_SC("GetOption"), &Account::GetOption)
-        .Func(_SC("SetOption"), &Account::SetOption)
-        .Func(_SC("RemoveOption"), &Account::RemoveOption)
-        .Func(_SC("OptionsClear"), &Account::OptionsClear)
-        .Func(_SC("Connect"), &Account::Connect)
+        .Func(_SC("EnableFlags"), &MySQLAccount::EnableFlags)
+        .Func(_SC("DisableFlags"), &MySQLAccount::DisableFlags)
+        .Func(_SC("SetSSL"), &MySQLAccount::SetSSL)
+        .Func(_SC("GetOption"), &MySQLAccount::GetOption)
+        .Func(_SC("SetOption"), &MySQLAccount::SetOption)
+        .Func(_SC("RemoveOption"), &MySQLAccount::RemoveOption)
+        .Func(_SC("OptionsClear"), &MySQLAccount::OptionsClear)
+        .Func(_SC("Connect"), &MySQLAccount::Connect)
     );
 
     sqlns.Bind(_SC("Connection")
-        , Class< Connection >(sqlns.GetVM(), _SC("SqMySQLConnection"))
+        , Class< MySQLConnection >(sqlns.GetVM(), _SC("SqMySQLConnection"))
         // Constructors
         .Ctor()
-        .Ctor< const Account & >()
+        .Ctor< const MySQLAccount & >()
         // Core Meta-methods
-        .Func(_SC("_cmp"), &Connection::Cmp)
-        .SquirrelFunc(_SC("_typename"), &Connection::Typename)
-        .Func(_SC("_tostring"), &Connection::ToString)
+        .Func(_SC("_cmp"), &MySQLConnection::Cmp)
+        .SquirrelFunc(_SC("_typename"), &MySQLConnection::Typename)
+        .Func(_SC("_tostring"), &MySQLConnection::ToString)
         // Properties
-        .Prop(_SC("IsValid"), &Connection::IsValid)
-        .Prop(_SC("Connected"), &Connection::IsConnected)
-        .Prop(_SC("References"), &Connection::GetRefCount)
-        .Prop(_SC("ErrNo"), &Connection::GetErrNo)
-        .Prop(_SC("ErrStr"), &Connection::GetErrStr)
-        .Prop(_SC("LastErrNo"), &Connection::GetLastErrNo)
-        .Prop(_SC("LastErrStr"), &Connection::GetLastErrStr)
-        .Prop(_SC("Port"), &Connection::GetPortNum)
-        .Prop(_SC("Host"), &Connection::GetHost)
-        .Prop(_SC("User"), &Connection::GetUser)
-        .Prop(_SC("Pass"), &Connection::GetPass)
-        .Prop(_SC("Name"), &Connection::GetName, &Connection::SetName)
-        .Prop(_SC("Socket"), &Connection::GetSocket)
-        .Prop(_SC("Flags"), &Connection::GetFlags)
-        .Prop(_SC("SSL_Key"), &Connection::GetSSL_Key)
-        .Prop(_SC("SSL_Cert"), &Connection::GetSSL_Cert)
-        .Prop(_SC("SSL_CA"), &Connection::GetSSL_CA)
-        .Prop(_SC("SSL_CA_Path"), &Connection::GetSSL_CA_Path)
-        .Prop(_SC("SSL_Cipher"), &Connection::GetSSL_Cipher)
-        .Prop(_SC("Charset"), &Connection::GetCharset, &Connection::SetCharset)
-        .Prop(_SC("AutoCommit"), &Connection::GetAutoCommit, &Connection::SetAutoCommit)
-        .Prop(_SC("InTransaction"), &Connection::GetInTransaction)
+        .Prop(_SC("IsValid"), &MySQLConnection::IsValid)
+        .Prop(_SC("Connected"), &MySQLConnection::IsConnected)
+        .Prop(_SC("References"), &MySQLConnection::GetRefCount)
+        .Prop(_SC("ErrNo"), &MySQLConnection::GetErrNo)
+        .Prop(_SC("ErrStr"), &MySQLConnection::GetErrStr)
+        .Prop(_SC("LastErrNo"), &MySQLConnection::GetLastErrNo)
+        .Prop(_SC("LastErrStr"), &MySQLConnection::GetLastErrStr)
+        .Prop(_SC("Port"), &MySQLConnection::GetPortNum)
+        .Prop(_SC("Host"), &MySQLConnection::GetHost)
+        .Prop(_SC("User"), &MySQLConnection::GetUser)
+        .Prop(_SC("Pass"), &MySQLConnection::GetPass)
+        .Prop(_SC("Name"), &MySQLConnection::GetName, &MySQLConnection::SetName)
+        .Prop(_SC("Socket"), &MySQLConnection::GetSocket)
+        .Prop(_SC("Flags"), &MySQLConnection::GetFlags)
+        .Prop(_SC("SSL_Key"), &MySQLConnection::GetSSL_Key)
+        .Prop(_SC("SSL_Cert"), &MySQLConnection::GetSSL_Cert)
+        .Prop(_SC("SSL_CA"), &MySQLConnection::GetSSL_CA)
+        .Prop(_SC("SSL_CA_Path"), &MySQLConnection::GetSSL_CA_Path)
+        .Prop(_SC("SSL_Cipher"), &MySQLConnection::GetSSL_Cipher)
+        .Prop(_SC("Charset"), &MySQLConnection::GetCharset, &MySQLConnection::SetCharset)
+        .Prop(_SC("AutoCommit"), &MySQLConnection::GetAutoCommit, &MySQLConnection::SetAutoCommit)
+        .Prop(_SC("InTransaction"), &MySQLConnection::GetInTransaction)
         // Member Methods
-        .Func(_SC("Disconnect"), &Connection::Disconnect)
-        .Func(_SC("SelectDb"), &Connection::SetName)
-        .Func(_SC("Execute"), &Connection::Execute)
-        .Func(_SC("Insert"), &Connection::Insert)
-        .Func(_SC("Query"), &Connection::Query)
-        .Func(_SC("Statement"), &Connection::GetStatement)
-        //.Func(_SC("Transaction"), &Connection::GetTransaction)
-        .FmtFunc(_SC("EscapeString"), &Connection::EscapeString)
+        .Func(_SC("Disconnect"), &MySQLConnection::Disconnect)
+        .Func(_SC("SelectDb"), &MySQLConnection::SetName)
+        .Func(_SC("Execute"), &MySQLConnection::Execute)
+        .Func(_SC("Insert"), &MySQLConnection::Insert)
+        .Func(_SC("Query"), &MySQLConnection::Query)
+        .Func(_SC("Statement"), &MySQLConnection::GetStatement)
+        //.Func(_SC("Transaction"), &MySQLConnection::GetTransaction)
+        .FmtFunc(_SC("EscapeString"), &MySQLConnection::EscapeString)
         // Squirrel Methods
-        .SquirrelFunc(_SC("ExecuteF"), &Connection::ExecuteF)
-        .SquirrelFunc(_SC("InsertF"), &Connection::InsertF)
-        .SquirrelFunc(_SC("QueryF"), &Connection::QueryF)
+        .SquirrelFunc(_SC("ExecuteF"), &MySQLConnection::ExecuteF)
+        .SquirrelFunc(_SC("InsertF"), &MySQLConnection::InsertF)
+        .SquirrelFunc(_SC("QueryF"), &MySQLConnection::QueryF)
     );
 
     sqlns.Bind(_SC("Field"),
-        Class< Field >(sqlns.GetVM(), _SC("SqMySQLField"))
+        Class< MySQLField >(sqlns.GetVM(), _SC("SqMySQLField"))
         // Constructors
         .Ctor()
-        .Ctor< const Field & >()
+        .Ctor< const MySQLField & >()
         // Meta-methods
-        .Func(_SC("_cmp"), &Field::Cmp)
-        .SquirrelFunc(_SC("_typename"), &Field::Typename)
-        .Func(_SC("_tostring"), &Field::ToString)
+        .Func(_SC("_cmp"), &MySQLField::Cmp)
+        .SquirrelFunc(_SC("_typename"), &MySQLField::Typename)
+        .Func(_SC("_tostring"), &MySQLField::ToString)
         // Properties
-        .Prop(_SC("IsValid"), &Field::IsValid)
-        .Prop(_SC("References"), &Field::GetRefCount)
-        .Prop(_SC("Index"), &Field::GetIndex)
-        .Prop(_SC("ResultSet"), &Field::GetResultSet)
-        .Prop(_SC("Connection"), &Field::GetConnection)
-        .Prop(_SC("Bool"), &Field::GetBoolean)
-        .Prop(_SC("Boolean"), &Field::GetBoolean)
-        .Prop(_SC("Char"), &Field::GetChar)
-        .Prop(_SC("Integer"), &Field::GetInteger)
-        .Prop(_SC("Float"), &Field::GetFloat)
-        .Prop(_SC("int8_t"), &Field::GetInt8)
-        .Prop(_SC("uint8_t"), &Field::GetUint8)
-        .Prop(_SC("int16_t"), &Field::GetInt16)
-        .Prop(_SC("uint16_t"), &Field::GetUint16)
-        .Prop(_SC("int32_t"), &Field::GetInt32)
-        .Prop(_SC("uint32_t"), &Field::GetUint32)
-        .Prop(_SC("int64_t"), &Field::GetInt64)
-        .Prop(_SC("uint64_t"), &Field::GetUint64)
-        .Prop(_SC("float"), &Field::GetFloat32)
-        .Prop(_SC("double"), &Field::GetFloat64)
-        .Prop(_SC("String"), &Field::GetString)
-        .Prop(_SC("Buffer"), &Field::GetBuffer)
-        .Prop(_SC("Blob"), &Field::GetBlob)
+        .Prop(_SC("IsValid"), &MySQLField::IsValid)
+        .Prop(_SC("References"), &MySQLField::GetRefCount)
+        .Prop(_SC("Index"), &MySQLField::GetIndex)
+        .Prop(_SC("ResultSet"), &MySQLField::GetResultSet)
+        .Prop(_SC("Connection"), &MySQLField::GetConnection)
+        .Prop(_SC("Bool"), &MySQLField::GetBoolean)
+        .Prop(_SC("Boolean"), &MySQLField::GetBoolean)
+        .Prop(_SC("Char"), &MySQLField::GetChar)
+        .Prop(_SC("Integer"), &MySQLField::GetInteger)
+        .Prop(_SC("Float"), &MySQLField::GetFloat)
+        .Prop(_SC("int8_t"), &MySQLField::GetInt8)
+        .Prop(_SC("uint8_t"), &MySQLField::GetUint8)
+        .Prop(_SC("int16_t"), &MySQLField::GetInt16)
+        .Prop(_SC("uint16_t"), &MySQLField::GetUint16)
+        .Prop(_SC("int32_t"), &MySQLField::GetInt32)
+        .Prop(_SC("uint32_t"), &MySQLField::GetUint32)
+        .Prop(_SC("int64_t"), &MySQLField::GetInt64)
+        .Prop(_SC("uint64_t"), &MySQLField::GetUint64)
+        .Prop(_SC("float"), &MySQLField::GetFloat32)
+        .Prop(_SC("double"), &MySQLField::GetFloat64)
+        .Prop(_SC("String"), &MySQLField::GetString)
+        .Prop(_SC("Buffer"), &MySQLField::GetBuffer)
+        .Prop(_SC("Blob"), &MySQLField::GetBlob)
         // Member Methods
-        .Func(_SC("Release"), &Field::Release)
+        .Func(_SC("Release"), &MySQLField::Release)
     );
 
     sqlns.Bind(_SC("ResultSet")
-        , Class< ResultSet >(sqlns.GetVM(), _SC("SqMySQLResultSet"))
+        , Class< MySQLResultSet >(sqlns.GetVM(), _SC("SqMySQLResultSet"))
         // Constructors
         .Ctor()
-        .Ctor< const ResultSet & >()
+        .Ctor< const MySQLResultSet & >()
         // Core Meta-methods
-        .Func(_SC("_cmp"), &ResultSet::Cmp)
-        .SquirrelFunc(_SC("_typename"), &ResultSet::Typename)
-        .Func(_SC("_tostring"), &ResultSet::ToString)
+        .Func(_SC("_cmp"), &MySQLResultSet::Cmp)
+        .SquirrelFunc(_SC("_typename"), &MySQLResultSet::Typename)
+        .Func(_SC("_tostring"), &MySQLResultSet::ToString)
         // Properties
-        .Prop(_SC("IsValid"), &ResultSet::IsValid)
-        .Prop(_SC("FieldNames"), &ResultSet::GetFieldNames)
-        .Prop(_SC("FieldsArray"), &ResultSet::GetFieldsArray)
-        .Prop(_SC("FieldsTable"), &ResultSet::GetFieldsTable)
-        .Prop(_SC("RowIndex"), &ResultSet::RowIndex)
-        .Prop(_SC("RowCount"), &ResultSet::RowCount)
+        .Prop(_SC("IsValid"), &MySQLResultSet::IsValid)
+        .Prop(_SC("FieldNames"), &MySQLResultSet::GetFieldNames)
+        .Prop(_SC("FieldsArray"), &MySQLResultSet::GetFieldsArray)
+        .Prop(_SC("FieldsTable"), &MySQLResultSet::GetFieldsTable)
+        .Prop(_SC("RowIndex"), &MySQLResultSet::RowIndex)
+        .Prop(_SC("RowCount"), &MySQLResultSet::RowCount)
         // Member Methods
-        .Func(_SC("Next"), &ResultSet::Next)
-        .Func(_SC("Step"), &ResultSet::Next)
-        .Func(_SC("SetRowIndex"), &ResultSet::SetRowIndex)
-        .Func(_SC("SetLongRowIndex"), &ResultSet::SetLongRowIndex)
-        .Func(_SC("Get"), &ResultSet::GetField)
-        .Func(_SC("GetField"), &ResultSet::GetField)
-        .Func(_SC("GetBool"), &ResultSet::GetBoolean)
-        .Func(_SC("GetBoolean"), &ResultSet::GetBoolean)
-        .Func(_SC("GetChar"), &ResultSet::GetChar)
-        .Func(_SC("GetInteger"), &ResultSet::GetInteger)
-        .Func(_SC("GetFloat"), &ResultSet::GetFloat)
-        .Func(_SC("GetInt8"), &ResultSet::GetInt8)
-        .Func(_SC("GetUint8"), &ResultSet::GetUint8)
-        .Func(_SC("GetInt16"), &ResultSet::GetInt16)
-        .Func(_SC("GetUint16"), &ResultSet::GetUint16)
-        .Func(_SC("GetInt32"), &ResultSet::GetInt32)
-        .Func(_SC("GetUint32"), &ResultSet::GetUint32)
-        .Func(_SC("GetInt64"), &ResultSet::GetInt64)
-        .Func(_SC("GetUint64"), &ResultSet::GetUint64)
-        .Func(_SC("GetFloat32"), &ResultSet::GetFloat32)
-        .Func(_SC("GetFloat64"), &ResultSet::GetFloat64)
-        .Func(_SC("GetString"), &ResultSet::GetString)
-        .Func(_SC("GetBuffer"), &ResultSet::GetBuffer)
-        .Func(_SC("GetBlob"), &ResultSet::GetBlob)
-        .Func(_SC("GetFieldsArray"), &ResultSet::FetchFieldsArray)
-        .Func(_SC("GetFieldsTable"), &ResultSet::FetchFieldsTable)
+        .Func(_SC("Next"), &MySQLResultSet::Next)
+        .Func(_SC("Step"), &MySQLResultSet::Next)
+        .Func(_SC("SetRowIndex"), &MySQLResultSet::SetRowIndex)
+        .Func(_SC("SetLongRowIndex"), &MySQLResultSet::SetLongRowIndex)
+        .Func(_SC("Get"), &MySQLResultSet::GetField)
+        .Func(_SC("GetField"), &MySQLResultSet::GetField)
+        .Func(_SC("GetBool"), &MySQLResultSet::GetBoolean)
+        .Func(_SC("GetBoolean"), &MySQLResultSet::GetBoolean)
+        .Func(_SC("GetChar"), &MySQLResultSet::GetChar)
+        .Func(_SC("GetInteger"), &MySQLResultSet::GetInteger)
+        .Func(_SC("GetFloat"), &MySQLResultSet::GetFloat)
+        .Func(_SC("GetInt8"), &MySQLResultSet::GetInt8)
+        .Func(_SC("GetUint8"), &MySQLResultSet::GetUint8)
+        .Func(_SC("GetInt16"), &MySQLResultSet::GetInt16)
+        .Func(_SC("GetUint16"), &MySQLResultSet::GetUint16)
+        .Func(_SC("GetInt32"), &MySQLResultSet::GetInt32)
+        .Func(_SC("GetUint32"), &MySQLResultSet::GetUint32)
+        .Func(_SC("GetInt64"), &MySQLResultSet::GetInt64)
+        .Func(_SC("GetUint64"), &MySQLResultSet::GetUint64)
+        .Func(_SC("GetFloat32"), &MySQLResultSet::GetFloat32)
+        .Func(_SC("GetFloat64"), &MySQLResultSet::GetFloat64)
+        .Func(_SC("GetString"), &MySQLResultSet::GetString)
+        .Func(_SC("GetBuffer"), &MySQLResultSet::GetBuffer)
+        .Func(_SC("GetBlob"), &MySQLResultSet::GetBlob)
+        .Func(_SC("GetFieldsArray"), &MySQLResultSet::FetchFieldsArray)
+        .Func(_SC("GetFieldsTable"), &MySQLResultSet::FetchFieldsTable)
     );
 
     sqlns.Bind(_SC("Statement")
-        , Class< Statement >(sqlns.GetVM(), _SC("SqMySQLStatement"))
+        , Class< MySQLStatement >(sqlns.GetVM(), _SC("SqMySQLStatement"))
         // Constructors
         .Ctor()
-        .Ctor< const Statement & >()
-        .Ctor< const Connection &, const SQChar * >()
+        .Ctor< const MySQLStatement & >()
+        .Ctor< const MySQLConnection &, const SQChar * >()
         // Core Meta-methods
-        .Func(_SC("_cmp"), &Statement::Cmp)
-        .SquirrelFunc(_SC("_typename"), &Statement::Typename)
-        .Func(_SC("_tostring"), &Statement::ToString)
+        .Func(_SC("_cmp"), &MySQLStatement::Cmp)
+        .SquirrelFunc(_SC("_typename"), &MySQLStatement::Typename)
+        .Func(_SC("_tostring"), &MySQLStatement::ToString)
         // Properties
-        .Prop(_SC("IsValid"), &Statement::IsValid)
-        .Prop(_SC("Connection"), &Statement::GetConnection, &Statement::SetConnection)
+        .Prop(_SC("IsValid"), &MySQLStatement::IsValid)
+        .Prop(_SC("Connection"), &MySQLStatement::GetConnection, &MySQLStatement::SetConnection)
         // Member Methods
-        .Func(_SC("Execute"), &Statement::Execute)
-        .Func(_SC("Insert"), &Statement::Insert)
-        .Func(_SC("Query"), &Statement::Query)
-        .Func(_SC("SetInt8"), &Statement::SetInt8)
-        .Func(_SC("SetUint8"), &Statement::SetUint8)
-        .Func(_SC("SetInt16"), &Statement::SetInt16)
-        .Func(_SC("SetUint16"), &Statement::SetUint16)
-        .Func(_SC("SetInt32"), &Statement::SetInt32)
-        .Func(_SC("SetUint32"), &Statement::SetUint32)
-        .Func(_SC("SetInt64"), &Statement::SetInt64)
-        .Func(_SC("SetUint64"), &Statement::SetUint64)
-        .Func(_SC("SetSLongInt"), &Statement::SetSLongInt)
-        .Func(_SC("SetULongInt"), &Statement::SetULongInt)
-        .Func(_SC("SetInteger"), &Statement::SetInteger)
-        .Func(_SC("SetFloat32"), &Statement::SetFloat32)
-        .Func(_SC("SetFloat64"), &Statement::SetFloat64)
-        .Func(_SC("SetFloat"), &Statement::SetFloat)
-        .Func(_SC("SetBoolean"), &Statement::SetBoolean)
-        .Func(_SC("SetDate"), &Statement::SetDate)
-        .Func(_SC("SetTime"), &Statement::SetTime)
-        .Func(_SC("SetDatetime"), &Statement::SetDatetime)
-        .Func(_SC("SetString"), &Statement::SetString)
-        .Func(_SC("SetEnum"), &Statement::SetEnum)
-        .Func(_SC("SetSet"), &Statement::SetSet)
-        .Func(_SC("SetBlob"), &Statement::SetBlob)
-        .Func(_SC("SetData"), &Statement::SetData)
-        .Func(_SC("SetBuffer"), &Statement::SetData)
-        .Func(_SC("SetNull"), &Statement::SetNull)
+        .Func(_SC("Execute"), &MySQLStatement::Execute)
+        .Func(_SC("Insert"), &MySQLStatement::Insert)
+        .Func(_SC("Query"), &MySQLStatement::Query)
+        .Func(_SC("SetInt8"), &MySQLStatement::SetInt8)
+        .Func(_SC("SetUint8"), &MySQLStatement::SetUint8)
+        .Func(_SC("SetInt16"), &MySQLStatement::SetInt16)
+        .Func(_SC("SetUint16"), &MySQLStatement::SetUint16)
+        .Func(_SC("SetInt32"), &MySQLStatement::SetInt32)
+        .Func(_SC("SetUint32"), &MySQLStatement::SetUint32)
+        .Func(_SC("SetInt64"), &MySQLStatement::SetInt64)
+        .Func(_SC("SetUint64"), &MySQLStatement::SetUint64)
+        .Func(_SC("SetSLongInt"), &MySQLStatement::SetSLongInt)
+        .Func(_SC("SetULongInt"), &MySQLStatement::SetULongInt)
+        .Func(_SC("SetInteger"), &MySQLStatement::SetInteger)
+        .Func(_SC("SetFloat32"), &MySQLStatement::SetFloat32)
+        .Func(_SC("SetFloat64"), &MySQLStatement::SetFloat64)
+        .Func(_SC("SetFloat"), &MySQLStatement::SetFloat)
+        .Func(_SC("SetBoolean"), &MySQLStatement::SetBoolean)
+        .Func(_SC("SetDate"), &MySQLStatement::SetDate)
+        .Func(_SC("SetTime"), &MySQLStatement::SetTime)
+        .Func(_SC("SetDatetime"), &MySQLStatement::SetDatetime)
+        .Func(_SC("SetString"), &MySQLStatement::SetString)
+        .Func(_SC("SetEnum"), &MySQLStatement::SetEnum)
+        .Func(_SC("SetSet"), &MySQLStatement::SetSet)
+        .Func(_SC("SetBlob"), &MySQLStatement::SetBlob)
+        .Func(_SC("SetData"), &MySQLStatement::SetData)
+        .Func(_SC("SetBuffer"), &MySQLStatement::SetData)
+        .Func(_SC("SetNull"), &MySQLStatement::SetNull)
     );
 
     RootTable(vm).Bind(_SC("MySQL"), sqlns);

@@ -11,6 +11,10 @@
 #include "Library/Chrono/Timestamp.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include "Poco/AutoPtr.h"
+#include "Poco/Data/SessionImpl.h"
+
+// ------------------------------------------------------------------------------------------------
 #include <utility>
 #include <vector>
 #include <map>
@@ -78,18 +82,18 @@ struct SQLiteStmtHnd;
 /* ------------------------------------------------------------------------------------------------
  * Common typedefs.
 */
-typedef SharedPtr< SQLiteConnHnd > ConnRef;
-typedef SharedPtr< SQLiteStmtHnd > StmtRef;
+typedef SharedPtr< SQLiteConnHnd > SQLiteConnRef;
+typedef SharedPtr< SQLiteStmtHnd > SQLiteStmtRef;
 
 /* ------------------------------------------------------------------------------------------------
  * Obtain a script object from a connection handle. (meant to avoid having to include the header)
 */
-Object GetConnectionObj(const ConnRef & conn);
+Object GetConnectionObj(const SQLiteConnRef & conn);
 
 /* ------------------------------------------------------------------------------------------------
  * Obtain a script object from a statement handle. (meant to avoid having to include the header)
 */
-Object GetStatementObj(const StmtRef & stmt);
+Object GetStatementObj(const SQLiteStmtRef & stmt);
 
 /* ------------------------------------------------------------------------------------------------
  * Tests if a certain query string is empty.
@@ -179,6 +183,9 @@ public:
     String      mVFS; // The specified virtual file system.
 
     // --------------------------------------------------------------------------------------------
+    Poco::AutoPtr< Poco::Data::SessionImpl > mSession; // POCO session when this connection comes from a pool.
+
+    // --------------------------------------------------------------------------------------------
     bool        mMemory; // Whether the database exists in memory and not disk.
     bool        mTrace; // Whether tracing was activated on the database.
     bool        mProfile; // Whether profiling was activated on the database.
@@ -187,6 +194,11 @@ public:
      * Default constructor.
     */
     SQLiteConnHnd();
+
+    /* --------------------------------------------------------------------------------------------
+     * Explicit constructor.
+    */
+    explicit SQLiteConnHnd(Poco::Data::SessionImpl * session);
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
@@ -286,7 +298,7 @@ public:
     int32_t     mStatus; // The last status code of this connection handle.
 
     // --------------------------------------------------------------------------------------------
-    ConnRef     mConn; // The handle to the associated database connection.
+    SQLiteConnRef     mConn; // The handle to the associated database connection.
 
     // --------------------------------------------------------------------------------------------
     String      mQuery; // The query string used to create this statement.
@@ -303,7 +315,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    explicit SQLiteStmtHnd(ConnRef conn);
+    explicit SQLiteStmtHnd(SQLiteConnRef conn);
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
@@ -385,7 +397,7 @@ class SQLiteConnection
 private:
 
     // --------------------------------------------------------------------------------------------
-    ConnRef m_Handle; // Reference to the managed connection.
+    SQLiteConnRef m_Handle; // Reference to the managed connection.
 
 protected:
 
@@ -421,18 +433,18 @@ protected:
      * Validate the managed connection handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    SQMOD_NODISCARD const ConnRef & GetValid(const char * file, int32_t line) const;
+    SQMOD_NODISCARD const SQLiteConnRef & GetValid(const char * file, int32_t line) const;
 #else
-    SQMOD_NODISCARD const ConnRef & GetValid() const;
+    SQMOD_NODISCARD const SQLiteConnRef & GetValid() const;
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
      * Validate the managed connection handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    SQMOD_NODISCARD const ConnRef & GetCreated(const char * file, int32_t line) const;
+    SQMOD_NODISCARD const SQLiteConnRef & GetCreated(const char * file, int32_t line) const;
 #else
-    SQMOD_NODISCARD const ConnRef & GetCreated() const;
+    SQMOD_NODISCARD const SQLiteConnRef & GetCreated() const;
 #endif // _DEBUG
 
 public:
@@ -479,7 +491,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Direct handle constructor.
     */
-    explicit SQLiteConnection(ConnRef c)
+    explicit SQLiteConnection(SQLiteConnRef c)
         : m_Handle(std::move(c))
     {
         /* ... */
@@ -548,7 +560,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated connection handle.
     */
-    SQMOD_NODISCARD const ConnRef & GetHandle() const
+    SQMOD_NODISCARD const SQLiteConnRef & GetHandle() const
     {
         return m_Handle;
     }
@@ -858,7 +870,7 @@ private:
 
     // --------------------------------------------------------------------------------------------
     int32_t     m_Index{0}; // The index of the managed parameter.
-    StmtRef     m_Handle{}; // Reference to the managed statement.
+    SQLiteStmtRef     m_Handle{}; // Reference to the managed statement.
 
 protected:
 
@@ -884,18 +896,18 @@ protected:
      * Validate the managed statement handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    SQMOD_NODISCARD const StmtRef & GetValid(const char * file, int32_t line) const;
+    SQMOD_NODISCARD const SQLiteStmtRef & GetValid(const char * file, int32_t line) const;
 #else
-    SQMOD_NODISCARD const StmtRef & GetValid() const;
+    SQMOD_NODISCARD const SQLiteStmtRef & GetValid() const;
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
      * Validate the managed statement handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    SQMOD_NODISCARD const StmtRef & GetCreated(const char * file, int32_t line) const;
+    SQMOD_NODISCARD const SQLiteStmtRef & GetCreated(const char * file, int32_t line) const;
 #else
-    SQMOD_NODISCARD const StmtRef & GetCreated() const;
+    SQMOD_NODISCARD const SQLiteStmtRef & GetCreated() const;
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
@@ -943,7 +955,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * No parameter constructor.
     */
-    explicit SQLiteParameter(StmtRef stmt)
+    explicit SQLiteParameter(SQLiteStmtRef stmt)
         : m_Index(0), m_Handle(std::move(stmt))
     {
         /* ... */
@@ -952,7 +964,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Index constructor.
     */
-    SQLiteParameter(StmtRef stmt, int32_t idx)
+    SQLiteParameter(SQLiteStmtRef stmt, int32_t idx)
         : m_Index(idx), m_Handle(std::move(stmt))
     {
         SQMOD_VALIDATE_PARAM(*this, m_Index);
@@ -961,7 +973,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Name constructor.
     */
-    SQLiteParameter(const StmtRef & stmt, const SQChar * name)
+    SQLiteParameter(const SQLiteStmtRef & stmt, const SQChar * name)
         : m_Index(stmt ? sqlite3_bind_parameter_index(stmt->mPtr, name) : 0), m_Handle(stmt)
     {
         SQMOD_VALIDATE_PARAM(*this, m_Index);
@@ -970,7 +982,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Dynamic constructor.
     */
-    SQLiteParameter(StmtRef stmt, const Object & param)
+    SQLiteParameter(SQLiteStmtRef stmt, const Object & param)
         : m_Index(0), m_Handle(std::move(stmt))
     {
         if (!m_Handle)
@@ -1252,7 +1264,7 @@ private:
 
     // --------------------------------------------------------------------------------------------
     int32_t     m_Index{-1}; // The index of the managed column.
-    StmtRef     m_Handle{}; // The statement where the column exist.
+    SQLiteStmtRef     m_Handle{}; // The statement where the column exist.
 
 protected:
 
@@ -1278,18 +1290,18 @@ protected:
      * Validate the managed statement handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    SQMOD_NODISCARD const StmtRef & GetValid(const char * file, int32_t line) const;
+    SQMOD_NODISCARD const SQLiteStmtRef & GetValid(const char * file, int32_t line) const;
 #else
-    SQMOD_NODISCARD const StmtRef & GetValid() const;
+    SQMOD_NODISCARD const SQLiteStmtRef & GetValid() const;
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
      * Validate the managed statement handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    SQMOD_NODISCARD const StmtRef & GetCreated(const char * file, int32_t line) const;
+    SQMOD_NODISCARD const SQLiteStmtRef & GetCreated(const char * file, int32_t line) const;
 #else
-    SQMOD_NODISCARD const StmtRef & GetCreated() const;
+    SQMOD_NODISCARD const SQLiteStmtRef & GetCreated() const;
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
@@ -1346,7 +1358,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * No column constructor.
     */
-    explicit SQLiteColumn(StmtRef stmt)
+    explicit SQLiteColumn(SQLiteStmtRef stmt)
         : m_Index(-1), m_Handle(std::move(stmt))
     {
         /* ... */
@@ -1355,7 +1367,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Index constructor.
     */
-    SQLiteColumn(StmtRef stmt, int32_t idx)
+    SQLiteColumn(SQLiteStmtRef stmt, int32_t idx)
         : m_Index(idx), m_Handle(std::move(stmt))
     {
         SQMOD_VALIDATE_COLUMN(*this, m_Index);
@@ -1364,7 +1376,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Name constructor.
     */
-    SQLiteColumn(const StmtRef & stmt, const SQChar * name)
+    SQLiteColumn(const SQLiteStmtRef & stmt, const SQChar * name)
         : m_Index(stmt ? stmt->GetColumnIndex(name) : -1), m_Handle(stmt)
     {
         SQMOD_VALIDATE_COLUMN(*this, m_Index);
@@ -1373,7 +1385,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Dynamic constructor.
     */
-    SQLiteColumn(StmtRef stmt, const Object & column)
+    SQLiteColumn(SQLiteStmtRef stmt, const Object & column)
         : m_Index(-1), m_Handle(std::move(stmt))
     {
         if (!m_Handle)
@@ -1573,7 +1585,7 @@ class SQLiteStatement
 private:
 
     // --------------------------------------------------------------------------------------------
-    StmtRef m_Handle; // Reference to the managed statement.
+    SQLiteStmtRef m_Handle; // Reference to the managed statement.
 
 protected:
 
@@ -1599,18 +1611,18 @@ protected:
      * Validate the managed statement handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    SQMOD_NODISCARD const StmtRef & GetValid(const char * file, int32_t line) const;
+    SQMOD_NODISCARD const SQLiteStmtRef & GetValid(const char * file, int32_t line) const;
 #else
-    SQMOD_NODISCARD const StmtRef & GetValid() const;
+    SQMOD_NODISCARD const SQLiteStmtRef & GetValid() const;
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
      * Validate the managed statement handle and throw an error if invalid.
     */
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-    SQMOD_NODISCARD const StmtRef & GetCreated(const char * file, int32_t line) const;
+    SQMOD_NODISCARD const SQLiteStmtRef & GetCreated(const char * file, int32_t line) const;
 #else
-    SQMOD_NODISCARD const StmtRef & GetCreated() const;
+    SQMOD_NODISCARD const SQLiteStmtRef & GetCreated() const;
 #endif // _DEBUG
 
     /* --------------------------------------------------------------------------------------------
@@ -1654,7 +1666,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Construct a statement under the specified connection using the specified string.
     */
-    SQLiteStatement(const ConnRef & connection, StackStrF & query)
+    SQLiteStatement(const SQLiteConnRef & connection, StackStrF & query)
         : m_Handle(new SQLiteStmtHnd(connection))
     {
         SQMOD_GET_VALID(*this)->Create(query.mPtr, query.mLen);
@@ -1668,7 +1680,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Direct handle constructor.
     */
-    explicit SQLiteStatement(StmtRef  s)
+    explicit SQLiteStatement(SQLiteStmtRef  s)
         : m_Handle(std::move(s))
     {
         /* ... */
@@ -1737,7 +1749,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Retrieve the associated statement handle.
     */
-    SQMOD_NODISCARD const StmtRef & GetHandle() const
+    SQMOD_NODISCARD const SQLiteStmtRef & GetHandle() const
     {
         return m_Handle;
     }
@@ -2436,7 +2448,7 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Construct using the direct connection handle.
     */
-    explicit SQLiteTransaction(ConnRef db);
+    explicit SQLiteTransaction(SQLiteConnRef db);
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
@@ -2495,7 +2507,7 @@ public:
 private:
 
     // --------------------------------------------------------------------------------------------
-    ConnRef     m_Handle{}; // The database connection handle where the transaction began.
+    SQLiteConnRef     m_Handle{}; // The database connection handle where the transaction began.
     bool        m_Committed{false}; // Whether changes were successfully committed to the database.
 };
 

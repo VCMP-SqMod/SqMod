@@ -1707,7 +1707,7 @@ protected:
         }
         SQ_UNREACHABLE
         // Unreachable
-        return LightObj();
+        return {};
     }
 };
 
@@ -1746,7 +1746,7 @@ struct SqDataSessionPool : public SessionPool
     /* --------------------------------------------------------------------------------------------
      * Destroys the SessionPool.
     */
-    ~SqDataSessionPool() = default;
+    ~SqDataSessionPool() override = default;
 
     /* --------------------------------------------------------------------------------------------
      * Assignment operator (disabled).
@@ -1765,6 +1765,11 @@ struct SqDataSessionPool : public SessionPool
     {
         return LightObj(SqTypeIdentity< SqDataSession >{}, SqVM(), get());
     }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve a Session wrapped in a native/legacy implementation.
+    */
+    LightObj GetSq();
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve a Session with requested property set.

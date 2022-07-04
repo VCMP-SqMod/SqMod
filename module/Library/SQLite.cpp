@@ -363,6 +363,15 @@ static const EnumElement g_MainEnum[] = {
 };
 
 // ------------------------------------------------------------------------------------------------
+LightObj GteSQLiteFromSession(Poco::Data::SessionImpl * session)
+{
+    // Create a reference counted connection handle instance
+    SQLiteConnRef ref(new SQLiteConnHnd(session));
+    // Transform it into a connection instance and yield it as a script object
+    return LightObj(SqTypeIdentity< SQLiteConnection >{}, SqVM(), ref);
+}
+
+// ------------------------------------------------------------------------------------------------
 static inline bool IsDigitsOnly(const SQChar * str)
 {
     while (std::isdigit(*str) || std::isspace(*str))
@@ -374,13 +383,13 @@ static inline bool IsDigitsOnly(const SQChar * str)
 }
 
 // ------------------------------------------------------------------------------------------------
-Object GetConnectionObj(const ConnRef & conn)
+Object GetConnectionObj(const SQLiteConnRef & conn)
 {
     return Object(new SQLiteConnection(conn));
 }
 
 // ------------------------------------------------------------------------------------------------
-Object GetStatementObj(const StmtRef & stmt)
+Object GetStatementObj(const SQLiteStmtRef & stmt)
 {
     return Object(new SQLiteStatement(stmt));
 }
@@ -602,11 +611,21 @@ SQLiteConnHnd::SQLiteConnHnd()
     , mFlags(0)
     , mName()
     , mVFS()
+    , mSession()
     , mMemory(false)
     , mTrace(false)
     , mProfile(false)
 {
     /* ... */
+}
+
+// ------------------------------------------------------------------------------------------------
+SQLiteConnHnd::SQLiteConnHnd(Poco::Data::SessionImpl * session)
+    : SQLiteConnHnd()
+{
+    mSession.assign(session);
+    // Retrieve the internal handle property
+    mPtr = Poco::AnyCast< sqlite3 * >(session->getProperty("handle"));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -619,10 +638,17 @@ SQLiteConnHnd::~SQLiteConnHnd()
         Flush(static_cast<uint32_t>(mQueue.size()), NullObject(), NullFunction());
         // NOTE: Should we call sqlite3_interrupt(...) before closing?
         // Attempt to close the database
-        if ((sqlite3_close(mPtr)) != SQLITE_OK)
+        // If this connection is a pooled session then let it clean itself up
+        if (mSession.isNull() && (sqlite3_close(mPtr)) != SQLITE_OK)
         {
             LogErr("Unable to close SQLite connection [%s]", sqlite3_errmsg(mPtr));
         }
+        else
+        {
+            mSession.reset();
+        }
+        // Prevent further use of this connection
+        mPtr = nullptr;
     }
 }
 
@@ -751,7 +777,7 @@ int32_t SQLiteConnHnd::Flush(uint32_t num, Object & env, Function & func)
 }
 
 // ------------------------------------------------------------------------------------------------
-SQLiteStmtHnd::SQLiteStmtHnd(ConnRef conn)
+SQLiteStmtHnd::SQLiteStmtHnd(SQLiteConnRef conn)
     : mPtr(nullptr)
     , mStatus(SQLITE_OK)
     , mConn(std::move(conn))
@@ -942,13 +968,13 @@ void SQLiteConnection::ValidateCreated() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const ConnRef & SQLiteConnection::GetValid(const char * file, int32_t line) const
+const SQLiteConnRef & SQLiteConnection::GetValid(const char * file, int32_t line) const
 {
     Validate(file, line);
     return m_Handle;
 }
 #else
-const ConnRef & SQLiteConnection::GetValid() const
+const SQLiteConnRef & SQLiteConnection::GetValid() const
 {
     Validate();
     return m_Handle;
@@ -957,13 +983,13 @@ const ConnRef & SQLiteConnection::GetValid() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const ConnRef & SQLiteConnection::GetCreated(const char * file, int32_t line) const
+const SQLiteConnRef & SQLiteConnection::GetCreated(const char * file, int32_t line) const
 {
     ValidateCreated(file, line);
     return m_Handle;
 }
 #else
-const ConnRef & SQLiteConnection::GetCreated() const
+const SQLiteConnRef & SQLiteConnection::GetCreated() const
 {
     ValidateCreated();
     return m_Handle;
@@ -976,7 +1002,7 @@ void SQLiteConnection::Open(StackStrF & name)
     // Should we create a connection handle?
     if (!m_Handle)
     {
-        m_Handle = ConnRef(new SQLiteConnHnd());
+        m_Handle = SQLiteConnRef(new SQLiteConnHnd());
     }
     // Make sure another database isn't opened
     if (SQMOD_GET_VALID(*this)->mPtr != nullptr)
@@ -996,7 +1022,7 @@ void SQLiteConnection::Open(StackStrF & name, int32_t flags)
     // Should we create a connection handle?
     if (!m_Handle)
     {
-        m_Handle = ConnRef(new SQLiteConnHnd());
+        m_Handle = SQLiteConnRef(new SQLiteConnHnd());
     }
     // Make sure another database isn't opened
     if (SQMOD_GET_VALID(*this)->mPtr != nullptr)
@@ -1013,7 +1039,7 @@ void SQLiteConnection::Open(StackStrF & name, int32_t flags, StackStrF & vfs)
     // Should we create a connection handle?
     if (!m_Handle)
     {
-        m_Handle = ConnRef(new SQLiteConnHnd());
+        m_Handle = SQLiteConnRef(new SQLiteConnHnd());
     }
     // Make sure another database isn't opened
     if (SQMOD_GET_VALID(*this)->mPtr != nullptr)
@@ -1295,13 +1321,13 @@ void SQLiteParameter::ValidateCreated() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const StmtRef & SQLiteParameter::GetValid(const char * file, int32_t line) const
+const SQLiteStmtRef & SQLiteParameter::GetValid(const char * file, int32_t line) const
 {
     Validate(file, line);
     return m_Handle;
 }
 #else
-const StmtRef & SQLiteParameter::GetValid() const
+const SQLiteStmtRef & SQLiteParameter::GetValid() const
 {
     Validate();
     return m_Handle;
@@ -1310,13 +1336,13 @@ const StmtRef & SQLiteParameter::GetValid() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const StmtRef & SQLiteParameter::GetCreated(const char * file, int32_t line) const
+const SQLiteStmtRef & SQLiteParameter::GetCreated(const char * file, int32_t line) const
 {
     ValidateCreated(file, line);
     return m_Handle;
 }
 #else
-const StmtRef & SQLiteParameter::GetCreated() const
+const SQLiteStmtRef & SQLiteParameter::GetCreated() const
 {
     ValidateCreated();
     return m_Handle;
@@ -2001,13 +2027,13 @@ void SQLiteColumn::ValidateCreated() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const StmtRef & SQLiteColumn::GetValid(const char * file, int32_t line) const
+const SQLiteStmtRef & SQLiteColumn::GetValid(const char * file, int32_t line) const
 {
     Validate(file, line);
     return m_Handle;
 }
 #else
-const StmtRef & SQLiteColumn::GetValid() const
+const SQLiteStmtRef & SQLiteColumn::GetValid() const
 {
     Validate();
     return m_Handle;
@@ -2016,13 +2042,13 @@ const StmtRef & SQLiteColumn::GetValid() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const StmtRef & SQLiteColumn::GetCreated(const char * file, int32_t line) const
+const SQLiteStmtRef & SQLiteColumn::GetCreated(const char * file, int32_t line) const
 {
     ValidateCreated(file, line);
     return m_Handle;
 }
 #else
-const StmtRef & SQLiteColumn::GetCreated() const
+const SQLiteStmtRef & SQLiteColumn::GetCreated() const
 {
     ValidateCreated();
     return m_Handle;
@@ -2454,13 +2480,13 @@ void SQLiteStatement::ValidateCreated() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const StmtRef & SQLiteStatement::GetValid(const char * file, int32_t line) const
+const SQLiteStmtRef & SQLiteStatement::GetValid(const char * file, int32_t line) const
 {
     Validate(file, line);
     return m_Handle;
 }
 #else
-const StmtRef & SQLiteStatement::GetValid() const
+const SQLiteStmtRef & SQLiteStatement::GetValid() const
 {
     Validate();
     return m_Handle;
@@ -2469,13 +2495,13 @@ const StmtRef & SQLiteStatement::GetValid() const
 
 // ------------------------------------------------------------------------------------------------
 #if defined(_DEBUG) || defined(SQMOD_EXCEPTLOC)
-const StmtRef & SQLiteStatement::GetCreated(const char * file, int32_t line) const
+const SQLiteStmtRef & SQLiteStatement::GetCreated(const char * file, int32_t line) const
 {
     ValidateCreated(file, line);
     return m_Handle;
 }
 #else
-const StmtRef & SQLiteStatement::GetCreated() const
+const SQLiteStmtRef & SQLiteStatement::GetCreated() const
 {
     ValidateCreated();
     return m_Handle;
@@ -2824,7 +2850,7 @@ SQLiteTransaction::SQLiteTransaction(const SQLiteConnection & db)
 }
 
 // ------------------------------------------------------------------------------------------------
-SQLiteTransaction::SQLiteTransaction(ConnRef  db)
+SQLiteTransaction::SQLiteTransaction(SQLiteConnRef  db)
     : m_Handle(std::move(db)), m_Committed(false)
 {
     // Was the specified database connection valid?
