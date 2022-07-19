@@ -1772,6 +1772,16 @@ struct SqDataSessionPool : public SessionPool
     LightObj GetSq();
 
     /* --------------------------------------------------------------------------------------------
+     * Create an asynchronus query execution builder.
+    */
+    LightObj AsyncExec(StackStrF & sql);
+
+    /* --------------------------------------------------------------------------------------------
+     * Create an asynchronus query execution builder.
+    */
+    LightObj AsyncQuery(StackStrF & sql);
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve a Session with requested property set.
     */
     LightObj GetWithProperty(const LightObj & value, StackStrF & name)
@@ -2072,6 +2082,77 @@ struct SqDataTransaction : public Transaction
     {
         Transaction::rollback();
         return *this;
+    }
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Common session action implementation.
+*/
+struct SqDataAsyncBuilder
+{
+    using SessionRef = Poco::AutoPtr< Poco::Data::SessionImpl >;
+    // --------------------------------------------------------------------------------------------
+    SessionRef      mSession{}; // The connection that will be used by the task.
+    // --------------------------------------------------------------------------------------------
+    Function        mResolved{}; // Callback to invoke when the task was completed.
+    Function        mRejected{}; // Callback to invoke when the task was aborted.
+    // --------------------------------------------------------------------------------------------
+    const SQChar *  mQueryStr{nullptr}; // The query string that will be executed.
+    LightObj        mQueryObj{}; // Strong reference to the query string object.
+    // --------------------------------------------------------------------------------------------
+    bool            mStmt{false}; // Whether this is a query statement or a simple query execution.
+
+    /* --------------------------------------------------------------------------------------------
+     * Default constructor.
+    */
+    SqDataAsyncBuilder(Poco::Data::SessionImpl * session, StackStrF & sql, bool stmt) noexcept;
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor. (disabled)
+    */
+    SqDataAsyncBuilder(const SqDataAsyncBuilder & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    SqDataAsyncBuilder(SqDataAsyncBuilder && o) = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Destructor.
+    */
+    ~SqDataAsyncBuilder() = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator. (disabled)
+    */
+    SqDataAsyncBuilder & operator = (const SqDataAsyncBuilder & o) = delete;
+
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator.
+    */
+    SqDataAsyncBuilder & operator = (SqDataAsyncBuilder && o) = default;
+
+    /* --------------------------------------------------------------------------------------------
+     * Create the task with the suplied information and submit it to the worker pool.
+    */
+    void Submit();
+
+    /* --------------------------------------------------------------------------------------------
+     * Set the callback to be executed if the query was resolved.
+    */
+    SqDataAsyncBuilder & OnResolved(Function & cb)
+    {
+        mResolved = std::move(cb);
+        return *this; // Allow chaining
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Set the callback to be executed if the query was rejected/failed.
+    */
+    SqDataAsyncBuilder & OnRejected(Function & cb)
+    {
+        mRejected = std::move(cb);
+        return *this; // Allow chaining
     }
 };
 

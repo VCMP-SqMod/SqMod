@@ -363,7 +363,7 @@ static const EnumElement g_MainEnum[] = {
 };
 
 // ------------------------------------------------------------------------------------------------
-LightObj GteSQLiteFromSession(Poco::Data::SessionImpl * session)
+LightObj GetSQLiteFromSession(Poco::Data::SessionImpl * session)
 {
     // Create a reference counted connection handle instance
     SQLiteConnRef ref(new SQLiteConnHnd(session));
@@ -623,7 +623,16 @@ SQLiteConnHnd::SQLiteConnHnd()
 SQLiteConnHnd::SQLiteConnHnd(Poco::Data::SessionImpl * session)
     : SQLiteConnHnd()
 {
-    mSession.assign(session);
+    mSession.assign(session, true);
+    // Retrieve the internal handle property
+    mPtr = Poco::AnyCast< sqlite3 * >(session->getProperty("handle"));
+}
+
+// ------------------------------------------------------------------------------------------------
+SQLiteConnHnd::SQLiteConnHnd(Poco::AutoPtr< Poco::Data::SessionImpl > && session)
+    : SQLiteConnHnd()
+{
+    mSession == std::forward< Poco::AutoPtr< Poco::Data::SessionImpl > >(session);
     // Retrieve the internal handle property
     mPtr = Poco::AnyCast< sqlite3 * >(session->getProperty("handle"));
 }
@@ -656,7 +665,7 @@ SQLiteConnHnd::~SQLiteConnHnd()
 void SQLiteConnHnd::Create(const SQChar * name, int32_t flags, const SQChar * vfs)
 {
     // Make sure a previous connection doesn't exist
-    if (mPtr)
+    if (Access())
     {
         STHROWF("Unable to connect to database. Database already connected");
     }
@@ -689,7 +698,7 @@ void SQLiteConnHnd::Create(const SQChar * name, int32_t flags, const SQChar * vf
 int32_t SQLiteConnHnd::Flush(uint32_t num, Object & env, Function & func)
 {
     // Do we even have a valid connection?
-    if (!mPtr)
+    if (!Access())
     {
         return -1; // No connection!
     }
@@ -780,7 +789,7 @@ int32_t SQLiteConnHnd::Flush(uint32_t num, Object & env, Function & func)
 SQLiteStmtHnd::SQLiteStmtHnd(SQLiteConnRef conn)
     : mPtr(nullptr)
     , mStatus(SQLITE_OK)
-    , mConn(std::move(conn))
+    , mConnection(std::move(conn))
     , mQuery()
     , mColumns(0)
     , mParameters(0)
@@ -800,7 +809,7 @@ SQLiteStmtHnd::~SQLiteStmtHnd()
         // Attempt to finalize the statement
         if ((sqlite3_finalize(mPtr)) != SQLITE_OK)
         {
-            LogErr("Unable to finalize SQLite statement [%s]", mConn->ErrMsg());
+            LogErr("Unable to finalize SQLite statement [%s]", mConnection->ErrMsg());
         }
     }
 }
@@ -809,12 +818,12 @@ SQLiteStmtHnd::~SQLiteStmtHnd()
 void SQLiteStmtHnd::Create(const SQChar * query, SQInteger length)
 {
     // Make sure a previous statement doesn't exist
-    if (mPtr)
+    if (Access())
     {
         STHROWF("Unable to prepare statement. Statement already prepared");
     }
     // Is the specified database connection is valid?
-    else if (!mConn)
+    else if (!mConnection)
     {
         STHROWF("Unable to prepare statement. Invalid connection handle");
     }
@@ -826,7 +835,7 @@ void SQLiteStmtHnd::Create(const SQChar * query, SQInteger length)
     // Save the query string
     mQuery.assign(query, static_cast< size_t >(length));
     // Attempt to prepare a statement with the specified query string
-    if ((mStatus = sqlite3_prepare_v2(mConn->mPtr, mQuery.c_str(), ConvTo< int32_t >::From(mQuery.size()),
+    if ((mStatus = sqlite3_prepare_v2(mConnection->mPtr, mQuery.c_str(), ConvTo< int32_t >::From(mQuery.size()),
                                             &mPtr, nullptr)) != SQLITE_OK)
     {
         // Clear the query string since it failed
@@ -834,7 +843,7 @@ void SQLiteStmtHnd::Create(const SQChar * query, SQInteger length)
         // Explicitly make sure the handle is null
         mPtr = nullptr;
         // Now it's safe to throw the error
-        STHROWF("Unable to prepare statement [{}]", mConn->ErrMsg());
+        STHROWF("Unable to prepare statement [{}]", mConnection->ErrMsg());
     }
     else
     {
@@ -849,7 +858,7 @@ void SQLiteStmtHnd::Create(const SQChar * query, SQInteger length)
 int32_t SQLiteStmtHnd::GetColumnIndex(const SQChar * name, SQInteger length)
 {
     // Validate the handle
-    if (!mPtr)
+    if (!Access())
     {
         STHROWF("Invalid SQLite statement");
     }
@@ -887,25 +896,25 @@ int32_t SQLiteStmtHnd::GetColumnIndex(const SQChar * name, SQInteger length)
 // ------------------------------------------------------------------------------------------------
 const char * SQLiteStmtHnd::ErrStr() const
 {
-    return mConn ? sqlite3_errstr(sqlite3_errcode(mConn->mPtr)) : _SC("");
+    return mConnection ? sqlite3_errstr(sqlite3_errcode(mConnection->Access())) : _SC("");
 }
 
 // ------------------------------------------------------------------------------------------------
 const char * SQLiteStmtHnd::ErrMsg() const
 {
-    return mConn ? sqlite3_errmsg(mConn->mPtr) : _SC("");
+    return mConnection ? sqlite3_errmsg(mConnection->Access()) : _SC("");
 }
 
 // ------------------------------------------------------------------------------------------------
 int32_t SQLiteStmtHnd::ErrNo() const
 {
-    return mConn ? sqlite3_errcode(mConn->mPtr) : SQLITE_NOMEM;
+    return mConnection ? sqlite3_errcode(mConnection->Access()) : SQLITE_NOMEM;
 }
 
 // ------------------------------------------------------------------------------------------------
 int32_t SQLiteStmtHnd::ExErrNo() const
 {
-    return mConn ? sqlite3_extended_errcode(mConn->mPtr) : SQLITE_NOMEM;
+    return mConnection ? sqlite3_extended_errcode(mConnection->Access()) : SQLITE_NOMEM;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -947,7 +956,7 @@ void SQLiteConnection::ValidateCreated(const char * file, int32_t line) const
     {
         SqThrowF(SQMOD_RTFMT("Invalid SQLite connection reference =>[{}:{}]"), file, line);
     }
-    else if (m_Handle->mPtr == nullptr)
+    else if (m_Handle->Access() == nullptr)
     {
         SqThrowF(SQMOD_RTFMT("Invalid SQLite connection =>[{}:{}]"), file, line);
     }
@@ -959,7 +968,7 @@ void SQLiteConnection::ValidateCreated() const
     {
         SqThrowF(fmt::runtime("Invalid SQLite connection reference"));
     }
-    else if (m_Handle->mPtr == nullptr)
+    else if (m_Handle->Access() == nullptr)
     {
         SqThrowF(fmt::runtime("Invalid SQLite connection"));
     }
@@ -1055,14 +1064,14 @@ int32_t SQLiteConnection::Exec(StackStrF & str)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to execute the specified query
-    m_Handle->mStatus = sqlite3_exec(m_Handle->mPtr, str.mPtr, nullptr, nullptr, nullptr);
+    m_Handle->mStatus = sqlite3_exec(m_Handle->Access(), str.mPtr, nullptr, nullptr, nullptr);
     // Validate the execution result
     if (m_Handle->mStatus != SQLITE_OK)
     {
         STHROWF("Unable to execute query [{}]", m_Handle->ErrMsg());
     }
     // Return rows affected by this query
-    return sqlite3_changes(m_Handle->mPtr);
+    return sqlite3_changes(m_Handle->Access());
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1135,12 +1144,12 @@ void SQLiteConnection::SetTracing(bool SQ_UNUSED_ARG(toggle)) // NOLINT(readabil
     // Do we have to disable it?
     else if (m_Handle->mTrace)
     {
-        sqlite3_trace(m_Handle->mPtr, nullptr, nullptr);
+        sqlite3_trace(m_Handle->Access(), nullptr, nullptr);
     }
     // Go ahead and enable tracing
     else
     {
-        sqlite3_trace(m_Handle->mPtr, &SQLiteConnection::TraceOutput, nullptr);
+        sqlite3_trace(m_Handle->Access(), &SQLiteConnection::TraceOutput, nullptr);
     }
 #endif
 }
@@ -1159,12 +1168,12 @@ void SQLiteConnection::SetProfiling(bool SQ_UNUSED_ARG(toggle)) // NOLINT(readab
     // Do we have to disable it?
     else if (m_Handle->mProfile)
     {
-        sqlite3_profile(m_Handle->mPtr, nullptr, nullptr);
+        sqlite3_profile(m_Handle->Access(), nullptr, nullptr);
     }
     // Go ahead and enable profiling
     else
     {
-        sqlite3_profile(m_Handle->mPtr, &SQLiteConnection::ProfileOutput, nullptr);
+        sqlite3_profile(m_Handle->Access(), &SQLiteConnection::ProfileOutput, nullptr);
     }
 #endif
 }
@@ -1174,7 +1183,7 @@ void SQLiteConnection::SetBusyTimeout(int32_t millis)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Apply the requested timeout
-    if ((m_Handle->mStatus = sqlite3_busy_timeout(m_Handle->mPtr, millis)) != SQLITE_OK)
+    if ((m_Handle->mStatus = sqlite3_busy_timeout(m_Handle->Access(), millis)) != SQLITE_OK)
     {
         STHROWF("Unable to set busy timeout [{}]", m_Handle->ErrMsg());
     }
@@ -1295,7 +1304,7 @@ void SQLiteParameter::ValidateCreated(const char * file, int32_t line) const
     {
         SqThrowF(SQMOD_RTFMT("Invalid SQLite statement reference =>[{}:{}]"), file, line);
     }
-    else if (m_Handle->mPtr == nullptr)
+    else if (m_Handle->Access() == nullptr)
     {
         SqThrowF(SQMOD_RTFMT("Invalid SQLite statement =>[{}:{}]"), file, line);
     }
@@ -1312,7 +1321,7 @@ void SQLiteParameter::ValidateCreated() const
     {
         SqThrowF(fmt::runtime("Invalid SQLite statement reference"));
     }
-    else if (m_Handle->mPtr == nullptr)
+    else if (m_Handle->Access() == nullptr)
     {
         SqThrowF(fmt::runtime("Invalid SQLite statement"));
     }
@@ -1403,7 +1412,7 @@ void SQLiteParameter::SetIndex(const Object & param)
                 STHROWF("Cannot use an empty parameter name");
             }
             // Attempt to find a parameter with the specified name
-            idx = sqlite3_bind_parameter_index(SQMOD_GET_CREATED(*this)->mPtr, val.mPtr);
+            idx = sqlite3_bind_parameter_index(SQMOD_GET_CREATED(*this)->Access(), val.mPtr);
         } break;
         // Is this an integer value? (or at least can be easily converted to one)
         case OT_INTEGER:
@@ -1435,7 +1444,7 @@ void SQLiteParameter::SetIndex(const Object & param)
             // Attempt to find a parameter with the specified name
             else
             {
-                idx = sqlite3_bind_parameter_index(SQMOD_GET_CREATED(*this)->mPtr, val.mPtr);
+                idx = sqlite3_bind_parameter_index(SQMOD_GET_CREATED(*this)->Access(), val.mPtr);
             }
         } break;
         // We don't recognize this kind of value!
@@ -1458,7 +1467,7 @@ Object SQLiteParameter::GetStatement() const
 // ------------------------------------------------------------------------------------------------
 Object SQLiteParameter::GetConnection() const
 {
-    return GetConnectionObj(SQMOD_GET_VALID(*this)->mConn);
+    return GetConnectionObj(SQMOD_GET_VALID(*this)->mConnection);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1503,7 +1512,7 @@ void SQLiteParameter::SetBool(bool value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
-    m_Handle->mStatus = sqlite3_bind_int(m_Handle->mPtr, m_Index, value);
+    m_Handle->mStatus = sqlite3_bind_int(m_Handle->Access(), m_Index, value);
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -1516,7 +1525,7 @@ void SQLiteParameter::SetChar(SQInteger value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
-    m_Handle->mStatus = sqlite3_bind_int(m_Handle->mPtr, m_Index, ConvTo< SQChar >::From(value));
+    m_Handle->mStatus = sqlite3_bind_int(m_Handle->Access(), m_Index, ConvTo< SQChar >::From(value));
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -1529,7 +1538,7 @@ void SQLiteParameter::SetInteger(SQInteger value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
-    m_Handle->mStatus = sqlite3_bind_integer(m_Handle->mPtr, m_Index, value);
+    m_Handle->mStatus = sqlite3_bind_integer(m_Handle->Access(), m_Index, value);
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -1542,7 +1551,7 @@ void SQLiteParameter::SetInt8(SQInteger value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
-    m_Handle->mStatus = sqlite3_bind_int(m_Handle->mPtr, m_Index, ConvTo< int8_t >::From(value));
+    m_Handle->mStatus = sqlite3_bind_int(m_Handle->Access(), m_Index, ConvTo< int8_t >::From(value));
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -1555,7 +1564,7 @@ void SQLiteParameter::SetUint8(SQInteger value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
-    m_Handle->mStatus = sqlite3_bind_int(m_Handle->mPtr, m_Index, ConvTo< uint8_t >::From(value));
+    m_Handle->mStatus = sqlite3_bind_int(m_Handle->Access(), m_Index, ConvTo< uint8_t >::From(value));
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -1568,7 +1577,7 @@ void SQLiteParameter::SetInt16(SQInteger value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
-    m_Handle->mStatus = sqlite3_bind_int(m_Handle->mPtr, m_Index, ConvTo< int16_t >::From(value));
+    m_Handle->mStatus = sqlite3_bind_int(m_Handle->Access(), m_Index, ConvTo< int16_t >::From(value));
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -1581,7 +1590,7 @@ void SQLiteParameter::SetUint16(SQInteger value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
-    m_Handle->mStatus = sqlite3_bind_int(m_Handle->mPtr, m_Index, ConvTo< uint16_t >::From(value));
+    m_Handle->mStatus = sqlite3_bind_int(m_Handle->Access(), m_Index, ConvTo< uint16_t >::From(value));
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -1594,7 +1603,7 @@ void SQLiteParameter::SetInt32(SQInteger value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
-    m_Handle->mStatus = sqlite3_bind_int(m_Handle->mPtr, m_Index, ConvTo< int32_t >::From(value));
+    m_Handle->mStatus = sqlite3_bind_int(m_Handle->Access(), m_Index, ConvTo< int32_t >::From(value));
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -1607,7 +1616,7 @@ void SQLiteParameter::SetUint32(SQInteger value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
-    m_Handle->mStatus = sqlite3_bind_int(m_Handle->mPtr, m_Index, static_cast< int32_t >(ConvTo< uint32_t >::From(value)));
+    m_Handle->mStatus = sqlite3_bind_int(m_Handle->Access(), m_Index, static_cast< int32_t >(ConvTo< uint32_t >::From(value)));
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -1620,7 +1629,7 @@ void SQLiteParameter::SetInt64(SQInteger value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
-    m_Handle->mStatus = sqlite3_bind_int64(m_Handle->mPtr, m_Index, value);
+    m_Handle->mStatus = sqlite3_bind_int64(m_Handle->Access(), m_Index, value);
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -1633,7 +1642,7 @@ void SQLiteParameter::SetUint64(SQInteger value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
-    m_Handle->mStatus = sqlite3_bind_int64(m_Handle->mPtr, m_Index, value);
+    m_Handle->mStatus = sqlite3_bind_int64(m_Handle->Access(), m_Index, value);
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -1646,7 +1655,7 @@ void SQLiteParameter::SetFloat(SQFloat value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
-    m_Handle->mStatus = sqlite3_bind_double(m_Handle->mPtr, m_Index, value);
+    m_Handle->mStatus = sqlite3_bind_double(m_Handle->Access(), m_Index, value);
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -1659,7 +1668,7 @@ void SQLiteParameter::SetFloat32(SQFloat value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
-    m_Handle->mStatus = sqlite3_bind_double(m_Handle->mPtr, m_Index, ConvTo< float >::From(value));
+    m_Handle->mStatus = sqlite3_bind_double(m_Handle->Access(), m_Index, ConvTo< float >::From(value));
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -1672,7 +1681,7 @@ void SQLiteParameter::SetFloat64(SQFloat value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
-    m_Handle->mStatus = sqlite3_bind_double(m_Handle->mPtr, m_Index, value);
+    m_Handle->mStatus = sqlite3_bind_double(m_Handle->Access(), m_Index, value);
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -1685,7 +1694,7 @@ void SQLiteParameter::SetString(StackStrF & value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
-    m_Handle->mStatus = sqlite3_bind_text(m_Handle->mPtr, m_Index, value.mPtr, static_cast<int>(value.mLen), SQLITE_TRANSIENT);
+    m_Handle->mStatus = sqlite3_bind_text(m_Handle->Access(), m_Index, value.mPtr, static_cast<int>(value.mLen), SQLITE_TRANSIENT);
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -1698,7 +1707,7 @@ void SQLiteParameter::SetStringRaw(const SQChar * value, SQInteger length)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
-    m_Handle->mStatus = sqlite3_bind_text(m_Handle->mPtr, m_Index, value, static_cast<int>(length), SQLITE_TRANSIENT);
+    m_Handle->mStatus = sqlite3_bind_text(m_Handle->Access(), m_Index, value, static_cast<int>(length), SQLITE_TRANSIENT);
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -1711,7 +1720,7 @@ void SQLiteParameter::SetZeroBlob(SQInteger size)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
-    m_Handle->mStatus = sqlite3_bind_zeroblob(m_Handle->mPtr, m_Index, ConvTo< int32_t >::From(size));
+    m_Handle->mStatus = sqlite3_bind_zeroblob(m_Handle->Access(), m_Index, ConvTo< int32_t >::From(size));
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -1743,7 +1752,7 @@ void SQLiteParameter::SetBlob(const Object & value)
         len = sqstd_getblobsize(vm, -1);
     }
     // Attempt to bind the specified value
-    m_Handle->mStatus = sqlite3_bind_blob(m_Handle->mPtr, m_Index, ptr, static_cast<int>(len), SQLITE_TRANSIENT);
+    m_Handle->mStatus = sqlite3_bind_blob(m_Handle->Access(), m_Index, ptr, static_cast<int>(len), SQLITE_TRANSIENT);
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -1757,9 +1766,9 @@ void SQLiteParameter::SetData(const SqBuffer & value)
     Buffer & buff = *value.GetRef();
     // Attempt to bind the specified value
 #ifdef _SQ64
-    m_Handle->mStatus = sqlite3_bind_blob64(m_Handle->mPtr, m_Index, buff.Data(), buff.Position(), SQLITE_TRANSIENT);
+    m_Handle->mStatus = sqlite3_bind_blob64(m_Handle->Access(), m_Index, buff.Data(), buff.Position(), SQLITE_TRANSIENT);
 #else
-    m_Handle->mStatus = sqlite3_bind_blob(m_Handle->mPtr, m_Index, buff.Data(), buff.Position(), SQLITE_TRANSIENT);
+    m_Handle->mStatus = sqlite3_bind_blob(m_Handle->Access(), m_Index, buff.Data(), buff.Position(), SQLITE_TRANSIENT);
 #endif
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
@@ -1788,9 +1797,9 @@ void SQLiteParameter::SetDataEx(const SqBuffer & value, SQInteger offset, SQInte
     }
     // Attempt to bind the specified value
 #ifdef _SQ64
-    m_Handle->mStatus = sqlite3_bind_blob64(m_Handle->mPtr, m_Index, (buff.Data() + offset), static_cast< sqlite3_uint64 >(offset + length), SQLITE_TRANSIENT);
+    m_Handle->mStatus = sqlite3_bind_blob64(m_Handle->Access(), m_Index, (buff.Data() + offset), static_cast< sqlite3_uint64 >(offset + length), SQLITE_TRANSIENT);
 #else
-    m_Handle->mStatus = sqlite3_bind_blob(m_Handle->mPtr, m_Index, (buff.Data() + offset), static_cast< int >(offset + length), SQLITE_TRANSIENT);
+    m_Handle->mStatus = sqlite3_bind_blob(m_Handle->Access(), m_Index, (buff.Data() + offset), static_cast< int >(offset + length), SQLITE_TRANSIENT);
 #endif
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
@@ -1806,7 +1815,7 @@ void SQLiteParameter::SetDate(const Date & value)
     // Attempt to generate the specified date string
     auto str = fmt::format("{} 00:00:00", value.ToString());
     // Attempt to bind the specified value
-    m_Handle->mStatus = sqlite3_bind_text(m_Handle->mPtr, m_Index, str.data(), static_cast< int >(str.size()), SQLITE_TRANSIENT);
+    m_Handle->mStatus = sqlite3_bind_text(m_Handle->Access(), m_Index, str.data(), static_cast< int >(str.size()), SQLITE_TRANSIENT);
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -1829,7 +1838,7 @@ void SQLiteParameter::SetDateEx(SQInteger year, SQInteger month, SQInteger day)
     // Attempt to generate the specified date string
     auto str = fmt::format("{}-{}-{} 00:00:00", y, m, d);
     // Attempt to bind the specified value
-    m_Handle->mStatus = sqlite3_bind_text(m_Handle->mPtr, m_Index, str.data(), static_cast< int >(str.size()), SQLITE_TRANSIENT);
+    m_Handle->mStatus = sqlite3_bind_text(m_Handle->Access(), m_Index, str.data(), static_cast< int >(str.size()), SQLITE_TRANSIENT);
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -1842,7 +1851,7 @@ void SQLiteParameter::SetTime(const Time & value)
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
-    m_Handle->mStatus = sqlite3_bind_int(m_Handle->mPtr, m_Index, static_cast<int>(value.GetTimestamp().GetSecondsI()));
+    m_Handle->mStatus = sqlite3_bind_int(m_Handle->Access(), m_Index, static_cast<int>(value.GetTimestamp().GetSecondsI()));
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -1874,7 +1883,7 @@ void SQLiteParameter::SetTimeEx(SQInteger hour, SQInteger minute, SQInteger seco
         STHROWF("Second value is out of range: {} >= 60", s);
     }
     // Calculate the number of seconds in the specified time and bind the resulted value
-    m_Handle->mStatus = sqlite3_bind_int(m_Handle->mPtr, m_Index, (h * (60 * 60)) + (m * 60) + s);
+    m_Handle->mStatus = sqlite3_bind_int(m_Handle->Access(), m_Index, (h * (60 * 60)) + (m * 60) + s);
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -1922,7 +1931,7 @@ void SQLiteParameter::SetDatetimeEx(SQInteger year, SQInteger month, SQInteger d
     // Attempt to generate the specified date string
     auto str = fmt::format(_SC("{:04}-{:02}-{:02} {:02}:{:02}:{:02}"), y, mo, d, h, mi, s);
     // Attempt to bind the specified value
-    m_Handle->mStatus = sqlite3_bind_text(m_Handle->mPtr, m_Index, str.data(), static_cast< int >(str.size()), SQLITE_TRANSIENT);
+    m_Handle->mStatus = sqlite3_bind_text(m_Handle->Access(), m_Index, str.data(), static_cast< int >(str.size()), SQLITE_TRANSIENT);
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -1935,7 +1944,7 @@ void SQLiteParameter::SetNow()
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
-    m_Handle->mStatus = sqlite3_bind_int(m_Handle->mPtr, m_Index,
+    m_Handle->mStatus = sqlite3_bind_int(m_Handle->Access(), m_Index,
                                             static_cast< int32_t >(std::time(nullptr)));
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
@@ -1949,7 +1958,7 @@ void SQLiteParameter::SetNull()
 {
     SQMOD_VALIDATE_CREATED(*this);
     // Attempt to bind the specified value
-    m_Handle->mStatus = sqlite3_bind_null(m_Handle->mPtr, m_Index);
+    m_Handle->mStatus = sqlite3_bind_null(m_Handle->Access(), m_Index);
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -2001,7 +2010,7 @@ void SQLiteColumn::ValidateCreated(const char * file, int32_t line) const
     {
         SqThrowF(SQMOD_RTFMT("Invalid SQLite statement reference =>[{}:{}]"), file, line);
     }
-    else if (m_Handle->mPtr == nullptr)
+    else if (m_Handle->Access() == nullptr)
     {
         SqThrowF(SQMOD_RTFMT("Invalid SQLite statement =>[{}:{}]"), file, line);
     }
@@ -2018,7 +2027,7 @@ void SQLiteColumn::ValidateCreated() const
     {
         SqThrowF(fmt::runtime("Invalid SQLite statement reference"));
     }
-    else if (m_Handle->mPtr == nullptr)
+    else if (m_Handle->Access() == nullptr)
     {
         SqThrowF(fmt::runtime("Invalid SQLite statement"));
     }
@@ -2187,7 +2196,7 @@ Object SQLiteColumn::GetStatement() const
 // ------------------------------------------------------------------------------------------------
 Object SQLiteColumn::GetConnection() const
 {
-    return GetConnectionObj(SQMOD_GET_VALID(*this)->mConn);
+    return GetConnectionObj(SQMOD_GET_VALID(*this)->mConnection);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2233,7 +2242,7 @@ Object SQLiteColumn::GetValue() const
     // Obtain the initial stack size
     const StackGuard sg;
     // Identify which type of value must be pushed on the stack
-    switch (sqlite3_column_type(m_Handle->mPtr, m_Index))
+    switch (sqlite3_column_type(m_Handle->Access(), m_Index))
     {
         // Is this a null value?
         case SQLITE_NULL:
@@ -2243,28 +2252,28 @@ Object SQLiteColumn::GetValue() const
         // Is this an integer?
         case SQLITE_INTEGER:
         {
-            sq_pushinteger(SqVM(), sqlite3_column_integer(m_Handle->mPtr, m_Index));
+            sq_pushinteger(SqVM(), sqlite3_column_integer(m_Handle->Access(), m_Index));
         } break;
         // Is this a floating point?
         case SQLITE_FLOAT:
         {
             sq_pushfloat(SqVM(),
-                            ConvTo< SQFloat >::From(sqlite3_column_double(m_Handle->mPtr, m_Index)));
+                            ConvTo< SQFloat >::From(sqlite3_column_double(m_Handle->Access(), m_Index)));
         } break;
         // Is this a string?
         case SQLITE_TEXT:
         {
             sq_pushstring(SqVM(),
-                            reinterpret_cast< const SQChar * >(sqlite3_column_text(m_Handle->mPtr, m_Index)),
-                            sqlite3_column_bytes(m_Handle->mPtr, m_Index));
+                            reinterpret_cast< const SQChar * >(sqlite3_column_text(m_Handle->Access(), m_Index)),
+                            sqlite3_column_bytes(m_Handle->Access(), m_Index));
         } break;
         // Is this raw data?
         case SQLITE_BLOB:
         {
             // Retrieve the size of the blob that must be allocated
-            const int32_t size = sqlite3_column_bytes(m_Handle->mPtr, m_Index);
+            const int32_t size = sqlite3_column_bytes(m_Handle->Access(), m_Index);
             // Retrieve the the actual blob data that must be returned
-            auto data = reinterpret_cast< const char * >(sqlite3_column_blob(m_Handle->mPtr, m_Index));
+            auto data = reinterpret_cast< const char * >(sqlite3_column_blob(m_Handle->Access(), m_Index));
             // Attempt to create a buffer with the blob data on the stack
             Var< const SqBuffer & >::push(SqVM(), SqBuffer(data, size, 0));
         } break;
@@ -2282,7 +2291,7 @@ Object SQLiteColumn::GetNumber() const
     // Obtain the initial stack size
     const StackGuard sg;
     // Identify which type of value must be pushed on the stack
-    switch (sqlite3_column_type(m_Handle->mPtr, m_Index))
+    switch (sqlite3_column_type(m_Handle->Access(), m_Index))
     {
         // Is this a null value?
         case SQLITE_NULL:
@@ -2292,18 +2301,18 @@ Object SQLiteColumn::GetNumber() const
         // Is this an integer?
         case SQLITE_INTEGER:
         {
-            sq_pushinteger(SqVM(), sqlite3_column_integer(m_Handle->mPtr, m_Index));
+            sq_pushinteger(SqVM(), sqlite3_column_integer(m_Handle->Access(), m_Index));
         } break;
         // Is this a floating point?
         case SQLITE_FLOAT:
         {
             sq_pushfloat(SqVM(),
-                            ConvTo< SQFloat >::From(sqlite3_column_double(m_Handle->mPtr, m_Index)));
+                            ConvTo< SQFloat >::From(sqlite3_column_double(m_Handle->Access(), m_Index)));
         } break;
         // Is this a string?
         case SQLITE_TEXT:
         {
-            auto str = reinterpret_cast< const SQChar * >(sqlite3_column_text(m_Handle->mPtr, m_Index));
+            auto str = reinterpret_cast< const SQChar * >(sqlite3_column_text(m_Handle->Access(), m_Index));
             // Is there even a string to parse?
             if (!str || *str == '\0')
             {
@@ -2334,7 +2343,7 @@ SQInteger SQLiteColumn::GetInteger() const
 {
     SQMOD_VALIDATE_ROW(*this);
     // Return the requested information
-    return sqlite3_column_integer(m_Handle->mPtr, m_Index);
+    return sqlite3_column_integer(m_Handle->Access(), m_Index);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2342,7 +2351,7 @@ SQFloat SQLiteColumn::GetFloat() const
 {
     SQMOD_VALIDATE_ROW(*this);
     // Return the requested information
-    return ConvTo< SQFloat >::From(sqlite3_column_double(m_Handle->mPtr, m_Index));
+    return ConvTo< SQFloat >::From(sqlite3_column_double(m_Handle->Access(), m_Index));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2350,7 +2359,7 @@ SQInteger SQLiteColumn::GetLong() const
 {
     SQMOD_VALIDATE_ROW(*this);
     // Return the requested information
-    return sqlite3_column_int64(m_Handle->mPtr, m_Index);
+    return sqlite3_column_int64(m_Handle->Access(), m_Index);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2360,8 +2369,8 @@ Object SQLiteColumn::GetString() const
     // Obtain the initial stack size
     const StackGuard sg;
     // Push the column text on the stack
-    sq_pushstring(SqVM(), reinterpret_cast< const SQChar * >(sqlite3_column_text(m_Handle->mPtr, m_Index)),
-                            sqlite3_column_bytes(m_Handle->mPtr, m_Index));
+    sq_pushstring(SqVM(), reinterpret_cast< const SQChar * >(sqlite3_column_text(m_Handle->Access(), m_Index)),
+                            sqlite3_column_bytes(m_Handle->Access(), m_Index));
     // Get the object from the stack and return it
     return Var< Object >(SqVM(), -1).value;
 }
@@ -2371,7 +2380,7 @@ bool SQLiteColumn::GetBoolean() const
 {
     SQMOD_VALIDATE_ROW(*this);
     // Return the requested information
-    return sqlite3_column_int(m_Handle->mPtr, m_Index) > 0;
+    return sqlite3_column_int(m_Handle->Access(), m_Index) > 0;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2379,7 +2388,7 @@ SQChar SQLiteColumn::GetChar() const
 {
     SQMOD_VALIDATE_ROW(*this);
     // Return the requested information
-    return (SQChar)sqlite3_column_int(m_Handle->mPtr, m_Index);
+    return (SQChar)sqlite3_column_int(m_Handle->Access(), m_Index);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2389,9 +2398,9 @@ Object SQLiteColumn::GetBuffer() const
     // Remember the current stack size
     const StackGuard sg;
     // Retrieve the size of the blob that must be allocated
-    const int32_t size = sqlite3_column_bytes(m_Handle->mPtr, m_Index);
+    const int32_t size = sqlite3_column_bytes(m_Handle->Access(), m_Index);
     // Retrieve the the actual blob data that must be returned
-    auto data = reinterpret_cast< const char * >(sqlite3_column_blob(m_Handle->mPtr, m_Index));
+    auto data = reinterpret_cast< const char * >(sqlite3_column_blob(m_Handle->Access(), m_Index));
     // Attempt to create a buffer with the blob data on the stack
     Var< const SqBuffer & >::push(SqVM(), SqBuffer(data, size, 0));
     // Get the object from the stack and return it
@@ -2405,11 +2414,11 @@ Object SQLiteColumn::GetBlob() const
     // Obtain the initial stack size
     const StackGuard sg;
     // Obtain the size of the data
-    const int32_t sz = sqlite3_column_bytes(m_Handle->mPtr, m_Index);
+    const int32_t sz = sqlite3_column_bytes(m_Handle->Access(), m_Index);
     // Allocate a blob of the same size
     SQUserPointer p = sqstd_createblob(SqVM(), sz);
     // Obtain a pointer to the data
-    const void * b = sqlite3_column_blob(m_Handle->mPtr, m_Index);
+    const void * b = sqlite3_column_blob(m_Handle->Access(), m_Index);
     // Could the memory blob be allocated?
     if (!p)
     {
@@ -2459,7 +2468,7 @@ void SQLiteStatement::ValidateCreated(const char * file, int32_t line) const
     {
         SqThrowF(SQMOD_RTFMT("Invalid SQLite statement reference =>[{}:{}]"), file, line);
     }
-    else if (m_Handle->mPtr == nullptr)
+    else if (m_Handle->Access() == nullptr)
     {
         SqThrowF(SQMOD_RTFMT("Invalid SQLite statement =>[{}:{}]"), file, line);
     }
@@ -2471,7 +2480,7 @@ void SQLiteStatement::ValidateCreated() const
     {
         SqThrowF(fmt::runtime("Invalid SQLite statement reference"));
     }
-    else if (m_Handle->mPtr == nullptr)
+    else if (m_Handle->Access() == nullptr)
     {
         SqThrowF(fmt::runtime("Invalid SQLite statement"));
     }
@@ -2587,7 +2596,7 @@ SQLiteStatement::SQLiteStatement(const SQLiteConnection & connection, StackStrF 
 // ------------------------------------------------------------------------------------------------
 Object SQLiteStatement::GetConnection() const
 {
-    return Object(new SQLiteConnection(SQMOD_GET_VALID(*this)->mConn));
+    return Object(new SQLiteConnection(SQMOD_GET_VALID(*this)->mConnection));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2598,7 +2607,7 @@ SQLiteStatement & SQLiteStatement::Reset()
     m_Handle->mGood = false;
     m_Handle->mDone = false;
     // Attempt to reset the statement to it's initial state
-    m_Handle->mStatus = sqlite3_reset(m_Handle->mPtr);
+    m_Handle->mStatus = sqlite3_reset(m_Handle->Access());
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -2616,7 +2625,7 @@ SQLiteStatement & SQLiteStatement::Clear()
     m_Handle->mGood = false;
     m_Handle->mDone = false;
     // Attempt to clear the statement
-    m_Handle->mStatus = sqlite3_clear_bindings(m_Handle->mPtr);
+    m_Handle->mStatus = sqlite3_clear_bindings(m_Handle->Access());
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -2636,7 +2645,7 @@ int32_t SQLiteStatement::Exec()
         STHROWF("Executed without resetting first");
     }
     // Attempt to step the statement
-    m_Handle->mStatus = sqlite3_step(m_Handle->mPtr);
+    m_Handle->mStatus = sqlite3_step(m_Handle->Access());
     // Have we finished stepping?
     if (m_Handle->mStatus == SQLITE_DONE)
     {
@@ -2644,7 +2653,7 @@ int32_t SQLiteStatement::Exec()
         m_Handle->mGood = false;
         m_Handle->mDone = true;
         // Return the changes made by this statement
-        return sqlite3_changes(m_Handle->mConn->mPtr);
+        return sqlite3_changes(m_Handle->mConnection->mPtr);
     }
     // Specify that we don't have any row and we haven't finished stepping
     m_Handle->mGood = false;
@@ -2677,7 +2686,7 @@ bool SQLiteStatement::Step()
         STHROWF("Stepped without resetting first");
     }
     // Attempt to step the statement
-    m_Handle->mStatus = sqlite3_step(m_Handle->mPtr);
+    m_Handle->mStatus = sqlite3_step(m_Handle->Access());
     // Do we have a row available?
     if (m_Handle->mStatus == SQLITE_ROW)
     {
@@ -2827,7 +2836,7 @@ Table SQLiteStatement::GetTable(int32_t min, int32_t max) const
     while (min <= max)
     {
         // Attempt to obtain the column name
-        const SQChar * name = sqlite3_column_name(m_Handle->mPtr, min);
+        const SQChar * name = sqlite3_column_name(m_Handle->Access(), min);
         // Validate the obtained name
         if (!name)
         {
@@ -2859,7 +2868,7 @@ SQLiteTransaction::SQLiteTransaction(SQLiteConnRef  db)
         STHROWF("Invalid connection handle");
     }
     // Attempt to begin transaction
-    m_Handle->mStatus = sqlite3_exec(m_Handle->mPtr, "BEGIN", nullptr, nullptr, nullptr);
+    m_Handle->mStatus = sqlite3_exec(m_Handle->Access(), "BEGIN", nullptr, nullptr, nullptr);
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -2876,7 +2885,7 @@ SQLiteTransaction::~SQLiteTransaction()
         return; // We're done here!
     }
     // Attempt to roll back changes because this failed to commit
-    m_Handle->mStatus = sqlite3_exec(m_Handle->mPtr, "ROLLBACK", nullptr, nullptr, nullptr);
+    m_Handle->mStatus = sqlite3_exec(m_Handle->Access(), "ROLLBACK", nullptr, nullptr, nullptr);
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {
@@ -2899,7 +2908,7 @@ bool SQLiteTransaction::Commit()
         STHROWF("Transaction was already committed");
     }
     // Attempt to commit the change during this transaction
-    m_Handle->mStatus = sqlite3_exec(m_Handle->mPtr, "COMMIT", nullptr, nullptr, nullptr);
+    m_Handle->mStatus = sqlite3_exec(m_Handle->Access(), "COMMIT", nullptr, nullptr, nullptr);
     // Validate the result
     if (m_Handle->mStatus != SQLITE_OK)
     {

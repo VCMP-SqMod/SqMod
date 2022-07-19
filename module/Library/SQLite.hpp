@@ -2,6 +2,7 @@
 
 // ------------------------------------------------------------------------------------------------
 #include "Core/Utility.hpp"
+#include "Core/ThreadPool.hpp"
 
 // ------------------------------------------------------------------------------------------------
 #include "Library/IO/Buffer.hpp"
@@ -201,6 +202,11 @@ public:
     explicit SQLiteConnHnd(Poco::Data::SessionImpl * session);
 
     /* --------------------------------------------------------------------------------------------
+     * Explicit constructor.
+    */
+    explicit SQLiteConnHnd(Poco::AutoPtr< Poco::Data::SessionImpl > && session);
+
+    /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
     */
     SQLiteConnHnd(const SQLiteConnHnd & o) = delete;
@@ -266,6 +272,20 @@ public:
     {
         return sqlite3_extended_errcode(mPtr);
     }
+
+    /* --------------------------------------------------------------------------------------------
+     * Access the connection pointer.
+    */
+    SQMOD_NODISCARD Pointer Access() const
+    {
+        if (!mSession.isNull()) {
+            // Only reason this is necessary is to dirty the connection handle access time-stamp
+            // So it won't be closed/collected when it comes from a connection/session-pool
+            [[maybe_unused]] auto _ = mSession->isConnected();
+        }
+        // We yield access to the pointer anyway
+        return mPtr;
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -298,7 +318,7 @@ public:
     int32_t     mStatus; // The last status code of this connection handle.
 
     // --------------------------------------------------------------------------------------------
-    SQLiteConnRef     mConn; // The handle to the associated database connection.
+    SQLiteConnRef   mConnection; // The handle to the associated database connection.
 
     // --------------------------------------------------------------------------------------------
     String      mQuery; // The query string used to create this statement.
@@ -387,6 +407,20 @@ public:
      * Return the extended numeric result code for the most recent failed API call (if any).
     */
     SQMOD_NODISCARD int32_t ExErrNo() const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Access the statement pointer.
+    */
+    SQMOD_NODISCARD Pointer Access() const
+    {
+        if (bool(mConnection) && !(mConnection->mSession.isNull())) {
+            // Only reason this is necessary is to dirty the connection handle access time-stamp
+            // So it won't be closed/collected when it comes from a connection/session-pool
+            [[maybe_unused]] auto _ = mConnection->mSession->isConnected();
+        }
+        // We yield access to the pointer anyway
+        return mPtr;
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -538,7 +572,7 @@ public:
     */
     operator sqlite3 * () //NOLINT (intentionally implicit)
     {
-        return m_Handle ? m_Handle->mPtr : nullptr;
+        return m_Handle ? m_Handle->Access() : nullptr;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -546,7 +580,7 @@ public:
     */
     operator sqlite3 * () const //NOLINT (intentionally implicit)
     {
-        return m_Handle ? m_Handle->mPtr : nullptr;
+        return m_Handle ? m_Handle->Access() : nullptr;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -578,7 +612,7 @@ public:
     */
     SQMOD_NODISCARD bool IsConnected() const
     {
-        return m_Handle && (m_Handle->mPtr != nullptr);
+        return m_Handle && (m_Handle->Access() != nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -690,6 +724,16 @@ public:
      * Attempt to create a statement from the specified query.
     */
     Object Query(StackStrF & str) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to execute the specified query asynchronously.
+    */
+    LightObj AsyncExec(StackStrF & str);
+
+    /* --------------------------------------------------------------------------------------------
+     * Attempt to create a statement from the specified query asynchronously.
+    */
+    LightObj AsyncQuery(StackStrF & str) const;
 
     /* --------------------------------------------------------------------------------------------
      * See if the database connection was opened in read-only mode.
@@ -869,8 +913,8 @@ class SQLiteParameter
 private:
 
     // --------------------------------------------------------------------------------------------
-    int32_t     m_Index{0}; // The index of the managed parameter.
-    SQLiteStmtRef     m_Handle{}; // Reference to the managed statement.
+    int32_t         m_Index{0}; // The index of the managed parameter.
+    SQLiteStmtRef   m_Handle{}; // Reference to the managed statement.
 
 protected:
 
@@ -1045,7 +1089,7 @@ public:
         // Can we attempt to return the parameter name?
         if (m_Handle && m_Index)
         {
-            const SQChar * val = sqlite3_bind_parameter_name(m_Handle->mPtr, m_Index);
+            const SQChar * val = sqlite3_bind_parameter_name(m_Handle->Access(), m_Index);
             // Return the value if valid
             return val ? val : String{};
         }
@@ -1448,7 +1492,7 @@ public:
         // Can we attempt to return the parameter name?
         if (m_Handle && m_Index)
         {
-            const SQChar * val = sqlite3_column_name(m_Handle->mPtr, m_Index);
+            const SQChar * val = sqlite3_column_name(m_Handle->Access(), m_Index);
             // Return the value if valid
             return val ? val : String{};
         }
@@ -1727,7 +1771,7 @@ public:
     */
     operator sqlite3_stmt * () // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
     {
-        return m_Handle ? m_Handle->mPtr : nullptr;
+        return m_Handle ? m_Handle->Access() : nullptr;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1735,7 +1779,7 @@ public:
     */
     operator sqlite3_stmt * () const // NOLINT(google-explicit-constructor,hicpp-explicit-conversions)
     {
-        return m_Handle ? m_Handle->mPtr : nullptr;
+        return m_Handle ? m_Handle->Access() : nullptr;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1767,7 +1811,7 @@ public:
     */
     SQMOD_NODISCARD bool IsPrepared() const
     {
-        return m_Handle && (m_Handle->mPtr != nullptr);
+        return m_Handle && (m_Handle->Access() != nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------

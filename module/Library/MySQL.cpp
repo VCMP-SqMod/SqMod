@@ -18,7 +18,7 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
-LightObj GteMySQLFromSession(Poco::Data::SessionImpl * session)
+LightObj GetMySQLFromSession(Poco::Data::SessionImpl * session)
 {
     // Create a reference counted connection handle instance
     MySQLConnRef ref(new MySQLConnHnd(session));
@@ -551,7 +551,7 @@ char DbConvTo< char >::From(const SQChar * value, unsigned long length, enum_fie
 // ------------------------------------------------------------------------------------------------
 void MySQLConnHnd::GrabCurrent()
 {
-    mErrNo = mysql_errno(mPtr);
+    mErrNo = mysql_errno(Access());
     mErrStr.assign(mysql_error(mPtr));
 }
 
@@ -601,7 +601,7 @@ MySQLConnHnd::MySQLConnHnd()
 MySQLConnHnd::MySQLConnHnd(Poco::Data::SessionImpl * session)
     : MySQLConnHnd()
 {
-    mSession.assign(session);
+    mSession.assign(session, true);
     // Retrieve the internal handle property
     mPtr = Poco::AnyCast< MYSQL * >(session->getProperty("handle"));
 }
@@ -712,7 +712,7 @@ void MySQLConnHnd::Disconnect()
 uint64_t MySQLConnHnd::Execute(const SQChar * query, unsigned long size)
 {
     // Make sure that we are connected
-    if (!mPtr)
+    if (!Access())
     {
         STHROWF("Invalid MySQL connection");
     }
@@ -863,7 +863,7 @@ void MySQLStmtBind::SetInput(enum_field_types type, BindType * bind, const char 
 // ------------------------------------------------------------------------------------------------
 void MySQLStmtHnd::GrabCurrent()
 {
-    mErrNo = mysql_stmt_errno(mPtr);
+    mErrNo = mysql_stmt_errno(Access());
     mErrStr.assign(mysql_stmt_error(mPtr));
 }
 
@@ -889,7 +889,7 @@ void MySQLStmtHnd::ThrowCurrent(const char * act)
 void MySQLStmtHnd::ValidateParam(uint32_t idx, const char * file, int32_t line) const
 {
     // Is the handle valid?
-    if (mPtr == nullptr)
+    if (Access() == nullptr)
     {
         STHROWF("Invalid MySQL statement reference =>[{}:{}]", file, line);
     }
@@ -902,7 +902,7 @@ void MySQLStmtHnd::ValidateParam(uint32_t idx, const char * file, int32_t line) 
 void MySQLStmtHnd::ValidateParam(uint32_t idx) const
 {
     // Is the handle valid?
-    if (mPtr == nullptr)
+    if (Access() == nullptr)
     {
         STHROWF("Invalid MySQL statement reference");
     }
@@ -951,7 +951,7 @@ MySQLStmtHnd::~MySQLStmtHnd()
 void MySQLStmtHnd::Create(const MySQLConnRef & conn, const SQChar * query)
 {
     // Is this statement already created?
-    if (mPtr != nullptr)
+    if (Access() != nullptr)
     {
         STHROWF("MySQL statement was already created");
     }
@@ -1185,7 +1185,7 @@ void MySQLResHnd::ThrowCurrent(const char * act) const
 void MySQLResHnd::ValidateField(uint32_t idx, const char * file, int32_t line) const
 {
     // Is the handle valid?
-    if (mPtr == nullptr)
+    if (Access() == nullptr)
     {
         STHROWF("Invalid MySQL result-set =>[{}:{}]", file, line);
     }
@@ -1198,7 +1198,7 @@ void MySQLResHnd::ValidateField(uint32_t idx, const char * file, int32_t line) c
 void MySQLResHnd::ValidateField(uint32_t idx) const
 {
     // Is the handle valid?
-    if (mPtr == nullptr)
+    if (Access() == nullptr)
     {
         STHROWF("Invalid MySQL result-set");
     }
@@ -1213,7 +1213,7 @@ void MySQLResHnd::ValidateField(uint32_t idx) const
 uint32_t MySQLResHnd::GetFieldIndex(const SQChar * name)
 {
     // Validate the handle
-    if (!mPtr)
+    if (!Access())
     {
         STHROWF("Invalid MySQL result-set");
     }
@@ -1232,7 +1232,7 @@ uint32_t MySQLResHnd::GetFieldIndex(const SQChar * name)
 void MySQLResHnd::Create(const MySQLConnRef & conn)
 {
     // Is this result-set already created?
-    if (mPtr != nullptr)
+    if (Access() != nullptr)
     {
         STHROWF("MySQL result-set was already created");
     }
@@ -1279,7 +1279,7 @@ void MySQLResHnd::Create(const MySQLConnRef & conn)
 void MySQLResHnd::Create(const MySQLStmtRef & stmt)
 {
     // Is this result-set already created?
-    if (mPtr != nullptr)
+    if (Access() != nullptr)
     {
         STHROWF("MySQL result-set was already created");
     }
@@ -1369,7 +1369,7 @@ void MySQLResHnd::Create(const MySQLStmtRef & stmt)
 uint64_t MySQLResHnd::RowIndex() const
 {
     // Is this result-set even valid?
-    if (!mPtr)
+    if (!Access())
     {
         STHROWF("Invalid MySQL result-set");
     }
@@ -1386,7 +1386,7 @@ uint64_t MySQLResHnd::RowIndex() const
 uint64_t MySQLResHnd::RowCount() const
 {
     // Is this result-set even valid?
-    if (!mPtr)
+    if (!Access())
     {
         STHROWF("Invalid MySQL result-set");
     }
@@ -1403,7 +1403,7 @@ uint64_t MySQLResHnd::RowCount() const
 bool MySQLResHnd::Next()
 {
     // Is this result-set even valid?
-    if (!mPtr)
+    if (!Access())
     {
         STHROWF("Invalid MySQL result-set");
     }
@@ -1425,7 +1425,7 @@ bool MySQLResHnd::Next()
 bool MySQLResHnd::SetRowIndex(uint64_t index)
 {
     // Is this result-set even valid?
-    if (!mPtr)
+    if (!Access())
     {
         STHROWF("Invalid MySQL result-set");
     }
@@ -1671,7 +1671,7 @@ void MySQLConnection::ValidateCreated(const char * file, int32_t line) const
     {
         SqThrowF(SQMOD_RTFMT("Invalid MySQL connection reference =>[{}:{}]"), file, line);
     }
-    else if (m_Handle->mPtr == nullptr)
+    else if (m_Handle->Access() == nullptr)
     {
         SqThrowF(SQMOD_RTFMT("Invalid MySQL connection =>[{}:{}]"), file, line);
     }
@@ -1683,7 +1683,7 @@ void MySQLConnection::ValidateCreated() const
     {
         SqThrowF(fmt::runtime("Invalid MySQL connection reference"));
     }
-    else if (m_Handle->mPtr == nullptr)
+    else if (m_Handle->Access() == nullptr)
     {
         SqThrowF(fmt::runtime("Invalid MySQL connection"));
     }
@@ -1734,7 +1734,7 @@ SQInteger MySQLConnection::Insert(const SQChar * query)
         SQMOD_THROW_CURRENT(*m_Handle, "Unable to execute MySQL query");
     }
     // Return the identifier of the inserted row
-    return static_cast< SQInteger >(mysql_insert_id(m_Handle->mPtr));
+    return static_cast< SQInteger >(mysql_insert_id(m_Handle->Access()));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1872,12 +1872,12 @@ SQInteger MySQLConnection::InsertF(HSQUIRRELVM vm)
     // Attempt to execute the specified query
     try
     {
-        if (mysql_real_query(conn->m_Handle->mPtr, val.mPtr, static_cast<unsigned long>(val.mLen)) != 0)
+        if (mysql_real_query(conn->m_Handle->Access(), val.mPtr, static_cast<unsigned long>(val.mLen)) != 0)
         {
             SQMOD_THROW_CURRENT(*(conn->m_Handle), "Unable to execute MySQL query");
         }
         // Return the identifier of the inserted row
-        sq_pushinteger(vm, static_cast< SQInteger >(mysql_insert_id(conn->m_Handle->mPtr)));
+        sq_pushinteger(vm, static_cast< SQInteger >(mysql_insert_id(conn->m_Handle->Access())));
     }
     catch (const std::exception & e)
     {
@@ -1939,7 +1939,7 @@ SQInteger MySQLConnection::QueryF(HSQUIRRELVM vm)
     // Attempt to execute the specified query
     try
     {
-        if (mysql_real_query(conn->m_Handle->mPtr, val.mPtr, static_cast<unsigned long>(val.mLen)) != 0)
+        if (mysql_real_query(conn->m_Handle->Access(), val.mPtr, static_cast<unsigned long>(val.mLen)) != 0)
         {
             SQMOD_THROW_CURRENT(*(conn->m_Handle), "Unable to execute MySQL query");
         }
@@ -1966,7 +1966,7 @@ LightObj MySQLConnection::EscapeString(StackStrF & str)
     // Allocate a buffer for the given string
     std::vector< SQChar > buffer(static_cast< size_t >(str.mLen * 2 + 1));
     // Attempt to escape the specified string
-    const unsigned long len = mysql_real_escape_string(m_Handle->mPtr, buffer.data(), str.mPtr,
+    const unsigned long len = mysql_real_escape_string(m_Handle->Access(), buffer.data(), str.mPtr,
                                                        static_cast<unsigned long>(str.mLen));
     // Return the resulted string
     return LightObj(buffer.data(), static_cast< SQInteger >(len), str.mVM);
@@ -2515,7 +2515,7 @@ void MySQLResultSet::ValidateCreated(const char * file, int32_t line) const
     {
         SqThrowF(SQMOD_RTFMT("Invalid MySQL result-set reference =>[{}:{}]"), file, line);
     }
-    else if (m_Handle->mPtr == nullptr)
+    else if (m_Handle->Access() == nullptr)
     {
         SqThrowF(SQMOD_RTFMT("Invalid MySQL result-set =>[{}:{}]"), file, line);
     }
@@ -2528,7 +2528,7 @@ void MySQLResultSet::ValidateCreated() const
     {
         SqThrowF(fmt::runtime("Invalid MySQL result-set reference"));
     }
-    else if (m_Handle->mPtr == nullptr)
+    else if (m_Handle->Access() == nullptr)
     {
         SqThrowF(fmt::runtime("Invalid MySQL result-set"));
     }
@@ -2795,7 +2795,7 @@ void MySQLStatement::ValidateCreated(const char * file, int32_t line) const
     {
         SqThrowF(SQMOD_RTFMT("Invalid MySQL statement reference =>[{}:{}]"), file, line);
     }
-    else if (m_Handle->mPtr == nullptr)
+    else if (m_Handle->Access() == nullptr)
     {
         SqThrowF(SQMOD_RTFMT("Invalid MySQL statement =>[{}:{}]"), file, line);
     }
@@ -2807,7 +2807,7 @@ void MySQLStatement::ValidateCreated() const
     {
         SqThrowF(fmt::runtime("Invalid MySQL statement reference"));
     }
-    else if (m_Handle->mPtr == nullptr)
+    else if (m_Handle->Access() == nullptr)
     {
         SqThrowF(fmt::runtime("Invalid MySQL statement"));
     }
@@ -2882,46 +2882,46 @@ void MySQLStatement::SetConnection(const MySQLConnection & conn)
 int32_t MySQLStatement::Execute()
 {
     // Attempt to bind the parameters
-    if (mysql_stmt_bind_param(SQMOD_GET_CREATED(*this)->mPtr, m_Handle->mMyBinds))
+    if (mysql_stmt_bind_param(SQMOD_GET_CREATED(*this)->Access(), m_Handle->mMyBinds))
     {
         SQMOD_THROW_CURRENT(*m_Handle, "Cannot bind MySQL statement parameters");
     }
     // Attempt to execute the statement
-    else if (mysql_stmt_execute(m_Handle->mPtr))
+    else if (mysql_stmt_execute(m_Handle->Access()))
     {
         SQMOD_THROW_CURRENT(*m_Handle, "Cannot execute MySQL statement");
     }
     // Return the number of rows affected by this query
-    return static_cast< int32_t >(mysql_stmt_affected_rows(m_Handle->mPtr));
+    return static_cast< int32_t >(mysql_stmt_affected_rows(m_Handle->Access()));
 }
 
 // ------------------------------------------------------------------------------------------------
 uint32_t MySQLStatement::Insert()
 {
     // Attempt to bind the parameters
-    if (mysql_stmt_bind_param(SQMOD_GET_CREATED(*this)->mPtr, m_Handle->mMyBinds))
+    if (mysql_stmt_bind_param(SQMOD_GET_CREATED(*this)->Access(), m_Handle->mMyBinds))
     {
         SQMOD_THROW_CURRENT(*m_Handle, "Cannot bind MySQL statement parameters");
     }
     // Attempt to execute the statement
-    else if (mysql_stmt_execute(m_Handle->mPtr))
+    else if (mysql_stmt_execute(m_Handle->Access()))
     {
         SQMOD_THROW_CURRENT(*m_Handle, "Cannot execute MySQL statement");
     }
     // Return the identifier of the inserted row
-    return static_cast< uint32_t >(mysql_stmt_insert_id(m_Handle->mPtr));
+    return static_cast< uint32_t >(mysql_stmt_insert_id(m_Handle->Access()));
 }
 
 // ------------------------------------------------------------------------------------------------
 MySQLResultSet MySQLStatement::Query()
 {
     // Attempt to bind the parameters
-    if (mysql_stmt_bind_param(SQMOD_GET_CREATED(*this)->mPtr, m_Handle->mMyBinds))
+    if (mysql_stmt_bind_param(SQMOD_GET_CREATED(*this)->Access(), m_Handle->mMyBinds))
     {
         SQMOD_THROW_CURRENT(*m_Handle, "Cannot bind MySQL statement parameters");
     }
     // Attempt to execute the statement
-    else if (mysql_stmt_execute(m_Handle->mPtr))
+    else if (mysql_stmt_execute(m_Handle->Access()))
     {
         SQMOD_THROW_CURRENT(*m_Handle, "Cannot execute MySQL statement");
     }

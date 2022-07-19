@@ -301,6 +301,20 @@ public:
      * Execute a query on the server.
     */
     uint64_t Execute(const SQChar * query, unsigned long size = 0UL);
+
+    /* --------------------------------------------------------------------------------------------
+     * Access the connection pointer.
+    */
+    SQMOD_NODISCARD Pointer Access() const
+    {
+        if (!mSession.isNull()) {
+            // Only reason this is necessary is to dirty the connection handle access time-stamp
+            // So it won't be closed/collected when it comes from a connection/session-pool
+            [[maybe_unused]] auto _ = mSession->isConnected();
+        }
+        // We yield access to the pointer anyway
+        return mPtr;
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -436,11 +450,11 @@ public:
 
     // --------------------------------------------------------------------------------------------
     unsigned long   mParams; // Number of parameters in the statement.
-    MySQLStmtBind *      mBinds; // List of parameter binds.
+    MySQLStmtBind * mBinds; // List of parameter binds.
     BindType *      mMyBinds; // List of parameter binds.
 
     // --------------------------------------------------------------------------------------------
-    MySQLConnRef         mConnection; // Reference to the associated connection.
+    MySQLConnRef    mConnection; // Reference to the associated connection.
     String          mQuery; // The query string.
 
     /* --------------------------------------------------------------------------------------------
@@ -488,6 +502,20 @@ public:
      * Create the actual statement.
     */
     void Create(const MySQLConnRef & conn, const SQChar * query);
+
+    /* --------------------------------------------------------------------------------------------
+     * Access the statement pointer.
+    */
+    SQMOD_NODISCARD Pointer Access() const
+    {
+        if (bool(mConnection) && !(mConnection->mSession.isNull())) {
+            // Only reason this is necessary is to dirty the connection handle access time-stamp
+            // So it won't be closed/collected when it comes from a connection/session-pool
+            [[maybe_unused]] auto _ = mConnection->mSession->isConnected();
+        }
+        // We yield access to the pointer anyway
+        return mPtr;
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -631,13 +659,13 @@ public:
     uint32_t        mFieldCount; // Number of fields in the result-set.
     unsigned long * mLengths; // Data length when the result-set came from a connection.
     FieldType *     mFields; // Fields in the results set.
-    MySQLResBind *       mBinds; // Bind wrappers.
+    MySQLResBind *  mBinds; // Bind wrappers.
     BindType *      mMyBinds; // Bind points.
     RowType         mRow; // Row data.
 
     // --------------------------------------------------------------------------------------------
-    MySQLConnRef         mConnection; // Associated connection.
-    MySQLStmtRef         mStatement; // Associated statement.
+    MySQLConnRef    mConnection; // Associated connection.
+    MySQLStmtRef    mStatement; // Associated statement.
     IndexMap        mIndexes; // MySQLField names and their associated index.
 
 public:
@@ -718,6 +746,19 @@ public:
     */
     bool SetRowIndex(uint64_t index);
 
+    /* --------------------------------------------------------------------------------------------
+     * Access the resource pointer.
+    */
+    SQMOD_NODISCARD Pointer Access() const
+    {
+        if (bool(mConnection) && !(mConnection->mSession.isNull())) {
+            // Only reason this is necessary is to dirty the connection handle access time-stamp
+            // So it won't be closed/collected when it comes from a connection/session-pool
+            [[maybe_unused]] auto _ = mConnection->mSession->isConnected();
+        }
+        // We yield access to the pointer anyway
+        return mPtr;
+    }
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -1239,7 +1280,7 @@ public:
     */
     SQMOD_NODISCARD const SQChar * ToString() const
     {
-        return m_Handle ? mysql_get_host_info(m_Handle->mPtr) : _SC("");
+        return m_Handle ? mysql_get_host_info(m_Handle->Access()) : _SC("");
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1268,7 +1309,7 @@ public:
     */
     SQMOD_NODISCARD bool IsConnected() const
     {
-        return m_Handle && (m_Handle->mPtr != nullptr);
+        return m_Handle && (m_Handle->Access() != nullptr);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -1468,7 +1509,7 @@ public:
     {
         // Attempt to toggle auto-commit if necessary
         if (SQMOD_GET_CREATED(*this)->mAutoCommit != toggle &&
-            mysql_autocommit(m_Handle->mPtr, static_cast< MySQLStmtBind::BoolType >(toggle)) != 0)
+            mysql_autocommit(m_Handle->Access(), static_cast< MySQLStmtBind::BoolType >(toggle)) != 0)
         {
             SQMOD_THROW_CURRENT(*m_Handle, "Cannot toggle auto-commit");
         }
