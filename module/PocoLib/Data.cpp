@@ -639,6 +639,10 @@ SqDataAsyncBuilder::SqDataAsyncBuilder(Poco::Data::SessionImpl * session, StackS
 // ------------------------------------------------------------------------------------------------
 void SqDataAsyncBuilder::Submit()
 {
+    if (mSession.isNull())
+    {
+        STHROWF("Asynchronous query builder instance is invalid.");
+    }
     auto & connector = mSession->connectorName();
     // Is this a SQLite session?
     if (connector == "sqlite")
