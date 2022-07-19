@@ -568,24 +568,20 @@ struct SQLiteAsyncExec : public ThreadPoolItem
     */
     SQMOD_NODISCARD bool OnProcess() override
     {
-        OutputError("query process begin");
         char * err_msg = nullptr;
         // Attempt to execute the specified query
         mResult = sqlite3_exec(mConnection, mQueryStr, nullptr, nullptr, &err_msg);
-        OutputError("query process check");
         // Store changes count
         if (mResult == SQLITE_OK)
         {
             mChanges = sqlite3_changes(mConnection);
         }
-        OutputError("query process remember");
         // Check for error message
         if (err_msg != nullptr)
         {
             mError.assign(err_msg);
             sqlite3_free(err_msg);
         }
-        OutputError("query process completed");
         // Don't retry
         return false;
     };
@@ -597,7 +593,6 @@ struct SQLiteAsyncExec : public ThreadPoolItem
     {
         if (mResult == SQLITE_OK)
         {
-            OutputError("result was ok");
             if (!mResolved.IsNull())
             {
                 SQLiteConnRef conn_ref{new SQLiteConnHnd(std::move(mSession))};
@@ -607,13 +602,10 @@ struct SQLiteAsyncExec : public ThreadPoolItem
         }
         else if (!mRejected.IsNull())
         {
-            OutputError("result was bad");
             SQLiteConnRef conn_ref{new SQLiteConnHnd(std::move(mSession))};
-            OutputError("handle created");
             LightObj connection{SqTypeIdentity< SQLiteConnection >{}, SqVM(), conn_ref};
-            OutputError("object is ready");
             mRejected.Execute(connection, mResult, mError, mQueryObj);
-            OutputError("callback finished");
+
         }
     }
 
