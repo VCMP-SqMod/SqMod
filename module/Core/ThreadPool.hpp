@@ -56,6 +56,16 @@ struct ThreadPoolItem
     ThreadPoolItem & operator = (ThreadPoolItem && o) = delete;
 
     /* --------------------------------------------------------------------------------------------
+     * Provide a name to what type of task this is. Mainly for debugging purposes.
+    */
+    SQMOD_NODISCARD virtual const char * TypeName() noexcept { return "worker item"; }
+
+    /* --------------------------------------------------------------------------------------------
+     * Provide unique information that may help identify the task. Mainly for debugging purposes.
+    */
+    SQMOD_NODISCARD virtual const char * IdentifiableInfo() noexcept { return ""; }
+
+    /* --------------------------------------------------------------------------------------------
      * Invoked in worker thread by the thread pool after obtaining the task from the queue.
      * Must return true to indicate that the task can be performed. False indicates failure.
     */
@@ -175,6 +185,14 @@ public:
     */
     void Enqueue(ThreadPoolItem * item)
     {
+        Enqueue(Item{item});
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Queue an item to be processed. Will take ownership of the given pointer!
+    */
+    void Enqueue(Item && item)
+    {
         // Only queue valid items
         if (!item || !m_Running) return;
         // Only queue if worker threads exist
@@ -183,7 +201,7 @@ public:
             // Acquire a lock on the mutex
             std::unique_lock< std::mutex > lock(m_Mutex);
             // Push the item in the queue
-            m_Queue.push(Item(item));
+            m_Queue.push(std::forward< Item >(item));
             // Release the mutex before notifying
             lock.unlock();
             // Notify one thread that there's work
@@ -191,18 +209,32 @@ public:
         }
         else
         {
-            // Take ownership
-            Item i{item};
+            bool r;
+            // Attempt preparation
+            try {
+                r = item->OnPrepare();
+            } catch (const std::exception & e) {
+                LogErr("Exception occured in %s preparation stage [%s] for [%s]", item->TypeName(), e.what(), item->IdentifiableInfo());
+            }
             // Perform the task in-place
-            if (i->OnPrepare())
+            if (r)
             {
-                if (i->OnProcess())
+                try {
+                    r = item->OnProcess();
+                } catch (const std::exception & e) {
+                    LogErr("Exception occured in %s processing stage [%s] for [%s]", item->TypeName(), e.what(), item->IdentifiableInfo());
+                }
+                if (r)
                 {
-                    i->OnAborted(true); // Not accepted in single thread
+                    try {
+                        item->OnAborted(true); // Not accepted in single thread
+                    } catch (const std::exception & e) {
+                        LogErr("Exception occured in %s cancelation stage [%s] for [%s]", item->TypeName(), e.what(), item->IdentifiableInfo());
+                    }
                 }
             }
             // Task is completed in processing stage
-            m_Finished.enqueue(std::move(i));
+            m_Finished.enqueue(std::forward< Item >(item));
         }
     }
 
@@ -213,7 +245,6 @@ public:
     {
         return m_Threads.size();
     }
-
 };
 
 } // Namespace:: SqMod

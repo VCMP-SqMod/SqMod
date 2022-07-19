@@ -125,7 +125,11 @@ void ThreadPool::Process()
             // Is the item valid?
             if (item)
             {
-                item->OnCompleted(); // Allow the item to finish itself
+                try {
+                    item->OnCompleted(); // Allow the item to finish itself
+                } catch (const std::exception & e) {
+                    LogErr("Exception occured in %s completion stage [%s] for [%s]", item->TypeName(), e.what(), item->IdentifiableInfo());
+                }
             }
         }
     }
@@ -149,7 +153,11 @@ void ThreadPool::WorkerProc()
             // Is there an item that requested to try again?
             if (item)
             {
-                item->OnAborted(true); // NOLINT(bugprone-use-after-move) There's an `if` condition above idiot!
+                try {
+                    item->OnAborted(true); // NOLINT(bugprone-use-after-move) There's an `if` condition above idiot!
+                } catch (const std::exception & e) {
+                    LogErr("Exception occured in %s cancelation stage [%s] for [%s]", item->TypeName(), e.what(), item->IdentifiableInfo());
+                }
             }
             // Exit the loop
             break;
@@ -175,15 +183,30 @@ void ThreadPool::WorkerProc()
             // Is there an item to be processed?
             if (item)
             {
-                item->OnAborted(false); // It should mark itself as aborted somehow!
+                try {
+                    item->OnAborted(false); // It should mark itself as aborted somehow!
+                } catch (const std::exception & e) {
+                    LogErr("Exception occured in %s forced cancelation stage [%s] for [%s]", item->TypeName(), e.what(), item->IdentifiableInfo());
+                }
             }
             // Exit the loop
             break;
         }
+        bool r;
+        // Attempt preparation
+        try {
+            r = item->OnPrepare();
+        } catch (const std::exception & e) {
+            LogErr("Exception occured in %s preparation stage [%s] for [%s]", item->TypeName(), e.what(), item->IdentifiableInfo());
+        }
         // Perform the task
-        if (item->OnPrepare())
+        if (r)
         {
-            retry = item->OnProcess();
+            try {
+                retry = item->OnProcess();
+            } catch (const std::exception & e) {
+                LogErr("Exception occured in %s processing stage [%s] for [%s]", item->TypeName(), e.what(), item->IdentifiableInfo());
+            }
         }
         // The task was performed
         if (!retry)
