@@ -1273,11 +1273,11 @@ void Register_Official_Entity(HSQUIRRELVM vm)
 }
 
 // ------------------------------------------------------------------------------------------------
-static void LgClientMessage(StackStrF & msg, LgPlayer & player, int r, int g, int b)
-{ _Func->SendClientMessage(player.GetIdentifier(), Color4(static_cast< uint8_t >(r), static_cast< uint8_t >(g),
+static void LgClientMessage(StackStrF & msg, LightObj & player, int r, int g, int b)
+{ _Func->SendClientMessage(GetLgEntID< LgPlayer, CPlayer >(player), Color4(static_cast< uint8_t >(r), static_cast< uint8_t >(g),
                                                           static_cast< uint8_t >(b), 255).GetRGBA(), "%s", msg.mPtr); }
-static void LgClientMessageWithAlpha(StackStrF & msg, LgPlayer & player, int r, int g, int b, int a)
-{ _Func->SendClientMessage(player.GetIdentifier(), Color4(static_cast< uint8_t >(r), static_cast< uint8_t >(g),
+static void LgClientMessageWithAlpha(StackStrF & msg, LightObj & player, int r, int g, int b, int a)
+{ _Func->SendClientMessage(GetLgEntID< LgPlayer, CPlayer >(player), Color4(static_cast< uint8_t >(r), static_cast< uint8_t >(g),
                                                           static_cast< uint8_t >(b), static_cast< uint8_t >(a)).GetRGBA(), "%s", msg.mPtr); }
 static void LgClientMessageToAll(StackStrF & msg, int r, int g, int b) {
     const uint32_t c = Color4(static_cast< uint8_t >(r), static_cast< uint8_t >(g),
