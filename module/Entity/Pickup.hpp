@@ -298,6 +298,12 @@ public:
      * Modify the position on the z axis of the managed pickup entity.
     */
     void SetPositionZ(float z) const;
+#ifdef VCMP_ENABLE_OFFICIAL
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve legacy object instance for this entity.
+    */
+    LightObj & GetLegacyObject() const;
+#endif
 };
 
 } // Namespace:: SqMod

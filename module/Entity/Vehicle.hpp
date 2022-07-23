@@ -942,6 +942,12 @@ public:
      * Modify the relative turn velocity on the z axis of the managed vehicle entity.
     */
     void SetRelativeTurnSpeedZ(float z) const;
+#ifdef VCMP_ENABLE_OFFICIAL
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve legacy object instance for this entity.
+    */
+    LightObj & GetLegacyObject() const;
+#endif
 };
 
 } // Namespace:: SqMod

@@ -499,6 +499,12 @@ public:
      * Modify the rotation on the z axis of the managed object entity.
     */
     void RotateByEulerZ(float z) const;
+#ifdef VCMP_ENABLE_OFFICIAL
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve legacy object instance for this entity.
+    */
+    LightObj & GetLegacyObject() const;
+#endif
 };
 
 } // Namespace:: SqMod

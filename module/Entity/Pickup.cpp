@@ -449,6 +449,16 @@ void CPickup::SetPositionZ(float z) const
     // Perform the requested operation
     _Func->SetPickupPosition(m_ID, z, y, z);
 }
+#ifdef VCMP_ENABLE_OFFICIAL
+// ------------------------------------------------------------------------------------------------
+LightObj & CPickup::GetLegacyObject() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return Core::Get().GetPickup(m_ID).mLgObj;
+}
+#endif
 
 // ------------------------------------------------------------------------------------------------
 static LightObj & Pickup_CreateEx1a(int32_t model, int32_t world, int32_t quantity,
@@ -496,6 +506,9 @@ void Register_CPickup(HSQUIRRELVM vm)
         .Prop(_SC("Tag"), &CPickup::GetTag, &CPickup::SetTag)
         .Prop(_SC("Data"), &CPickup::GetData, &CPickup::SetData)
         .Prop(_SC("Active"), &CPickup::IsActive)
+#ifdef VCMP_ENABLE_OFFICIAL
+        .Prop(_SC("Legacy"), &CPickup::GetLegacyObject)
+#endif
         // Core Methods
         .FmtFunc(_SC("SetTag"), &CPickup::ApplyTag)
         .Func(_SC("CustomEvent"), &CPickup::CustomEvent)

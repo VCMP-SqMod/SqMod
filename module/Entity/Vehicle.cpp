@@ -2015,6 +2015,16 @@ void CVehicle::SetRelativeTurnSpeedZ(float z) const
     // Perform the requested operation
     _Func->SetVehicleTurnSpeed(m_ID, z, y, z, static_cast< uint8_t >(false), static_cast< uint8_t >(true));
 }
+#ifdef VCMP_ENABLE_OFFICIAL
+// ------------------------------------------------------------------------------------------------
+LightObj & CVehicle::GetLegacyObject() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return Core::Get().GetVehicle(m_ID).mLgObj;
+}
+#endif
 
 // ------------------------------------------------------------------------------------------------
 static LightObj & Vehicle_CreateEx1a(int32_t model, int32_t world, float x, float y, float z, float angle,
@@ -2061,6 +2071,9 @@ void Register_CVehicle(HSQUIRRELVM vm)
         .Prop(_SC("ID"), &CVehicle::GetID)
         .Prop(_SC("Tag"), &CVehicle::GetTag, &CVehicle::SetTag)
         .Prop(_SC("Data"), &CVehicle::GetData, &CVehicle::SetData)
+#ifdef VCMP_ENABLE_OFFICIAL
+        .Prop(_SC("Legacy"), &CVehicle::GetLegacyObject)
+#endif
         .Prop(_SC("Active"), &CVehicle::IsActive)
         // Core Methods
         .FmtFunc(_SC("SetTag"), &CVehicle::ApplyTag)

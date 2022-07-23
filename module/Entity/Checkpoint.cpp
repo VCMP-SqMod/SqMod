@@ -468,6 +468,16 @@ void CCheckpoint::SetColorA(int32_t a) const
     // Perform the requested operation
     _Func->SetCheckPointColour(m_ID, r, g, b, a);
 }
+#ifdef VCMP_ENABLE_OFFICIAL
+// ------------------------------------------------------------------------------------------------
+LightObj & CCheckpoint::GetLegacyObject() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return Core::Get().GetCheckpoint(m_ID).mLgObj;
+}
+#endif
 
 // ------------------------------------------------------------------------------------------------
 static LightObj & Checkpoint_CreateEx1a(int32_t world, bool sphere, float x, float y, float z,
@@ -517,6 +527,9 @@ void Register_CCheckpoint(HSQUIRRELVM vm)
         .Prop(_SC("Tag"), &CCheckpoint::GetTag, &CCheckpoint::SetTag)
         .Prop(_SC("Data"), &CCheckpoint::GetData, &CCheckpoint::SetData)
         .Prop(_SC("Active"), &CCheckpoint::IsActive)
+#ifdef VCMP_ENABLE_OFFICIAL
+        .Prop(_SC("Legacy"), &CCheckpoint::GetLegacyObject)
+#endif
         // Core Methods
         .FmtFunc(_SC("SetTag"), &CCheckpoint::ApplyTag)
         .Func(_SC("CustomEvent"), &CCheckpoint::CustomEvent)

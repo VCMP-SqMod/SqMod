@@ -833,6 +833,16 @@ void CObject::RotateByEulerZ(float z) const
     // Perform the requested operation
     _Func->RotateObjectByEuler(m_ID, 0.0f, 0.0f, z, mRotateByEulerDuration);
 }
+#ifdef VCMP_ENABLE_OFFICIAL
+// ------------------------------------------------------------------------------------------------
+LightObj & CObject::GetLegacyObject() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return Core::Get().GetObj(m_ID).mLgObj;
+}
+#endif
 
 // ------------------------------------------------------------------------------------------------
 static LightObj & Object_CreateEx1a(int32_t model, int32_t world, float x, float y, float z,
@@ -883,6 +893,9 @@ void Register_CObject(HSQUIRRELVM vm)
         .Prop(_SC("Tag"), &CObject::GetTag, &CObject::SetTag)
         .Prop(_SC("Data"), &CObject::GetData, &CObject::SetData)
         .Prop(_SC("Active"), &CObject::IsActive)
+#ifdef VCMP_ENABLE_OFFICIAL
+        .Prop(_SC("Legacy"), &CObject::GetLegacyObject)
+#endif
         // Core Methods
         .FmtFunc(_SC("SetTag"), &CObject::ApplyTag)
         .Func(_SC("CustomEvent"), &CObject::CustomEvent)

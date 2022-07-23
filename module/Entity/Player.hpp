@@ -1101,6 +1101,12 @@ public:
      * Send a formatted announcement message to the managed player entity.
     */
     static SQInteger AnnounceEx(HSQUIRRELVM vm);
+#ifdef VCMP_ENABLE_OFFICIAL
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve legacy object instance for this entity.
+    */
+    LightObj & GetLegacyObject() const;
+#endif
 };
 
 } // Namespace:: SqMod

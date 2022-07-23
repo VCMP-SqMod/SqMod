@@ -2593,7 +2593,16 @@ SQInteger CPlayer::AnnounceEx(HSQUIRRELVM vm)
     // This function does not return a value
     return 0;
 }
-
+#ifdef VCMP_ENABLE_OFFICIAL
+// ------------------------------------------------------------------------------------------------
+LightObj & CPlayer::GetLegacyObject() const
+{
+    // Validate the managed identifier
+    Validate();
+    // Return the requested information
+    return Core::Get().GetPlayer(m_ID).mLgObj;
+}
+#endif
 // ------------------------------------------------------------------------------------------------
 SQInteger Player_FindAuto(HSQUIRRELVM vm)
 {
@@ -2793,6 +2802,9 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Prop(_SC("Tag"), &CPlayer::GetTag, &CPlayer::SetTag)
         .Prop(_SC("Data"), &CPlayer::GetData, &CPlayer::SetData)
         .Prop(_SC("Active"), &CPlayer::IsActive)
+#ifdef VCMP_ENABLE_OFFICIAL
+        .Prop(_SC("Legacy"), &CPlayer::GetLegacyObject)
+#endif
         // Core Methods
         .FmtFunc(_SC("SetTag"), &CPlayer::ApplyTag)
         .Func(_SC("CustomEvent"), &CPlayer::CustomEvent)

@@ -320,6 +320,12 @@ public:
      * Modify the alpha transparency of the managed checkpoint entity.
     */
     void SetColorA(int32_t a) const;
+#ifdef VCMP_ENABLE_OFFICIAL
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve legacy object instance for this entity.
+    */
+    LightObj & GetLegacyObject() const;
+#endif
 };
 
 } // Namespace:: SqMod
