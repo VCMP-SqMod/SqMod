@@ -163,9 +163,10 @@ int32_t GetWeaponID(StackStrF & name)
     // Clone the string into an editable version
     String str(name.mPtr, static_cast< size_t >(name.mLen));
     // Strip non-alphanumeric characters from the name
-    str.erase(std::remove_if(str.begin(), str.end(), std::function<int(int)>(::isalnum)), str.end());
+    str.erase(std::remove_if(str.begin(), str.end(), [](char c) -> bool { return std::isalnum(c) == 0; }), str.end());
     // Convert the string to lowercase
     std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+    LogInf("%s", str.c_str());
     // See if we still have a valid name after the cleanup
     if(str.length() < 1)
     {
@@ -324,6 +325,7 @@ int32_t GetWeaponID(StackStrF & name)
         // [S]PAS-12 Shotgun
         // [S]tubby Shotgun
         // [S]uicide
+        // Pump action [S]hotgun
         case 's':
             // [Sc]rewdriver
             if (b == 'c') return SQMOD_WEAPON_SCREWDRIVER;
@@ -337,7 +339,7 @@ int32_t GetWeaponID(StackStrF & name)
             else if (b == 't') return SQMOD_WEAPON_STUBBY;
             // [Su]icide
             else if (b == 'u') return SQMOD_WEAPON_SUICIDE;
-	    // Pump action [Sh]otgun
+	       // Pump action [Sh]otgun
             else if (b == 'h') return SQMOD_WEAPON_SHOTGUN;
             // Default to unknwon
             else return SQMOD_UNKNOWN;
