@@ -53,6 +53,46 @@ SQMOD_DECL_TYPENAME(CPlayerTn, _SC("CPlayer"))
 SQMOD_DECL_TYPENAME(CVehicleTn, _SC("CVehicle"))
 
 /* ------------------------------------------------------------------------------------------------
+ * Used to fetch the legacy entity instance even if a native one was specified.
+*/
+template < class T, class U > inline T & GetLgEnt(LightObj & o)
+{
+    auto type = static_cast< AbstractStaticClassData * >(o.GetTypeTag());
+    // Legacy entity type?
+    if (type == StaticClassTypeTag< T >::Get())
+    {
+        return *o.CastI< T >();
+    }
+    // Native entity type?
+    if (type == StaticClassTypeTag< U >::Get())
+    {
+        return *EntityInstSelect< U >(o.CastI< U >()->GetID()).mLgInst;
+    }
+    STHROWF("Invalid entity type");
+    SQ_UNREACHABLE
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Used to fetch the legacy entity identifier even if a native one was specified.
+*/
+template < class T, class U > SQMOD_NODISCARD inline int32_t GetLgEntID(LightObj & o)
+{
+    auto type = static_cast< AbstractStaticClassData * >(o.GetTypeTag());
+    // Legacy entity type?
+    if (type == StaticClassTypeTag< T >::Get())
+    {
+        return o.CastI< T >()->mID;
+    }
+    // Native entity type?
+    if (type == StaticClassTypeTag< U >::Get())
+    {
+        return o.CastI< U >()->GetID();
+    }
+    STHROWF("Invalid entity type");
+    SQ_UNREACHABLE
+}
+
+/* ------------------------------------------------------------------------------------------------
  * Entity type enumeration.
 */
 struct LgEntityType
@@ -1249,10 +1289,10 @@ static void LgClientMessageToAllWithAlpha(StackStrF & msg, int r, int g, int b, 
                               static_cast< uint8_t >(b), static_cast< uint8_t >(a)).GetRGBA();
     ForeachActivePlayer([&](auto & p) { _Func->SendClientMessage(p.mID, c, "%s", msg.mPtr); });
 }
-static void LgGameMessage(StackStrF & msg, LgPlayer & player, int type)
-{ _Func->SendGameMessage(player.GetIdentifier(), type, msg.mPtr); }
-static void LgGameMessageAlternate(StackStrF & msg, LgPlayer & player)
-{ { _Func->SendGameMessage(player.GetIdentifier(), 1, msg.mPtr); } }
+static void LgGameMessage(StackStrF & msg, LightObj & player, int type)
+{ _Func->SendGameMessage(GetLgEntID< LgPlayer, CPlayer >(player), type, msg.mPtr); }
+static void LgGameMessageAlternate(StackStrF & msg, LightObj & player)
+{ { _Func->SendGameMessage(GetLgEntID< LgPlayer, CPlayer >(player), 1, msg.mPtr); } }
 static void LgGameMessageToAll(StackStrF & msg, int type)
 { _Func->SendGameMessage(-1, type, msg.mPtr); }
 static void LgGameMessageToAllAlternate(StackStrF & msg)

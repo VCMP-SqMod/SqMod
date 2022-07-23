@@ -1049,4 +1049,37 @@ template < class F > SQMOD_NODISCARD inline int32_t ForeachConnectedPlayerUntil(
     return -1;
 }
 
+/* ------------------------------------------------------------------------------------------------
+ * Used to select entity instances based on type.
+*/
+template < class > struct EntityInstSelect;
+// Specialization for blips.
+template < > struct EntityInstSelect< CBlip > {
+    static BlipInst & Get(int32_t id) { return Core::Get().GetBlip(id); }
+};
+// Specialization for checkpoints.
+template < > struct EntityInstSelect< CCheckpoint > {
+    static CheckpointInst & Get(int32_t id) { return Core::Get().GetCheckpoint(id); }
+};
+// Specialization for keybinds.
+template < > struct EntityInstSelect< CKeyBind > {
+    static KeyBindInst & Get(int32_t id) { return Core::Get().GetKeyBind(id); }
+};
+// Specialization for objects.
+template < > struct EntityInstSelect< CObject > {
+    static ObjectInst & Get(int32_t id) { return Core::Get().GetObj(id); }
+};
+// Specialization for pickups.
+template < > struct EntityInstSelect< CPickup > {
+    static PickupInst & Get(int32_t id) { return Core::Get().GetPickup(id); }
+};
+// Specialization for players.
+template < > struct EntityInstSelect< CPlayer > {
+    static PlayerInst & Get(int32_t id) { return Core::Get().GetPlayer(id); }
+};
+// Specialization for vehicles.
+template < > struct EntityInstSelect< CVehicle > {
+    static VehicleInst & Get(int32_t id) { return Core::Get().GetVehicle(id); }
+};
+
 } // Namespace:: SqMod
