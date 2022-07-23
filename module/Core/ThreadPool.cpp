@@ -103,7 +103,7 @@ void ThreadPool::Terminate(bool SQ_UNUSED_ARG(shutdown))
         // Is the item valid?
         if (item)
         {
-            item->OnCompleted(); // Allow the item to finish itself
+            [[maybe_unused]] auto _ = item->OnCompleted(true); // Allow the item to finish itself
         }
         // Item processed
         item.reset();
@@ -126,7 +126,11 @@ void ThreadPool::Process()
             if (item)
             {
                 try {
-                    item->OnCompleted(); // Allow the item to finish itself
+                    // Allow the item to finish itself
+                    if (item->OnCompleted(false))
+                    {
+                        Enqueue(std::move(item)); // Queue again
+                    }
                 } catch (const std::exception & e) {
                     LogErr("Exception occured in %s completion stage [%s] for [%s]", item->TypeName(), e.what(), item->IdentifiableInfo());
                 }

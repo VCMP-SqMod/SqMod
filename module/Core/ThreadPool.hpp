@@ -79,8 +79,10 @@ struct ThreadPoolItem
 
     /* --------------------------------------------------------------------------------------------
      * Invoked in main thread by the thread pool after the task was completed.
+     * If it returns true then it will be put back into the queue to be processed again.
+     * If the boolean parameter is trye then the thread-pool is in the process of shutting down.
     */
-    virtual void OnCompleted() { }
+    SQMOD_NODISCARD virtual bool OnCompleted(bool SQ_UNUSED_ARG(stop)) { return false; }
 
     /* --------------------------------------------------------------------------------------------
      * Called in worker by the thread pool to let the task know that it will be aborted.

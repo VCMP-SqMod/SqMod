@@ -47,9 +47,11 @@ struct CpBaseAction : public ThreadPoolItem
     ~CpBaseAction() override = default;
 
     /* --------------------------------------------------------------------------------------------
-     * Task completed callback.
+     * Invoked in main thread by the thread pool after the task was completed.
+     * If it returns true then it will be put back into the queue to be processed again.
+     * If the boolean parameter is trye then the thread-pool is in the process of shutting down.
     */
-    void OnCompleted() override
+    SQMOD_NODISCARD bool OnCompleted(bool SQ_UNUSED_ARG(stop)) override
     {
         // Is there a callback?
         if (!mCallback.IsNull())
@@ -58,6 +60,8 @@ struct CpBaseAction : public ThreadPoolItem
         }
         // Unlock the session
         mInstance->mPending = nullptr;
+        // Don't re-queue
+        return false;
     }
 
     /* --------------------------------------------------------------------------------------------

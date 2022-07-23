@@ -1719,12 +1719,21 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Construct a statement under the specified connection using the specified string.
     */
+    SQLiteStatement(const SQLiteConnRef & connection, const SQChar * query, SQInteger length)
+        : m_Handle(new SQLiteStmtHnd(connection))
+    {
+        SQMOD_GET_VALID(*this)->Create(query, length);
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Construct a statement under the specified connection using the specified string.
+    */
     SQLiteStatement(const SQLiteConnection & connection, StackStrF & query);
 
     /* --------------------------------------------------------------------------------------------
      * Direct handle constructor.
     */
-    explicit SQLiteStatement(SQLiteStmtRef  s)
+    explicit SQLiteStatement(SQLiteStmtRef s)
         : m_Handle(std::move(s))
     {
         /* ... */

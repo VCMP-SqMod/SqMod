@@ -1772,14 +1772,24 @@ struct SqDataSessionPool : public SessionPool
     LightObj GetSq();
 
     /* --------------------------------------------------------------------------------------------
-     * Create an asynchronus query execution builder.
+     * Create an asynchronous query execution builder.
     */
     LightObj AsyncExec(StackStrF & sql);
 
     /* --------------------------------------------------------------------------------------------
-     * Create an asynchronus query execution builder.
+     * Create an asynchronous query execution builder.
     */
     LightObj AsyncQuery(StackStrF & sql);
+
+    /* --------------------------------------------------------------------------------------------
+     * Create an asynchronous query execution builder.
+    */
+    LightObj IncAsyncQuery(StackStrF & sql);
+
+    /* --------------------------------------------------------------------------------------------
+     * Create an asynchronous query execution builder.
+    */
+    LightObj ExecAsyncQuery(StackStrF & sql);
 
     /* --------------------------------------------------------------------------------------------
      * Retrieve a Session with requested property set.
@@ -2100,12 +2110,14 @@ struct SqDataAsyncBuilder
     const SQChar *  mQueryStr{nullptr}; // The query string that will be executed.
     LightObj        mQueryObj{}; // Strong reference to the query string object.
     // --------------------------------------------------------------------------------------------
-    bool            mStmt{false}; // Whether this is a query statement or a simple query execution.
+    bool            mExec{false}; // Whether this is a query execution.
+    bool            mStmt{false}; // Whether this is a query statement.
+    bool            mInc{false}; // Whether this is an incremental query statement.
 
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    SqDataAsyncBuilder(Poco::Data::SessionImpl * session, StackStrF & sql, bool stmt) noexcept;
+    SqDataAsyncBuilder(Poco::Data::SessionImpl * session, StackStrF & sql, bool exec, bool stmt, bool inc) noexcept;
 
     /* --------------------------------------------------------------------------------------------
      * Copy constructor. (disabled)
