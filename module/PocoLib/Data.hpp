@@ -2106,6 +2106,7 @@ struct SqDataAsyncBuilder
     // --------------------------------------------------------------------------------------------
     Function        mResolved{}; // Callback to invoke when the task was completed.
     Function        mRejected{}; // Callback to invoke when the task was aborted.
+    Function        mPrepared{}; // Callback to invoke when the task was must be prepared.
     // --------------------------------------------------------------------------------------------
     const SQChar *  mQueryStr{nullptr}; // The query string that will be executed.
     LightObj        mQueryObj{}; // Strong reference to the query string object.
@@ -2147,7 +2148,12 @@ struct SqDataAsyncBuilder
     /* --------------------------------------------------------------------------------------------
      * Create the task with the suplied information and submit it to the worker pool.
     */
-    void Submit();
+    void Submit() { Submit_(NullLightObj()); }
+
+    /* --------------------------------------------------------------------------------------------
+     * Create the task with the suplied information and submit it to the worker pool.
+    */
+    void Submit_(LightObj & ctx);
 
     /* --------------------------------------------------------------------------------------------
      * Set the callback to be executed if the query was resolved.
@@ -2164,6 +2170,15 @@ struct SqDataAsyncBuilder
     SqDataAsyncBuilder & OnRejected(Function & cb)
     {
         mRejected = std::move(cb);
+        return *this; // Allow chaining
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Set the callback to be executed in order to compose the query/statement.
+    */
+    SqDataAsyncBuilder & OnPrepared(Function & cb)
+    {
+        mPrepared = std::move(cb);
         return *this; // Allow chaining
     }
 };

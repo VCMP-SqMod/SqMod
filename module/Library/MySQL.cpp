@@ -607,6 +607,15 @@ MySQLConnHnd::MySQLConnHnd(Poco::Data::SessionImpl * session)
 }
 
 // ------------------------------------------------------------------------------------------------
+MySQLConnHnd::MySQLConnHnd(Poco::AutoPtr< Poco::Data::SessionImpl > && session)
+    : MySQLConnHnd()
+{
+    mSession = std::move(session);
+    // Retrieve the internal handle property
+    mPtr = Poco::AnyCast< MYSQL * >(session->getProperty("handle"));
+}
+
+// ------------------------------------------------------------------------------------------------
 MySQLConnHnd::~MySQLConnHnd()
 {
     Disconnect();

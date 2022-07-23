@@ -625,16 +625,16 @@ SQLiteConnHnd::SQLiteConnHnd(Poco::Data::SessionImpl * session)
 {
     mSession.assign(session, true);
     // Retrieve the internal handle property
-    mPtr = Poco::AnyCast< sqlite3 * >(session->getProperty("handle"));
+    mPtr = Poco::AnyCast< sqlite3 * >(mSession->getProperty("handle"));
 }
 
 // ------------------------------------------------------------------------------------------------
 SQLiteConnHnd::SQLiteConnHnd(Poco::AutoPtr< Poco::Data::SessionImpl > && session)
     : SQLiteConnHnd()
 {
-    mSession == std::forward< Poco::AutoPtr< Poco::Data::SessionImpl > >(session);
+    mSession = std::move(session);
     // Retrieve the internal handle property
-    mPtr = Poco::AnyCast< sqlite3 * >(session->getProperty("handle"));
+    mPtr = Poco::AnyCast< sqlite3 * >(mSession->getProperty("handle"));
 }
 
 // ------------------------------------------------------------------------------------------------

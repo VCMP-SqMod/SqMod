@@ -269,6 +269,11 @@ public:
     explicit MySQLConnHnd(Poco::Data::SessionImpl * session);
 
     /* --------------------------------------------------------------------------------------------
+     * Explicit constructor.
+    */
+    explicit MySQLConnHnd(Poco::AutoPtr< Poco::Data::SessionImpl > && session);
+
+    /* --------------------------------------------------------------------------------------------
      * Destructor.
     */
     ~MySQLConnHnd();
