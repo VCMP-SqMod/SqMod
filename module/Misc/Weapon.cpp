@@ -166,7 +166,6 @@ int32_t GetWeaponID(StackStrF & name)
     str.erase(std::remove_if(str.begin(), str.end(), [](char c) -> bool { return std::isalnum(c) == 0; }), str.end());
     // Convert the string to lowercase
     std::transform(str.begin(), str.end(), str.begin(), ::tolower);
-    LogInf("%s", str.c_str());
     // See if we still have a valid name after the cleanup
     if(str.length() < 1)
     {
