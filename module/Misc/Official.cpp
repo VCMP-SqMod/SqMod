@@ -1946,6 +1946,7 @@ void Register_Official_Functions(HSQUIRRELVM vm)
         .Func(_SC("SetVehiclesForcedRespawnHeight"), LgSetVehiclesForcedRespawnHeight)
 
         .SquirrelFunc(_SC("FindPlayer"), LgFindPlayer)
+        .SquirrelFunc(_SC("FindPlayerCompat"), LgFindPlayer)
         .SquirrelFunc(_SC("InPoly"), LgInPoly)
 
         .SquirrelFunc(_SC("SetAmmuWeapon"), LgSetAmmuWeapon)
