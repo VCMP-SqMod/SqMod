@@ -89,6 +89,9 @@ WebSocketClient & WebSocketClient::Connect()
     {
         STHROWF("Connection failed: {}", err_buf);
     }
+    // Reset memebrs
+    mClosing.store(false);
+    mClosed.store(false);
     // Allow chaining
     return *this;
 }
@@ -113,6 +116,9 @@ WebSocketClient & WebSocketClient::ConnectExt()
     {
         STHROWF("Connection failed: {}", err_buf);
     }
+    // Reset memebrs
+    mClosing.store(false);
+    mClosed.store(false);
     // Allow chaining
     return *this;
 }

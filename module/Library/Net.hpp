@@ -155,6 +155,11 @@ struct WebSocketClient : public SqChainedInstances< WebSocketClient >
     std::atomic< bool > mClosing{false};
 
     /* --------------------------------------------------------------------------------------------
+     * Whether the closing callback was inoked (avoid recursive calls).
+    */
+    std::atomic< bool > mClosed{false};
+
+    /* --------------------------------------------------------------------------------------------
      * Server host to connect to, i.e. "echo.websocket.org" or "192.168.1.1" or "localhost".
     */
     String mHost{};
@@ -179,7 +184,7 @@ struct WebSocketClient : public SqChainedInstances< WebSocketClient >
     */
     WebSocketClient()
         : Base(), mHandle(nullptr), mQueue(1024), mOnData(), mOnClose(), mTag(), mData()
-        , mPort(0), mSecure(false), mClosing(false), mHost(), mPath(), mOrigin(), mExtensions()
+        , mPort(0), mSecure(false), mClosing(false), mClosed(false), mHost(), mPath(), mOrigin(), mExtensions()
     {
         ChainInstance(); // Remember this instance
     }
@@ -189,7 +194,7 @@ struct WebSocketClient : public SqChainedInstances< WebSocketClient >
     */
     WebSocketClient(StackStrF & host, uint16_t port, StackStrF & path)
         : Base(), mHandle(nullptr), mQueue(1024), mOnData(), mOnClose(), mTag(), mData()
-        , mPort(port), mSecure(false), mClosing(false)
+        , mPort(port), mSecure(false), mClosing(false), mClosed(false)
         , mHost(host.mPtr, host.GetSize())
         , mPath(path.mPtr, path.GetSize())
         , mOrigin(), mExtensions()
@@ -202,7 +207,7 @@ struct WebSocketClient : public SqChainedInstances< WebSocketClient >
     */
     WebSocketClient(StackStrF & host, uint16_t port, StackStrF & path, bool secure)
         : Base(), mHandle(nullptr), mQueue(1024), mOnData(), mOnClose(), mTag(), mData()
-        , mPort(port), mSecure(secure), mClosing(false)
+        , mPort(port), mSecure(secure), mClosing(false), mClosed(false)
         , mHost(host.mPtr, host.GetSize())
         , mPath(path.mPtr, path.GetSize())
         , mOrigin(), mExtensions()
@@ -215,7 +220,7 @@ struct WebSocketClient : public SqChainedInstances< WebSocketClient >
     */
     WebSocketClient(StackStrF & host, uint16_t port, StackStrF & path, bool secure, StackStrF & origin)
         : Base(), mHandle(nullptr), mQueue(1024), mOnData(), mOnClose(), mTag(), mData()
-        , mPort(port), mSecure(secure), mClosing(false)
+        , mPort(port), mSecure(secure), mClosing(false), mClosed(false)
         , mHost(host.mPtr, host.GetSize())
         , mPath(path.mPtr, path.GetSize())
         , mOrigin(origin.mPtr, origin.GetSize())
@@ -229,7 +234,7 @@ struct WebSocketClient : public SqChainedInstances< WebSocketClient >
     */
     WebSocketClient(StackStrF & host, uint16_t port, StackStrF & path, bool secure, StackStrF & origin, StackStrF & ext)
         : Base(), mHandle(nullptr), mQueue(1024), mOnData(), mOnClose(), mTag(), mData()
-        , mPort(port), mSecure(secure), mClosing(false)
+        , mPort(port), mSecure(secure), mClosing(false), mClosed(false)
         , mHost(host.mPtr, host.GetSize())
         , mPath(path.mPtr, path.GetSize())
         , mOrigin(origin.mPtr, origin.GetSize())
@@ -706,9 +711,12 @@ struct WebSocketClient : public SqChainedInstances< WebSocketClient >
             }
         }
         // Is the server closing the connection?
-        if (closing && !mOnClose.IsNull())
+        if (closing && !mClosed.load() && !mOnClose.IsNull())
         {
-            mOnClose.Execute(); // Let the user know
+            // Let the user know
+            mOnClose.Execute();
+            // Prevent calling this callback again
+            mClosed.store(true);
         }
     }
 
