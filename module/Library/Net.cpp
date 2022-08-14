@@ -22,6 +22,8 @@ void InitializeNet()
 #endif
 #ifndef NO_SSL
     f |= MG_FEATURES_SSL;
+#else
+    OutputMessage("Network compiled without SSL support.");
 #endif
 #ifndef NO_CGI
     f |= MG_FEATURES_CGI;
@@ -135,6 +137,11 @@ int WebSocketClient::DataHandler(int flags, char * data, size_t data_len) noexce
     {
         LogFtl("Failed to queue web-socket data");
     }
+    // Should we auto-close the connection
+    if (((flags & 0xF) == MG_WEBSOCKET_OPCODE_CONNECTION_CLOSE) && mAutoClose.load() == true)
+    {
+        return 0;
+    }
     // Return 1 to keep the connection open
     return 1;
 }
@@ -173,6 +180,7 @@ void Register_Net(HSQUIRRELVM vm)
         .Prop(_SC("OnClose"), &WebSocketClient::GetOnClose, &WebSocketClient::SetOnClose)
         .Prop(_SC("Valid"), &WebSocketClient::IsValid)
         .Prop(_SC("Closing"), &WebSocketClient::IsClosing)
+        .Prop(_SC("AutoClose"), &WebSocketClient::GetAutoClose, &WebSocketClient::SetAutoClose)
         // Member Methods
         .FmtFunc(_SC("SetTag"), &WebSocketClient::ApplyTag)
         .FmtFunc(_SC("SetData"), &WebSocketClient::ApplyData)

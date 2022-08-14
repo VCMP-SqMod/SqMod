@@ -160,6 +160,13 @@ struct WebSocketClient : public SqChainedInstances< WebSocketClient >
     std::atomic< bool > mClosed{false};
 
     /* --------------------------------------------------------------------------------------------
+     * Whether to not keep the connection open after receiving the close event.
+     * Internally this event is ignored but if set to true the connection is immediatelly closed
+     * in the internal event handler, before the event may reach the script callback.
+    */
+    std::atomic< bool > mAutoClose{false};
+
+    /* --------------------------------------------------------------------------------------------
      * Server host to connect to, i.e. "echo.websocket.org" or "192.168.1.1" or "localhost".
     */
     String mHost{};
@@ -184,7 +191,8 @@ struct WebSocketClient : public SqChainedInstances< WebSocketClient >
     */
     WebSocketClient()
         : Base(), mHandle(nullptr), mQueue(1024), mOnData(), mOnClose(), mTag(), mData()
-        , mPort(0), mSecure(false), mClosing(false), mClosed(false), mHost(), mPath(), mOrigin(), mExtensions()
+        , mPort(0), mSecure(false), mClosing(false), mClosed(false), mAutoClose(false)
+        , mHost(), mPath(), mOrigin(), mExtensions()
     {
         ChainInstance(); // Remember this instance
     }
@@ -194,7 +202,7 @@ struct WebSocketClient : public SqChainedInstances< WebSocketClient >
     */
     WebSocketClient(StackStrF & host, uint16_t port, StackStrF & path)
         : Base(), mHandle(nullptr), mQueue(1024), mOnData(), mOnClose(), mTag(), mData()
-        , mPort(port), mSecure(false), mClosing(false), mClosed(false)
+        , mPort(port), mSecure(false), mClosing(false), mClosed(false), mAutoClose(false)
         , mHost(host.mPtr, host.GetSize())
         , mPath(path.mPtr, path.GetSize())
         , mOrigin(), mExtensions()
@@ -207,7 +215,7 @@ struct WebSocketClient : public SqChainedInstances< WebSocketClient >
     */
     WebSocketClient(StackStrF & host, uint16_t port, StackStrF & path, bool secure)
         : Base(), mHandle(nullptr), mQueue(1024), mOnData(), mOnClose(), mTag(), mData()
-        , mPort(port), mSecure(secure), mClosing(false), mClosed(false)
+        , mPort(port), mSecure(secure), mClosing(false), mClosed(false), mAutoClose(false)
         , mHost(host.mPtr, host.GetSize())
         , mPath(path.mPtr, path.GetSize())
         , mOrigin(), mExtensions()
@@ -220,7 +228,7 @@ struct WebSocketClient : public SqChainedInstances< WebSocketClient >
     */
     WebSocketClient(StackStrF & host, uint16_t port, StackStrF & path, bool secure, StackStrF & origin)
         : Base(), mHandle(nullptr), mQueue(1024), mOnData(), mOnClose(), mTag(), mData()
-        , mPort(port), mSecure(secure), mClosing(false), mClosed(false)
+        , mPort(port), mSecure(secure), mClosing(false), mClosed(false), mAutoClose(false)
         , mHost(host.mPtr, host.GetSize())
         , mPath(path.mPtr, path.GetSize())
         , mOrigin(origin.mPtr, origin.GetSize())
@@ -234,7 +242,7 @@ struct WebSocketClient : public SqChainedInstances< WebSocketClient >
     */
     WebSocketClient(StackStrF & host, uint16_t port, StackStrF & path, bool secure, StackStrF & origin, StackStrF & ext)
         : Base(), mHandle(nullptr), mQueue(1024), mOnData(), mOnClose(), mTag(), mData()
-        , mPort(port), mSecure(secure), mClosing(false), mClosed(false)
+        , mPort(port), mSecure(secure), mClosing(false), mClosed(false), mAutoClose(false)
         , mHost(host.mPtr, host.GetSize())
         , mPath(path.mPtr, path.GetSize())
         , mOrigin(origin.mPtr, origin.GetSize())
@@ -292,6 +300,22 @@ struct WebSocketClient : public SqChainedInstances< WebSocketClient >
     SQMOD_NODISCARD bool IsClosing() const
     {
         return mClosing.load();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve whether auto-closing is enabled or not.
+    */
+    SQMOD_NODISCARD bool GetAutoClose() const
+    {
+        return mAutoClose.load();
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Modify whether auto-closing is enabled or not.
+    */
+    void SetAutoClose(bool toggle)
+    {
+        mAutoClose.store(toggle);
     }
 
     /* --------------------------------------------------------------------------------------------
