@@ -294,33 +294,41 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Reposition the edit cursor to the specified number of elements ahead.
     */
-    void Advance(SQInteger n) const
+    SqBuffer & Advance(SQInteger n)
     {
         Valid().Advance(ConvTo< SzType >::From(n));
+        // Allow chaining
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
      * Reposition the edit cursor to the specified number of elements behind.
     */
-    void Retreat(SQInteger n) const
+    SqBuffer & Retreat(SQInteger n)
     {
         Valid().Retreat(ConvTo< SzType >::From(n));
+        // Allow chaining
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
      * Reposition the edit cursor to a fixed position within the buffer.
     */
-    void Move(SQInteger n) const
+    SqBuffer & Move(SQInteger n)
     {
         Valid().Move(ConvTo< SzType >::From(n));
+        // Allow chaining
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
      * Append a value to the current cursor location and advance the cursor.
     */
-    void Push(SQInteger v) const
+    SqBuffer & Push(SQInteger v)
     {
         Valid().Push(ConvTo< Value >::From(v));
+        // Allow chaining
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -414,15 +422,17 @@ public:
     /* --------------------------------------------------------------------------------------------
      * Grow the size of the internal buffer by the specified amount of bytes.
     */
-    void Grow(SQInteger n) const
+    SqBuffer & Grow(SQInteger n)
     {
-        return Valid().Grow(ConvTo< SzType >::From(n) * sizeof(Value));
+        Valid().Grow(ConvTo< SzType >::From(n) * sizeof(Value));
+        // Allow chaining
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
      * Makes sure there is enough capacity to hold the specified element count.
     */
-    void Adjust(SQInteger n)
+    SqBuffer & Adjust(SQInteger n)
     {
         // Validate the managed buffer reference
         Validate();
@@ -438,6 +448,8 @@ public:
         {
             STHROWF("{}", e.what()); // Re-package
         }
+        // Allow chaining
+        return *this;
     }
 
     /* --------------------------------------------------------------------------------------------
