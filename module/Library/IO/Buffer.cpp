@@ -11,6 +11,13 @@
 
 // ------------------------------------------------------------------------------------------------
 #include <Poco/Checksum.h>
+#include <Poco/Base32Encoder.h>
+#include <Poco/Base32Decoder.h>
+#include <Poco/Base64Encoder.h>
+#include <Poco/Base64Decoder.h>
+
+// ------------------------------------------------------------------------------------------------
+#include <sstream>
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -30,7 +37,7 @@ SQInteger SqBuffer::WriteRawString(StackStrF & val) const
     }
     // Calculate the string length
     Buffer::SzType length = ConvTo< Buffer::SzType >::From(val.mLen);
-    // Write the the string contents
+    // Write the string contents
     m_Buffer->AppendS(val.mPtr, length);
     // Return the length of the written string
     return val.mLen;
@@ -224,7 +231,7 @@ AABB SqBuffer::ReadAABB() const
     // Advance the buffer cursor
     m_Buffer->Advance< AABB >(1);
     // Return the requested information
-    return AABB(value);
+    return {value};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -237,7 +244,7 @@ Circle SqBuffer::ReadCircle() const
     // Advance the buffer cursor
     m_Buffer->Advance< Circle >(1);
     // Return the requested information
-    return Circle(value);
+    return {value};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -250,7 +257,7 @@ Color3 SqBuffer::ReadColor3() const
     // Advance the buffer cursor
     m_Buffer->Advance< Color3 >(1);
     // Return the requested information
-    return Color3(value);
+    return {value};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -263,7 +270,7 @@ Color4 SqBuffer::ReadColor4() const
     // Advance the buffer cursor
     m_Buffer->Advance< Color4 >(1);
     // Return the requested information
-    return Color4(value);
+    return {value};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -276,7 +283,7 @@ Quaternion SqBuffer::ReadQuaternion() const
     // Advance the buffer cursor
     m_Buffer->Advance< Quaternion >(1);
     // Return the requested information
-    return Quaternion(value);
+    return {value};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -289,7 +296,7 @@ Sphere SqBuffer::ReadSphere() const
     // Advance the buffer cursor
     m_Buffer->Advance< Sphere >(1);
     // Return the requested information
-    return Sphere(value);
+    return {value};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -302,7 +309,7 @@ Vector2 SqBuffer::ReadVector2() const
     // Advance the buffer cursor
     m_Buffer->Advance< Vector2 >(1);
     // Return the requested information
-    return Vector2(value);
+    return {value};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -315,7 +322,7 @@ Vector2i SqBuffer::ReadVector2i() const
     // Advance the buffer cursor
     m_Buffer->Advance< Vector2i >(1);
     // Return the requested information
-    return Vector2i(value);
+    return {value};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -328,7 +335,7 @@ Vector3 SqBuffer::ReadVector3() const
     // Advance the buffer cursor
     m_Buffer->Advance< Vector3 >(1);
     // Return the requested information
-    return Vector3(value);
+    return {value};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -341,7 +348,7 @@ Vector4 SqBuffer::ReadVector4() const
     // Advance the buffer cursor
     m_Buffer->Advance< Vector4 >(1);
     // Return the requested information
-    return Vector4(value);
+    return {value};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -352,7 +359,7 @@ SQInteger SqBuffer::GetCRC32(SQInteger n) const
     // Create the checksum computer
     Poco::Checksum c(Poco::Checksum::TYPE_CRC32);
     // Give it the data to process
-    c.update(&m_Buffer->Cursor< char >(), n >= 0 ? static_cast< uint32_t >(n) : m_Buffer->Remaining());
+    c.update(&m_Buffer->Cursor< char >(), ClampRemaining(n));
     // return the result
     return static_cast< SQInteger >(c.checksum());
 }
@@ -365,10 +372,44 @@ SQInteger SqBuffer::GetADLER32(SQInteger n) const
     // Create the checksum computer
     Poco::Checksum c(Poco::Checksum::TYPE_ADLER32);
     // Give it the data to process
-    c.update(&m_Buffer->Cursor< char >(), n >= 0 ? static_cast< uint32_t >(n) : m_Buffer->Remaining());
+    c.update(&m_Buffer->Cursor< char >(), ClampRemaining(n));
     // return the result
     return static_cast< SQInteger >(c.checksum());
 
+}
+
+// ------------------------------------------------------------------------------------------------
+LightObj SqBuffer::GetBase32(SQInteger n) const
+{
+    // Validate the managed buffer reference
+    ValidateDeeper();
+    // Create a string receiver
+    std::ostringstream out;
+    // Create the encoder
+    Poco::Base32Encoder enc(out);
+    // Encode the string
+    enc.write(&m_Buffer->Cursor< char >(), ClampRemaining(n));
+    // Close the encoder
+    enc.close();
+    // Return the resulted string
+    return LightObj{out.str()};
+}
+
+// ------------------------------------------------------------------------------------------------
+LightObj SqBuffer::GetBase64(SQInteger n) const
+{
+    // Validate the managed buffer reference
+    ValidateDeeper();
+    // Create a string receiver
+    std::ostringstream out;
+    // Create the encoder
+    Poco::Base64Encoder enc(out);
+    // Encode the string
+    enc.write(&m_Buffer->Cursor< char >(), ClampRemaining(n));
+    // Close the encoder
+    enc.close();
+    // Return the resulted string
+    return LightObj{out.str()};
 }
 
 // ================================================================================================
@@ -457,6 +498,8 @@ void Register_Buffer(HSQUIRRELVM vm)
         .Func(_SC("ReadVector4"), &SqBuffer::ReadVector4)
         .Func(_SC("CRC32"), &SqBuffer::GetCRC32)
         .Func(_SC("ADLER32"), &SqBuffer::GetADLER32)
+        .Func(_SC("Base32"), &SqBuffer::GetBase32)
+        .Func(_SC("Base64"), &SqBuffer::GetBase64)
     );
 }
 

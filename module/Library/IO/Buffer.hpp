@@ -194,6 +194,24 @@ public:
     }
 
     /* --------------------------------------------------------------------------------------------
+     * Limit the specified amount at to the range of the cursor and the end of the buffer.
+    */
+    SQMOD_NODISCARD SzType ClampRemaining(SQInteger n) const
+    {
+        // Do we even specify a buffer amount?
+        if (n >= 0)
+        {
+            // Is it within the range we currently have left?
+            if (static_cast< SzType >(n) <= m_Buffer->Remaining())
+            {
+                return static_cast< SzType >(n);
+            }
+        }
+        // Fall back to the actual remaining data
+        return m_Buffer->Remaining();
+    }
+
+    /* --------------------------------------------------------------------------------------------
      * Retrieve a certain element type at the specified position.
     */
     SQMOD_NODISCARD Value Get(SQInteger n) const
@@ -761,6 +779,16 @@ public:
      * Compute the Adler-32 checksums on the data in the buffer.
     */
     SQMOD_NODISCARD SQInteger GetADLER32(SQInteger n) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Encode the specified range of data as base32 and return it.
+    */
+    SQMOD_NODISCARD LightObj GetBase32(SQInteger n) const;
+
+    /* --------------------------------------------------------------------------------------------
+     * Encode the specified range of data as base64 and return it.
+    */
+    SQMOD_NODISCARD LightObj GetBase64(SQInteger n) const;
 };
 
 } // Namespace:: SqMod
