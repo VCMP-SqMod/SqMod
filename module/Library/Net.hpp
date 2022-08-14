@@ -648,7 +648,7 @@ struct WebSocketClient : public SqChainedInstances< WebSocketClient >
     /* --------------------------------------------------------------------------------------------
      * Sends the contents of the given buffer through the socket as a single frame.
     */
-    SQMOD_NODISCARD SQInteger SendOpCode(SqBuffer & buf, SQInteger opcode)
+    SQMOD_NODISCARD SQInteger SendOpCode(SQInteger opcode)
     {
         return mg_websocket_client_write(Valid(), static_cast< int >(opcode), nullptr, 0);
     }
