@@ -2146,12 +2146,12 @@ struct SqDataAsyncBuilder
     SqDataAsyncBuilder & operator = (SqDataAsyncBuilder && o) = default;
 
     /* --------------------------------------------------------------------------------------------
-     * Create the task with the suplied information and submit it to the worker pool.
+     * Create the task with the supplied information and submit it to the worker pool.
     */
     void Submit() { Submit_(NullLightObj()); }
 
     /* --------------------------------------------------------------------------------------------
-     * Create the task with the suplied information and submit it to the worker pool.
+     * Create the task with the supplied information and submit it to the worker pool.
     */
     void Submit_(LightObj & ctx);
 
