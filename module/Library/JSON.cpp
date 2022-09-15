@@ -11,13 +11,22 @@
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
+SQMOD_DECL_TYPENAME(SqCtxJSON, _SC("SqCtxJSON"))
+
+// ------------------------------------------------------------------------------------------------
 static SQInteger SqToJSON(HSQUIRRELVM vm) noexcept
 {
-    return sq_throwerror(vm, _SC("Not implemented yet!"));
+    return CtxJSON().SerializeParams(vm);
 }
 
 // ------------------------------------------------------------------------------------------------
-static SQInteger SqFromJson_Push(HSQUIRRELVM vm, const sajson::value & node) noexcept
+static SQInteger SqToCompactJSON(HSQUIRRELVM vm) noexcept
+{
+    return CtxJSON(false).SerializeParams(vm);
+}
+
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqFromJson_Push(HSQUIRRELVM vm, const sajson::value & node) noexcept // NOLINT(misc-no-recursion)
 {
     // Operation result
     SQInteger r = SQ_OK;
@@ -155,7 +164,34 @@ static SQInteger SqFromJSON(HSQUIRRELVM vm) noexcept
 void Register_JSON(HSQUIRRELVM vm)
 {
     RootTable(vm).SquirrelFunc(_SC("SqToJSON"), SqToJSON);
+    RootTable(vm).SquirrelFunc(_SC("SqToCompactJSON"), SqToCompactJSON);
     RootTable(vm).SquirrelFunc(_SC("SqFromJSON"), SqFromJSON);
+    // --------------------------------------------------------------------------------------------
+    RootTable(vm).Bind(_SC("SqCtxJSON"),
+        Class< CtxJSON, NoCopy< CtxJSON > >(vm, SqCtxJSON::Str)
+        // Constructors
+        .Ctor()
+        .Ctor< bool >()
+        // Meta-methods
+        .SquirrelFunc(_SC("_typename"), &SqCtxJSON::Fn)
+        // Properties
+        .Prop(_SC("Output"), &CtxJSON::GetOutput)
+        .Prop(_SC("Depth"), &CtxJSON::GetDepth)
+        .Prop(_SC("OOA"), &CtxJSON::GetObjectOverArray, &CtxJSON::SetObjectOverArray)
+        .Prop(_SC("ObjectOverArray"), &CtxJSON::GetObjectOverArray, &CtxJSON::SetObjectOverArray)
+        // Member Methods
+        .SquirrelMethod< CtxJSON, &CtxJSON::SerializeParams >(_SC("Serialize"))
+        .SquirrelMethod< CtxJSON, &CtxJSON::PushValues >(_SC("PushValues"))
+        .SquirrelMethod< CtxJSON, &CtxJSON::PushElement >(_SC("PushElement"))
+        .Func(_SC("OpenArray"), &CtxJSON::OpenArray)
+        .Func(_SC("CloseArray"), &CtxJSON::CloseArray)
+        .Func(_SC("OpenObject"), &CtxJSON::OpenObject)
+        .Func(_SC("CloseObject"), &CtxJSON::CloseObject)
+        .Func(_SC("MakeKey"), &CtxJSON::MakeKey)
+        .FmtFunc(_SC("PushKey"), &CtxJSON::PushKey)
+        .Func(_SC("SetOOA"), &CtxJSON::SetObjectOverArray)
+        .Func(_SC("SetObjectOverArray"), &CtxJSON::SetObjectOverArray)
+    );
 }
 
 } // Namespace:: SqMod
