@@ -80,7 +80,7 @@ struct ThreadPoolItem
     /* --------------------------------------------------------------------------------------------
      * Invoked in main thread by the thread pool after the task was completed.
      * If it returns true then it will be put back into the queue to be processed again.
-     * If the boolean parameter is trye then the thread-pool is in the process of shutting down.
+     * If the boolean parameter is true then the thread-pool is in the process of shutting down.
     */
     SQMOD_NODISCARD virtual bool OnCompleted(bool SQ_UNUSED_ARG(stop)) { return false; }
 
@@ -110,13 +110,13 @@ private:
      * Destructor.
     */
     ~ThreadPool();
-
+public:
+    // --------------------------------------------------------------------------------------------
+    using Item = std::unique_ptr< ThreadPoolItem >; // Owning pointer of an item.
 private:
 
     // --------------------------------------------------------------------------------------------
     using Pool = std::vector< std::thread >; // Worker container.
-    using Item = std::unique_ptr< ThreadPoolItem >; // Owning pointer of an item.
-    // --------------------------------------------------------------------------------------------
     using Finished = moodycamel::ConcurrentQueue< Item >; // Finished items.
 
     // --------------------------------------------------------------------------------------------
@@ -188,6 +188,14 @@ public:
     void Enqueue(ThreadPoolItem * item)
     {
         Enqueue(Item{item});
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Queue an item to be processed. Will take ownership of the given pointer!
+    */
+    template < class T > void CastEnqueue(std::unique_ptr< T > && item)
+    {
+        Enqueue(Item{std::forward< std::unique_ptr< T > >(item)});
     }
 
     /* --------------------------------------------------------------------------------------------
