@@ -195,21 +195,7 @@ struct LightObj {
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template<class T, class... A>
-    LightObj(SqTypeIdentity< T > SQ_UNUSED_ARG(t), HSQUIRRELVM vm, A&&... a) {
-        // Create the instance and guard it to make sure it gets deleted in case of exceptions
-        DeleteGuard< T > instance(new T(std::forward< A >(a)...));
-        // Preserve the stack state
-        const StackGuard sg(vm);
-        // Push the instance on the stack
-        ClassType<T>::PushInstance(vm, instance);
-        // Attempt to retrieve it
-        if (SQ_FAILED(sq_getstackobj(vm, -1, &mObj))) {
-            sq_resetobject(&mObj);
-        } else {
-            sq_addref(vm, &mObj);
-        }
-        // Stop guarding the instance
-        instance.Release();
+    LightObj(SqTypeIdentity< T > SQ_UNUSED_ARG(t), HSQUIRRELVM vm, A&&... a) : LightObj(DeleteGuard< T >(new T(std::forward< A >(a)...))) {
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -246,7 +232,21 @@ struct LightObj {
     ///
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template<class T>
-    LightObj(DeleteGuard<T> guard, HSQUIRRELVM v = SqVM()) : LightObj(guard.Get(), v) {
+    LightObj(DeleteGuard<T> && guard, HSQUIRRELVM v = SqVM()) : LightObj(guard.Get(), v) {
+        guard.Release();
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Constructs an LightObj from a C++ instance wrapped inside a DeleteGuard
+    ///
+    /// \param instance Pointer to a C++ class instance that has been bound already
+    /// \param v        VM that the object will exist in
+    ///
+    /// \tparam T Type of instance
+    ///
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template<class T>
+    LightObj(DeleteGuard<T> & guard, HSQUIRRELVM v = SqVM()) : LightObj(guard.Get(), v) {
         guard.Release();
     }
 
