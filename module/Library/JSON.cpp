@@ -281,7 +281,7 @@ SQRESULT CtxJSON::SerializeParams(HSQUIRRELVM vm)
         CloseArray();
     }
     // Remove trailing separator, if any
-    else if (mOutput.back() == ',')
+    if (mOutput.back() == ',')
     {
         mOutput.pop_back();
     }
