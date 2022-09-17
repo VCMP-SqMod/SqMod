@@ -172,6 +172,8 @@ CtxJSON & CtxJSON::CloseArray()
     {
         mOutput.push_back(']');
     }
+    // Move the comma after the closing character
+    mOutput.push_back(',');
     // Go back one level
     Retreat();
     // Allow chaining
@@ -202,6 +204,8 @@ CtxJSON & CtxJSON::CloseObject()
     {
         mOutput.push_back('}');
     }
+    // Move the comma after the closing character
+    mOutput.push_back(',');
     // Go back one level
     Retreat();
     // Allow chaining
