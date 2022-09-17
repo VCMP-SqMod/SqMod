@@ -350,16 +350,12 @@ SQRESULT CtxJSON::SerializeAt(HSQUIRRELVM vm, SQInteger idx) // NOLINT(misc-no-r
             {
                 return r; // Propagate the error
             }
-            // Include the separator manually
-            mOutput.push_back(',');
         } break;
         case OT_ARRAY: {
             if (SQRESULT r = SerializeArray(vm, idx); SQ_FAILED(r))
             {
                 return r; // Propagate the error
             }
-            // Include the separator manually
-            mOutput.push_back(',');
         } break;
         case OT_INSTANCE: {
             if (SQRESULT r = SerializeInstance(vm, idx); SQ_FAILED(r))
