@@ -305,6 +305,11 @@ struct AABB
     SQMOD_NODISCARD String ToString() const;
 
     /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to convert an instance of this type to a JSON string.
+    */
+    void ToJSON(CtxJSON & ctx) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Set the values extracted from the specified string using the specified delimiter.
     */
     void SetStr(SQChar delim, StackStrF & values);

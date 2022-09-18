@@ -5,6 +5,7 @@
 #include "Base/DynArg.hpp"
 #include "Core/Buffer.hpp"
 #include "Core/Utility.hpp"
+#include "Library/JSON.hpp"
 #include "Library/Numeric/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -329,6 +330,19 @@ int32_t Vector3::Cmp(const Vector3 & o) const
 String Vector3::ToString() const
 {
     return fmt::format("{},{},{}", x, y, z);
+}
+
+// ------------------------------------------------------------------------------------------------
+void Vector3::ToJSON(CtxJSON & ctx) const
+{
+    if (ctx.mObjectOverArray)
+    {
+        fmt::format_to(std::back_inserter(ctx.mOutput), "{{x:{},y:{},z:{}}},", x, y, z);
+    }
+    else
+    {
+        fmt::format_to(std::back_inserter(ctx.mOutput), "[{},{},{}],", x, y, z);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -696,6 +710,7 @@ void Register_Vector3(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< Vector3 >, SQFloat, SQInteger, bool, std::nullptr_t, Vector3 >)
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &Vector3::ToString)
+        .Func(_SC("_tojson"), &Vector3::ToJSON)
         // Meta-methods
         .SquirrelFunc(_SC("_add"), &SqDynArgFwd< SqDynArgAddFn< Vector3 >, SQFloat, SQInteger, bool, std::nullptr_t, Vector3 >)
         .SquirrelFunc(_SC("_sub"), &SqDynArgFwd< SqDynArgSubFn< Vector3 >, SQFloat, SQInteger, bool, std::nullptr_t, Vector3 >)

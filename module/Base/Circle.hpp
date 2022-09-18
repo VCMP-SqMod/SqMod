@@ -342,6 +342,11 @@ struct Circle
     SQMOD_NODISCARD String ToString() const;
 
     /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to convert an instance of this type to a JSON string.
+    */
+    void ToJSON(CtxJSON & ctx) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Set the specified radius.
     */
     void SetRadius(Value nr);

@@ -5,6 +5,7 @@
 #include "Base/DynArg.hpp"
 #include "Core/Buffer.hpp"
 #include "Core/Utility.hpp"
+#include "Library/JSON.hpp"
 #include "Library/Numeric/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -345,6 +346,19 @@ String Vector4::ToString() const
 }
 
 // ------------------------------------------------------------------------------------------------
+void Vector4::ToJSON(CtxJSON & ctx) const
+{
+    if (ctx.mObjectOverArray)
+    {
+        fmt::format_to(std::back_inserter(ctx.mOutput), "{{x:{},y:{},z:{},w:{}}},", x, y, z, w);
+    }
+    else
+    {
+        fmt::format_to(std::back_inserter(ctx.mOutput), "[{},{},{},{}],", x, y, z, w);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 void Vector4::SetScalar(Value ns)
 {
     x = ns;
@@ -526,6 +540,7 @@ void Register_Vector4(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< Vector4 >, SQFloat, SQInteger, bool, std::nullptr_t, Vector4 >)
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &Vector4::ToString)
+        .Func(_SC("_tojson"), &Vector4::ToJSON)
         // Meta-methods
         .SquirrelFunc(_SC("_add"), &SqDynArgFwd< SqDynArgAddFn< Vector4 >, SQFloat, SQInteger, bool, std::nullptr_t, Vector4 >)
         .SquirrelFunc(_SC("_sub"), &SqDynArgFwd< SqDynArgSubFn< Vector4 >, SQFloat, SQInteger, bool, std::nullptr_t, Vector4 >)

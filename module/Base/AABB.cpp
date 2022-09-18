@@ -4,6 +4,7 @@
 #include "Base/DynArg.hpp"
 #include "Core/Buffer.hpp"
 #include "Core/Utility.hpp"
+#include "Library/JSON.hpp"
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -298,6 +299,21 @@ int32_t AABB::Cmp(const AABB & o) const
 String AABB::ToString() const
 {
     return fmt::format("{},{},{},{},{},{}", min.x, min.y, min.z, max.x, max.y, max.z);
+}
+
+// ------------------------------------------------------------------------------------------------
+void AABB::ToJSON(CtxJSON & ctx) const
+{
+    if (ctx.mObjectOverArray)
+    {
+        fmt::format_to(std::back_inserter(ctx.mOutput), "{{min:{{x:{},y:{},z:{}}},max:{{x:{},y:{},z:{}}},",
+            min.x, min.y, min.z, max.x, max.y, max.z);
+    }
+    else
+    {
+        fmt::format_to(std::back_inserter(ctx.mOutput), "{{min:[{},{},{}],max:[{},{},{}]}},",
+            min.x, min.y, min.z, max.x, max.y, max.z);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -793,6 +809,7 @@ void Register_AABB(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< AABB >, SQFloat, SQInteger, bool, std::nullptr_t, AABB >)
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &AABB::ToString)
+        .Func(_SC("_tojson"), &AABB::ToJSON)
         // Meta-methods
         .SquirrelFunc(_SC("_add"), &SqDynArgFwd< SqDynArgAddFn< AABB >, SQFloat, SQInteger, bool, std::nullptr_t, AABB >)
         .SquirrelFunc(_SC("_sub"), &SqDynArgFwd< SqDynArgSubFn< AABB >, SQFloat, SQInteger, bool, std::nullptr_t, AABB >)

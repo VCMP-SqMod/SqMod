@@ -5,6 +5,7 @@
 #include "Base/DynArg.hpp"
 #include "Core/Buffer.hpp"
 #include "Core/Utility.hpp"
+#include "Library/JSON.hpp"
 #include "Library/Numeric/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -347,6 +348,19 @@ int32_t Quaternion::Cmp(const Quaternion & o) const
 String Quaternion::ToString() const
 {
     return fmt::format("{},{},{},{}", x, y, z, w);
+}
+
+// ------------------------------------------------------------------------------------------------
+void Quaternion::ToJSON(CtxJSON & ctx) const
+{
+    if (ctx.mObjectOverArray)
+    {
+        fmt::format_to(std::back_inserter(ctx.mOutput), "{{x:{},y:{},z:{},w:{}}},", x, y, z, w);
+    }
+    else
+    {
+        fmt::format_to(std::back_inserter(ctx.mOutput), "[{},{},{},{}],", x, y, z, w);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -775,6 +789,7 @@ void Register_Quaternion(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< Quaternion >, SQFloat, SQInteger, bool, std::nullptr_t, Quaternion >)
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &Quaternion::ToString)
+        .Func(_SC("_tojson"), &Quaternion::ToJSON)
         // Meta-methods
         .SquirrelFunc(_SC("_add"), &SqDynArgFwd< SqDynArgAddFn< Quaternion >, SQFloat, SQInteger, bool, std::nullptr_t, Quaternion >)
         .SquirrelFunc(_SC("_sub"), &SqDynArgFwd< SqDynArgSubFn< Quaternion >, SQFloat, SQInteger, bool, std::nullptr_t, Quaternion >)

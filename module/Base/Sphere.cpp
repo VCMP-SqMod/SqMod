@@ -3,6 +3,7 @@
 #include "Base/DynArg.hpp"
 #include "Core/Buffer.hpp"
 #include "Core/Utility.hpp"
+#include "Library/JSON.hpp"
 #include "Library/Numeric/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -361,6 +362,19 @@ String Sphere::ToString() const
 }
 
 // ------------------------------------------------------------------------------------------------
+void Sphere::ToJSON(CtxJSON & ctx) const
+{
+    if (ctx.mObjectOverArray)
+    {
+        fmt::format_to(std::back_inserter(ctx.mOutput), "{{x:{},y:{},z:{},r:{}}},", pos.x, pos.y, pos.z, rad);
+    }
+    else
+    {
+        fmt::format_to(std::back_inserter(ctx.mOutput), "[{},{},{},{}],", pos.x, pos.y, pos.z, rad);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 void Sphere::SetRadius(Value nr)
 {
     rad = nr;
@@ -527,6 +541,7 @@ void Register_Sphere(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< Sphere >, SQFloat, SQInteger, bool, std::nullptr_t, Sphere >)
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &Sphere::ToString)
+        .Func(_SC("_tojson"), &Sphere::ToJSON)
         // Meta-methods
         .SquirrelFunc(_SC("_add"), &SqDynArgFwd< SqDynArgAddFn< Sphere >, SQFloat, SQInteger, bool, std::nullptr_t, Sphere >)
         .SquirrelFunc(_SC("_sub"), &SqDynArgFwd< SqDynArgSubFn< Sphere >, SQFloat, SQInteger, bool, std::nullptr_t, Sphere >)

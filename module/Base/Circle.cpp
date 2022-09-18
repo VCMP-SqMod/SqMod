@@ -3,6 +3,7 @@
 #include "Base/DynArg.hpp"
 #include "Core/Buffer.hpp"
 #include "Core/Utility.hpp"
+#include "Library/JSON.hpp"
 #include "Library/Numeric/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -361,6 +362,19 @@ String Circle::ToString() const
 }
 
 // ------------------------------------------------------------------------------------------------
+void Circle::ToJSON(CtxJSON & ctx) const
+{
+    if (ctx.mObjectOverArray)
+    {
+        fmt::format_to(std::back_inserter(ctx.mOutput), "{{x:{},y:{},r:{}}},", pos.x, pos.y, rad);
+    }
+    else
+    {
+        fmt::format_to(std::back_inserter(ctx.mOutput), "[{},{},{}],", pos.x, pos.y, rad);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 void Circle::SetRadius(Value nr)
 {
     rad = nr;
@@ -552,6 +566,7 @@ void Register_Circle(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< Circle >, SQFloat, SQInteger, bool, std::nullptr_t, Circle >)
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &Circle::ToString)
+        .Func(_SC("_toJSON"), &Circle::ToJSON)
         // Meta-methods
         .SquirrelFunc(_SC("_add"), &SqDynArgFwd< SqDynArgAddFn< Circle >, SQFloat, SQInteger, bool, std::nullptr_t, Circle >)
         .SquirrelFunc(_SC("_sub"), &SqDynArgFwd< SqDynArgSubFn< Circle >, SQFloat, SQInteger, bool, std::nullptr_t, Circle >)

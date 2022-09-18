@@ -4,6 +4,7 @@
 #include "Base/DynArg.hpp"
 #include "Core/Buffer.hpp"
 #include "Core/Utility.hpp"
+#include "Library/JSON.hpp"
 #include "Library/Numeric/Random.hpp"
 
 // ------------------------------------------------------------------------------------------------
@@ -507,6 +508,19 @@ String Color4::ToString() const
 }
 
 // ------------------------------------------------------------------------------------------------
+void Color4::ToJSON(CtxJSON & ctx) const
+{
+    if (ctx.mObjectOverArray)
+    {
+        fmt::format_to(std::back_inserter(ctx.mOutput), "{{r:{},g:{},b:{},a:{}}},", r, g, b, a);
+    }
+    else
+    {
+        fmt::format_to(std::back_inserter(ctx.mOutput), "[{},{},{},{}],", r, g, b, a);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 void Color4::SetScalar(Value ns)
 {
     r = ns;
@@ -781,6 +795,7 @@ void Register_Color4(HSQUIRRELVM vm)
         .SquirrelFunc(_SC("cmp"), &SqDynArgFwd< SqDynArgCmpFn< Color4 >, SQFloat, SQInteger, bool, std::nullptr_t, Color4 >)
         .SquirrelFunc(_SC("_typename"), &Typename::Fn)
         .Func(_SC("_tostring"), &Color4::ToString)
+        .Func(_SC("_tojson"), &Color4::ToJSON)
         // Meta-methods
         .SquirrelFunc(_SC("_add"), &SqDynArgFwd< SqDynArgAddFn< Color4 >, SQFloat, SQInteger, bool, std::nullptr_t, Color4 >)
         .SquirrelFunc(_SC("_sub"), &SqDynArgFwd< SqDynArgSubFn< Color4 >, SQFloat, SQInteger, bool, std::nullptr_t, Color4 >)

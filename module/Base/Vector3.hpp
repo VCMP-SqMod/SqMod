@@ -298,6 +298,11 @@ struct Vector3
     SQMOD_NODISCARD String ToString() const;
 
     /* --------------------------------------------------------------------------------------------
+     * Used by the script engine to convert an instance of this type to a JSON string.
+    */
+    void ToJSON(CtxJSON & ctx) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Set all components to the specified scalar value.
     */
     void SetScalar(Value ns);
