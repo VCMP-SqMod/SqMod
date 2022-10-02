@@ -5,11 +5,12 @@
 #include "Library/IO/Buffer.hpp"
 
 // ------------------------------------------------------------------------------------------------
-#include <sajson.h>
+#include <functional>
+
+// ------------------------------------------------------------------------------------------------
 #include <fmt/args.h>
 #include <fmt/format.h>
 #include <fmt/xchar.h>
-
 
 // ------------------------------------------------------------------------------------------------
 namespace SqMod {
@@ -36,6 +37,21 @@ struct CtxJSON
     uint32_t mDepth{0};
 
     /* --------------------------------------------------------------------------------------------
+     * The meta-method name to use on objects.
+    */
+    String mMetaMethod{"_tojson"};
+
+    /* --------------------------------------------------------------------------------------------
+     * Last pushed string value. Can be used to heck for key name in the hook.
+    */
+    String mString{};
+
+    /* --------------------------------------------------------------------------------------------
+     * Internal utility used to monitor the existence of certain keys to allow overloading.
+    */
+    std::function< void(CtxJSON&) > mKeyHook{};
+
+    /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
     CtxJSON() noexcept = default;
@@ -47,6 +63,26 @@ struct CtxJSON
         : CtxJSON()
     {
         mObjectOverArray = ooa;
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Explicit constructor.
+    */
+    CtxJSON(bool ooa, StackStrF & mmname) noexcept
+        : CtxJSON()
+    {
+        mObjectOverArray = ooa;
+        // Allow custom metamethod names
+        mMetaMethod.assign(mmname.mPtr, static_cast< size_t >(mmname.mLen));
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Internal constructor.
+    */
+    explicit CtxJSON(std::function< void(CtxJSON&) > && kh) noexcept
+        : CtxJSON()
+    {
+        mKeyHook = std::move(kh);
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -136,6 +172,11 @@ struct CtxJSON
     CtxJSON & CloseArray();
 
     /* --------------------------------------------------------------------------------------------
+     * Resume writing an array.
+    */
+    CtxJSON & ReopenArray();
+
+    /* --------------------------------------------------------------------------------------------
      * Begin writing an object.
     */
     CtxJSON & OpenObject();
@@ -144,6 +185,11 @@ struct CtxJSON
      * Stop writing an object.
     */
     CtxJSON & CloseObject();
+
+    /* --------------------------------------------------------------------------------------------
+     * Resume writing an object.
+    */
+    CtxJSON & ReopenObject();
 
     /* --------------------------------------------------------------------------------------------
      * Begin writing a key value.

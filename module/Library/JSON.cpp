@@ -2,6 +2,7 @@
 #include "Library/JSON.hpp"
 
 // ------------------------------------------------------------------------------------------------
+#include <sajson.h>
 #include <sqratConst.h>
 
 // ------------------------------------------------------------------------------------------------
@@ -181,6 +182,23 @@ CtxJSON & CtxJSON::CloseArray()
 }
 
 // ------------------------------------------------------------------------------------------------
+CtxJSON & CtxJSON::ReopenArray()
+{
+    // If the last character is a comma then remove it
+    if (mOutput.back() == ',')
+    {
+        mOutput.pop_back();
+    }
+    // If the last character is the array-end character then replace it with a comma
+    if (mOutput.back() == ']')
+    {
+        mOutput.back() = ',';
+    }
+    // Allow chaining
+    return *this;
+}
+
+// ------------------------------------------------------------------------------------------------
 CtxJSON & CtxJSON::OpenObject()
 {
     // Add the object-begin character
@@ -213,6 +231,23 @@ CtxJSON & CtxJSON::CloseObject()
 }
 
 // ------------------------------------------------------------------------------------------------
+CtxJSON & CtxJSON::ReopenObject()
+{
+    // If the last character is a comma then remove it
+    if (mOutput.back() == ',')
+    {
+        mOutput.pop_back();
+    }
+    // If the last character is the object-end character then replace it with a comma
+    if (mOutput.back() == '}')
+    {
+        mOutput.back() = ',';
+    }
+    // Allow chaining
+    return *this;
+}
+
+// ------------------------------------------------------------------------------------------------
 CtxJSON & CtxJSON::MakeKey()
 {
     // If the last character is a comma then replace it
@@ -224,6 +259,11 @@ CtxJSON & CtxJSON::MakeKey()
     else
     {
         mOutput.push_back(':');
+    }
+    // Allow the hook to react
+    if (mKeyHook)
+    {
+        mKeyHook(*this);
     }
     // Allow chaining
     return *this;
@@ -467,7 +507,7 @@ SQRESULT CtxJSON::SerializeTable(HSQUIRRELVM vm, SQInteger idx) // NOLINT(misc-n
 // ------------------------------------------------------------------------------------------------
 SQRESULT CtxJSON::SerializeInstance(HSQUIRRELVM vm, SQInteger idx)
 {
-    sq_pushstring(vm, _SC("_tojson"), 7);
+    sq_pushstring(vm, mMetaMethod.c_str(), static_cast< SQInteger >(mMetaMethod.size()));
     // Attempt to retrieve the meta-method from the instance
     if(SQRESULT r = sq_get(vm, idx); SQ_FAILED(r))
     {
@@ -629,6 +669,8 @@ void CtxJSON::PushString(const SQChar * str)
     mOutput.append(str);
     mOutput.push_back('"');
     mOutput.push_back(',');
+    // Allow the hook to know
+    mString.assign(str);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -638,6 +680,8 @@ void CtxJSON::PushString(const SQChar * str, size_t length)
     mOutput.append(str, length);
     mOutput.push_back('"');
     mOutput.push_back(',');
+    // Allow the hook to know
+    mString.assign(str, length);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -678,6 +722,7 @@ void Register_JSON(HSQUIRRELVM vm)
         // Constructors
         .Ctor()
         .Ctor< bool >()
+        .Ctor< bool, StackStrF & >()
         // Meta-methods
         .SquirrelFunc(_SC("_typename"), &SqCtxJSON::Fn)
         // Properties
