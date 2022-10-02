@@ -54,12 +54,12 @@ struct CtxJSON
     /* --------------------------------------------------------------------------------------------
      * Default constructor.
     */
-    CtxJSON() noexcept = default;
+    CtxJSON() = default;
 
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
-    explicit CtxJSON(bool ooa) noexcept
+    explicit CtxJSON(bool ooa)
         : CtxJSON()
     {
         mObjectOverArray = ooa;
@@ -68,7 +68,7 @@ struct CtxJSON
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
-    CtxJSON(bool ooa, StackStrF & mmname) noexcept
+    CtxJSON(bool ooa, StackStrF & mmname)
         : CtxJSON()
     {
         mObjectOverArray = ooa;
@@ -79,7 +79,7 @@ struct CtxJSON
     /* --------------------------------------------------------------------------------------------
      * Internal constructor.
     */
-    explicit CtxJSON(std::function< void(CtxJSON&) > && kh) noexcept
+    explicit CtxJSON(std::function< void(CtxJSON&) > && kh)
         : CtxJSON()
     {
         mKeyHook = std::move(kh);
