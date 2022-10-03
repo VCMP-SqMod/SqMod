@@ -55,40 +55,60 @@ SQMOD_DECL_TYPENAME(CVehicleTn, _SC("CVehicle"))
 /* ------------------------------------------------------------------------------------------------
  * Used to fetch the legacy entity instance even if a native one was specified.
 */
-template < class T, class U > inline T & GetLgEnt(LightObj & o)
+template < class LEGACY, class NATIVE > inline LEGACY & GetLgEnt(LightObj & o)
 {
-    auto type = static_cast< AbstractStaticClassData * >(o.GetTypeTag());
+    const auto type = static_cast< AbstractStaticClassData * >(o.GetTypeTag());
     // Legacy entity type?
-    if (type == StaticClassTypeTag< T >::Get())
+    if (type == StaticClassTypeTag< LEGACY >::Get())
     {
-        return *o.CastI< T >();
+        return *o.CastI< LEGACY >();
     }
     // Native entity type?
-    if (type == StaticClassTypeTag< U >::Get())
+    if (type == StaticClassTypeTag< NATIVE >::Get())
     {
-        return *EntityInstSelect< U >(o.CastI< U >()->GetID()).mLgInst;
+        return *EntityInstSelect< NATIVE >::Get(o.CastI< NATIVE >()->GetID()).mLgInst;
     }
-    STHROWF("Invalid entity type");
+    STHROWF("Invalid entity type: {}", SqTypeName(SqVM(), o));
+    SQ_UNREACHABLE
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Used to fetch the native entity instance even if a legacy one was specified.
+*/
+template < class LEGACY, class NATIVE > inline NATIVE & GetNativeEnt(LightObj & o)
+{
+    const auto type = static_cast< AbstractStaticClassData * >(o.GetTypeTag());
+    // Legacy entity type?
+    if (type == StaticClassTypeTag< LEGACY >::Get())
+    {
+        return o.CastI< LEGACY >()->Get();
+    }
+    // Native entity type?
+    if (type == StaticClassTypeTag< NATIVE >::Get())
+    {
+        return *EntityInstSelect< NATIVE >::Get(o.CastI< NATIVE >()->GetID()).mInst;
+    }
+    STHROWF("Invalid entity type: {}", SqTypeName(SqVM(), o));
     SQ_UNREACHABLE
 }
 
 /* ------------------------------------------------------------------------------------------------
  * Used to fetch the legacy entity identifier even if a native one was specified.
 */
-template < class T, class U > SQMOD_NODISCARD inline int32_t GetLgEntID(LightObj & o)
+template < class LEGACY, class NATIVE > SQMOD_NODISCARD inline int32_t GetLgEntID(LightObj & o)
 {
-    auto type = static_cast< AbstractStaticClassData * >(o.GetTypeTag());
+    const auto type = static_cast< AbstractStaticClassData * >(o.GetTypeTag());
     // Legacy entity type?
-    if (type == StaticClassTypeTag< T >::Get())
+    if (type == StaticClassTypeTag< LEGACY >::Get())
     {
-        return o.CastI< T >()->mID;
+        return o.CastI< LEGACY >()->mID;
     }
     // Native entity type?
-    if (type == StaticClassTypeTag< U >::Get())
+    if (type == StaticClassTypeTag< NATIVE >::Get())
     {
-        return o.CastI< U >()->GetID();
+        return o.CastI< NATIVE >()->GetID();
     }
-    STHROWF("Invalid entity type");
+    STHROWF("Invalid entity type: {}", SqTypeName(SqVM(), o));
     SQ_UNREACHABLE
 }
 
@@ -478,14 +498,14 @@ struct LgCheckpoint
     SQMOD_NODISCARD int GetWorld() const { return Get().GetWorld(); }
     SQMOD_NODISCARD LgARGB GetColor() const { const Color4 c = Get().GetColor(); return LgARGB{c.a, c.r, c.g, c.b}; }
     SQMOD_NODISCARD LgEntityVector GetPos() const
-    { return LgEntityVector(mID, LgEntityType::Checkpoint, 0, Get().GetPosition()); }
+    { return {mID, LgEntityType::Checkpoint, 0, Get().GetPosition()}; }
     SQMOD_NODISCARD float GetRadius() const { return Get().GetRadius(); }
     SQMOD_NODISCARD int GetID() const { return mID; }
     SQMOD_NODISCARD LgPlayer * GetOwner() const
     { const int id = Get().GetOwnerID(); return VALID_ENTITYEX(id, SQMOD_PLAYER_POOL) ? Core::Get().GetPlayer(id).mLgInst : nullptr; }
     // --------------------------------------------------------------------------------------------
     void Delete() const { _Func->DeleteCheckPoint(GetIdentifier()); }
-    SQMOD_NODISCARD bool StreamedToPlayer(LgPlayer & player) const;
+    SQMOD_NODISCARD bool StreamedToPlayer(LightObj & player) const;
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -546,11 +566,11 @@ struct LgObject
     SQMOD_NODISCARD int GetAlpha() const { return Get().GetAlpha(); }
     SQMOD_NODISCARD int GetWorld() const { return Get().GetWorld(); }
     SQMOD_NODISCARD LgEntityVector GetPos() const
-    { return LgEntityVector(mID, LgEntityType::Object, LgObjectVectorFlag::Pos, Get().GetPosition()); }
+    { return {mID, LgEntityType::Object, LgObjectVectorFlag::Pos, Get().GetPosition()}; }
     SQMOD_NODISCARD LgEntityQuaternion GetRotation() const
-    { return LgEntityQuaternion(mID, LgEntityType::Object, 0, Get().GetRotation()); }
+    { return {mID, LgEntityType::Object, 0, Get().GetRotation()}; }
     SQMOD_NODISCARD LgEntityVector GetRotationEuler() const
-    { return LgEntityVector(mID, LgEntityType::Object, LgObjectVectorFlag::Rotation, Get().GetRotationEuler()); }
+    { return {mID, LgEntityType::Object, LgObjectVectorFlag::Rotation, Get().GetRotationEuler()}; }
     SQMOD_NODISCARD int GetID() const { return mID; }
     SQMOD_NODISCARD bool GetReportingShots() const { return Get().GetShotReport(); }
     SQMOD_NODISCARD bool GetReportingBumps() const { return Get().GetTouchedReport(); }
@@ -563,7 +583,7 @@ struct LgObject
     void RotateToEuler(const Vector3 & rotation, int time) const { Get().RotateToEuler(rotation, static_cast< uint32_t >(time)); }
     void RotateByEuler(const Vector3 & rotOffset, int time) const { Get().RotateByEuler(rotOffset, static_cast< uint32_t >(time)); }
     void SetAlpha(int alpha, int fadeTime) const { Get().SetAlphaEx(alpha, static_cast< uint32_t >(fadeTime)); }
-    SQMOD_NODISCARD bool StreamedToPlayer(LgPlayer & player) const;
+    SQMOD_NODISCARD bool StreamedToPlayer(LightObj & player) const;
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -627,7 +647,7 @@ struct LgPickup
     SQMOD_NODISCARD bool GetAuto() const { return Get().GetAutomatic(); }
     SQMOD_NODISCARD int GetAutoTimer() const { return Get().GetAutoTimer(); }
     SQMOD_NODISCARD LgEntityVector GetPos() const
-    { return LgEntityVector(mID, LgEntityType::Pickup, 0, Get().GetPosition()); }
+    { return {mID, LgEntityType::Pickup, 0, Get().GetPosition()}; }
     SQMOD_NODISCARD int GetModel() const { return Get().GetModel(); }
     SQMOD_NODISCARD int GetQuantity() const { return Get().GetQuantity(); }
     SQMOD_NODISCARD int GetID() const { return mID; }
@@ -635,7 +655,7 @@ struct LgPickup
     // --------------------------------------------------------------------------------------------
     void Delete() const { _Func->DeletePickup(GetIdentifier()); }
     void Respawn() const { Get().Refresh(); }
-    SQMOD_NODISCARD bool StreamedToPlayer(LgPlayer & player) const;
+    SQMOD_NODISCARD bool StreamedToPlayer(LightObj & player) const;
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -703,7 +723,7 @@ struct LgPlayer
     void SetScore(int score) const { Get().SetScore(score); }
     void SetImmunity(uint32_t immunity) const { Get().SetImmunity(immunity); }
     void SetHeading(float heading) const { Get().SetHeading(heading); }
-    void SetVehicle(LgVehicle & vehicle) const;
+    void SetVehicle(LightObj & vehicle) const;
     void SetFrozen(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionControllable, static_cast< uint8_t >(!toggle)); }
     void SetDriveByEnabled(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionDriveBy, static_cast< uint8_t >(toggle)); }
     void SetWhiteScanLines(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionWhiteScanlines, static_cast< uint8_t >(toggle)); }
@@ -720,7 +740,7 @@ struct LgPlayer
     void SetWantedLevel(int level) const { Get().SetWantedLevel(level); }
     // --------------------------------------------------------------------------------------------
     SQMOD_NODISCARD LgEntityVector GetPosition() const
-    { return LgEntityVector(mID, LgEntityType::Player, LgPlayerVectorFlag::Pos, Get().GetPosition()); }
+    { return {mID, LgEntityType::Player, LgPlayerVectorFlag::Pos, Get().GetPosition()}; }
     SQMOD_NODISCARD int GetClass() const { return Get().GetClass(); }
     SQMOD_NODISCARD bool GetAdmin() const { return Get().GetAdmin(); }
     SQMOD_NODISCARD const SQChar * GetIP() const { return Get().GetIP(); }
@@ -732,7 +752,7 @@ struct LgPlayer
     SQMOD_NODISCARD const SQChar * GetName() const { return Get().GetName(); }
     SQMOD_NODISCARD int GetTeam() const { return Get().GetTeam(); }
     SQMOD_NODISCARD int GetSkin() const { return Get().GetSkin(); }
-    SQMOD_NODISCARD LgEntityRGB GetColour() const { return LgEntityRGB(mID, LgEntityType::Player, 0, Get().GetColor()); }
+    SQMOD_NODISCARD LgEntityRGB GetColour() const { return {mID, LgEntityType::Player, 0, Get().GetColor()}; }
     SQMOD_NODISCARD int GetMoney() const { return Get().GetMoney(); }
     SQMOD_NODISCARD int GetScore() const { return Get().GetScore(); }
     SQMOD_NODISCARD int GetPing() const { return Get().GetPing(); }
@@ -764,7 +784,7 @@ struct LgPlayer
     SQMOD_NODISCARD LgPlayer * GetSpectateTarget() const
     { const int id = _Func->GetPlayerSpectateTarget(GetIdentifier()); return VALID_ENTITYEX(id, SQMOD_PLAYER_POOL) ? Core::Get().GetPlayer(id).mLgInst : nullptr; }
     SQMOD_NODISCARD LgEntityVector GetSpeed() const
-    { return LgEntityVector(mID, LgEntityType::Player, LgPlayerVectorFlag::Speed, Get().GetSpeed()); }
+    { return {mID, LgEntityType::Player, LgPlayerVectorFlag::Speed, Get().GetSpeed()}; }
     SQMOD_NODISCARD bool GetCanUseColors() const { return _Func->GetPlayerOption(GetIdentifier(), vcmpPlayerOptionChatTagsEnabled) >= 1; }
     SQMOD_NODISCARD bool GetMarkerVisible() const { return _Func->GetPlayerOption(GetIdentifier(), vcmpPlayerOptionHasMarker) >= 1; }
     SQMOD_NODISCARD bool GetDrunkStatus() const { return _Func->GetPlayerOption(GetIdentifier(), vcmpPlayerOptionDrunkEffects) >= 1; }
@@ -801,8 +821,8 @@ struct LgPlayer
     SQMOD_NODISCARD int GetWeaponAtSlot(int slot) const { return Get().GetWeaponAtSlot(slot); }
     SQMOD_NODISCARD int GetAmmoAtSlot(int slot) const { return Get().GetAmmoAtSlot(slot); }
     void SetAlpha(int alpha, int fadeTime) const { Get().SetAlphaEx(alpha, fadeTime); }
-    SQMOD_NODISCARD bool StreamedToPlayer(const LgPlayer & player) const { return Get().IsStreamedFor(player.Get()); }
-    void SetVehicleSlot(const LgVehicle & vehicle, int slot) const;
+    SQMOD_NODISCARD bool StreamedToPlayer(LightObj & player) const { return Get().IsStreamedFor(GetNativeEnt< LgPlayer, CPlayer >(player)); }
+    void SetVehicleSlot(LightObj & vehicle, int slot) const;
     void Select() const { Get().ForceSelect(); }
     void RestoreCamera() const { Get().RestoreCamera(); }
     void RemoveMarker() const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionHasMarker, 0); }
@@ -915,13 +935,13 @@ struct LgVehicle
     SQMOD_NODISCARD int GetModel() const { return Get().GetModel(); }
     SQMOD_NODISCARD uint32_t GetImmunity() const { return Get().GetImmunity(); }
     SQMOD_NODISCARD LgEntityVector GetPosition() const
-    { return LgEntityVector(mID, LgEntityType::Vehicle, LgVehicleVectorFlag::Pos, Get().GetPosition()); }
+    { return {mID, LgEntityType::Vehicle, LgVehicleVectorFlag::Pos, Get().GetPosition()}; }
     SQMOD_NODISCARD LgEntityVector GetSpawnPos() const
-    { return LgEntityVector(mID, LgEntityType::Vehicle, LgVehicleVectorFlag::SpawnPos, Get().GetSpawnPosition()); }
+    { return {mID, LgEntityType::Vehicle, LgVehicleVectorFlag::SpawnPos, Get().GetSpawnPosition()}; }
     SQMOD_NODISCARD LgEntityQuaternion GetSpawnAngle() const
-    { return LgEntityQuaternion(mID, LgEntityType::Vehicle, LgVehicleQuaternionFlag::SpawnAngle, Get().GetSpawnRotation()); }
+    { return {mID, LgEntityType::Vehicle, LgVehicleQuaternionFlag::SpawnAngle, Get().GetSpawnRotation()}; }
     SQMOD_NODISCARD LgEntityVector GetSpawnAngleEuler() const
-    { return LgEntityVector(mID, LgEntityType::Vehicle, LgVehicleVectorFlag::SpawnAngle, Get().GetSpawnRotationEuler()); }
+    { return {mID, LgEntityType::Vehicle, LgVehicleVectorFlag::SpawnAngle, Get().GetSpawnRotationEuler()}; }
     SQMOD_NODISCARD uint32_t GetIdleRespawnTimer() const { return Get().GetIdleRespawnTimer(); }
     SQMOD_NODISCARD float GetHealth() const { return Get().GetHealth(); }
     SQMOD_NODISCARD int GetColour1() const { return Get().GetPrimaryColor(); }
@@ -939,21 +959,21 @@ struct LgVehicle
     SQMOD_NODISCARD int GetSyncType() const { return Get().GetSyncType(); }
     SQMOD_NODISCARD bool GetWrecked() const { return Get().IsWrecked(); }
     SQMOD_NODISCARD LgEntityQuaternion GetRotation() const
-    { return LgEntityQuaternion(mID, LgEntityType::Vehicle, LgVehicleQuaternionFlag::Angle, Get().GetRotation()); }
+    { return {mID, LgEntityType::Vehicle, LgVehicleQuaternionFlag::Angle, Get().GetRotation()}; }
     SQMOD_NODISCARD LgEntityVector GetEulerRotation() const
-    { return LgEntityVector(mID, LgEntityType::Vehicle, LgVehicleVectorFlag::Angle, Get().GetRotationEuler()); }
+    { return {mID, LgEntityType::Vehicle, LgVehicleVectorFlag::Angle, Get().GetRotationEuler()}; }
     SQMOD_NODISCARD LgEntityVector GetSpeed() const
-    { return LgEntityVector(mID, LgEntityType::Vehicle, LgVehicleVectorFlag::Speed, Get().GetSpeed()); }
+    { return {mID, LgEntityType::Vehicle, LgVehicleVectorFlag::Speed, Get().GetSpeed()}; }
     SQMOD_NODISCARD LgEntityVector GetRelativeSpeed() const
-    { return LgEntityVector(mID, LgEntityType::Vehicle, LgVehicleVectorFlag::RelSpeed, Get().GetRelativeSpeed()); }
+    { return {mID, LgEntityType::Vehicle, LgVehicleVectorFlag::RelSpeed, Get().GetRelativeSpeed()}; }
     SQMOD_NODISCARD LgEntityVector GetTurnSpeed() const
-    { return LgEntityVector(mID, LgEntityType::Vehicle, LgVehicleVectorFlag::TurnSpeed, Get().GetTurnSpeed()); }
+    { return {mID, LgEntityType::Vehicle, LgVehicleVectorFlag::TurnSpeed, Get().GetTurnSpeed()}; }
     SQMOD_NODISCARD LgEntityVector GetRelativeTurnSpeed() const
-    { return LgEntityVector(mID, LgEntityType::Vehicle, LgVehicleVectorFlag::RelTurnSpeed, Get().GetRelativeTurnSpeed()); }
+    { return {mID, LgEntityType::Vehicle, LgVehicleVectorFlag::RelTurnSpeed, Get().GetRelativeTurnSpeed()}; }
     SQMOD_NODISCARD int GetRadio() const { return Get().GetRadio(); }
     SQMOD_NODISCARD bool GetRadioLockStatus() const { return _Func->GetVehicleOption(GetIdentifier(), vcmpVehicleOptionRadioLocked) >= 1; }
     SQMOD_NODISCARD bool GetGhost() const { return _Func->GetVehicleOption(GetIdentifier(), vcmpVehicleOptionGhost) >= 1; }
-    SQMOD_NODISCARD LgVector GetTurretRotation() const { const Vector2 v = Get().GetTurretRotation(); return LgVector(v.x, v.y, 0); }
+    SQMOD_NODISCARD LgVector GetTurretRotation() const { const Vector2 v = Get().GetTurretRotation(); return {v.x, v.y, 0}; }
     SQMOD_NODISCARD bool GetSingleUse() const { return _Func->GetVehicleOption(GetIdentifier(), vcmpVehicleOptionSingleUse) >= 1; }
     SQMOD_NODISCARD bool GetTaxiLight() const { return (_Func->GetVehicleLightsData(GetIdentifier()) & (1 << 8)) != 0; }
     // --------------------------------------------------------------------------------------------
@@ -966,7 +986,7 @@ struct LgVehicle
     void SetPartStatus(int part, int status) const { Get().SetPartStatus(part, status); }
     SQMOD_NODISCARD int GetTyreStatus(int tyre) const { return Get().GetTyreStatus(tyre); }
     void SetTyreStatus(int part, int status) const { Get().SetTyreStatus(part, status); }
-    SQMOD_NODISCARD bool GetStreamedForPlayer(LgPlayer & player) const { return Get().IsStreamedFor(player.Get()); }
+    SQMOD_NODISCARD bool GetStreamedForPlayer(LightObj & player) const { return Get().IsStreamedFor(GetNativeEnt< LgPlayer, CPlayer >(player)); }
     SQMOD_NODISCARD LgPlayer * GetOccupant(int slot) const
     { const int id = _Func->GetVehicleOccupant(GetIdentifier(), slot); return VALID_ENTITYEX(id, SQMOD_PLAYER_POOL) ? Core::Get().GetPlayer(id).mLgInst : nullptr; }
     void SetHandlingData(int rule, float value) const { Get().SetHandlingRule(rule, value); }
@@ -982,11 +1002,11 @@ struct LgVehicle
 };
 
 // ------------------------------------------------------------------------------------------------
-inline bool LgCheckpoint::StreamedToPlayer(LgPlayer & player) const { return Get().IsStreamedFor(player.Get()); }
-inline bool LgObject::StreamedToPlayer(LgPlayer & player) const { return Get().IsStreamedFor(player.Get()); }
-inline bool LgPickup::StreamedToPlayer(LgPlayer & player) const { return Get().IsStreamedFor(player.Get()); }
-inline void LgPlayer::SetVehicle(LgVehicle & vehicle) const { Get().Embark(vehicle.Get()); }
-inline void LgPlayer::SetVehicleSlot(const LgVehicle & vehicle, int slot) const { Get().EmbarkEx(vehicle.Get(), slot, true, false); }
+inline bool LgCheckpoint::StreamedToPlayer(LightObj & player) const { return Get().IsStreamedFor(GetNativeEnt< LgPlayer, CPlayer >(player)); }
+inline bool LgObject::StreamedToPlayer(LightObj & player) const { return Get().IsStreamedFor(GetNativeEnt< LgPlayer, CPlayer >(player)); }
+inline bool LgPickup::StreamedToPlayer(LightObj & player) const { return Get().IsStreamedFor(GetNativeEnt< LgPlayer, CPlayer >(player)); }
+inline void LgPlayer::SetVehicle(LightObj & vehicle) const { Get().Embark(GetNativeEnt< LgVehicle, CVehicle >(vehicle)); }
+inline void LgPlayer::SetVehicleSlot(LightObj & vehicle, int slot) const { Get().EmbarkEx(GetNativeEnt< LgVehicle, CVehicle >(vehicle), slot, true, false); }
 
 // ------------------------------------------------------------------------------------------------
 void LgCheckpointSetID(LgCheckpoint * inst, int32_t id) { assert(inst); if (inst) inst->mID = id; }
@@ -1434,8 +1454,8 @@ static void LgUnbanIP(StackStrF & ip) { _Func->UnbanIP(const_cast< SQChar * >(ip
 SQMOD_NODISCARD static bool LgIsIPBanned(StackStrF & ip) { return _Func->IsIPBanned(const_cast< SQChar * >(ip.mPtr)) >= 1; }
 // ------------------------------------------------------------------------------------------------
 SQMOD_NODISCARD static int LgGetPlayerIDFromName(StackStrF & name) { return _Func->GetPlayerIdFromName(name.mPtr); }
-SQMOD_NODISCARD static bool LgIsWorldCompatibleWithPlayer (LgPlayer & player, int world)
-{ return _Func->IsPlayerWorldCompatible(player.GetIdentifier(), world) >= 1; }
+SQMOD_NODISCARD static bool LgIsWorldCompatibleWithPlayer(LightObj & player, int world)
+{ return _Func->IsPlayerWorldCompatible(GetLgEntID< LgPlayer, CPlayer >(player), world) >= 1; }
 // ------------------------------------------------------------------------------------------------
 static LightObj & LgCreatePickupCompat(int model, const Vector3 & pos)
 { return Core::Get().NewPickup(model, 1, 0, pos.x, pos.y, pos.z, 255, false, SQMOD_CREATE_DEFAULT, NullLightObj()).mLgObj; }
@@ -1449,7 +1469,7 @@ static LightObj & LgCreatePickup(int model, int world, int quantity, const Vecto
 static LightObj & LgCreateObject(int model, int world, const Vector3 & pos, int alpha)
 { return Core::Get().NewObject(model, world, pos.x, pos.y, pos.z, alpha, SQMOD_CREATE_DEFAULT, NullLightObj()).mLgObj; }
 static LightObj & LgCreateCheckpoint(LightObj & player, int world, bool sphere, const Vector3 & pos, const Color4 & col, float radius) {
-    const int32_t id = player.IsNull() ? -1 : player.CastI< LgPlayer >()->GetIdentifier();
+    const int32_t id = player.IsNull() ? -1 : GetLgEntID< LgPlayer, CPlayer >(player);
     return Core::Get().NewCheckpoint(id, world, sphere, pos.x, pos.y, pos.z, col.r, col.g, col.b, col.a, radius, SQMOD_CREATE_DEFAULT, NullLightObj()).mLgObj;
 }
 // ------------------------------------------------------------------------------------------------
@@ -1507,30 +1527,30 @@ SQMOD_NODISCARD static int LgBindKey(bool down, int key1, int key2, int key3)
 SQMOD_NODISCARD static bool LgRemoveKeybind(int id) { return _Func->RemoveKeyBind(id) == vcmpErrorNone; }
 static void LgRemoveAllKeybinds() { _Func->RemoveAllKeyBinds(); }
 // ------------------------------------------------------------------------------------------------
-SQMOD_NODISCARD static bool LgGetCinematicBorder(LgPlayer & player) { return _Func->GetPlayerOption(player.GetIdentifier(), vcmpPlayerOptionWidescreen) >= 1; }
-SQMOD_NODISCARD static bool LgGetGreenScanLines(LgPlayer & player) { return _Func->GetPlayerOption(player.GetIdentifier(), vcmpPlayerOptionGreenScanlines) >= 1; }
-SQMOD_NODISCARD static bool LgGetWhiteScanLines(LgPlayer & player) { return _Func->GetPlayerOption(player.GetIdentifier(), vcmpPlayerOptionWhiteScanlines) >= 1; }
-static void LgSetCinematicBorder(LgPlayer & player, bool toggle) { _Func->SetPlayerOption(player.GetIdentifier(), vcmpPlayerOptionWidescreen, static_cast< uint8_t >(toggle)); }
-static void LgSetGreenScanLines(LgPlayer & player, bool toggle) { _Func->SetPlayerOption(player.GetIdentifier(), vcmpPlayerOptionGreenScanlines, static_cast< uint8_t >(toggle)); }
-static void LgSetWhiteScanLines(LgPlayer & player, bool toggle) { _Func->SetPlayerOption(player.GetIdentifier(), vcmpPlayerOptionWhiteScanlines, static_cast< uint8_t >(toggle)); }
+SQMOD_NODISCARD static bool LgGetCinematicBorder(LightObj & player) { return _Func->GetPlayerOption(GetLgEntID< LgPlayer, CPlayer >(player), vcmpPlayerOptionWidescreen) >= 1; }
+SQMOD_NODISCARD static bool LgGetGreenScanLines(LightObj & player) { return _Func->GetPlayerOption(GetLgEntID< LgPlayer, CPlayer >(player), vcmpPlayerOptionGreenScanlines) >= 1; }
+SQMOD_NODISCARD static bool LgGetWhiteScanLines(LightObj & player) { return _Func->GetPlayerOption(GetLgEntID< LgPlayer, CPlayer >(player), vcmpPlayerOptionWhiteScanlines) >= 1; }
+static void LgSetCinematicBorder(LightObj & player, bool toggle) { _Func->SetPlayerOption(GetLgEntID< LgPlayer, CPlayer >(player), vcmpPlayerOptionWidescreen, static_cast< uint8_t >(toggle)); }
+static void LgSetGreenScanLines(LightObj & player, bool toggle) { _Func->SetPlayerOption(GetLgEntID< LgPlayer, CPlayer >(player), vcmpPlayerOptionGreenScanlines, static_cast< uint8_t >(toggle)); }
+static void LgSetWhiteScanLines(LightObj & player, bool toggle) { _Func->SetPlayerOption(GetLgEntID< LgPlayer, CPlayer >(player), vcmpPlayerOptionWhiteScanlines, static_cast< uint8_t >(toggle)); }
 // ------------------------------------------------------------------------------------------------
-static void LgKickPlayer(LgPlayer & player) { _Func->KickPlayer(player.GetIdentifier()); }
-static void LgBanPlayer(LgPlayer & player) { _Func->BanPlayer(player.GetIdentifier()); }
+static void LgKickPlayer(LightObj & player) { _Func->KickPlayer(GetLgEntID< LgPlayer, CPlayer >(player)); }
+static void LgBanPlayer(LightObj & player) { _Func->BanPlayer(GetLgEntID< LgPlayer, CPlayer >(player)); }
 // ------------------------------------------------------------------------------------------------
 static void LgMessage(StackStrF & msg) { _Func->SendClientMessage(-1, 0x0b5fa5ff, "%s", msg.mPtr); }
-static void LgMessagePlayer(StackStrF & msg, LgPlayer & player) { _Func->SendClientMessage(player.GetIdentifier(), 0x0b5fa5ff, "%s", msg.mPtr); }
-static void LgMessageAllExcept(StackStrF & msg, LgPlayer & player) {
-    const int32_t p = player.GetIdentifier();
+static void LgMessagePlayer(StackStrF & msg, LightObj & player) { _Func->SendClientMessage(GetLgEntID< LgPlayer, CPlayer >(player), 0x0b5fa5ff, "%s", msg.mPtr); }
+static void LgMessageAllExcept(StackStrF & msg, LightObj & player) {
+    const auto p = GetLgEntID< LgPlayer, CPlayer >(player);
     const SQChar * m = msg.mPtr;
     ForeachConnectedPlayer([=](int32_t id) { if (id != p) _Func->SendClientMessage(id, 0x0b5fa5ff, "%s", m); });
 }
-static void LgPrivMessage(LgPlayer & player, StackStrF & msg) { _Func->SendClientMessage(player.GetIdentifier(), 0x007f16ff, "** pm >> %s", msg.mPtr); }
+static void LgPrivMessage(LightObj & player, StackStrF & msg) { _Func->SendClientMessage(GetLgEntID< LgPlayer, CPlayer >(player), 0x007f16ff, "** pm >> %s", msg.mPtr); }
 static void LgPrivMessageAll(StackStrF & msg) {
     const SQChar * m = msg.mPtr;
     ForeachConnectedPlayer([=](int32_t id) { _Func->SendClientMessage(id, 0x007f16ff, "** pm >> %s", m); });
 }
-static void LgSendPlayerMessage(LgPlayer & source, LgPlayer & target, StackStrF & msg) {
-    _Func->SendClientMessage(target.GetIdentifier(), 0x007f16ff, "** pm from %s >> %s", source.Get().GetName(), msg.mPtr);
+static void LgSendPlayerMessage(LightObj & source, LightObj & target, StackStrF & msg) {
+    _Func->SendClientMessage(GetLgEntID< LgPlayer, CPlayer >(target), 0x007f16ff, "** pm from %s >> %s",GetNativeEnt< LgPlayer, CPlayer >(source).GetName(), msg.mPtr);
 }
 // ------------------------------------------------------------------------------------------------
 SQMOD_NODISCARD static const SQChar * LgGetWeaponName(int id) { return GetWeaponName(static_cast< uint32_t >(id)); }
@@ -2302,8 +2322,8 @@ struct LgStream {
         int32_t id;
         if (target.IsNull()) id = -1;
         else if (target.GetType() == OT_INTEGER || target.GetType() == OT_FLOAT) id = target.Cast< int32_t >();
-        else if (static_cast< AbstractStaticClassData * >(target.GetTypeTag()) == StaticClassTypeTag< LgPlayer >::Get()) {
-            id = target.CastI< LgPlayer >()->GetIdentifier();
+        else if (target.GetType() == OT_INSTANCE) {
+            id = GetLgEntID< LgPlayer, CPlayer >(target);
         } else STHROWF("Invalid target type");
         if (id >= SQMOD_PLAYER_POOL) STHROWF("Invalid player ID");
         _Func->SendClientScriptData(id, m_OutputStreamData, m_OutputStreamEnd);
