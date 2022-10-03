@@ -249,6 +249,14 @@ String SqTypeName(HSQUIRRELVM vm, SQInteger idx)
 }
 
 // ------------------------------------------------------------------------------------------------
+String SqTypeName(HSQUIRRELVM vm, LightObj & obj)
+{
+    const StackGuard sg(vm);
+    sq_pushobject(vm, obj);
+    return SqTypeName(vm, -1);
+}
+
+// ------------------------------------------------------------------------------------------------
 LightObj BufferToStrObj(const Buffer & b)
 {
     // Obtain the initial stack size

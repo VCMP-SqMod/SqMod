@@ -243,6 +243,11 @@ SQMOD_NODISCARD const SQChar * SqTypeName(SQObjectType type);
 SQMOD_NODISCARD String SqTypeName(HSQUIRRELVM vm, SQInteger idx);
 
 /* ------------------------------------------------------------------------------------------------
+ * Retrieve the string representation of a certain type from a script object.
+*/
+SQMOD_NODISCARD String SqTypeName(HSQUIRRELVM vm, LightObj & obj);
+
+/* ------------------------------------------------------------------------------------------------
  * Create a script string instance from a buffer.
 */
 SQMOD_NODISCARD LightObj BufferToStrObj(const Buffer & b);
