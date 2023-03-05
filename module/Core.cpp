@@ -444,7 +444,7 @@ bool Core::Execute()
 
     cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins that the API is being registered");
     // Tell modules to do their monkey business
-    _Func->SendPluginCommand(SQMOD_LOAD_CMD, "");
+    _Func->SendPluginCommand(SQMOD_LOAD_CMD, SQMOD_HOST_NAME);
 
     // Load pending scripts while we're in the bounds of the allowed recursiveness
     for (unsigned levels = 0; !m_PendingScripts.empty() && (levels < 8); ++levels)
@@ -514,7 +514,7 @@ void Core::Terminate(bool shutdown)
 
         cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins to release their resources");
         // Tell modules to do their monkey business
-        _Func->SendPluginCommand(SQMOD_TERMINATE_CMD, "");
+        _Func->SendPluginCommand(SQMOD_TERMINATE_CMD, SQMOD_HOST_NAME);
     }
 
     cLogDbg(m_Verbosity >= 1, "Clearing the entity containers");
@@ -599,7 +599,7 @@ void Core::Terminate(bool shutdown)
 
         cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins the virtual machine is closing");
         // Tell modules to do their monkey business
-        _Func->SendPluginCommand(SQMOD_CLOSING_CMD, "");
+        _Func->SendPluginCommand(SQMOD_CLOSING_CMD, SQMOD_HOST_NAME);
         // Release any callbacks from the logger
         Logger::Get().Release();
         cLogDbg(m_Verbosity >= 2, "Closing Virtual Machine");
@@ -632,7 +632,7 @@ void Core::Terminate(bool shutdown)
 
         cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins the virtual machine was closed");
         // Tell modules to do their monkey business
-        _Func->SendPluginCommand(SQMOD_RELEASED_CMD, "");
+        _Func->SendPluginCommand(SQMOD_RELEASED_CMD, SQMOD_HOST_NAME);
     }
 
     OutputMessage("Squirrel plug-in was successfully terminated");
