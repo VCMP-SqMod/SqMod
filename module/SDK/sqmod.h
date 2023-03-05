@@ -19,7 +19,7 @@ extern "C" {
     #endif
 
     #define SQMOD_HOST_NAME         "SqModHost"
-    #define SQMOD_INITIALIZE_CMD    0xDABBAD00
+    #define SQMOD_INITIALIZE_CMD    0xDABBAD00 // host plug-in was initialized
     #define SQMOD_LOAD_CMD          0xDEADBABE // API is being registered
     #define SQMOD_TERMINATE_CMD     0xDEADC0DE // release your resources
     #define SQMOD_CLOSING_CMD       0xBAAAAAAD // virtual machine is closing
