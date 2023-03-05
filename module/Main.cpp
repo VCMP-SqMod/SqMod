@@ -97,7 +97,7 @@ static uint8_t OnServerInitialise()
     {
         SQMOD_SV_EV_TRACEBACK("[TRACE<] OnServerInitialise")
         // Signal outside plug-ins to do fetch our proxies
-        //_Func->SendPluginCommand(0xDABBAD00, "%d", 1);
+        _Func->SendPluginCommand(SQMOD_INITIALIZE_CMD, "%d", 1);
         // Attempt to load the module core
         if (Core::Get().Execute())
         {
