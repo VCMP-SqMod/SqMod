@@ -161,6 +161,7 @@ Core::Core() noexcept
     , m_Scripts()
     , m_PendingScripts()
     , m_Options()
+    , m_ExtCommands{nullptr, nullptr, nullptr, nullptr}
     , m_Blips()
     , m_Checkpoints()
     , m_KeyBinds()
@@ -441,9 +442,9 @@ bool Core::Execute()
     m_LockPostLoadSignal = false;
     m_LockUnloadSignal = false;
 
-    //cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins to register their API");
+    cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins that the API is being registered");
     // Tell modules to do their monkey business
-    //_Func->SendPluginCommand(0xDEADBABE, "");
+    _Func->SendPluginCommand(0xDEADBABE, "");
 
     // Load pending scripts while we're in the bounds of the allowed recursiveness
     for (unsigned levels = 0; !m_PendingScripts.empty() && (levels < 8); ++levels)
@@ -511,9 +512,9 @@ void Core::Terminate(bool shutdown)
         // Clear the callbacks
         ResetSignalPair(mOnUnload);
 
-        //cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins to release their resources");
+        cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins to release their resources");
         // Tell modules to do their monkey business
-        //_Func->SendPluginCommand(0xDEADC0DE, "");
+        _Func->SendPluginCommand(0xDEADC0DE, "");
     }
 
     cLogDbg(m_Verbosity >= 1, "Clearing the entity containers");
@@ -596,9 +597,9 @@ void Core::Terminate(bool shutdown)
         HSQUIRRELVM sq_vm = m_VM;
         m_VM = nullptr;
 
-        //cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins the virtual machine is closing");
+        cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins the virtual machine is closing");
         // Tell modules to do their monkey business
-        //_Func->SendPluginCommand(0xBAAAAAAD, "");
+        _Func->SendPluginCommand(0xBAAAAAAD, "");
         // Release any callbacks from the logger
         Logger::Get().Release();
         cLogDbg(m_Verbosity >= 2, "Closing Virtual Machine");
@@ -629,9 +630,9 @@ void Core::Terminate(bool shutdown)
         // Destroy the VM context, if any
         delete ctx;
 
-        //cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins to release the virtual machine");
+        cLogDbg(m_Verbosity >= 1, "Signaling outside plug-ins the virtual machine was closed");
         // Tell modules to do their monkey business
-        //_Func->SendPluginCommand(0xDEADBEAF, "");
+        _Func->SendPluginCommand(0xDEADBEAF, "");
     }
 
     OutputMessage("Squirrel plug-in was successfully terminated");
@@ -902,6 +903,81 @@ String Core::FetchCodeLine(const SQChar * src, SQInteger line, bool trim)
     }
     // Fetch the line of code
     return script->FetchLine(line, trim);
+}
+
+// ------------------------------------------------------------------------------------------------
+int32_t Core::RegisterExtCommand(ExtPluginCommand_t fn)
+{
+    ExtPluginCommand_t * slot = nullptr;
+    // Find a free slot or matching function pointer in the pool
+    for (size_t i = 0; i < m_ExtCommands.max_size(); ++i)
+    {
+        // Is this slot available and are we still looking for a slot?
+        if (m_ExtCommands[i] == nullptr && slot == nullptr)
+        {
+            slot = &m_ExtCommands[i]; // Found a slot
+        }
+        // We keep looking for duplicates even if we found the slot
+        else if (m_ExtCommands[i] == fn)
+        {
+            return 0; // Already registered
+        }
+    }
+    // Do we have a free slot?
+    if (slot != nullptr)
+    {
+        *slot = fn; // Use this slot
+        return 1; // Successfully registered
+    }
+    // No space in the pool
+    return -1;
+}
+
+// ------------------------------------------------------------------------------------------------
+int32_t Core::UnregisterExtCommand(ExtPluginCommand_t fn)
+{
+    // Find the matching function pointer
+    for (size_t i = 0; i < m_ExtCommands.max_size(); ++i)
+    {
+        // Is this the same pointer?
+        if (m_ExtCommands[i] != nullptr && m_ExtCommands[i] == fn)
+        {
+            // Forget about it
+            m_ExtCommands[i] = nullptr;
+            return 1; // Successfully unregistered
+        }
+    }
+    // No space
+    return -1;
+}
+
+// ------------------------------------------------------------------------------------------------
+int32_t Core::SendExtCommand(int32_t target, int32_t req, int32_t tag, const uint8_t * data, size_t size)
+{
+    int32_t count = 0;
+    // Send the command to all registered function pointers
+    for (size_t i = 0; i < m_ExtCommands.max_size(); ++i)
+    {
+        if (m_ExtCommands[i] != nullptr)
+        {
+            const int32_t r = m_ExtCommands[i](target, req, tag, data, size);
+            // Command processed
+            ++count;
+            // Command failed?
+            if (r < 0)
+            {
+                LogErr("External command failed (%i): target(%i), req(%i), tag(%i), data(%p), size (%zu)",
+                        r, target, req, tag, data, size);
+            }
+            // Command consumed?
+            else if (r > 0)
+            {
+                break; // This function pointer requested exclusive access over this command
+            }
+        }
+    }
+    // Return how many function pointers received this command
+    return count;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -2371,6 +2447,8 @@ void Core::InitEvents()
     InitSignalPair(mOnServerOption, m_Events, "ServerOption");
     InitSignalPair(mOnScriptReload, m_Events, "ScriptReload");
     InitSignalPair(mOnScriptLoaded, m_Events, "ScriptLoaded");
+    InitSignalPair(mOnExtCommandReply, m_Events, "ExtCommandReply");
+    InitSignalPair(mOnExtCommandEvent, m_Events, "ExtCommandEvent");
 }
 // ------------------------------------------------------------------------------------------------
 void Core::DropEvents()
@@ -2516,6 +2594,8 @@ void Core::DropEvents()
     ResetSignalPair(mOnServerOption);
     ResetSignalPair(mOnScriptReload);
     ResetSignalPair(mOnScriptLoaded);
+    ResetSignalPair(mOnExtCommandReply);
+    ResetSignalPair(mOnExtCommandEvent);
     m_Events.Release();
 }
 
@@ -2861,6 +2941,31 @@ static LightObj & SqGetClientDataBuffer()
     return Core::Get().GetClientDataBuffer();
 }
 
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqSendExtCommand(int32_t target, int32_t req, int32_t tag, SqBuffer & buffer)
+{
+    // Default to an empty/null buffer
+    const uint8_t * data = nullptr;
+    size_t size = 0;
+    // Does the buffer actually point to anything?
+    if (buffer.GetRef())
+    {
+        data = buffer.GetRef()->Begin< uint8_t >();
+        size = buffer.GetRef()->PositionAs< size_t >();
+    }
+    // Forward the request
+    return Core::Get().SendExtCommand(target, req, tag, data, size);
+}
+
+// ------------------------------------------------------------------------------------------------
+static SQInteger SqSendExtCommandStr(int32_t target, int32_t req, int32_t tag, StackStrF & str)
+{
+    // Forward the request
+    return Core::Get().SendExtCommand(target, req, tag,
+                                        reinterpret_cast< const uint8_t * >(str.mPtr),
+                                        str.mLen <= 0 ? 0 : static_cast< size_t >(str.mLen));
+}
+
 // ================================================================================================
 void Register_Core(HSQUIRRELVM vm)
 {
@@ -2910,6 +3015,8 @@ void Register_Core(HSQUIRRELVM vm)
         .Func(_SC("DestroyPickup"), &SqDelPickup)
         .Func(_SC("DestroyVehicle"), &SqDelVehicle)
         .Func(_SC("ClientDataBuffer"), &SqGetClientDataBuffer)
+        .Func(_SC("SendExtCommand"), &SqSendExtCommand)
+        .FmtFunc(_SC("SendExtCommandStr"), &SqSendExtCommandStr)
         .Func(_SC("OnPreLoad"), &SqGetPreLoadEvent)
         .Func(_SC("OnPostLoad"), &SqGetPostLoadEvent)
         .Func(_SC("OnUnload"), &SqGetUnloadEvent)

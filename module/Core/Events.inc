@@ -347,7 +347,7 @@ void Core::EmitIncomingConnection(char * player_name, size_t name_buffer_size, c
         // Release any stored buffer information
         m_IncomingNameBuffer = nullptr;
         m_IncomingNameCapacity = 0;
-        // We catched the exception so we can release the assigned buffer
+        // We caught the exception so we can release the assigned buffer
         throw; // re-throw it
     }
     // Release any stored buffer information
@@ -2244,6 +2244,44 @@ void Core::EmitClientScriptData(int32_t player_id, const uint8_t * data, size_t 
 #endif
     // Discard the buffer instance, if any
     m_ClientData.Release();
+}
+
+// ------------------------------------------------------------------------------------------------
+void Core::EmitExtCommandReply(int32_t sender, int32_t tag, const uint8_t * data, size_t size)
+{
+    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ExtCommandReply(%i, %i, %p, %zu)", sender, tag, data, size)
+    // Don't even bother if there's no one listening
+    if (!(mOnExtCommandReply.first->IsEmpty()))
+    {
+        // Allocate a buffer with the received size
+        Buffer b(static_cast< Buffer::SzType >(size));
+        // Replicate the data to the allocated buffer
+        b.Write(0, reinterpret_cast< Buffer::ConstPtr >(data), static_cast< Buffer::SzType >(size));
+        // Prepare an object for the obtained buffer
+        LightObj obj(SqTypeIdentity< SqBuffer >{}, m_VM, std::move(b));
+        // Forward the event call
+        (*mOnExtCommandReply.first)(sender, tag, obj, size);
+    }
+    SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::ExtCommandReply")
+}
+
+// ------------------------------------------------------------------------------------------------
+void Core::EmitExtCommandEvent(int32_t sender, int32_t tag, const uint8_t * data, size_t size)
+{
+    SQMOD_CO_EV_TRACEBACK("[TRACE<] Core::ExtCommandEvent(%i, %i, %p, %zu)", sender, tag, data, size)
+    // Don't even bother if there's no one listening
+    if (!(mOnExtCommandEvent.first->IsEmpty()))
+    {
+        // Allocate a buffer with the received size
+        Buffer b(static_cast< Buffer::SzType >(size));
+        // Replicate the data to the allocated buffer
+        b.Write(0, reinterpret_cast< Buffer::ConstPtr >(data), static_cast< Buffer::SzType >(size));
+        // Prepare an object for the obtained buffer
+        LightObj obj(SqTypeIdentity< SqBuffer >{}, m_VM, std::move(b));
+        // Forward the event call
+        (*mOnExtCommandEvent.first)(sender, tag, obj, size);
+    }
+    SQMOD_CO_EV_TRACEBACK("[TRACE>] Core::ExtCommandEvent")
 }
 
 #undef NULL_SQOBJ_ // don't need this anymore

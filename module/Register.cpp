@@ -1,6 +1,3 @@
-#ifndef _REGISTER_HPP_
-#define _REGISTER_HPP_
-
 // ------------------------------------------------------------------------------------------------
 #include <squirrelex.h>
 
@@ -144,5 +141,3 @@ bool RegisterAPI(HSQUIRRELVM vm)
 }
 
 } // Namespace:: SqMod
-
-#endif // _REGISTER_HPP_

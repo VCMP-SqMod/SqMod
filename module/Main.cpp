@@ -17,7 +17,7 @@ namespace SqMod {
 static bool g_Reload = false;
 
 // ------------------------------------------------------------------------------------------------
-//extern void InitExports();
+extern void InitExports();
 extern void InitializeNet();
 extern void InitializePocoDataConnectors();
 extern void ProcessRoutines();
@@ -1083,7 +1083,7 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
     _Clbk->OnEntityStreamingChange      = OnEntityStreamingChange;
 #endif
     // Attempt to initialize the plug-in exports
-    //InitExports();
+    InitExports();
     // Dummy spacing
     puts("");
     // Initialization was successful

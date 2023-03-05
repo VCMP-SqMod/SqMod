@@ -10,6 +10,9 @@
 #include <unordered_map>
 
 // ------------------------------------------------------------------------------------------------
+#include "SDK/sqmod.h"
+
+// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 /* ------------------------------------------------------------------------------------------------
@@ -56,6 +59,8 @@ public:
     typedef std::vector< ScriptSrc >                Scripts; // List of loaded scripts.
     // --------------------------------------------------------------------------------------------
     typedef std::unordered_map< String, String >    Options; // List of custom options.
+    // --------------------------------------------------------------------------------------------
+    typedef std::array< ExtPluginCommand_t, 4 > ExtCommands; // 4 external command parsers should be enough.
 
 private:
 
@@ -68,6 +73,7 @@ private:
     Scripts                         m_Scripts; // Loaded scripts objects.
     Scripts                         m_PendingScripts; // Pending scripts objects.
     Options                         m_Options; // Custom configuration options.
+    ExtCommands                     m_ExtCommands; // External command parsers pointers.
 
     // --------------------------------------------------------------------------------------------
     Blips                           m_Blips; // Blips pool.
@@ -399,6 +405,23 @@ public:
     */
     SQMOD_NODISCARD String FetchCodeLine(const SQChar * src, SQInteger line, bool trim = true);
 
+    /* --------------------------------------------------------------------------------------------
+     * Register a pointer to a function used to processes commands from script.
+     * Returns -1 it failed (no free slot), 0 if it was already registered and 1 if it succeeded.
+    */
+    int32_t RegisterExtCommand(ExtPluginCommand_t fn);
+
+    /* --------------------------------------------------------------------------------------------
+     * Remove a pointer to a function used to processes commands from script.
+     * Returns -1 it failed (no free slot) and 1 if it succeeded.
+    */
+    int32_t UnregisterExtCommand(ExtPluginCommand_t fn);
+
+    /* --------------------------------------------------------------------------------------------
+     * Send a command to all functions currently registered to receive them.
+    */
+    int32_t SendExtCommand(int32_t target, int32_t req, int32_t tag, const uint8_t * data, size_t size);
+
 protected:
 
     /* --------------------------------------------------------------------------------------------
@@ -710,6 +733,16 @@ public:
     */
     void EmitClientScriptData(int32_t player_id, const uint8_t * data, size_t size);
 
+    /* --------------------------------------------------------------------------------------------
+     * Send a response to the script that may have resulted from a previous command.
+    */
+    void EmitExtCommandReply(int32_t sender, int32_t tag, const uint8_t * data, size_t size);
+
+    /* --------------------------------------------------------------------------------------------
+     * Forward an event to the script from an external plug-in.
+    */
+    void EmitExtCommandEvent(int32_t sender, int32_t tag, const uint8_t * data, size_t size);
+
 public:
 
     /* --------------------------------------------------------------------------------------------
@@ -864,6 +897,8 @@ public:
     SignalPair  mOnServerOption{};
     SignalPair  mOnScriptReload{};
     SignalPair  mOnScriptLoaded{};
+    SignalPair  mOnExtCommandReply{};
+    SignalPair  mOnExtCommandEvent{};
 };
 
 /* ------------------------------------------------------------------------------------------------

@@ -1,5 +1,7 @@
 # Create the Squirrel module
 add_library(SqModule MODULE SqBase.hpp Main.cpp
+    # SDK
+    SDK/sqmod.h
     # VCMP
     VCMP/vcmp.h
     VCMP/vcmp20.h
@@ -114,6 +116,7 @@ add_library(SqModule MODULE SqBase.hpp Main.cpp
     Core.cpp Core.hpp
     Logger.cpp Logger.hpp
     Register.cpp
+    Exports.cpp
 )
 # Various definitions required by the plug-in
 target_compile_definitions(SqModule PRIVATE SCRAT_USE_EXCEPTIONS=1)
@@ -201,6 +204,7 @@ else(WIN32)
 endif(WIN32)
 # Include current directory in the search path
 target_include_directories(SqModule PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(SqModule PRIVATE ${CMAKE_CURRENT_LIST_DIR}/SDK)
 target_include_directories(SqModule PRIVATE ${CMAKE_CURRENT_LIST_DIR}/VCMP)
 target_include_directories(SqModule PRIVATE ${CMAKE_CURRENT_LIST_DIR}/Sqrat)
 # Include PCRE directory in the header search path
@@ -222,7 +226,7 @@ if(WIN32 AND MINGW AND COPY_DEPENDENCIES)
     endif()
     # Make sure the deps folder exists
     file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/bin/deps")
-    # Copy dependencies into the plug-ins folder (only so it can be distributed with the DLL)
+    # Copy dependencies into the deps folder (only so it can be distributed with the DLL)
     file(COPY "${MINGW_BIN_PATH}/zlib1.dll" DESTINATION "${PROJECT_SOURCE_DIR}/bin/deps")
     file(COPY "${MINGW_BIN_PATH}/libpq.dll" DESTINATION "${PROJECT_SOURCE_DIR}/bin/deps")
     file(COPY "${MINGW_BIN_PATH}/libzstd.dll" DESTINATION "${PROJECT_SOURCE_DIR}/bin/deps")
@@ -245,17 +249,17 @@ if(WIN32 AND MINGW AND COPY_DEPENDENCIES)
     file(COPY "${MINGW_BIN_PATH}/libp11-kit-0.dll" DESTINATION "${PROJECT_SOURCE_DIR}/bin/deps")
     file(COPY "${MINGW_BIN_PATH}/libbrotlidec.dll" DESTINATION "${PROJECT_SOURCE_DIR}/bin/deps")
     file(COPY "${MINGW_BIN_PATH}/libbrotlicommon.dll" DESTINATION "${PROJECT_SOURCE_DIR}/bin/deps")
-    file(COPY "${MINGW_BIN_PATH}/libunistring-2.dll" DESTINATION "${PROJECT_SOURCE_DIR}/bin/deps")
+    file(COPY "${MINGW_BIN_PATH}/libunistring-5.dll" DESTINATION "${PROJECT_SOURCE_DIR}/bin/deps")
     file(COPY "${MINGW_BIN_PATH}/libnghttp2-14.dll" DESTINATION "${PROJECT_SOURCE_DIR}/bin/deps")
     file(COPY "${MINGW_BIN_PATH}/libwinpthread-1.dll" DESTINATION "${PROJECT_SOURCE_DIR}/bin/deps")
     file(COPY "${MINGW_BIN_PATH}/libstdc++-6.dll" DESTINATION "${PROJECT_SOURCE_DIR}/bin/deps")
     if(CMAKE_SIZEOF_VOID_P EQUAL 8 AND NOT FORCE_32BIT_BIN)
         file(COPY "${MINGW_BIN_PATH}/libgcc_s_seh-1.dll" DESTINATION "${PROJECT_SOURCE_DIR}/bin/deps")
-        file(COPY "${MINGW_BIN_PATH}/libssl-1_1-x64.dll" DESTINATION "${PROJECT_SOURCE_DIR}/bin/deps")
-        file(COPY "${MINGW_BIN_PATH}/libcrypto-1_1-x64.dll" DESTINATION "${PROJECT_SOURCE_DIR}/bin/deps")
+        file(COPY "${MINGW_BIN_PATH}/libssl-3-x64.dll" DESTINATION "${PROJECT_SOURCE_DIR}/bin/deps")
+        file(COPY "${MINGW_BIN_PATH}/libcrypto-3-x64.dll" DESTINATION "${PROJECT_SOURCE_DIR}/bin/deps")
     else()
-        file(COPY "${MINGW_BIN_PATH}/libssl-1_1.dll" DESTINATION "${PROJECT_SOURCE_DIR}/bin/deps")
-        file(COPY "${MINGW_BIN_PATH}/libcrypto-1_1.dll" DESTINATION "${PROJECT_SOURCE_DIR}/bin/deps")
+        file(COPY "${MINGW_BIN_PATH}/libssl-3.dll" DESTINATION "${PROJECT_SOURCE_DIR}/bin/deps")
+        file(COPY "${MINGW_BIN_PATH}/libcrypto-3.dll" DESTINATION "${PROJECT_SOURCE_DIR}/bin/deps")
     endif()
     if(POCO_UNBUNDLED)
         file(COPY "${MINGW_BIN_PATH}/libexpat-1.dll" DESTINATION "${PROJECT_SOURCE_DIR}/bin/deps")
