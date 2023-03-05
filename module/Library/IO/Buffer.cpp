@@ -352,6 +352,33 @@ Vector4 SqBuffer::ReadVector4() const
 }
 
 // ------------------------------------------------------------------------------------------------
+extern SQInteger SqFromNativeJSON(HSQUIRRELVM vm, const char * data, size_t size);
+
+// ------------------------------------------------------------------------------------------------
+SQInteger SqBuffer::GetJSON(HSQUIRRELVM vm) const
+{
+    // Remember the current stack size
+    const SQInteger top = sq_gettop(vm);
+    // Was the JSON string size specified?
+    if (top < 2)
+    {
+        return sq_throwerror(vm, _SC("Please specify the size of the JSON string to parse"));
+    }
+    // Do we even point to a valid buffer?
+    if (!m_Buffer)
+    {
+        return sq_throwerror(vm, _SC("Invalid memory buffer reference"));
+    }
+    // Validate the buffer itself
+    else if (!(*m_Buffer))
+    {
+        return sq_throwerror(vm, _SC("Invalid memory buffer"));
+    }
+    // Attempt to create the JSON object and push it on the stack
+    return SqFromNativeJSON(vm, &m_Buffer->Cursor< char >(), static_cast< size_t >(Var< SQInteger >{vm, 2}.value));
+}
+
+// ------------------------------------------------------------------------------------------------
 SQInteger SqBuffer::GetCRC32(SQInteger n) const
 {
     // Validate the managed buffer reference
@@ -500,6 +527,7 @@ void Register_Buffer(HSQUIRRELVM vm)
         .Func(_SC("ADLER32"), &SqBuffer::GetADLER32)
         .Func(_SC("Base32"), &SqBuffer::GetBase32)
         .Func(_SC("Base64"), &SqBuffer::GetBase64)
+        .SquirrelMethod< SqBuffer, &SqBuffer::GetJSON >(_SC("GetJSON"))
     );
 }
 

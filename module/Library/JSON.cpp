@@ -150,6 +150,22 @@ static SQInteger SqFromJSON(HSQUIRRELVM vm) noexcept
 }
 
 // ------------------------------------------------------------------------------------------------
+SQInteger SqFromNativeJSON(HSQUIRRELVM vm, const char * data, size_t size)
+{
+    // Attempt to parse the specified JSON string
+    const sajson::document & document = sajson::parse(sajson::dynamic_allocation(), sajson::string(data, size));
+    // See if there was an error
+    if (!document.is_valid())
+    {
+        return sq_throwerror(vm, document.get_error_message_as_cstring());
+    }
+    // Process the nodes that were parsed from the string
+    SQInteger r = SqFromJson_Push(vm, document.get_root());
+    // We either have a value to return or we propagate some error
+    return SQ_SUCCEEDED(r) ? 1 : r;
+}
+
+// ------------------------------------------------------------------------------------------------
 CtxJSON & CtxJSON::OpenArray()
 {
     // Add the array-begin character

@@ -783,6 +783,12 @@ public:
     SQMOD_NODISCARD Vector4 ReadVector4() const;
 
     /* --------------------------------------------------------------------------------------------
+     * Transform a portion of the data in the buffer to a JSON object.
+     * This has the benefit that a temporary string doesn't have to be created.
+    */
+    SQMOD_NODISCARD SQInteger GetJSON(HSQUIRRELVM vm) const;
+
+    /* --------------------------------------------------------------------------------------------
      * Compute the CRC-32 checksums on the data in the buffer.
     */
     SQMOD_NODISCARD SQInteger GetCRC32(SQInteger n) const;
