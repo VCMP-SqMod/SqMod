@@ -3,7 +3,7 @@ project(SqMod)
 
 # This plug-in only works on 64-bit
 if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-    message(FATAL_ERROR "SqMod does not support 32-but platforms anymore.")
+    message(FATAL_ERROR "SqMod does not support 32-bit platforms anymore.")
 endif()
 
 # Tell CMake where to find our scripts
@@ -18,7 +18,7 @@ option(ENABLE_BUILTIN_MYSQL_C "Enable built-in MySQL connector library" OFF)
 #option(FORCE_32BIT_BIN "Create a 32-bit executable binary if the compiler defaults to 64-bit." OFF)
 # This option should only be available in certain conditions
 if(WIN32 AND MINGW)
-    option(COPY_DEPENDENCIES "Copy deppendent DLLs into the deps folder." OFF)
+    option(COPY_DEPENDENCIES "Copy dependent DLLs into the deps folder." OFF)
 endif()
 
 # C++14 is mandatory
