@@ -10,7 +10,7 @@ add_library(CivetWeb STATIC
     wolfssl_extras.inl
     handle_form.inl
     md5.inl
-    mod_http2.inl
+    http2.inl
 )
 # Configure include folders
 target_include_directories(CivetWeb PRIVATE ${CMAKE_CURRENT_LIST_DIR})
@@ -25,14 +25,14 @@ target_compile_definitions(CivetWeb PUBLIC USE_TIMERS=1 USE_WEBSOCKET=1 USE_IPV6
 find_package(OpenSSL)
 # Check SSL status
 if (OPENSSL_FOUND)
-    message(STATUS "CivetWeb: OpenSSL was found")
+    message(STATUS "CivetWeb: OpenSSL was found ${OPENSSL_VERSION}")
     target_link_libraries(CivetWeb PUBLIC OpenSSL::Crypto OpenSSL::SSL)
     string(REPLACE "." ";" OPENSSL_VERSION_LIST ${OPENSSL_VERSION})
     list(GET OPENSSL_VERSION_LIST 0 OPENSSL_VERSION_MAJOR)
     list(GET OPENSSL_VERSION_LIST 1 OPENSSL_VERSION_MINOR)
     list(GET OPENSSL_VERSION_LIST 2 OPENSSL_VERSION_PATCH)
     # Tell the library what SSL version to expect
-    target_compile_definitions(CivetWeb PUBLIC "OPENSSL_API_${OPENSSL_VERSION_MAJOR}_${OPENSSL_VERSION_MINOR}")
+    target_compile_definitions(CivetWeb PRIVATE "OPENSSL_API_${OPENSSL_VERSION_MAJOR}_${OPENSSL_VERSION_MINOR}")
     message(STATUS "CivetWeb: OPENSSL_API_${OPENSSL_VERSION_MAJOR}_${OPENSSL_VERSION_MINOR}")
 else()
     target_compile_definitions(CivetWeb PUBLIC NO_SSL=1)
