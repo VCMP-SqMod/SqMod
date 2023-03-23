@@ -19,7 +19,11 @@
 
 
 #include "Poco/Data/MySQL/MySQLException.h"
-#include <mysql/mysql.h>
+#if defined(__MINGW32__) || defined(__MINGW64__)
+	#include <mysql/mysql.h>
+#else
+	#include <mysql.h>
+#endif
 
 
 namespace Poco {

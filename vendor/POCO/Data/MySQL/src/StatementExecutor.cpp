@@ -14,7 +14,11 @@
 
 #include "Poco/Data/MySQL/StatementExecutor.h"
 #include "Poco/Format.h"
-#include <mysql/mysql.h>
+#if defined(__MINGW32__) || defined(__MINGW64__)
+	#include <mysql/mysql.h>
+#else
+	#include <mysql.h>
+#endif
 
 
 namespace Poco {

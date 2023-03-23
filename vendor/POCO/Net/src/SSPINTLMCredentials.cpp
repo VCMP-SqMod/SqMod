@@ -70,7 +70,7 @@ public:
 	bool available()
 	{
 		PSecPkgInfoW pSecPkgInfo;
-		SECURITY_STATUS status = _pSecFunTable->QuerySecurityPackageInfoW(L"NTLM", &pSecPkgInfo);
+		SECURITY_STATUS status = _pSecFunTable->QuerySecurityPackageInfoW(const_cast< wchar_t* >(L"NTLM"), &pSecPkgInfo);
 		if (status == SEC_E_OK)
 		{
 			_pSecFunTable->FreeContextBuffer(pSecPkgInfo);
@@ -82,7 +82,7 @@ public:
 	Poco::SharedPtr<NTLMContext> createNTLMContext(const std::string& host, const std::string& service)
 	{
 		PSecPkgInfoW pSecPkgInfo;
-		SECURITY_STATUS status = _pSecFunTable->QuerySecurityPackageInfoW(L"NTLM", &pSecPkgInfo);
+		SECURITY_STATUS status = _pSecFunTable->QuerySecurityPackageInfoW(const_cast< wchar_t* >(L"NTLM"), &pSecPkgInfo);
 		if (status != SEC_E_OK) throw Poco::SystemException("NTLM SSPI not available", status);
 
 		std::size_t maxTokenSize = pSecPkgInfo->cbMaxToken;
@@ -94,7 +94,7 @@ public:
 		TimeStamp expiry;
 		status = _pSecFunTable->AcquireCredentialsHandleW(
 			NULL,
-			L"NTLM",
+			const_cast< wchar_t* >(L"NTLM"),
 			SECPKG_CRED_OUTBOUND,
 			NULL,
 			NULL,

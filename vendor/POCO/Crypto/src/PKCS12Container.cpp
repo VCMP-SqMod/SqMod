@@ -128,19 +128,12 @@ std::string PKCS12Container::extractFriendlyName(X509* pCert)
 	std::string friendlyName;
 	if(pCert)
 	{
-		STACK_OF(PKCS12_SAFEBAG)*pBags = 0;
-		PKCS12_SAFEBAG*pBag = PKCS12_add_cert(&pBags, pCert);
-		if(pBag)
+		int length = 0;
+		char* pBuffer = reinterpret_cast<char*>(X509_alias_get0(pCert, &length));
+		if (pBuffer)
 		{
-			char* pBuffer = PKCS12_get_friendlyname(pBag);
-			if(pBuffer)
-			{
-				friendlyName = pBuffer;
-				OPENSSL_free(pBuffer);
-			}
-			if(pBags) sk_PKCS12_SAFEBAG_pop_free(pBags, PKCS12_SAFEBAG_free);
+			friendlyName.append(pBuffer, length);
 		}
-		else throw OpenSSLException("PKCS12Container::extractFriendlyName()");
 	}
 	else throw NullPointerException("PKCS12Container::extractFriendlyName()");
 
@@ -171,7 +164,15 @@ void PKCS12Container::load(PKCS12* pPKCS12, const std::string& password)
 				int certCount = sk_X509_num(pCA);
 				for (int i = 0; i < certCount; ++i)
 				{
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
 					X509* pX509 = sk_X509_value(pCA, i);
+#else
+					// Cert order is reversed on OpenSSL < 3.
+					// https://github.com/openssl/openssl/issues/16421
+					// https://github.com/openssl/openssl/pull/12641
+					// https://github.com/jeroen/openssl/commit/f5eb85eb0fd432406a24abda6511c449eaee6162
+					X509* pX509 = sk_X509_value(pCA, (certCount - i - 1));
+#endif
 					if (pX509)
 					{
 						_caCertList.push_back(X509Certificate(pX509, true));

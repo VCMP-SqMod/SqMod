@@ -20,7 +20,11 @@
 
 #include "Poco/Data/MySQL/MySQL.h"
 #include "Poco/Data/Session.h"
-#include <mysql/mysql.h>
+#if defined(__MINGW32__) || defined(__MINGW64__)
+	#include <mysql/mysql.h>
+#else
+	#include <mysql.h>
+#endif
 
 
 namespace Poco {
@@ -49,9 +53,6 @@ public:
 
 	static std::string hostInfo(Poco::Data::Session& session);
 		/// Returns host info.
-
-	static bool hasMicrosecond();
-		/// Rturns true if microseconds are suported.
 
 	static MYSQL* handle(Poco::Data::Session& session);
 		/// Returns native MySQL handle for the session.

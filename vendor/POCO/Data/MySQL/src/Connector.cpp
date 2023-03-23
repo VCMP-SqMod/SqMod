@@ -16,7 +16,11 @@
 #include "Poco/Data/MySQL/SessionImpl.h"
 #include "Poco/Data/SessionFactory.h"
 #include "Poco/Exception.h"
-#include <mysql/mysql.h>
+#if defined(__MINGW32__) || defined(__MINGW64__)
+	#include <mysql/mysql.h>
+#else
+	#include <mysql.h>
+#endif
 
 
 namespace Poco {

@@ -32,7 +32,7 @@ class ArchiveCompressor;
 
 
 class Foundation_API ArchiveStrategy
-	/// The ArchiveStrategy is used by FileChannel 
+	/// The ArchiveStrategy is used by FileChannel
 	/// to rename a rotated log file for archiving.
 	///
 	/// Archived files can be automatically compressed,
@@ -42,22 +42,25 @@ public:
 	ArchiveStrategy();
 	virtual ~ArchiveStrategy();
 
+	virtual LogFile* open(LogFile* pFile) = 0;
+		/// Open a new log file and return it.
+	
 	virtual LogFile* archive(LogFile* pFile) = 0;
 		/// Renames the given log file for archiving
 		/// and creates and returns a new log file.
 		/// The given LogFile object is deleted.
 
 	void compress(bool flag = true);
-		/// Enables or disables compression of archived files.	
+		/// Enables or disables compression of archived files.
 
 protected:
 	void moveFile(const std::string& oldName, const std::string& newName);
 	bool exists(const std::string& name);
-	
+
 private:
 	ArchiveStrategy(const ArchiveStrategy&);
 	ArchiveStrategy& operator = (const ArchiveStrategy&);
-	
+
 	bool _compress;
 	ArchiveCompressor* _pCompressor;
 };
@@ -71,6 +74,8 @@ class Foundation_API ArchiveByNumberStrategy: public ArchiveStrategy
 public:
 	ArchiveByNumberStrategy();
 	~ArchiveByNumberStrategy();
+
+	LogFile* open(LogFile* pFile);
 	LogFile* archive(LogFile* pFile);
 };
 
@@ -84,11 +89,16 @@ public:
 	ArchiveByTimestampStrategy()
 	{
 	}
-	
+
 	~ArchiveByTimestampStrategy()
 	{
 	}
-	
+
+	LogFile* open(LogFile* pFile)
+	{
+		return pFile;
+	}
+
 	LogFile* archive(LogFile* pFile)
 		/// Archives the file by appending the current timestamp to the
 		/// file name. If the new file name exists, additionally a monotonic
@@ -99,7 +109,7 @@ public:
 		std::string archPath = path;
 		archPath.append(".");
 		DateTimeFormatter::append(archPath, DT().timestamp(), "%Y%m%d%H%M%S%i");
-		
+
 		if (exists(archPath)) archiveByNumber(archPath);
 		else moveFile(path, archPath);
 
@@ -121,7 +131,7 @@ private:
 			NumberFormatter::append(path, ++n);
 		}
 		while (exists(path));
-		
+
 		while (n >= 0)
 		{
 			std::string oldPath = basePath;

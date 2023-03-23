@@ -39,21 +39,14 @@ if(WIN32)
 				endif()
 			endforeach()
 		endif(X64)
-        find_program(CMAKE_MC_COMPILER mc.exe HINTS "${sdk_bindir}" "${kit_bindir}" "${kit81_bindir}" ${kit10_bindir}
-            DOC "path to message compiler")
-    elseif ("${CMAKE_GENERATOR}" MATCHES "MSYS" OR "${CMAKE_GENERATOR}" MATCHES "^(CodeBlocks)?.*(MinGW)?.*")
-        get_filename_component(MINGW_BIN_PATH ${CMAKE_C_COMPILER} DIRECTORY REALPATH)
-        if(NOT IS_DIRECTORY ${MINGW_BIN_PATH})
-            get_filename_component(MINGW_BIN_PATH ${CMAKE_CXX_COMPILER} DIRECTORY REALPATH)
-        endif()
-        find_program(CMAKE_MC_COMPILER windmc.exe HINTS "${MINGW_BIN_PATH}"
-            DOC "path to message compiler")
-    endif()
-    if(NOT CMAKE_MC_COMPILER)
-        message(FATAL_ERROR "message compiler not found: required to build")
-    endif(NOT CMAKE_MC_COMPILER)
-    message(STATUS "Found message compiler: ${CMAKE_MC_COMPILER}")
-    mark_as_advanced(CMAKE_MC_COMPILER)
+	endif()
+	find_program(CMAKE_MC_COMPILER mc.exe HINTS "${sdk_bindir}" "${kit_bindir}" "${kit81_bindir}" ${kit10_bindir}
+		DOC "path to message compiler")
+	if(NOT CMAKE_MC_COMPILER)
+		message(FATAL_ERROR "message compiler not found: required to build")
+	endif(NOT CMAKE_MC_COMPILER)
+	message(STATUS "Found message compiler: ${CMAKE_MC_COMPILER}")
+	mark_as_advanced(CMAKE_MC_COMPILER)
 endif(WIN32)
 
 #===============================================================================
@@ -240,7 +233,7 @@ configure_file("cmake/Poco${target_name}Config.cmake"
 if(WIN32)
 	set(PocoConfigPackageLocation "cmake")
 else()
-	set(PocoConfigPackageLocation "lib${LIB_SUFFIX}/cmake/${PROJECT_NAME}")
+	set(PocoConfigPackageLocation "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 endif()
 
 install(
@@ -281,6 +274,7 @@ install(
     LIBRARY DESTINATION lib${LIB_SUFFIX}
     ARCHIVE DESTINATION lib${LIB_SUFFIX}
     RUNTIME DESTINATION bin
+    BUNDLE DESTINATION bin
     INCLUDES DESTINATION include
 )
 

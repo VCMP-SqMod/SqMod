@@ -21,6 +21,14 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 # Windows DLLs are "runtime" for CMake. Output them to "bin" like the Visual Studio projects do.
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+# Reset output dirs for multi-config builds
+foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
+    string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR}/bin)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR}/lib)
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR}/lib)
+endforeach(OUTPUTCONFIG)
+
 # Append our module directory to CMake
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
@@ -50,6 +58,9 @@ if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE "RelWithDebInfo")
 endif()
 
+# Enable standard installation directories
+include(GNUInstallDirs)
+
 # Include some common macros to simpilfy the Poco CMake files
 include(PocoMacros)
 
@@ -75,6 +86,11 @@ if(MSVC)
 	if((NOT POCO_DISABLE_INTERNAL_OPENSSL) AND (ENABLE_NETSSL OR ENABLE_CRYPTO OR (ENABLE_DATA_MYSQL AND MINGW)))
 		include(UseEmbeddedOpenSSL)
 	endif()
+
+	if(POCO_SANITIZE_ASAN)
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fsanitize=address")
+	endif()
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus")
 endif()
 
 option(ENABLE_NETSSL_WIN "Enable NetSSL Windows" OFF)
@@ -113,16 +129,10 @@ else()
 	option(ENABLE_APACHECONNECTOR "Enable ApacheConnector" OFF)
 endif()
 
-if (NOT ENABLE_BUILTIN_MYSQL_C)
-	if(ENABLE_DATA_MYSQL)
-		find_package(MySQL REQUIRED)
-	else()
-		find_package(MySQL)
-	endif()
+if(ENABLE_DATA_MYSQL)
+	find_package(MySQL REQUIRED)
 else()
-	SET(MYSQL_FOUND TRUE)
-	SET(MYSQL_LIBRARIES "mariadbclient")
-	get_target_property(MYSQL_INCLUDE_DIRS mariadbclient INCLUDE_DIRECTORIES)
+	find_package(MySQL)
 endif()
 
 if(MYSQL_FOUND)
@@ -170,6 +180,7 @@ option(ENABLE_JSON "Enable JSON" ON)
 option(ENABLE_MONGODB "Enable MongoDB" ON)
 option(ENABLE_DATA_SQLITE "Enable Data SQlite" ON)
 option(ENABLE_REDIS "Enable Redis" ON)
+option(ENABLE_PROMETHEUS "Enable Prometheus" ON)
 option(ENABLE_PDF "Enable PDF" OFF)
 option(ENABLE_UTIL "Enable Util" ON)
 option(ENABLE_NET "Enable Net" ON)
@@ -203,9 +214,16 @@ else()
 endif()
 
 if(POCO_UNBUNDLED)
-	message(STATUS "Using external sqlite, zlib, pcre, expat, ...")
+	message(STATUS "Using external sqlite, zlib, pcre2, expat, ...")
 else()
-	message(STATUS "Using internal sqlite, zlib, pcre, expat, ...")
+	message(STATUS "Using internal sqlite, zlib, pcre2, expat, ...")
+endif()
+
+# Disable fork exec
+option(POCO_NO_FORK_EXEC "Set to OFF|ON (default is OFF) to disable use of fork() and exec*() which are not allowed on some Apple platforms (iOS, watchOS, iPadOS, tvOS)." OFF)
+
+if(POCO_NO_FORK_EXEC)
+  add_definitions(-DPOCO_NO_FORK_EXEC=1)
 endif()
 
 include(DefinePlatformSpecifc)
@@ -217,10 +235,6 @@ if(ENABLE_TESTS)
 	add_subdirectory(CppUnit)
 	set(ENABLE_XML ON CACHE BOOL "Enable XML" FORCE)
 	set(ENABLE_JSON ON CACHE BOOL "Enable JSON" FORCE)
-
-	if(ENABLE_ZIP)
-		set(ENABLE_NET ON CACHE BOOL "Enable Net" FORCE)
-	endif()
 endif()
 
 if(ENABLE_ENCODINGS_COMPILER OR ENABLE_APACHECONNECTOR)
@@ -237,7 +251,7 @@ if(ENABLE_PAGECOMPILER)
 	set(ENABLE_UTIL ON CACHE BOOL "Enable Util" FORCE)
 endif()
 
-if(ENABLE_MONGODB OR ENABLE_REDIS)
+if(ENABLE_MONGODB OR ENABLE_REDIS OR ENABLE_PROMETHEUS)
 	set(ENABLE_NET ON CACHE BOOL "Enable Net" FORCE)
 endif()
 
@@ -291,11 +305,6 @@ if(ENABLE_POCODOC)
 	set(ENABLE_CPPPARSER ON CACHE BOOL "Enable C++ parser" FORCE)
 endif()
 
-if(ENABLE_SEVENZIP OR ENABLE_ZIP)
-	set(ENABLE_UTIL ON CACHE BOOL "Enable Util" FORCE)
-	set(ENABLE_XML ON CACHE BOOL "Enable XML" FORCE)
-endif()
-
 if(ENABLE_UTIL AND ENABLE_TESTS)
 	set(ENABLE_JSON ON CACHE BOOL "Enable JSON" FORCE)
 	set(ENABLE_XML ON CACHE BOOL "Enable XML" FORCE)
@@ -345,6 +354,11 @@ if(EXISTS ${PROJECT_SOURCE_DIR}/Redis AND ENABLE_REDIS)
 	list(APPEND Poco_COMPONENTS "Redis")
 endif()
 
+if(EXISTS ${PROJECT_SOURCE_DIR}/Prometheus AND ENABLE_PROMETHEUS)
+	add_subdirectory(Prometheus)
+	list(APPEND Poco_COMPONENTS "Prometheus")
+endif()
+
 if(EXISTS ${PROJECT_SOURCE_DIR}/PDF AND ENABLE_PDF)
 	add_subdirectory(PDF)
 	list(APPEND Poco_COMPONENTS "PDF")
@@ -378,6 +392,18 @@ if(EXISTS ${PROJECT_SOURCE_DIR}/Data AND ENABLE_DATA)
 	list(APPEND Poco_COMPONENTS "Data")
 endif()
 
+if(EXISTS ${PROJECT_SOURCE_DIR}/Data/SQLite AND ENABLE_DATA_SQLITE)
+	list(APPEND Poco_COMPONENTS "Data/SQLite")
+endif()
+
+if(EXISTS ${PROJECT_SOURCE_DIR}/Data/MySQL AND ENABLE_DATA_MYSQL)
+	list(APPEND Poco_COMPONENTS "Data/MySQL")
+endif()
+
+if(EXISTS ${PROJECT_SOURCE_DIR}/Data/PostgresSQL AND ENABLE_DATA_POSTGRESQL)
+	list(APPEND Poco_COMPONENTS "Data/PostgresSQL")
+endif()
+
 if(EXISTS ${PROJECT_SOURCE_DIR}/ActiveRecord AND ENABLE_ACTIVERECORD)
 	add_subdirectory(ActiveRecord)
 	list(APPEND Poco_COMPONENTS "ActiveRecord")
@@ -388,12 +414,12 @@ if(EXISTS ${PROJECT_SOURCE_DIR}/ActiveRecord/Compiler AND ENABLE_ACTIVERECORD_CO
 	list(APPEND Poco_COMPONENTS "ActiveRecordCompiler")
 endif()
 
-if(EXISTS ${PROJECT_SOURCE_DIR}/SevenZip AND ENABLE_SEVENZIP)
+if(EXISTS ${PROJECT_SOURCE_DIR}/SevenZip AND ENABLE_SEVENZIP AND ENABLE_XML)
 	add_subdirectory(SevenZip)
 	list(APPEND Poco_COMPONENTS "SevenZip")
 endif()
 
-if(EXISTS ${PROJECT_SOURCE_DIR}/Zip AND ENABLE_ZIP)
+if(EXISTS ${PROJECT_SOURCE_DIR}/Zip AND ENABLE_ZIP AND ENABLE_XML)
 	add_subdirectory(Zip)
 	list(APPEND Poco_COMPONENTS "Zip")
 endif()
@@ -444,7 +470,9 @@ add_custom_target(uninstall
 #############################################################
 # Enable packaging
 
-include(InstallRequiredSystemLibraries)
+if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+	include(InstallRequiredSystemLibraries)
+endif()
 
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Poco Libraries")
 set(CPACK_PACKAGE_VENDOR "Applied Informatics Software Engineering GmbH")
@@ -470,7 +498,7 @@ write_basic_package_version_file(
 if(WIN32)
 	set(PocoConfigPackageLocation "cmake")
 else()
-	set(PocoConfigPackageLocation "lib${LIB_SUFFIX}/cmake/${PROJECT_NAME}")
+	set(PocoConfigPackageLocation "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 endif()
 
 configure_file(cmake/${PROJECT_NAME}Config.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/${PROJECT_NAME}Config.cmake" @ONLY)
@@ -485,7 +513,7 @@ install(
 )
 
 if(POCO_UNBUNDLED)
-	install(FILES cmake/FindPCRE.cmake
+	install(FILES cmake/FindPCRE2.cmake
 			DESTINATION "${PocoConfigPackageLocation}")
 	install(FILES cmake/V39/FindEXPAT.cmake
 			DESTINATION "${PocoConfigPackageLocation}/V39")

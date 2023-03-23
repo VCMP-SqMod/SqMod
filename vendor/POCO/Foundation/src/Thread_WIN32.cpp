@@ -16,20 +16,25 @@
 #include "Poco/Exception.h"
 #include "Poco/ErrorHandler.h"
 #include <process.h>
-
-
-#if defined(POCO_WIN32_DEBUGGER_THREAD_NAMES)
-
+#include <limits>
+#ifdef POCO_COMPILER_MINGW
+	#include <winnt.h>
+	#include <winternl.h>
+#endif
 
 namespace
 {
-	/// See <http://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx> 
+	/// See <http://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx>
 	/// and <http://blogs.msdn.com/b/stevejs/archive/2005/12/19/505815.aspx> for
 	/// more information on the code below.
 
 	const DWORD MS_VC_EXCEPTION = 0x406D1388;
-	
+
+#ifdef POCO_COMPILER_MINGW
+	#include <pshpack8.h>
+#else
 	#pragma pack(push,8)
+#endif
 	typedef struct tagTHREADNAME_INFO
 	{
 		DWORD dwType;     // Must be 0x1000.
@@ -37,28 +42,59 @@ namespace
 		DWORD dwThreadID; // Thread ID (-1=caller thread).
 		DWORD dwFlags;    // Reserved for future use, must be zero.
 	} THREADNAME_INFO;
+#ifdef POCO_COMPILER_MINGW
+	#include <poppack.h>
+#else
 	#pragma pack(pop)
-	
-	void setThreadName(DWORD dwThreadID, const char* threadName)
+#endif
+
+#ifdef POCO_COMPILER_MINGW
+	static EXCEPTION_DISPOSITION NTAPI ignore_handler(EXCEPTION_RECORD *rec, void *frame, CONTEXT *ctx, void *disp)
 	{
-        THREADNAME_INFO info;
-        info.dwType     = 0x1000;
-        info.szName     = threadName;
-        info.dwThreadID = dwThreadID;
-        info.dwFlags    = 0;
-    
-        __try
-        {
-            RaiseException(MS_VC_EXCEPTION, 0, sizeof(info)/sizeof(ULONG_PTR), (ULONG_PTR*)&info);
-        }
-        __except (EXCEPTION_CONTINUE_EXECUTION)
-        {
-        }
+		return ExceptionContinueExecution;
+	}
+#endif
+
+	void setThreadName(DWORD dwThreadID, const std::string& threadName)
+	{
+	#ifdef POCO_COMPILER_MINGW
+		// Don't bother if a debugger isn't attached to receive the event
+		if (!IsDebuggerPresent())
+			return;
+	#endif
+		// Thread information for VS compatible debugger.
+		THREADNAME_INFO info;
+		info.dwType     = 0x1000;
+		info.szName     = threadName.c_str();
+		info.dwThreadID = dwThreadID; // -1 sets current thread.
+		info.dwFlags    = 0;
+
+	#ifdef POCO_COMPILER_MINGW
+		// Push an exception handler to ignore all following exceptions
+		NT_TIB *tib = ((NT_TIB*)NtCurrentTeb());
+		EXCEPTION_REGISTRATION_RECORD rec = {
+			.Next = tib->ExceptionList,
+			.Handler = ignore_handler,
+		};
+		tib->ExceptionList = &rec;
+
+		// Visual Studio and compatible debuggers receive thread names from the
+		// program through a specially crafted exception
+		RaiseException(MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(ULONG_PTR), (ULONG_PTR*)&info);
+
+		// Pop exception handler
+		tib->ExceptionList = tib->ExceptionList->Next;
+	#else
+		__try
+		{
+			RaiseException(MS_VC_EXCEPTION, 0, sizeof(info)/sizeof(ULONG_PTR), (ULONG_PTR*)&info);
+		}
+		__except (EXCEPTION_CONTINUE_EXECUTION)
+		{
+		}
+	#endif
 	}
 }
-
-
-#endif
 
 
 namespace Poco {
@@ -79,6 +115,37 @@ ThreadImpl::ThreadImpl():
 ThreadImpl::~ThreadImpl()
 {
 	if (_thread) CloseHandle(_thread);
+}
+
+
+void ThreadImpl::setNameImpl(const std::string& threadName)
+{
+	std::string realName = threadName;
+	if (threadName.size() > POCO_MAX_THREAD_NAME_LEN)
+	{
+		int half = (POCO_MAX_THREAD_NAME_LEN - 1) / 2;
+		std::string truncName(threadName, 0, half);
+		truncName.append("~");
+		truncName.append(threadName, threadName.size() - half);
+		realName = truncName;
+	}
+
+	if (realName != _name)
+	{
+		_name = realName;
+	}
+}
+
+
+std::string ThreadImpl::getNameImpl() const
+{
+	return _name;
+}
+
+std::string ThreadImpl::getOSThreadNameImpl()
+{
+	// return fake thread name
+	return isRunningImpl() ? _name : "";
 }
 
 
@@ -189,6 +256,60 @@ ThreadImpl::TIDImpl ThreadImpl::currentTidImpl()
 	return GetCurrentThreadId();
 }
 
+long ThreadImpl::currentOsTidImpl()
+{
+	return GetCurrentThreadId();
+}
+
+
+bool ThreadImpl::setAffinityImpl(int affinity)
+{
+	HANDLE hProcess = GetCurrentProcess();
+	DWORD_PTR procMask = 0, sysMask = 0;
+	if (GetProcessAffinityMask(hProcess, &procMask, &sysMask))
+	{
+		HANDLE hThread = GetCurrentThread();
+		DWORD_PTR threadMask = 0;
+		threadMask |= 1ULL << affinity;
+
+		// thread and process affinities must match
+		if (!(threadMask & procMask)) return false;
+
+		if (SetThreadAffinityMask(hThread, threadMask))
+			return true;
+	}
+	return false;
+}
+
+
+int ThreadImpl::getAffinityImpl() const
+{
+	// bit ugly, but there's no explicit API for this
+	// https://stackoverflow.com/a/6601917/205386
+	HANDLE hThread = GetCurrentThread();
+	DWORD_PTR mask = 1;
+	DWORD_PTR old = 0;
+
+	// try every CPU one by one until one works or none are left
+	while (mask)
+	{
+		old = SetThreadAffinityMask(hThread, mask);
+		if (old)
+		{	// this one worked
+			SetThreadAffinityMask(hThread, old); // restore original
+			if (old > std::numeric_limits<int>::max()) return -1;
+			return static_cast<int>(old);
+		}
+		else
+		{
+			if (GetLastError() != ERROR_INVALID_PARAMETER)
+				return -1;
+		}
+		mask <<= 1;
+	}
+	return -1;
+}
+
 
 #if defined(_DLL)
 DWORD WINAPI ThreadImpl::runnableEntry(LPVOID pThread)
@@ -196,10 +317,9 @@ DWORD WINAPI ThreadImpl::runnableEntry(LPVOID pThread)
 unsigned __stdcall ThreadImpl::runnableEntry(void* pThread)
 #endif
 {
-	_currentThreadHolder.set(reinterpret_cast<ThreadImpl*>(pThread));
-#if defined(POCO_WIN32_DEBUGGER_THREAD_NAMES)
-	setThreadName(-1, reinterpret_cast<Thread*>(pThread)->getName().c_str());
-#endif
+	auto * pThreadImpl = reinterpret_cast<ThreadImpl*>(pThread);
+	_currentThreadHolder.set(pThreadImpl);
+	setThreadName(-1, pThreadImpl->_name);
 	try
 	{
 		reinterpret_cast<ThreadImpl*>(pThread)->_pRunnableTarget->run();

@@ -38,7 +38,7 @@ target_link_libraries(DataSQLite PUBLIC Poco::Data)
 target_include_directories(DataSQLite
 	PUBLIC
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-		$<INSTALL_INTERFACE:include>
+		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
@@ -52,7 +52,7 @@ else()
 	if(WINCE)
 		target_compile_definitions(DataSQLite PRIVATE SQLITE_MSVC_LOCALTIME_API)
 	endif(WINCE)
-	target_compile_definitions(DataSQLite PUBLIC
+	target_compile_definitions(DataSQLite PRIVATE
 		SQLITE_THREADSAFE=1
 		SQLITE_DISABLE_LFS
 		SQLITE_OMIT_UTF16

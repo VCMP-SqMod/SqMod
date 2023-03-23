@@ -67,10 +67,12 @@ void Foundation_API appendJSONString(std::string& val, const Var& any);
 	/// regardless of the underlying type) and appends it to val.
 
 
-void Foundation_API appendJSONValue(std::string& val, const Var& any);
+void Foundation_API appendJSONValue(std::string& val, const Var& any, bool wrap = true);
 	/// Converts the any to a JSON value (if underlying type qualifies
-	/// as string - see isJSONString() - , it is wrapped into double quotes)
-	/// and appends it to val
+	/// as string - see isJSONString() - it is wrapped into double quotes)
+	/// and appends it to val.
+	/// Wrapping can be prevented (useful for appending JSON fragments) by setting
+	/// the wrap argument to false.
 
 
 template <typename C>
@@ -295,32 +297,18 @@ protected:
 
 	template <typename T>
 	VarHolder* cloneHolder(Placeholder<VarHolder>* pVarHolder, const T& val) const
-		/// Instantiates value holder wrapper. If size of the wrapper is
-		/// larger than POCO_SMALL_OBJECT_SIZE, holder is instantiated on
+		/// Instantiates value holder wrapper.
+		///
+		/// Called from clone() member function of the implementation.
+		///
+		/// When the smal object optimization is enabled (POCO_NO_SOO not
+		/// defined), if size of the wrapper is larger than
+		/// POCO_SMALL_OBJECT_SIZE, holder is instantiated on
 		/// the heap, otherwise it is instantiated in-place (in the
 		/// pre-allocated buffer inside the holder).
-		///
-		/// Called from clone() member function of the implementation when
-		/// small object optimization is enabled.
 	{
-#ifdef POCO_NO_SOO
-		(void)pVarHolder;
-		return new VarHolderImpl<T>(val);
-#else
 		poco_check_ptr (pVarHolder);
-		if ((sizeof(VarHolderImpl<T>) <= Placeholder<T>::Size::value))
-		{
-			new ((VarHolder*) pVarHolder->holder) VarHolderImpl<T>(val);
-			pVarHolder->setLocal(true);
-			return (VarHolder*) pVarHolder->holder;
-		}
-		else
-		{
-			pVarHolder->pHolder = new VarHolderImpl<T>(val);
-			pVarHolder->setLocal(false);
-			return pVarHolder->pHolder;
-		}
-#endif
+		return pVarHolder->assign<VarHolderImpl<T>, T>(val);
 	}
 
 	template <typename F, typename T>
@@ -420,33 +408,12 @@ protected:
 	}
 
 private:
+
 	template <typename F, typename T>
 	void checkUpperLimit(const F& from) const
 	{
-		if ((sizeof(T) < sizeof(F)) &&
-			(from > static_cast<F>(std::numeric_limits<T>::max())))
-		{
-			throw RangeException("Value too large.");
-		}
-		else
-		if (from > std::numeric_limits<T>::max())
-		{
-			throw RangeException("Value too large.");
-		}
-	}
-
-	template <typename F, typename T>
-	void checkUpperLimitFloat(const F& from) const
-	{
 		if (from > std::numeric_limits<T>::max())
 			throw RangeException("Value too large.");
-	}
-
-	template <typename F, typename T>
-	void checkLowerLimitFloat(const F& from) const
-	{
-		if (from < -std::numeric_limits<T>::max())
-			throw RangeException("Value too small.");
 	}
 
 	template <typename F, typename T>
@@ -454,6 +421,38 @@ private:
 	{
 		if (from < std::numeric_limits<T>::min())
 			throw RangeException("Value too small.");
+	}
+
+	template <typename F, typename T>
+	void checkUpperLimitFloat(const F& from) const
+	{
+		if (std::is_floating_point<T>::value)
+		{
+			if (from > std::numeric_limits<T>::max())
+				throw RangeException("Value too large.");
+		}
+		else
+		{
+			// Avoid clang -Wimplicit-int-float-conversion warning with an explicit cast.
+			if (from > static_cast<F>(std::numeric_limits<T>::max()))
+				throw RangeException("Value too large.");
+		}
+	}
+
+	template <typename F, typename T>
+	void checkLowerLimitFloat(const F& from) const
+	{
+		if (std::is_floating_point<T>::value)
+		{
+			if (from < -std::numeric_limits<T>::max())
+				throw RangeException("Value too small.");
+		}
+		else
+		{
+			// Avoid clang -Wimplicit-int-float-conversion warning with an explicit cast.
+			if (from < static_cast<F>(std::numeric_limits<T>::min()))
+				throw RangeException("Value too small.");
+		}
 	}
 };
 

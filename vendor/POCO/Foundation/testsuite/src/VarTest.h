@@ -57,6 +57,8 @@ public:
 	void testDynamicStructBasics();
 	void testOrderedDynamicStructBasics();
 	void testDynamicStructString();
+	void testDynamicStructEmptyString();
+	void testDynamicStructNoEscapeString();
 	void testOrderedDynamicStructString();
 	void testDynamicStructInt();
 	void testOrderedDynamicStructInt();
@@ -77,6 +79,7 @@ public:
 	void testUUID();
 	void testEmpty();
 	void testIterator();
+	void testSharedPtr();
 
 	void setUp();
 	void tearDown();

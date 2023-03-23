@@ -116,7 +116,7 @@ X509Certificate& X509Certificate::operator = (X509Certificate&& cert) noexcept
 }
 
 
-void X509Certificate::swap(X509Certificate& cert)
+void X509Certificate::swap(X509Certificate& cert) noexcept
 {
 	using std::swap;
 	swap(cert._issuerName, _issuerName);
@@ -278,10 +278,14 @@ void X509Certificate::extractNames(std::string& cmnName, std::set<std::string>& 
 				PCERT_ALT_NAME_INFO pNameInfo = reinterpret_cast<PCERT_ALT_NAME_INFO>(buffer.begin());
 				for (int i = 0; i < pNameInfo->cAltEntry; i++)
 				{
-					std::wstring waltName(pNameInfo->rgAltEntry[i].pwszDNSName);
-					std::string altName;
-					Poco::UnicodeConverter::toUTF8(waltName, altName);
-					domainNames.insert(altName);
+					// Some certificates have Subject Alternative Name entries that are not DNS Name. Skip them.
+					if (pNameInfo->rgAltEntry[i].dwAltNameChoice == CERT_ALT_NAME_DNS_NAME)
+					{
+						std::wstring waltName(pNameInfo->rgAltEntry[i].pwszDNSName);
+						std::string altName;
+						Poco::UnicodeConverter::toUTF8(waltName, altName);
+						domainNames.insert(altName);
+					}
 				}
 			}
 		}
