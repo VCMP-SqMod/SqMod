@@ -51,6 +51,10 @@ add_library(CPR STATIC
 # Library includes
 target_include_directories(CPR PRIVATE ${CMAKE_CURRENT_LIST_DIR}/cpr)
 target_include_directories(CPR PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
+# Disable deprecated warnings
+if (NOT MSVC)
+    target_compile_options(CPR PRIVATE -Wno-deprecated-declarations)
+endif()
 # Find CURK
 find_package(CURL REQUIRED)
 if (CURL_FOUND)
