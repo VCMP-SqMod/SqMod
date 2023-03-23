@@ -436,14 +436,9 @@ private:
 protected:
 
     /* --------------------------------------------------------------------------------------------
-     * Callback function for ActivateTracing()
+     * Callback function for ActivateTracing() and ActivateProfiling()
     */
-    static void TraceOutput(void * ptr, const char * sql);
-
-    /* --------------------------------------------------------------------------------------------
-     * Callback function for ActivateProfiling()
-    */
-    static void ProfileOutput(void * ptr, const char * sql, sqlite3_uint64 time);
+    static int InternalTrace(unsigned t, void * c, void * p, void * x);
 
     /* --------------------------------------------------------------------------------------------
      * Validate the managed connection handle and throw an error if invalid.

@@ -918,15 +918,23 @@ int32_t SQLiteStmtHnd::ExErrNo() const
 }
 
 // ------------------------------------------------------------------------------------------------
-void SQLiteConnection::TraceOutput(void * /*ptr*/, const char * sql)
+int SQLiteConnection::InternalTrace(unsigned t, void * c, void * p, void * x)
 {
-    LogInf("SQLite Trace: %s", sql);
-}
+    if (t == SQLITE_TRACE_STMT)
+    {
+        auto xs = reinterpret_cast< const char * >(x);
+        if (xs[0] == '-' && xs[1] == '-') {
+            LogInf("SQLite Trace: %s", xs);
+        } else {
+            LogInf("SQLite Trace: %s", sqlite3_expanded_sql(reinterpret_cast< sqlite3_stmt * >(p)));
+        }
+    }
+    else
+    {
+        LogInf("SQLite profile (time: %llu): %s", time, *reinterpret_cast< sqlite3_uint64 * >(x));
+    }
 
-// ------------------------------------------------------------------------------------------------
-void SQLiteConnection::ProfileOutput(void * /*ptr*/, const char * sql, sqlite3_uint64 time)
-{
-    LogInf("SQLite profile (time: %llu): %s", time, sql);
+    return 0;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1133,7 +1141,7 @@ bool SQLiteConnection::TableExists(StackStrF & name) const
 // ------------------------------------------------------------------------------------------------
 void SQLiteConnection::SetTracing(bool SQ_UNUSED_ARG(toggle)) // NOLINT(readability-convert-member-functions-to-static)
 {
-#if defined(SQLITE_OMIT_TRACE) || defined(SQLITE_OMIT_DEPRECATED)
+#if defined(SQLITE_OMIT_TRACE)
     STHROWF("The module was compiled without this feature");
 #else
     // Check whether changes are necessary
@@ -1144,12 +1152,28 @@ void SQLiteConnection::SetTracing(bool SQ_UNUSED_ARG(toggle)) // NOLINT(readabil
     // Do we have to disable it?
     else if (m_Handle->mTrace)
     {
-        sqlite3_trace(m_Handle->Access(), nullptr, nullptr);
+        // Is profiling active?
+        if (m_Handle->mProfile)
+        {
+            sqlite3_trace_v2(m_Handle->Access(), SQLITE_TRACE_PROFILE, &SQLiteConnection::InternalTrace, nullptr);
+        }
+        else
+        {
+            sqlite3_trace_v2(m_Handle->Access(), 0, nullptr, nullptr);
+        }
     }
     // Go ahead and enable tracing
     else
     {
-        sqlite3_trace(m_Handle->Access(), &SQLiteConnection::TraceOutput, nullptr);
+        // Is profiling active?
+        if (m_Handle->mProfile)
+        {
+            sqlite3_trace_v2(m_Handle->Access(), SQLITE_TRACE_STMT|SQLITE_TRACE_PROFILE, &SQLiteConnection::InternalTrace, nullptr);
+        }
+        else
+        {
+            sqlite3_trace_v2(m_Handle->Access(), SQLITE_TRACE_STMT, &SQLiteConnection::InternalTrace, nullptr);
+        }
     }
 #endif
 }
@@ -1157,7 +1181,7 @@ void SQLiteConnection::SetTracing(bool SQ_UNUSED_ARG(toggle)) // NOLINT(readabil
 // ------------------------------------------------------------------------------------------------
 void SQLiteConnection::SetProfiling(bool SQ_UNUSED_ARG(toggle)) // NOLINT(readability-convert-member-functions-to-static)
 {
-#if defined(SQLITE_OMIT_TRACE) || defined(SQLITE_OMIT_DEPRECATED)
+#if defined(SQLITE_OMIT_TRACE)
     STHROWF("The module was compiled without this feature");
 #else
     // Check whether changes are necessary
@@ -1168,12 +1192,28 @@ void SQLiteConnection::SetProfiling(bool SQ_UNUSED_ARG(toggle)) // NOLINT(readab
     // Do we have to disable it?
     else if (m_Handle->mProfile)
     {
-        sqlite3_profile(m_Handle->Access(), nullptr, nullptr);
+        // Is tracing active?
+        if (m_Handle->mTrace)
+        {
+            sqlite3_trace_v2(m_Handle->Access(), SQLITE_TRACE_STMT, &SQLiteConnection::InternalTrace, nullptr);
+        }
+        else
+        {
+            sqlite3_trace_v2(m_Handle->Access(), 0, nullptr, nullptr);
+        }
     }
     // Go ahead and enable profiling
     else
     {
-        sqlite3_profile(m_Handle->Access(), &SQLiteConnection::ProfileOutput, nullptr);
+        // Is tracing active?
+        if (m_Handle->mTrace)
+        {
+            sqlite3_trace_v2(m_Handle->Access(), SQLITE_TRACE_STMT|SQLITE_TRACE_PROFILE, &SQLiteConnection::InternalTrace, nullptr);
+        }
+        else
+        {
+            sqlite3_trace_v2(m_Handle->Access(), SQLITE_TRACE_PROFILE, &SQLiteConnection::InternalTrace, nullptr);
+        }
     }
 #endif
 }
