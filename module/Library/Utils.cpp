@@ -88,6 +88,7 @@ static SQInteger SqExtractIPv4(HSQUIRRELVM vm)
 // ------------------------------------------------------------------------------------------------
 extern void Register_IdPool(HSQUIRRELVM vm, Table & ns);
 extern void Register_Vector(HSQUIRRELVM vm, Table & ns);
+extern void Register_Template(HSQUIRRELVM vm, Table & ns);
 extern void Register_Native_String(HSQUIRRELVM vm, Table & ns);
 extern void Register_ServerAnnouncer(HSQUIRRELVM vm, Table & ns);
 
@@ -99,6 +100,7 @@ void Register_Utils(HSQUIRRELVM vm)
 
     Register_IdPool(vm, ns);
     Register_Vector(vm, ns);
+    Register_Template(vm, ns);
     Register_Native_String(vm, ns);
     Register_ServerAnnouncer(vm, ns);
 
@@ -110,7 +112,6 @@ void Register_Utils(HSQUIRRELVM vm)
 // ------------------------------------------------------------------------------------------------
 void Register_IdPool(HSQUIRRELVM vm, Table & ns)
 {
- // --------------------------------------------------------------------------------------------
     ns.Bind(_SC("IdPool"),
         Class< SqIdPool, NoCopy< SqIdPool > >(vm, SqIdPoolTypename::Str)
         // Constructors

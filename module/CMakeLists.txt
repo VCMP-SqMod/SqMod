@@ -92,6 +92,7 @@ add_library(SqModule MODULE SqBase.hpp Main.cpp
     Library/Utils.cpp Library/Utils.hpp
     Library/Utils/Announce.cpp Library/Utils/Announce.hpp
     Library/Utils/String.cpp Library/Utils/String.hpp
+    Library/Utils/Template.cpp Library/Utils/Template.hpp
     Library/Utils/Vector.cpp Library/Utils/Vector.hpp
     Library/XML.cpp Library/XML.hpp
     Library/ZMQ.cpp Library/ZMQ.hpp
@@ -112,12 +113,14 @@ add_library(SqModule MODULE SqBase.hpp Main.cpp
     PocoLib/Register.cpp PocoLib/Register.hpp
     PocoLib/Time.cpp PocoLib/Time.hpp
     PocoLib/Util.cpp PocoLib/Util.hpp
-    # 
+    #
     Core.cpp Core.hpp
     Logger.cpp Logger.hpp
     Register.cpp
     Exports.cpp
 )
+# The module requires C++ 17
+set_property(TARGET SqModule PROPERTY CXX_STANDARD 17)
 # Various definitions required by the plug-in
 target_compile_definitions(SqModule PRIVATE SCRAT_USE_EXCEPTIONS=1)
 # SDK targeting
@@ -135,7 +138,7 @@ if(WIN32 OR MINGW)
     target_link_libraries(SqModule wsock32 ws2_32 shlwapi)
 endif()
 # Link to base libraries
-target_link_libraries(SqModule RPMalloc Squirrel fmt::fmt SimpleINI TinyDir xxHash ConcurrentQueue SAJSON CPR UTF8Lib PUGIXML CivetWeb maxminddb libzmq-static)
+target_link_libraries(SqModule RPMalloc Squirrel fmt::fmt SimpleINI TinyDir xxHash ConcurrentQueue SAJSON CPR UTF8Lib PUGIXML CivetWeb inja maxminddb libzmq-static)
 # Link to POCO libraries
 target_link_libraries(SqModule Poco::Foundation Poco::Crypto Poco::Data Poco::Net)
 # Does POCO have SQLite support?
@@ -173,6 +176,31 @@ if(POSTGRESQL_FOUND)
     target_link_libraries(SqModule Poco::DataPostgreSQL)
     # Inform the plug-in that it can make use of this library
     target_compile_definitions(SqModule PRIVATE SQMOD_POCO_HAS_POSTGRESQL=1)
+endif()
+# Is Discord support enabled?
+if(ENABLE_DISCORD)
+    target_link_libraries(SqModule dpp)
+    target_sources(SqModule PRIVATE
+        Library/Discord.cpp Library/Discord.hpp
+        Library/Discord/Application.hpp Library/Discord/Application.cpp
+        Library/Discord/Automod.hpp Library/Discord/Automod.cpp
+        Library/Discord/Channel.hpp Library/Discord/Channel.cpp
+        Library/Discord/Client.hpp Library/Discord/Client.cpp
+        Library/Discord/Cluster.hpp Library/Discord/Cluster.cpp
+        Library/Discord/Command.hpp Library/Discord/Command.cpp
+        Library/Discord/Constants.hpp Library/Discord/Constants.cpp
+        Library/Discord/Events.hpp Library/Discord/Events.cpp
+        Library/Discord/Guild.hpp Library/Discord/Guild.cpp
+        Library/Discord/Integration.hpp Library/Discord/Integration.cpp
+        Library/Discord/Message.hpp Library/Discord/Message.cpp
+        Library/Discord/Misc.hpp Library/Discord/Misc.cpp
+        Library/Discord/Presence.hpp Library/Discord/Presence.cpp
+        Library/Discord/Role.hpp Library/Discord/Role.cpp
+        Library/Discord/User.hpp Library/Discord/User.cpp
+        Library/Discord/Utilities.hpp Library/Discord/Utilities.cpp
+    )
+    # Inform the plug-in that discord is enabled
+    target_compile_definitions(SqModule PRIVATE SQMOD_DISCORD=1)
 endif()
 # Determine if build mode
 if(${CMAKE_BUILD_TYPE} MATCHES "(Release)+")
@@ -218,6 +246,12 @@ else()
 endif()
 # Copy module into the plug-ins folder
 add_custom_command(TARGET SqModule POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:SqModule> "${PROJECT_SOURCE_DIR}/bin/plugins")
+# Copy DPP into the bin folder
+if (ENABLE_DISCORD)
+    if (WIN32 OR MINGW)
+        add_custom_command(TARGET SqModule POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:dpp> "${PROJECT_SOURCE_DIR}/bin")
+    endif()
+endif()
 # Copy several dependent DLLs on windows to make distribution easier (used mainly by people that distribute builds)
 if(WIN32 AND MINGW AND COPY_DEPENDENCIES)
     get_filename_component(MINGW_BIN_PATH ${CMAKE_C_COMPILER} DIRECTORY REALPATH)

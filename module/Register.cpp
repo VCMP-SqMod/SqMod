@@ -30,6 +30,9 @@ extern void Register_CVehicle(HSQUIRRELVM vm);
 // ------------------------------------------------------------------------------------------------
 extern void Register_Chrono(HSQUIRRELVM vm);
 extern void Register_CURL(HSQUIRRELVM vm);
+#ifdef SQMOD_DISCORD
+    extern void Register_Discord(HSQUIRRELVM vm);
+#endif
 extern void Register_Format(HSQUIRRELVM vm);
 extern void Register_IO(HSQUIRRELVM vm);
 extern void Register_JSON(HSQUIRRELVM vm);
@@ -98,6 +101,9 @@ bool RegisterAPI(HSQUIRRELVM vm)
 
     Register_Chrono(vm);
     Register_CURL(vm);
+#ifdef SQMOD_DISCORD
+    Register_Discord(vm);
+#endif
     Register_Format(vm);
     Register_IO(vm);
     Register_JSON(vm);
