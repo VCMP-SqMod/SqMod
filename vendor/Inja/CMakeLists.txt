@@ -10,4 +10,4 @@ if (WIN32)
 	target_compile_definitions(inja PRIVATE _WIN32_WINNT=0x0601)
 endif()
 # Link to nlohmann json library
-target_link_libraries(inja PRIVATE nlohmann_json)
+target_link_libraries(inja PUBLIC nlohmann_json)

@@ -26,9 +26,11 @@
 #include <dpp/stringops.h>
 #include <dpp/json.h>
 
-using json = nlohmann::json;
+
 
 namespace dpp {
+
+using json = nlohmann::json;
 
 role::role() :
 	managed(),
@@ -39,6 +41,7 @@ role::role() :
 	flags(0),
 	integration_id(0),
 	bot_id(0),
+	subscription_listing_id(0),
 	image_data(nullptr)
 {
 }
@@ -80,8 +83,15 @@ role& role::fill_from_json(snowflake _guild_id, nlohmann::json* j)
 		if (t.find("premium_subscriber") != t.end()) {
 			this->flags |= dpp::r_premium_subscriber;
 		}
+		if (t.find("available_for_purchase") != t.end()) {
+			this->flags |= dpp::r_available_for_purchase;
+		}
+		if (t.find("guild_connections") != t.end()) {
+			this->flags |= dpp::r_guild_connections;
+		}
 		this->bot_id = snowflake_not_null(&t, "bot_id");
 		this->integration_id = snowflake_not_null(&t, "integration_id");
+		this->subscription_listing_id = snowflake_not_null(&t, "subscription_listing_id");
 	}
 	return *this;
 }
@@ -143,6 +153,18 @@ bool role::is_mentionable() const {
 
 bool role::is_managed() const {
 	return this->flags & dpp::r_managed;
+}
+
+bool role::is_premium_subscriber() const {
+	return this->flags & dpp::r_premium_subscriber;
+}
+
+bool role::is_available_for_purchase() const {
+	return this->flags & dpp::r_available_for_purchase;
+}
+
+bool role::is_linked() const {
+	return this->flags & dpp::r_guild_connections;
 }
 
 bool role::has_create_instant_invite() const {
@@ -309,6 +331,18 @@ bool role::has_moderate_members() const {
 	return has_administrator() || permissions.has(p_moderate_members);
 }
 
+bool role::has_view_creator_monetization_analytics() const {
+	return has_administrator() || permissions.has(p_view_creator_monetization_analytics);
+}
+
+bool role::has_use_soundboard() const {
+	return has_administrator() || permissions.has(p_use_soundboard);
+}
+
+bool role::has_send_voice_messages() const {
+	return has_administrator() || permissions.has(p_send_voice_messages);
+}
+
 role& role::set_name(const std::string& n) {
 	name = utility::validate(n, 1, 100, "Role name too short");
 	return *this;
@@ -363,18 +397,10 @@ members_container role::get_members() const {
 }
 
 std::string role::get_icon_url(uint16_t size, const image_type format) const {
-	static const std::map<image_type, std::string> extensions = {
-			{ i_jpg, "jpg" },
-			{ i_png, "png" },
-			{ i_webp, "webp" },
-	};
-
-	if (extensions.find(format) == extensions.end()) {
-		return std::string();
-	}
-
 	if (!this->icon.to_string().empty() && this->id) {
-		return utility::cdn_host + "/role-icons/" + std::to_string(this->id) + "/" + this->icon.to_string() + "." + extensions.find(format)->second + utility::avatar_size(size);
+		return utility::cdn_endpoint_url({ i_jpg, i_png, i_webp },
+										 "role-icons/" + std::to_string(this->id) + "/" + this->icon.to_string(),
+										 format, size);
 	} else {
 		return std::string();
 	}

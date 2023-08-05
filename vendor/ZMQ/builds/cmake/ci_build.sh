@@ -31,6 +31,7 @@ CMAKE_OPTS+=("-DCMAKE_PREFIX_PATH:PATH=${BUILD_PREFIX}")
 CMAKE_OPTS+=("-DCMAKE_LIBRARY_PATH:PATH=${BUILD_PREFIX}/lib")
 CMAKE_OPTS+=("-DCMAKE_INCLUDE_PATH:PATH=${BUILD_PREFIX}/include")
 CMAKE_OPTS+=("-DENABLE_CAPSH=ON")
+CMAKE_OPTS+=("-DBUILD_TESTS=ON")
 
 if [ "$CLANG_FORMAT" != "" ] ; then
     CMAKE_OPTS+=("-DCLANG_FORMAT=${CLANG_FORMAT}")
@@ -43,7 +44,7 @@ elif [ $CURVE == "libsodium" ]; then
 
     if ! ((command -v dpkg-query >/dev/null 2>&1 && dpkg-query --list libsodium-dev >/dev/null 2>&1) || \
             (command -v brew >/dev/null 2>&1 && brew ls --versions libsodium >/dev/null 2>&1)); then
-        git clone --depth 1 -b stable git://github.com/jedisct1/libsodium.git
+        git clone --depth 1 -b stable https://github.com/jedisct1/libsodium.git
         ( cd libsodium; ./autogen.sh; ./configure --prefix=$BUILD_PREFIX; make install)
     fi
 fi
@@ -52,6 +53,15 @@ CMAKE_PREFIXES=()
 MAKE_PREFIXES=()
 PARALLEL_MAKE_OPT="-j5"
 if [ -n "$CLANG_TIDY" ] ; then
+    # To allow sonar to process history information, unshallow clone first.
+    git fetch --unshallow
+    curl -L https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip -o build-wrapper-linux-x86.zip
+    unzip build-wrapper-linux-x86.zip
+    export SONARCLOUD_BUILD_WRAPPER_PATH="${PWD}/build-wrapper-linux-x86/"
+    curl -L https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.2.0.1873-linux.zip -o sonar-scanner-cli.zip
+    unzip sonar-scanner-cli.zip
+    export SONAR_SCANNER_CLI_PATH="${PWD}/sonar-scanner-4.2.0.1873-linux/bin/"
+
     CMAKE_OPTS+=("-DCMAKE_BUILD_TYPE=Debug") # do a debug build to avoid unused variable warnings with assertions, and to speed up build
     CMAKE_OPTS+=("-DCMAKE_CXX_CLANG_TIDY:STRING=${CLANG_TIDY}")
     if [ -n ${SONARCLOUD_BUILD_WRAPPER_PATH} ] ; then

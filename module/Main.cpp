@@ -11,6 +11,10 @@
 #endif // SQMOD_OS_WINDOWS
 
 // ------------------------------------------------------------------------------------------------
+#include <curl/curl.h>
+#include <civetweb.h>
+
+// ------------------------------------------------------------------------------------------------
 namespace SqMod {
 
 // ------------------------------------------------------------------------------------------------
@@ -24,6 +28,9 @@ extern void ProcessRoutines();
 extern void ProcessTasks();
 extern void ProcessThreads();
 extern void ProcessNet();
+#ifdef SQMOD_DISCORD
+    extern void ProcessDiscord();
+#endif
 
 /* ------------------------------------------------------------------------------------------------
  * Will the scripts be reloaded at the end of the current event?
@@ -147,6 +154,7 @@ static void OnServerShutdown()
         Core::Get().EmitServerShutdown();
         // Deallocate and release everything obtained at startup
         Core::Get().Terminate(true);
+        curl_global_cleanup();
         SQMOD_SV_EV_TRACEBACK("[TRACE>] OnServerShutdown")
     }
     SQMOD_CATCH_EVENT_EXCEPTION(OnServerShutdown)
@@ -172,6 +180,10 @@ static void OnServerFrame(float elapsed_time)
     ProcessThreads();
     // Process network
     ProcessNet();
+    // Process Discord
+#ifdef SQMOD_DISCORD
+    ProcessDiscord();
+#endif
     // Process log messages from other threads
     Logger::Get().ProcessQueue();
     // See if a reload was requested
@@ -994,6 +1006,8 @@ SQMOD_API_EXPORT unsigned int VcmpPluginInit(PluginFuncs * funcs, PluginCallback
     _Info->apiMinorVersion = PLUGIN_API_MINOR;
     // Assign the plug-in name
     std::snprintf(_Info->name, sizeof(_Info->name), "%s", SQMOD_HOST_NAME);
+    // Initialize CURL
+    curl_global_init(CURL_GLOBAL_DEFAULT);
     // Initialize third-party allocator
     gsRPMallocInit = std::make_unique< RPMallocInit >();
     // Attempt to initialize the logger before anything else

@@ -1,31 +1,4 @@
-/*
-    Copyright (c) 2007-2019 Contributors as noted in the AUTHORS file
-
-    This file is part of libzmq, the ZeroMQ core engine in C++.
-
-    libzmq is free software; you can redistribute it and/or modify it under
-    the terms of the GNU Lesser General Public License (LGPL) as published
-    by the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
-
-    As a special exception, the Contributors give you permission to link
-    this library with independent modules to produce an executable,
-    regardless of the license terms of these independent modules, and to
-    copy and distribute the resulting executable under terms of your choice,
-    provided that you also meet, for each linked independent module, the
-    terms and conditions of the license of that module. An independent
-    module is a module which is not derived from or based on this library.
-    If you modify this library, you must extend this exception to your
-    version of the library.
-
-    libzmq is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
-    License for more details.
-
-    You should have received a copy of the GNU Lesser General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+/* SPDX-License-Identifier: MPL-2.0 */
 #include "testutil.hpp"
 #include "testutil_unity.hpp"
 
@@ -383,10 +356,14 @@ fd_t connect_socket (const char *endpoint_, const int af_, const int protocol_)
     //  OSX is very opinionated and wants the size to match the AF family type
     socklen_t addr_len;
     const fd_t s_pre = socket (af_, SOCK_STREAM,
-                               protocol_ == IPPROTO_UDP
-                                 ? IPPROTO_UDP
-                                 : protocol_ == IPPROTO_TCP ? IPPROTO_TCP : 0);
+                               protocol_ == IPPROTO_UDP   ? IPPROTO_UDP
+                               : protocol_ == IPPROTO_TCP ? IPPROTO_TCP
+                                                          : 0);
+#ifdef ZMQ_HAVE_WINDOWS
+    TEST_ASSERT_NOT_EQUAL (INVALID_SOCKET, s_pre);
+#else
     TEST_ASSERT_NOT_EQUAL (-1, s_pre);
+#endif
 
     if (af_ == AF_INET || af_ == AF_INET6) {
         const char *port = strrchr (endpoint_, ':') + 1;
@@ -440,10 +417,14 @@ fd_t bind_socket_resolve_port (const char *address_,
     //  OSX is very opinionated and wants the size to match the AF family type
     socklen_t addr_len;
     const fd_t s_pre = socket (af_, SOCK_STREAM,
-                               protocol_ == IPPROTO_UDP
-                                 ? IPPROTO_UDP
-                                 : protocol_ == IPPROTO_TCP ? IPPROTO_TCP : 0);
+                               protocol_ == IPPROTO_UDP   ? IPPROTO_UDP
+                               : protocol_ == IPPROTO_TCP ? IPPROTO_TCP
+                                                          : 0);
+#ifdef ZMQ_HAVE_WINDOWS
+    TEST_ASSERT_NOT_EQUAL (INVALID_SOCKET, s_pre);
+#else
     TEST_ASSERT_NOT_EQUAL (-1, s_pre);
+#endif
 
     if (af_ == AF_INET || af_ == AF_INET6) {
 #ifdef ZMQ_HAVE_WINDOWS
@@ -510,16 +491,15 @@ fd_t bind_socket_resolve_port (const char *address_,
         addr_len = sizeof (struct sockaddr_storage);
         TEST_ASSERT_SUCCESS_RAW_ERRNO (
           getsockname (s_pre, (struct sockaddr *) &addr, &addr_len));
-        sprintf (my_endpoint_, "%s://%s:%u",
-                 protocol_ == IPPROTO_TCP
-                   ? "tcp"
-                   : protocol_ == IPPROTO_UDP
-                       ? "udp"
-                       : protocol_ == IPPROTO_WSS ? "wss" : "ws",
-                 address_,
-                 af_ == AF_INET
-                   ? ntohs ((*(struct sockaddr_in *) &addr).sin_port)
-                   : ntohs ((*(struct sockaddr_in6 *) &addr).sin6_port));
+        snprintf (
+          my_endpoint_, 6 + strlen (address_) + 7 * sizeof (char), "%s://%s:%u",
+          protocol_ == IPPROTO_TCP   ? "tcp"
+          : protocol_ == IPPROTO_UDP ? "udp"
+          : protocol_ == IPPROTO_WSS ? "wss"
+                                     : "ws",
+          address_,
+          af_ == AF_INET ? ntohs ((*(struct sockaddr_in *) &addr).sin_port)
+                         : ntohs ((*(struct sockaddr_in6 *) &addr).sin6_port));
     }
 
     return s_pre;

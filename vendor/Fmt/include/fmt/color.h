@@ -10,15 +10,8 @@
 
 #include "format.h"
 
-// __declspec(deprecated) is broken in some MSVC versions.
-#if FMT_MSC_VER
-#  define FMT_DEPRECATED_NONMSVC
-#else
-#  define FMT_DEPRECATED_NONMSVC FMT_DEPRECATED
-#endif
-
 FMT_BEGIN_NAMESPACE
-FMT_MODULE_EXPORT_BEGIN
+FMT_BEGIN_EXPORT
 
 enum class color : uint32_t {
   alice_blue = 0xF0F8FF,               // rgb(240,248,255)
@@ -270,16 +263,6 @@ class text_style {
     return lhs |= rhs;
   }
 
-  FMT_DEPRECATED_NONMSVC FMT_CONSTEXPR text_style& operator&=(
-      const text_style& rhs) {
-    return and_assign(rhs);
-  }
-
-  FMT_DEPRECATED_NONMSVC friend FMT_CONSTEXPR text_style
-  operator&(text_style lhs, const text_style& rhs) {
-    return lhs.and_assign(rhs);
-  }
-
   FMT_CONSTEXPR bool has_foreground() const noexcept {
     return set_foreground_color;
   }
@@ -315,36 +298,9 @@ class text_style {
     }
   }
 
-  // DEPRECATED!
-  FMT_CONSTEXPR text_style& and_assign(const text_style& rhs) {
-    if (!set_foreground_color) {
-      set_foreground_color = rhs.set_foreground_color;
-      foreground_color = rhs.foreground_color;
-    } else if (rhs.set_foreground_color) {
-      if (!foreground_color.is_rgb || !rhs.foreground_color.is_rgb)
-        FMT_THROW(format_error("can't AND a terminal color"));
-      foreground_color.value.rgb_color &= rhs.foreground_color.value.rgb_color;
-    }
+  friend FMT_CONSTEXPR text_style fg(detail::color_type foreground) noexcept;
 
-    if (!set_background_color) {
-      set_background_color = rhs.set_background_color;
-      background_color = rhs.background_color;
-    } else if (rhs.set_background_color) {
-      if (!background_color.is_rgb || !rhs.background_color.is_rgb)
-        FMT_THROW(format_error("can't AND a terminal color"));
-      background_color.value.rgb_color &= rhs.background_color.value.rgb_color;
-    }
-
-    ems = static_cast<emphasis>(static_cast<uint8_t>(ems) &
-                                static_cast<uint8_t>(rhs.ems));
-    return *this;
-  }
-
-  friend FMT_CONSTEXPR_DECL text_style
-  fg(detail::color_type foreground) noexcept;
-
-  friend FMT_CONSTEXPR_DECL text_style
-  bg(detail::color_type background) noexcept;
+  friend FMT_CONSTEXPR text_style bg(detail::color_type background) noexcept;
 
   detail::color_type foreground_color;
   detail::color_type background_color;
@@ -467,26 +423,6 @@ FMT_CONSTEXPR ansi_color_escape<Char> make_emphasis(emphasis em) noexcept {
   return ansi_color_escape<Char>(em);
 }
 
-template <typename Char> inline void fputs(const Char* chars, FILE* stream) {
-  int result = std::fputs(chars, stream);
-  if (result < 0)
-    FMT_THROW(system_error(errno, FMT_STRING("cannot write to file")));
-}
-
-template <> inline void fputs<wchar_t>(const wchar_t* chars, FILE* stream) {
-  int result = std::fputws(chars, stream);
-  if (result < 0)
-    FMT_THROW(system_error(errno, FMT_STRING("cannot write to file")));
-}
-
-template <typename Char> inline void reset_color(FILE* stream) {
-  fputs("\x1b[0m", stream);
-}
-
-template <> inline void reset_color<wchar_t>(FILE* stream) {
-  fputs(L"\x1b[0m", stream);
-}
-
 template <typename Char> inline void reset_color(buffer<Char>& buffer) {
   auto reset_color = string_view("\x1b[0m");
   buffer.append(reset_color.begin(), reset_color.end());
@@ -523,17 +459,19 @@ void vformat_to(buffer<Char>& buf, const text_style& ts,
 
 FMT_END_DETAIL_NAMESPACE
 
-template <typename S, typename Char = char_t<S>>
-void vprint(std::FILE* f, const text_style& ts, const S& format,
-            basic_format_args<buffer_context<type_identity_t<Char>>> args) {
-  basic_memory_buffer<Char> buf;
-  detail::vformat_to(buf, ts, to_string_view(format), args);
+inline void vprint(std::FILE* f, const text_style& ts, string_view fmt,
+                   format_args args) {
+  // Legacy wide streams are not supported.
+  auto buf = memory_buffer();
+  detail::vformat_to(buf, ts, fmt, args);
   if (detail::is_utf8()) {
-    detail::print(f, basic_string_view<Char>(buf.begin(), buf.size()));
-  } else {
-    buf.push_back(Char(0));
-    detail::fputs(buf.data(), f);
+    detail::print(f, string_view(buf.begin(), buf.size()));
+    return;
   }
+  buf.push_back('\0');
+  int result = std::fputs(buf.data(), f);
+  if (result < 0)
+    FMT_THROW(system_error(errno, FMT_STRING("cannot write to file")));
 }
 
 /**
@@ -577,7 +515,7 @@ inline std::basic_string<Char> vformat(
     const text_style& ts, const S& format_str,
     basic_format_args<buffer_context<type_identity_t<Char>>> args) {
   basic_memory_buffer<Char> buf;
-  detail::vformat_to(buf, ts, to_string_view(format_str), args);
+  detail::vformat_to(buf, ts, detail::to_string_view(format_str), args);
   return fmt::to_string(buf);
 }
 
@@ -596,7 +534,7 @@ inline std::basic_string<Char> vformat(
 template <typename S, typename... Args, typename Char = char_t<S>>
 inline std::basic_string<Char> format(const text_style& ts, const S& format_str,
                                       const Args&... args) {
-  return fmt::vformat(ts, to_string_view(format_str),
+  return fmt::vformat(ts, detail::to_string_view(format_str),
                       fmt::make_format_args<buffer_context<Char>>(args...));
 }
 
@@ -610,7 +548,7 @@ OutputIt vformat_to(
     basic_format_args<buffer_context<type_identity_t<Char>>> args) {
   auto&& buf = detail::get_buffer<Char>(out);
   detail::vformat_to(buf, ts, format_str, args);
-  return detail::get_iterator(buf);
+  return detail::get_iterator(buf, out);
 }
 
 /**
@@ -631,7 +569,7 @@ template <typename OutputIt, typename S, typename... Args,
 inline auto format_to(OutputIt out, const text_style& ts, const S& format_str,
                       Args&&... args) ->
     typename std::enable_if<enable, OutputIt>::type {
-  return vformat_to(out, ts, to_string_view(format_str),
+  return vformat_to(out, ts, detail::to_string_view(format_str),
                     fmt::make_format_args<buffer_context<char_t<S>>>(args...));
 }
 
@@ -678,8 +616,9 @@ struct formatter<detail::styled_arg<T>, Char> : formatter<T, Char> {
 
   **Example**::
 
-    fmt::print("Elapsed time: {s:.2f} seconds",
-               fmt::styled(1.23, fmt::fg(fmt::colors::green) | fmt::bg(fmt::color::blue)));
+    fmt::print("Elapsed time: {0:.2f} seconds",
+               fmt::styled(1.23, fmt::fg(fmt::color::green) |
+                                 fmt::bg(fmt::color::blue)));
   \endrst
  */
 template <typename T>
@@ -688,7 +627,7 @@ FMT_CONSTEXPR auto styled(const T& value, text_style ts)
   return detail::styled_arg<remove_cvref_t<T>>{value, ts};
 }
 
-FMT_MODULE_EXPORT_END
+FMT_END_EXPORT
 FMT_END_NAMESPACE
 
 #endif  // FMT_COLOR_H_

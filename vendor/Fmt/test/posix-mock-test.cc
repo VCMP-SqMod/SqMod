@@ -6,7 +6,7 @@
 // For the license information refer to format.h.
 
 // Disable bogus MSVC warnings.
-#ifndef _CRT_SECURE_NO_WARNINGS
+#if !defined(_CRT_SECURE_NO_WARNINGS) && defined(_MSC_VER)
 #  define _CRT_SECURE_NO_WARNINGS
 #endif
 
@@ -71,12 +71,6 @@ enum { none, max_size, error } fstat_sim;
 int test::open(const char* path, int oflag, int mode) {
   EMULATE_EINTR(open, -1);
   return ::open(path, oflag, mode);
-}
-#else
-errno_t test::sopen_s(int* pfh, const char* filename, int oflag, int shflag,
-                      int pmode) {
-  EMULATE_EINTR(open, EINTR);
-  return _sopen_s(pfh, filename, oflag, shflag, pmode);
 }
 #endif
 
@@ -220,11 +214,11 @@ TEST(os_test, getpagesize) {
 }
 
 TEST(file_test, open_retry) {
+#  ifndef _WIN32
   write_file("temp", "there must be something here");
   std::unique_ptr<file> f{nullptr};
   EXPECT_RETRY(f.reset(new file("temp", file::RDONLY)), open,
                "cannot open file temp");
-#  ifndef _WIN32
   char c = 0;
   f->read(&c, 1);
 #  endif
@@ -438,7 +432,7 @@ TEST(buffered_file_test, fileno_no_retry) {
   file::pipe(read_end, write_end);
   buffered_file f = read_end.fdopen("r");
   fileno_count = 1;
-  EXPECT_SYSTEM_ERROR((f.fileno)(), EINTR, "cannot get file descriptor");
+  EXPECT_SYSTEM_ERROR((f.descriptor)(), EINTR, "cannot get file descriptor");
   EXPECT_EQ(2, fileno_count);
   fileno_count = 0;
 }

@@ -2,11 +2,13 @@
 #define CPR_CPR_TYPES_H
 
 #include <curl/curl.h>
+#include <curl/system.h>
 #include <initializer_list>
 #include <map>
 #include <memory>
 #include <numeric>
 #include <string>
+#include <string_view>
 
 namespace cpr {
 
@@ -15,12 +17,21 @@ namespace cpr {
  **/
 using cpr_off_t = curl_off_t;
 
+/**
+ * The argument type for progress functions, dependent on libcurl version
+ **/
+#if LIBCURL_VERSION_NUM < 0x072000
+using cpr_pf_arg_t = double;
+#else
+using cpr_pf_arg_t = cpr_off_t;
+#endif
+
 template <class T>
 class StringHolder {
   public:
     StringHolder() = default;
-    explicit StringHolder(const std::string& str) : str_(str) {}
-    explicit StringHolder(std::string&& str) : str_(std::move(str)) {}
+    explicit StringHolder(std::string str) : str_(std::move(str)) {}
+    explicit StringHolder(std::string_view str) : str_(str) {}
     explicit StringHolder(const char* str) : str_(str) {}
     StringHolder(const char* str, size_t len) : str_(str, len) {}
     StringHolder(const std::initializer_list<std::string> args) {
@@ -107,9 +118,9 @@ class Url : public StringHolder<Url> {
   public:
     Url() = default;
     // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
-    Url(const std::string& url) : StringHolder<Url>(url) {}
+    Url(std::string url) : StringHolder<Url>(std::move(url)) {}
     // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
-    Url(std::string&& url) : StringHolder<Url>(std::move(url)) {}
+    Url(std::string_view url) : StringHolder<Url>(url) {}
     // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
     Url(const char* url) : StringHolder<Url>(url) {}
     Url(const char* str, size_t len) : StringHolder<Url>(std::string(str, len)) {}

@@ -1,31 +1,4 @@
-/*
-    Copyright (c) 2007-2016 Contributors as noted in the AUTHORS file
-
-    This file is part of libzmq, the ZeroMQ core engine in C++.
-
-    libzmq is free software; you can redistribute it and/or modify it under
-    the terms of the GNU Lesser General Public License (LGPL) as published
-    by the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
-
-    As a special exception, the Contributors give you permission to link
-    this library with independent modules to produce an executable,
-    regardless of the license terms of these independent modules, and to
-    copy and distribute the resulting executable under terms of your choice,
-    provided that you also meet, for each linked independent module, the
-    terms and conditions of the license of that module. An independent
-    module is a module which is not derived from or based on this library.
-    If you modify this library, you must extend this exception to your
-    version of the library.
-
-    libzmq is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
-    License for more details.
-
-    You should have received a copy of the GNU Lesser General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+/* SPDX-License-Identifier: MPL-2.0 */
 
 #include "testutil.hpp"
 #include "testutil_unity.hpp"
@@ -41,8 +14,10 @@ static void bounce_fail (void *server_, void *client_)
     char buffer[32];
 
     //  Send message from client to server
-    send_string_expect_success (client_, content, ZMQ_SNDMORE);
-    send_string_expect_success (client_, content, 0);
+    int rc = zmq_send (client_, content, 32, ZMQ_SNDMORE);
+    TEST_ASSERT_TRUE (rc == 32 || rc == -1);
+    rc = zmq_send (client_, content, 32, 0);
+    TEST_ASSERT_TRUE (rc == 32 || rc == -1);
 
     //  Receive message at server side (should not succeed)
     int timeout = SETTLE_TIME;
@@ -61,7 +36,7 @@ template <class T>
 static void
 run_test (int opt_, T optval_, int expected_error_, int bounce_test_)
 {
-    void *sb = test_context_socket (ZMQ_DEALER);
+    void *sb = test_context_socket (ZMQ_PAIR);
 
     if (opt_) {
         const int rc = zmq_setsockopt (sb, opt_, &optval_, sizeof (optval_));
@@ -72,7 +47,7 @@ run_test (int opt_, T optval_, int expected_error_, int bounce_test_)
         }
     }
 
-    void *sc = test_context_socket (ZMQ_DEALER);
+    void *sc = test_context_socket (ZMQ_PAIR);
 
     // If a test fails, don't hang for too long
     int timeout = 2500;
@@ -89,9 +64,9 @@ run_test (int opt_, T optval_, int expected_error_, int bounce_test_)
       zmq_setsockopt (sc, ZMQ_RECONNECT_IVL, &interval, sizeof (int)));
 
     if (bounce_test_) {
-        const char *endpoint = "ipc://test_filter_ipc.sock";
-        TEST_ASSERT_SUCCESS_ERRNO (zmq_bind (sb, endpoint));
-        TEST_ASSERT_SUCCESS_ERRNO (zmq_connect (sc, endpoint));
+        char my_endpoint[256];
+        bind_loopback_ipc (sb, my_endpoint, sizeof my_endpoint);
+        TEST_ASSERT_SUCCESS_ERRNO (zmq_connect (sc, my_endpoint));
 
         if (bounce_test_ > 0)
             bounce (sb, sc);

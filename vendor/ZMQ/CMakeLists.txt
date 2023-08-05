@@ -1,11 +1,7 @@
 # CMake build script for ZeroMQ
 project(ZeroMQ)
 
-if(${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
-  cmake_minimum_required(VERSION 3.0.2)
-else()
-  cmake_minimum_required(VERSION 2.8.12)
-endif()
+  cmake_minimum_required(VERSION 3.9)
 
 include(CheckIncludeFiles)
 include(CheckCCompilerFlag)
@@ -15,6 +11,7 @@ include(CheckCSourceCompiles)
 include(CheckCSourceRuns)
 include(CMakeDependentOption)
 include(CheckCXXSymbolExists)
+include(CheckStructHasMember)
 include(CheckTypeSize)
 include(FindThreads)
 include(GNUInstallDirs)
@@ -24,11 +21,6 @@ include(CMakePackageConfigHelpers)
 list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_SOURCE_DIR}")
 set(ZMQ_CMAKE_MODULES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/builds/cmake/Modules)
 list(APPEND CMAKE_MODULE_PATH ${ZMQ_CMAKE_MODULES_DIR})
-# This is tp deal with the fact that windows file names is case insensitive while linux isn't
-# So linux has issues finding FindSodium.cmake because it looks for Findsodium.cmake
-# Lazy workaround, if I can even call it that
-set(ZMQ_CMAKE_MODULES_DIR2 ${CMAKE_CURRENT_SOURCE_DIR}/builds/cmake/Modules2)
-list(APPEND CMAKE_MODULE_PATH ${ZMQ_CMAKE_MODULES_DIR2})
 
 include(TestZMQVersion)
 include(ZMQSourceRunChecks)
@@ -116,14 +108,14 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
 endif()
 
 if (NOT MSVC)
-  if(NOT CMAKE_CXX_FLAGS MATCHES "-std=")
+  if(NOT CMAKE_CXX_FLAGS MATCHES "-std=" AND NOT CXX_STANDARD AND NOT CMAKE_CXX_STANDARD)
     # use C++11 by default if supported
     check_cxx_compiler_flag("-std=c++11" COMPILER_SUPPORTS_CXX11)
     if(COMPILER_SUPPORTS_CXX11)
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
     endif()
   endif()
-  if(NOT CMAKE_C_FLAGS MATCHES "-std=")
+  if(NOT CMAKE_C_FLAGS MATCHES "-std=" AND NOT C_STANDARD AND NOT CMAKE_C_STANDARD)
     check_c_compiler_flag("-std=c11" COMPILER_SUPPORTS_C11)
     if(COMPILER_SUPPORTS_C11)
       set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11")
@@ -146,6 +138,7 @@ endif()
 # Will be used to add flags to pkg-config useful when apps want to statically link
 set(pkg_config_libs_private "")
 set(pkg_config_names_private "")
+set(pkg_config_defines "")
 
 option(WITH_OPENPGM "Build with support for OpenPGM" OFF)
 option(WITH_NORM "Build with support for NORM" OFF)
@@ -164,9 +157,9 @@ endif()
 # Enable WebSocket transport and RadixTree
 if(ENABLE_DRAFTS)
   message(STATUS "Building draft classes and methods")
-  set(ZMQ_BUILD_DRAFT_API 1)
   option(ENABLE_WS "Enable WebSocket transport" ON)
   option(ENABLE_RADIX_TREE "Use radix tree implementation to manage subscriptions" ON)
+  set(pkg_config_defines "-DZMQ_BUILD_DRAFT_API=1")
 else()
   message(STATUS "Not building draft classes and methods")
   option(ENABLE_WS "Enable WebSocket transport" OFF)
@@ -258,13 +251,13 @@ if(NOT MSVC)
   check_cxx_symbol_exists(strlcpy string.h ZMQ_HAVE_STRLCPY)
 endif()
 
-# Select curve encryption library, defaults to tweetnacl To use libsodium instead, use --with-libsodium(must be
+# Select curve encryption library, defaults to disabled To use libsodium instead, use --with-libsodium(must be
 # installed) To disable curve, use --disable-curve
 
-option(WITH_LIBSODIUM "Use libsodium instead of built-in tweetnacl" ON)
+option(WITH_LIBSODIUM "Use libsodium" OFF)
 option(WITH_LIBSODIUM_STATIC "Use static libsodium library" OFF)
 option(ENABLE_LIBSODIUM_RANDOMBYTES_CLOSE "Automatically close libsodium randombytes. Not threadsafe without getrandom()" ON)
-option(ENABLE_CURVE "Enable CURVE security" ON)
+option(ENABLE_CURVE "Enable CURVE security" OFF)
 
 if(ENABLE_CURVE)
   if(WITH_LIBSODIUM)
@@ -272,6 +265,7 @@ if(ENABLE_CURVE)
     if(SODIUM_FOUND)
       message(STATUS "Using libsodium for CURVE security")
       include_directories(${SODIUM_INCLUDE_DIRS})
+      link_directories(${SODIUM_LIBRARY_DIRS})
       if(WITH_LIBSODIUM_STATIC)
         add_compile_definitions(SODIUM_STATIC)
       endif()
@@ -282,16 +276,10 @@ if(ENABLE_CURVE)
       endif()
     else()
       message(
-        WARNING
-          "libsodium not installed, instead using builtin tweetnacl, you may want to install libsodium and run cmake again"
+        ERROR
+          "libsodium not installed, you may want to install libsodium and run cmake again"
       )
     endif()
-  endif()
-  if(NOT ZMQ_HAVE_CURVE)
-    message(STATUS "Using tweetnacl for CURVE security")
-    list(APPEND sources ${CMAKE_CURRENT_SOURCE_DIR}/src/tweetnacl.c)
-    set(ZMQ_USE_TWEETNACL 1)
-    set(ZMQ_HAVE_CURVE 1)
   endif()
 else()
   message(STATUS "CURVE security is disabled")
@@ -406,9 +394,7 @@ if(NOT MSVC)
   endif()
 
   if(POLLER STREQUAL "")
-    set(CMAKE_EXTRA_INCLUDE_FILES sys/devpoll.h)
-    check_type_size("struct pollfd" DEVPOLL)
-    set(CMAKE_EXTRA_INCLUDE_FILES)
+    check_include_files("sys/devpoll.h" HAVE_DEVPOLL)
     if(HAVE_DEVPOLL)
       set(POLLER "devpoll")
     endif()
@@ -473,6 +459,11 @@ message(STATUS "Using polling method in zmq_poll(er)_* API: ${API_POLLER}")
 string(TOUPPER ${API_POLLER} UPPER_API_POLLER)
 set(ZMQ_POLL_BASED_ON_${UPPER_API_POLLER} 1)
 
+check_cxx_symbol_exists(pselect sys/select.h HAVE_PSELECT)
+if (NOT WIN32 AND HAVE_PSELECT)
+  set(ZMQ_HAVE_PPOLL 1)
+endif()
+
 # special alignment settings
 execute_process(
   COMMAND getconf LEVEL1_DCACHE_LINESIZE
@@ -480,7 +471,8 @@ execute_process(
   ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 if(CACHELINE_SIZE STREQUAL ""
    OR CACHELINE_SIZE EQUAL 0
-   OR CACHELINE_SIZE EQUAL -1)
+   OR CACHELINE_SIZE EQUAL -1
+   OR CACHELINE_SIZE EQUAL "undefined")
   set(ZMQ_CACHELINE_SIZE 64)
 else()
   set(ZMQ_CACHELINE_SIZE ${CACHELINE_SIZE})
@@ -495,8 +487,12 @@ endif()
 
 if(NOT WIN32)
   set(ZMQ_HAVE_IPC 1)
+  set(ZMQ_HAVE_STRUCT_SOCKADDR_UN 1)
 else()
   check_include_files("winsock2.h;afunix.h" ZMQ_HAVE_IPC)
+  if(ZMQ_HAVE_IPC)
+    check_struct_has_member("struct sockaddr_un" sun_path "winsock2.h;afunix.h" ZMQ_HAVE_STRUCT_SOCKADDR_UN)
+  endif()
 endif()
 
 # ##################### BEGIN condition_variable_t selection
@@ -730,20 +726,24 @@ if(NOT ANDROID)
 endif()
 
 # -----------------------------------------------------------------------------
-if(NOT CMAKE_CROSSCOMPILING AND NOT MSVC)
-  zmq_check_sock_cloexec()
-  zmq_check_o_cloexec()
-  zmq_check_so_bindtodevice()
-  zmq_check_so_keepalive()
-  zmq_check_so_priority()
-  zmq_check_tcp_keepcnt()
-  zmq_check_tcp_keepidle()
-  zmq_check_tcp_keepintvl()
-  zmq_check_tcp_keepalive()
-  zmq_check_tcp_tipc()
+if (NOT MSVC)
+  # Compilation checks
   zmq_check_pthread_setname()
   zmq_check_pthread_setaffinity()
-  zmq_check_getrandom()
+  # Execution checks
+  if(NOT CMAKE_CROSSCOMPILING)
+    zmq_check_sock_cloexec()
+    zmq_check_o_cloexec()
+    zmq_check_so_bindtodevice()
+    zmq_check_so_keepalive()
+    zmq_check_so_priority()
+    zmq_check_tcp_keepcnt()
+    zmq_check_tcp_keepidle()
+    zmq_check_tcp_keepintvl()
+    zmq_check_tcp_keepalive()
+    zmq_check_tcp_tipc()
+    zmq_check_getrandom()
+  endif()
 endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux"
@@ -891,13 +891,6 @@ if(MSVC)
   string(REGEX REPLACE "/Z.[^:]" "/Z7 " CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
   string(REGEX REPLACE "/Z.[^:]" "/Z7 " CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
 
-  # Optimization flags. http://msdn.microsoft.com/en-us/magazine/cc301698.aspx
-  if(NOT ${CMAKE_BUILD_TYPE} MATCHES "Debug")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GL")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LTCG")
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /LTCG")
-    set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} /LTCG")
-  endif()
 endif()
 
 # -----------------------------------------------------------------------------
@@ -1181,13 +1174,14 @@ endif()
 
 set(public_headers include/zmq.h include/zmq_utils.h)
 
-set(readme-docs AUTHORS COPYING COPYING.LESSER NEWS)
+set(readme-docs AUTHORS LICENSE NEWS)
 
 # -----------------------------------------------------------------------------
 # optional modules
 
 if(WITH_OPENPGM)
-  add_definitions(-DZMQ_HAVE_OPENPGM)
+  message(STATUS "Building with OpenPGM")
+  set(ZMQ_HAVE_OPENPGM 1)
   include_directories(${OPENPGM_INCLUDE_DIRS})
   link_directories(${OPENPGM_LIBRARY_DIRS})
   set(OPTIONAL_LIBRARIES ${OPENPGM_LIBRARIES})
@@ -1204,7 +1198,8 @@ if(WITH_NORM)
 endif()
 
 if(WITH_VMCI)
-  add_definitions(-DZMQ_HAVE_VMCI)
+message(STATUS "Building with VMCI")
+  set(ZMQ_HAVE_VMCI 1)
   include_directories(${VMCI_INCLUDE_DIRS})
   list(APPEND cxx-sources vmci_address.cpp vmci_connecter.cpp vmci_listener.cpp vmci.cpp)
 endif()
@@ -1230,8 +1225,8 @@ list(APPEND sources ${CMAKE_CURRENT_BINARY_DIR}/platform.hpp)
 
 set(prefix ${CMAKE_INSTALL_PREFIX})
 set(exec_prefix ${prefix})
-set(libdir ${prefix}/lib)
-set(includedir ${prefix}/include)
+set(libdir ${prefix}/${CMAKE_INSTALL_LIBDIR})
+set(includedir ${prefix}/${CMAKE_INSTALL_INCLUDEDIR})
 set(VERSION ${ZMQ_VERSION_MAJOR}.${ZMQ_VERSION_MINOR}.${ZMQ_VERSION_PATCH})
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/libzmq.pc.in ${CMAKE_CURRENT_BINARY_DIR}/libzmq.pc @ONLY)
 set(zmq-pkgconfig ${CMAKE_CURRENT_BINARY_DIR}/libzmq.pc)
@@ -1319,6 +1314,27 @@ if(MSVC)
                            VS_GLOBAL_RunCodeAnalysis true)
   endfunction()
   if(BUILD_SHARED)
+    # Whole Program Optimization flags. http://msdn.microsoft.com/en-us/magazine/cc301698.aspx
+    #
+    # "Finally, there's the subject of libraries. It's possible to create .LIB 
+    # files with code in its IL form. The linker will happily work with these 
+    # .LIB files. Be aware that these libraries will be tied to a specific 
+    # version of the compiler and linker. If you distribute these libraries, 
+    # you'll need to update them if Microsoft changes the format of IL in a 
+    # future release."
+    # 
+    # /GL and /LTCG can cause problems when libraries built with different 
+    # versions of compiler are later linked into an executable while /LTCG is active. 
+    # https://social.msdn.microsoft.com/Forums/vstudio/en-US/5c102025-c254-4f02-9a51-c775c6cc9f4b/problem-with-ltcg-when-building-a-static-library-in-vs2005?forum=vcgeneral
+    #
+    # For this reason, enable only when building a "Release" (e.g. non-DEBUG) DLL.
+    if(NOT ${CMAKE_BUILD_TYPE} MATCHES "Debug")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GL")
+      set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LTCG")
+      set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /LTCG")
+      set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} /LTCG")
+    endif()
+
     add_library(libzmq SHARED ${sources} ${public_headers} ${html-docs} ${readme-docs}
                               ${CMAKE_CURRENT_BINARY_DIR}/NSIS.template.in ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
     if(ENABLE_ANALYSIS)
@@ -1360,9 +1376,9 @@ else()
   if(NOT MINGW)
     add_library(objects OBJECT ${sources})
     set_property(TARGET objects PROPERTY POSITION_INDEPENDENT_CODE ON)
-    target_include_directories(
-      objects PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-                     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> $<INSTALL_INTERFACE:include>)
+    if(GNUTLS_FOUND)
+      target_include_directories(objects PRIVATE "${GNUTLS_INCLUDE_DIR}")
+    endif()
   endif()
 
   if(BUILD_SHARED)
@@ -1431,16 +1447,31 @@ if(BUILD_STATIC)
   list(APPEND target_outputs "libzmq-static")
 endif()
 
-foreach(target ${target_outputs})
+set(build_targets ${target_outputs})
+if(TARGET objects)
+  list(APPEND build_targets "objects")
+endif()
+
+foreach(target ${build_targets})
   target_include_directories(
     ${target} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> $<INSTALL_INTERFACE:include>)
+
+  if(ENABLE_DRAFTS)
+    target_compile_definitions(${target} PUBLIC ZMQ_BUILD_DRAFT_API)
+  endif()
 endforeach()
 
 if(BUILD_SHARED)
   target_link_libraries(libzmq ${CMAKE_THREAD_LIBS_INIT})
+
+  if(QNX)
+    target_link_libraries(libzmq -lsocket)
+  endif()
+
   if(GNUTLS_FOUND)
     target_link_libraries(libzmq ${GNUTLS_LIBRARIES})
+    target_include_directories(libzmq PRIVATE "${GNUTLS_INCLUDE_DIR}")
   endif()
 
   if(NSS3_FOUND)
@@ -1452,11 +1483,13 @@ if(BUILD_SHARED)
   endif()
 
   if(SODIUM_FOUND)
-    target_link_libraries(libzmq ${SODIUM_LIBRARIES})
+    target_link_libraries(libzmq PUBLIC ${SODIUM_LIBRARIES})
     # On Solaris, libsodium depends on libssp
     if(${CMAKE_SYSTEM_NAME} MATCHES "SunOS")
       target_link_libraries(libzmq ssp)
     endif()
+  else()
+    message(STATUS "Sodium not found!")
   endif()
 
   if(HAVE_WS2_32)
@@ -1480,12 +1513,17 @@ if(BUILD_SHARED)
   if(norm_FOUND)
       target_link_libraries(libzmq norm::norm)
   endif()
+
+  if(OPENPGM_FOUND)
+      target_link_libraries(libzmq ${OPENPGM_LIBRARIES})
+  endif()
 endif()
 
 if(BUILD_STATIC)
   target_link_libraries(libzmq-static ${CMAKE_THREAD_LIBS_INIT})
   if(GNUTLS_FOUND)
     target_link_libraries(libzmq-static ${GNUTLS_LIBRARIES})
+    target_include_directories(libzmq-static PRIVATE "${GNUTLS_INCLUDE_DIR}")
   endif()
 
   if(LIBBSD_FOUND)
@@ -1529,6 +1567,10 @@ if(BUILD_STATIC)
   if(norm_FOUND)
       target_link_libraries(libzmq-static norm::norm)
   endif()
+
+  if(OPENPGM_FOUND)
+      target_link_libraries(libzmq-static ${OPENPGM_LIBRARIES})
+  endif()
 endif()
 
 if(BUILD_SHARED)
@@ -1554,6 +1596,7 @@ if(BUILD_SHARED)
 
       if(GNUTLS_FOUND)
         target_link_libraries(${perf-tool} ${GNUTLS_LIBRARIES})
+        target_include_directories(${perf-tool} PRIVATE "${GNUTLS_INCLUDE_DIR}")
       endif()
 
       if(LIBBSD_FOUND)
@@ -1601,7 +1644,11 @@ endif()
 # -----------------------------------------------------------------------------
 # tests
 
-option(BUILD_TESTS "Whether or not to build the tests" ON)
+if(${CMAKE_VERSION} VERSION_LESS 3.12.3)
+  option(BUILD_TESTS "Whether or not to build the tests" OFF)
+else()
+  option(BUILD_TESTS "Whether or not to build the tests" ON)
+endif()
 
 set(ZMQ_BUILD_TESTS
     ${BUILD_TESTS}
@@ -1744,7 +1791,7 @@ if(MSVC AND ENABLE_CPACK)
   set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "ZeroMQ lightweight messaging kernel")
   set(CPACK_PACKAGE_VENDOR "Miru")
   set(CPACK_NSIS_CONTACT "Steven McCoy <Steven.McCoy@miru.hk>")
-  set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_BINARY_DIR}\\\\COPYING.txt")
+  set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_BINARY_DIR}\\\\LICENSE.txt")
   # set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_BINARY_DIR}\\\\README.txt") set(CPACK_RESOURCE_FILE_WELCOME
   # "${CMAKE_CURRENT_BINARY_DIR}\\\\WELCOME.txt") There is a bug in NSI that does not handle full unix paths properly.
   # Make sure there is at least one set of four(4) backslashes.
@@ -1827,4 +1874,10 @@ if(MSVC
    AND BUILD_SHARED
    AND BUILD_STATIC)
   add_dependencies(libzmq-static libzmq)
+endif()
+
+option(ENABLE_NO_EXPORT "Build with empty ZMQ_EXPORT macro, bypassing platform-based automated detection" OFF)
+if(ENABLE_NO_EXPORT)
+  message(STATUS "Building with empty ZMQ_EXPORT macro")
+  add_definitions(-DZMQ_NO_EXPORT)
 endif()

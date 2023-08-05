@@ -507,7 +507,7 @@ struct CpCookies : public cpr::Cookies
      * Move constructor.
     */
     explicit CpCookies(cpr::Cookies && e) : cpr::Cookies(std::move(e)) { }
-    
+
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
@@ -538,7 +538,7 @@ struct CpCookies : public cpr::Cookies
     */
     SQMOD_NODISCARD SQInteger Size() const
     {
-        return static_cast< SQInteger >(cpr::Cookies::map_.size());
+        return static_cast< SQInteger >(cpr::Cookies::cookies_.size());
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -546,7 +546,7 @@ struct CpCookies : public cpr::Cookies
     */
     SQMOD_NODISCARD bool Empty() const
     {
-        return cpr::Cookies::map_.empty();
+        return cpr::Cookies::cookies_.empty();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -554,7 +554,7 @@ struct CpCookies : public cpr::Cookies
     */
     void Clear()
     {
-        cpr::Cookies::map_.clear();
+        cpr::Cookies::cookies_.clear();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -562,7 +562,12 @@ struct CpCookies : public cpr::Cookies
     */
     SQMOD_NODISCARD SQInteger Count(StackStrF & key) const
     {
-        return static_cast< SQInteger >(cpr::Cookies::map_.count(key.ToStr()));
+      SQInteger cnt = 0;
+      for (const auto & c : cpr::Cookies::cookies_)
+      {
+        if (c.GetName().compare(0, static_cast<size_t>(key.mLen), key.mPtr) == 0) ++cnt;
+      }
+      return cnt;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -570,14 +575,14 @@ struct CpCookies : public cpr::Cookies
     */
     bool Erase(StackStrF & key)
     {
-        auto itr = cpr::Cookies::map_.find(key.ToStr());
-        // Does it exist?
-        if (itr == cpr::Cookies::map_.end())
-        {
-            return false; // Nope
-        }
-        // Erase it
-        cpr::Cookies::map_.erase(itr);
+        // auto itr = cpr::Cookies::cookies_.find(key.ToStr());
+        // // Does it exist?
+        // if (itr == cpr::Cookies::cookies_.end())
+        // {
+        //     return false; // Nope
+        // }
+        // // Erase it
+        // cpr::Cookies::cookies_.erase(itr);
         // Erased
         return true;
     }
@@ -587,7 +592,7 @@ struct CpCookies : public cpr::Cookies
     */
     SQMOD_NODISCARD bool Has(StackStrF & key) const
     {
-        return cpr::Cookies::map_.find(key.ToStr()) != cpr::Cookies::map_.end();
+        return false;//cpr::Cookies::cookies_.find(key.ToStr()) != cpr::Cookies::cookies_.end()
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -595,14 +600,15 @@ struct CpCookies : public cpr::Cookies
     */
     SQMOD_NODISCARD std::string & Get(StackStrF & key)
     {
-        auto itr = cpr::Cookies::map_.find(key.ToStr());
-        // Does it exist?
-        if (itr == cpr::Cookies::map_.end())
-        {
-            STHROWF("No cookie named: %s", key.mPtr);
-        }
+        // auto itr = cpr::Cookies::cookies_.find(key.ToStr());
+        // // Does it exist?
+        // if (itr == cpr::Cookies::cookies_.end())
+        // {
+        //     STHROWF("No cookie named: %s", key.mPtr);
+        // }
+        static std::string s;
         // Return it
-        return itr->second;
+        return s;// itr->second;
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -610,7 +616,7 @@ struct CpCookies : public cpr::Cookies
     */
     void Set(StackStrF & key, StackStrF & val)
     {
-        cpr::Cookies::map_[key.ToStr()] = val.ToStr();
+        //cpr::Cookies::cookies_[key.ToStr()] = val.ToStr();
     }
 
     /* --------------------------------------------------------------------------------------------
@@ -618,9 +624,9 @@ struct CpCookies : public cpr::Cookies
     */
     void Each(Function & fn) const
     {
-        for (const auto & p : cpr::Cookies::map_)
+        for (const auto & c : cpr::Cookies::cookies_)
         {
-            fn.Execute(p.first, p.second);
+            fn.Execute(c);
         }
     }
 
@@ -629,9 +635,9 @@ struct CpCookies : public cpr::Cookies
     */
     void While(Function & fn) const
     {
-        for (const auto & p : cpr::Cookies::map_)
+        for (const auto & c : cpr::Cookies::cookies_)
         {
-            auto ret = fn.Eval(p.first, p.second);
+            auto ret = fn.Eval(c);
             // (null || true) == continue & false == break
             if (!ret.IsNull() || !ret.Cast< bool >())
             {
@@ -664,7 +670,7 @@ struct CpHeader
      * Move constructor.
     */
     explicit CpHeader(cpr::Header && e) : mMap(std::move(e)) { }
-    
+
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
@@ -863,7 +869,7 @@ struct CpResponse : public cpr::Response
             STHROWF("Invalid response instance");
         }
         // Retrieve the info vector
-        auto vec = cpr::Response::GetCertInfo();
+        auto vec = cpr::Response::GetCertInfos();
         // Create a script array
         Array arr(SqVM(), static_cast< SQInteger >(vec.size()));
         // Populate the array with vector elements
@@ -1120,7 +1126,7 @@ struct CpParameters : public cpr::Parameters
      * Move constructor.
     */
     explicit CpParameters(cpr::Parameters && e) : cpr::Parameters(std::move(e)) { }
-    
+
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
@@ -1291,7 +1297,7 @@ struct CpPayload : public cpr::Payload
      * Move constructor.
     */
     explicit CpPayload(cpr::Payload && e) : cpr::Payload(std::move(e)) { }
-    
+
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
@@ -1470,7 +1476,7 @@ struct CpProxies : public cpr::Proxies
      * Move constructor.
     */
     explicit CpProxies(cpr::Proxies && e) : cpr::Proxies(std::move(e)) { }
-    
+
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
@@ -1619,7 +1625,7 @@ struct CpRedirect : public cpr::Redirect
      * Explicit constructor.
     */
     explicit CpRedirect(SQInteger maximum)
-        : cpr::Redirect(static_cast< long >(maximum), true, cpr::PostRedirectFlags::POST_ALL)
+        : cpr::Redirect(static_cast< long >(maximum), true, false, cpr::PostRedirectFlags::POST_ALL)
     {
     }
 
@@ -1627,15 +1633,23 @@ struct CpRedirect : public cpr::Redirect
      * Explicit constructor.
     */
     CpRedirect(SQInteger maximum, bool follow)
-        : cpr::Redirect(static_cast< long >(maximum), follow, cpr::PostRedirectFlags::POST_ALL)
+        : cpr::Redirect(static_cast< long >(maximum), follow, false, cpr::PostRedirectFlags::POST_ALL)
     {
     }
 
     /* --------------------------------------------------------------------------------------------
      * Explicit constructor.
     */
-    CpRedirect(SQInteger maximum, bool follow, SQInteger post_flags)
-        : cpr::Redirect(static_cast< long >(maximum), follow, static_cast< cpr::PostRedirectFlags >(post_flags))
+    CpRedirect(SQInteger maximum, bool follow, bool cont_send_cred)
+        : cpr::Redirect(static_cast< long >(maximum), follow, cont_send_cred, cpr::PostRedirectFlags::POST_ALL)
+    {
+    }
+
+    /* --------------------------------------------------------------------------------------------
+     * Explicit constructor.
+    */
+    CpRedirect(SQInteger maximum, bool follow, bool cont_send_cred, SQInteger post_flags)
+        : cpr::Redirect(static_cast< long >(maximum), follow, cont_send_cred, static_cast< cpr::PostRedirectFlags >(post_flags))
     {
     }
 
@@ -1648,7 +1662,7 @@ struct CpRedirect : public cpr::Redirect
      * Move constructor.
     */
     explicit CpRedirect(cpr::Redirect && e) : cpr::Redirect(e) { }
-    
+
     /* --------------------------------------------------------------------------------------------
      * Copy constructor.
     */
@@ -1879,20 +1893,10 @@ struct CpSession : public cpr::Session
     /* --------------------------------------------------------------------------------------------
      * Modify auth option.
     */
-    CpSession & SetAuth_(StackStrF & username, StackStrF & password)
+    CpSession & SetAuth_(StackStrF & username, StackStrF & password, SQInteger mode)
     {
         LockCheck();
-        cpr::Session::SetAuth(cpr::Authentication(username.ToStr(), password.ToStr()));
-        return *this; // Allow chaining
-    }
-
-    /* --------------------------------------------------------------------------------------------
-     * Modify digest option.
-    */
-    CpSession & SetDigest_(StackStrF & username, StackStrF & password)
-    {
-        LockCheck();
-        cpr::Session::SetAuth(cpr::Digest(username.ToStr(), password.ToStr()));
+        cpr::Session::SetAuth(cpr::Authentication(username.ToStr(), password.ToStr(), static_cast<cpr::AuthMode>(mode)));
         return *this; // Allow chaining
     }
 
@@ -1959,16 +1963,6 @@ struct CpSession : public cpr::Session
     //CpSession & YieldMultipart(cpr::Multipart && multipart)
     //{
     //}
-
-    /* --------------------------------------------------------------------------------------------
-     * Modify NTLM option.
-    */
-    CpSession & SetNTLM_(StackStrF & username, StackStrF & password)
-    {
-        LockCheck();
-        cpr::Session::SetNTLM(cpr::NTLM(username.ToStr(), password.ToStr()));
-        return *this; // Allow chaining
-    }
 
     /* --------------------------------------------------------------------------------------------
      * Modify redirect option.

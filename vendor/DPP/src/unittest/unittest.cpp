@@ -31,8 +31,13 @@ std::map<std::string, test_t> tests = {
 	{"DELCOMMAND", {tt_online, "Deletion of application command", false, false}},
 	{"LOGGER", {tt_online, "Log events", false, false}},
 	{"MESSAGECREATE", {tt_online, "Creation of a channel message", false, false}},
+	{"MESSAGEEDIT", {tt_online, "Editing a channel message", false, false}},
+	{"EDITEVENT", {tt_online, "Message edit event", false, false}},
+	{"MESSAGEPIN", {tt_online, "Pinning a channel message", false, false}},
+	{"MESSAGEUNPIN", {tt_online, "Unpinning a channel message", false, false}},
 	{"MESSAGEDELETE", {tt_online, "Deletion of a channel message", false, false}},
 	{"MESSAGERECEIVE", {tt_online, "Receipt of a created message", false, false}},
+	{"MESSAGEFILE", {tt_online, "Message attachment send and check", false, false}},
 	{"CACHE", {tt_online, "Test guild cache", false, false}},
 	{"USERCACHE", {tt_online, "Test user cache", false, false}},
 	{"VOICECONN", {tt_online, "Connect to voice channel", false, false}},
@@ -73,6 +78,7 @@ std::map<std::string, test_t> tests = {
 	{"HOSTINFO", {tt_offline, "https_client::get_host_info()", false, false}},
 	{"HTTPS", {tt_online, "https_client HTTPS request", false, false}},
 	{"HTTP", {tt_offline, "https_client HTTP request", false, false}},
+	{"MULTIHEADER", {tt_offline, "multiheader cookie test", false, false}},
 	{"RUNONCE", {tt_offline, "run_once<T>", false, false}},
 	{"WEBHOOK", {tt_offline, "webhook construct from URL", false, false}},
 	{"MD_ESC_1", {tt_offline, "Markdown escaping (ignore code block contents)", false, false}},
@@ -85,6 +91,16 @@ std::map<std::string, test_t> tests = {
 	{"FORUM_CREATION", {tt_online, "create a forum channel", false, false}},
 	{"FORUM_CHANNEL_GET", {tt_online, "retrieve the created forum channel", false, false}},
 	{"FORUM_CHANNEL_DELETE", {tt_online, "delete the created forum channel", false, false}},
+
+	{"GUILD_BAN_CREATE", {tt_online, "cluster::guild_ban_add ban three deleted discord accounts", false, false}},
+	{"GUILD_BAN_GET", {tt_online, "cluster::guild_get_ban getting one of the banned accounts", false, false}},
+	{"GUILD_BANS_GET", {tt_online, "cluster::guild_get_bans get bans using the after-parameter", false, false}},
+	{"GUILD_BAN_DELETE", {tt_online, "cluster::guild_ban_delete unban the banned discord accounts", false, false}},
+
+	{"VOICE_CHANNEL_CREATE", {tt_online, "creating a voice channel", false, false}},
+	{"VOICE_CHANNEL_EDIT", {tt_online, "editing the created voice channel", false, false}},
+	{"VOICE_CHANNEL_DELETE", {tt_online, "deleting the created voice channel", false, false}},
+
 	{"PERMISSION_CLASS", {tt_offline, "permission", false, false}},
 	{"USER_GET", {tt_online, "cluster::user_get", false, false}},
 	{"USER_GET_FLAGS", {tt_online, "cluster::user_get flag parsing", false, false}},
@@ -105,6 +121,10 @@ std::map<std::string, test_t> tests = {
 	{"UTILITY.USER_MENTION", {tt_offline, "utility::user_mention", false, false}},
 	{"UTILITY.ROLE_MENTION", {tt_offline, "utility::role_mention", false, false}},
 	{"UTILITY.EMOJI_MENTION", {tt_offline, "utility::emoji_mention", false, false}},
+	{"UTILITY.AVATAR_SIZE", {tt_offline, "utility::avatar_size", false, false}},
+	{"UTILITY.CDN_ENDPOINT_URL_HASH", {tt_offline, "utility::cdn_endpoint_url_hash", false, false}},
+	{"STICKER.GET_URL", {tt_offline, "sticker::get_url aka utility::cdn_endpoint_url_sticker", false, false}},
+	{"EMOJI.GET_URL", {tt_offline, "emoji::get_url", false, false}},
 	{"ROLE.COMPARE", {tt_offline, "role::operator<", false, false}},
 	{"ROLE_CREATE", {tt_online, "cluster::role_create", false, false}},
 	{"ROLE_EDIT", {tt_online, "cluster::role_edit", false, false}},
@@ -112,6 +132,21 @@ std::map<std::string, test_t> tests = {
 	{"JSON_PARSE_ERROR", {tt_online, "JSON parse error for post_rest", false, false}},
 	{"USER_GET_CACHED_PRESENT", {tt_online, "cluster::user_get_cached_sync() with present member", false, false}},
 	{"USER_GET_CACHED_ABSENT", {tt_online, "cluster::user_get_cached_sync() with not present member", false, false}},
+	{"GET_PARAMETER_WITH_SUBCOMMANDS", {tt_offline, "interaction_create_t::get_parameter() with subcommands", false, false}},
+	{"GET_PARAMETER_WITHOUT_SUBCOMMANDS", {tt_offline, "interaction_create_t::get_parameter() without subcommands", false, false}},
+	{"AUTOMOD_RULE_CREATE", {tt_online, "cluster::automod_rule_create", false, false}},
+	{"AUTOMOD_RULE_GET", {tt_online, "cluster::automod_rule_get", false, false}},
+	{"AUTOMOD_RULE_GET_ALL", {tt_online, "cluster::automod_rules_get", false, false}},
+	{"AUTOMOD_RULE_DELETE", {tt_online, "cluster::automod_rule_delete", false, false}},
+	{"REQUEST_GET_IMAGE", {tt_online, "using the cluster::request method to fetch an image", false, false}},
+	{"EMOJI_CREATE", {tt_online, "cluster::guild_emoji_create", false, false}},
+	{"EMOJI_GET", {tt_online, "cluster::guild_emoji_get", false, false}},
+	{"EMOJI_DELETE", {tt_online, "cluster::guild_emoji_delete", false, false}},
+	{"INVITE_CREATE_EVENT", {tt_online, "cluster::on_invite_create", false, false}},
+	{"INVITE_DELETE_EVENT", {tt_online, "cluster::on_invite_delete", false, false}},
+	{"INVITE_CREATE", {tt_online, "cluster::channel_invite_create", false, false}},
+	{"INVITE_GET", {tt_online, "cluster::invite_get", false, false}},
+	{"INVITE_DELETE", {tt_online, "cluster::invite_delete", false, false}},
 };
 
 double start = dpp::utility::time_f();
@@ -169,7 +204,7 @@ int test_summary() {
 				passed++;
 			}
 		}
-		std::cout << std::left << std::setw(60) << t.second.description << " " << std::fixed << std::setw(6) << (test_skipped ? "\u001b[33mSKIPPED" : (t.second.executed && t.second.success ? "\u001b[32mPASS" : "\u001b[31mFAIL")) << std::setw(0) << "\u001b[0m\n";
+		std::cout << std::left << std::setw(60) << t.second.description << " " << std::fixed << std::setw(6) << (test_skipped ? "\u001b[33mSKIPPED" : (t.second.executed && t.second.success ? "\u001b[32mPASS" : (!t.second.executed ? "\u001b[31mNOT EXECUTED" : "\u001b[31mFAIL"))) << std::setw(0) << "\u001b[0m\n";
 	}
 	std::cout << "\u001b[37;1m\nExecution finished in " << std::fixed << std::setprecision(3) <<  get_time() << std::setprecision(0) << " seconds.\nFailed: " << failed << " Passed: " << passed << (skipped ? " Skipped: " : "") << (skipped ? std::to_string(skipped) : "") << " Percentage: " << std::setprecision(2) << ((float)(passed) / (float)(passed + failed) * 100.0f) << "%\u001b[0m\n";
 	return failed;
@@ -190,6 +225,23 @@ std::vector<uint8_t> load_test_audio() {
 		exit(1);
 	}
 	return testaudio;
+}
+
+std::vector<uint8_t> load_test_image() {
+	std::vector<uint8_t> testimage;
+	std::ifstream input ("../../testdata/DPP-Logo.png", std::ios::in|std::ios::binary|std::ios::ate);
+	if (input.is_open()) {
+		size_t testimage_size = input.tellg();
+		testimage.resize(testimage_size);
+		input.seekg(0, std::ios::beg);
+		input.read((char*)testimage.data(), testimage_size);
+		input.close();
+	}
+	else {
+		std::cout << "ERROR: Can't load ../../testdata/DPP-Logo.png\n";
+		exit(1);
+	}
+	return testimage;
 }
 
 std::string get_token() {

@@ -29,9 +29,11 @@
 #include <dpp/exception.h>
 #include <dpp/cluster.h>
 
-using json = nlohmann::json;
+
 
 namespace dpp {
+
+using json = nlohmann::json;
 
 component::component() :
 	type(cot_action_row), label(""), style(cos_primary), custom_id(""),
@@ -532,9 +534,10 @@ message& message::set_file_content(const std::string &fc)
 	return *this;
 }
 
-message& message::add_file(const std::string &fn, const std::string &fc) {
-	filecontent.push_back(fc);
+message& message::add_file(const std::string &fn, const std::string &fc, const std::string &fm) {
 	filename.push_back(fn);
+	filecontent.push_back(fc);
+	filemimetype.push_back(fm);
 	return *this;
 }
 
@@ -770,6 +773,8 @@ attachment::attachment(struct message* o, json *j) : attachment(o) {
 	this->height = int32_not_null(j, "height");
 	this->content_type = string_not_null(j, "content_type");
 	this->ephemeral = bool_not_null(j, "ephemeral");
+	this->duration_secs = double_not_null(j, "duration_secs");
+	this->waveform = string_not_null(j, "waveform");
 }
 
 void attachment::download(http_completion_event callback) const {
@@ -951,6 +956,10 @@ bool message::is_thread_mention_failed() const {
 
 bool message::suppress_notifications() const {
 	return flags & m_suppress_notifications;
+}
+
+bool message::is_voice_message() const {
+	return flags & m_is_voice_message;
 }
 
 message::~message() = default;
@@ -1189,18 +1198,7 @@ std::string sticker_pack::build_json(bool with_id) const {
 }
 
 std::string sticker::get_url() const {
-	if (this->id) {
-		static const std::map<sticker_format, std::string> extensions = {
-				{ sticker_format::sf_png, "png" },
-				{ sticker_format::sf_apng, "png" },
-				{ sticker_format::sf_lottie, "json" },
-				{ sticker_format::sf_gif, "gif" },
-		};
-
-		return utility::cdn_host + "/stickers/" + std::to_string(this->id) + "." + extensions.find(this->format_type)->second;
-	} else {
-		return std::string();
-	}
+	return utility::cdn_endpoint_url_sticker(this->id, this->format_type);
 }
 
 sticker& sticker::set_filename(const std::string &fn) {

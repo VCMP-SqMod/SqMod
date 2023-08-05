@@ -14,7 +14,7 @@ Version:       4.3.5
 Release:       1%{?dist}
 Summary:       The ZeroMQ messaging library
 Group:         Development/Libraries/C and C++
-License:       LGPL-3.0-or-later
+License:       MPL-2.0
 URL:           http://www.zeromq.org/
 Source:        http://download.zeromq.org/%{name}-%{version}.tar.gz
 Prefix:        %{_prefix}
@@ -69,51 +69,6 @@ BuildRequires:  gnutls-devel
 %endif
 BuildRequires: gcc, make, gcc-c++, libstdc++-devel, asciidoc, xmlto
 Requires:      libstdc++
-
-#
-# Conditional build options
-# Default values are:
-#    --without-libgssapi_krb5
-#    --without-libsodium
-#    --without-pgm
-#
-
-# If neither macro exists, use the default value.
-%{!?_with_libgssapi_krb5: %{!?_without_libgssapi_krb5: %define _without_libgssapi_krb5 --without-liblibgssapi_krb5}}
-%{!?_with_libsodium: %{!?_without_libsodium: %define _without_libsodium --without-libsodium}}
-%{!?_with_pgm: %{!?_without_pgm: %define _without_pgm --without-pgm}}
-%{!?_with_nss: %{!?_without_nss: %define _without_nss --without-nss}}
-
-# It's an error if both --with and --without options are specified
-%{?_with_libgssapi_krb5: %{?_without_libgssapi_krb5: %{error: both _with_libgssapi_krb5 and _without_libgssapi_krb5}}}
-%{?_with_libsodium: %{?_without_libsodium: %{error: both _with_libsodium and _without_libsodium}}}
-%{?_with_pgm: %{?_without_pgm: %{error: both _with_pgm and _without_pgm}}}
-
-%{?_with_libgssapi_krb5:BuildRequires: krb5-devel}
-%{?_with_libgssapi_krb5:Requires: krb5-libs}
-
-%{?_with_libsodium:BuildRequires: libsodium-devel}
-%{?_with_libsodium:Requires: libsodium}
-
-%{?_with_pgm:BuildRequires: openpgm-devel}
-%{?_with_pgm:Requires: openpgm}
-
-%if 0%{?suse_version}
-%{?_with_nss:BuildRequires: mozilla-nss-devel}
-%{?_with_nss:Requires: mozilla-nss}
-%else
-%{?_with_nss:BuildRequires: nss-devel}
-%{?_with_nss:Requires: nss}
-%endif
-
-%if ! 0%{?centos_version} < 700
-%if 0%{?suse_version}
-%{?_with_tls:BuildRequires: libgnutls-devel}
-%else
-%{?_with_tls:BuildRequires: gnutls-devel}
-%endif
-%{?_with_tls:Requires: gnutls}
-%endif
 
 %ifarch pentium3 pentium4 athlon i386 i486 i586 i686 x86_64
 %{!?_with_pic: %{!?_without_pic: %define _with_pic --with-pic}}
@@ -249,7 +204,7 @@ autoreconf -fi
 %defattr(-,root,root,-)
 
 # docs in the main package
-%doc AUTHORS COPYING COPYING.LESSER NEWS
+%doc AUTHORS LICENSE NEWS
 
 # libraries
 %{_libdir}/libzmq.so.*
@@ -271,7 +226,9 @@ autoreconf -fi
 
 %files -n libzmq-tools
 %defattr(-,root,root,-)
+%if %{with libsodium}
 %{_bindir}/curve_keygen
+%endif
 
 %changelog
 * Fri Oct 4 2019 Luca Boccassi <luca.boccassi@gmail.com>

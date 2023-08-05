@@ -1,31 +1,4 @@
-/*
-    Copyright (c) 2007-2019 Contributors as noted in the AUTHORS file
-
-    This file is part of libzmq, the ZeroMQ core engine in C++.
-
-    libzmq is free software; you can redistribute it and/or modify it under
-    the terms of the GNU Lesser General Public License (LGPL) as published
-    by the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
-
-    As a special exception, the Contributors give you permission to link
-    this library with independent modules to produce an executable,
-    regardless of the license terms of these independent modules, and to
-    copy and distribute the resulting executable under terms of your choice,
-    provided that you also meet, for each linked independent module, the
-    terms and conditions of the license of that module. An independent
-    module is a module which is not derived from or based on this library.
-    If you modify this library, you must extend this exception to your
-    version of the library.
-
-    libzmq is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
-    License for more details.
-
-    You should have received a copy of the GNU Lesser General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+/* SPDX-License-Identifier: MPL-2.0 */
 #include "testutil_monitoring.hpp"
 #include "testutil_unity.hpp"
 
@@ -207,7 +180,7 @@ int expect_monitor_event_multiple (void *server_mon_,
 }
 
 static int64_t get_monitor_event_internal_v2 (void *monitor_,
-                                              uint64_t *value_,
+                                              uint64_t **value_,
                                               char **local_address_,
                                               char **remote_address_,
                                               int recv_flag_)
@@ -239,6 +212,12 @@ static int64_t get_monitor_event_internal_v2 (void *monitor_,
     memcpy (&value_count, zmq_msg_data (&msg), sizeof (value_count));
     zmq_msg_close (&msg);
 
+    if (value_) {
+        *value_ =
+          (uint64_t *) malloc ((size_t) value_count * sizeof (uint64_t));
+        TEST_ASSERT_NOT_NULL (*value_);
+    }
+
     for (uint64_t i = 0; i < value_count; ++i) {
         //  Subsequent frames in message contain event values
         zmq_msg_init (&msg);
@@ -249,8 +228,8 @@ static int64_t get_monitor_event_internal_v2 (void *monitor_,
         TEST_ASSERT_TRUE (zmq_msg_more (&msg));
         TEST_ASSERT_EQUAL_UINT (sizeof (uint64_t), zmq_msg_size (&msg));
 
-        if (value_ && value_ + i)
-            memcpy (value_ + i, zmq_msg_data (&msg), sizeof (*value_));
+        if (value_ && *value_)
+            memcpy (&(*value_)[i], zmq_msg_data (&msg), sizeof (uint64_t));
         zmq_msg_close (&msg);
     }
 
@@ -266,7 +245,7 @@ static int64_t get_monitor_event_internal_v2 (void *monitor_,
 }
 
 static int64_t get_monitor_event_with_timeout_v2 (void *monitor_,
-                                                  uint64_t *value_,
+                                                  uint64_t **value_,
                                                   char **local_address_,
                                                   char **remote_address_,
                                                   int timeout_)
@@ -299,7 +278,7 @@ static int64_t get_monitor_event_with_timeout_v2 (void *monitor_,
 }
 
 int64_t get_monitor_event_v2 (void *monitor_,
-                              uint64_t *value_,
+                              uint64_t **value_,
                               char **local_address_,
                               char **remote_address_)
 {

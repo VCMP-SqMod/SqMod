@@ -1,16 +1,15 @@
 #include "cpr/curl_container.h"
+#include <algorithm>
+#include <iterator>
 
 
 namespace cpr {
 template <class T>
-CurlContainer<T>::CurlContainer(const std::initializer_list<T>& containerList)
-        : containerList_(containerList) {}
+CurlContainer<T>::CurlContainer(const std::initializer_list<T>& containerList) : containerList_(containerList) {}
 
 template <class T>
 void CurlContainer<T>::Add(const std::initializer_list<T>& containerList) {
-    for (const T& element : containerList) {
-        containerList_.push_back(std::move(element));
-    }
+    std::transform(containerList.begin(), containerList.end(), std::back_inserter(containerList_), [](const T& elem) { return std::move(elem); });
 }
 
 template <class T>
@@ -26,15 +25,15 @@ const std::string CurlContainer<Parameter>::GetContent(const CurlHolder& holder)
             content += "&";
         }
 
-        std::string escapedKey = encode ? holder.urlEncode(parameter.key) : parameter.key;
+        const std::string escapedKey = encode ? holder.urlEncode(parameter.key) : parameter.key;
         if (parameter.value.empty()) {
             content += escapedKey;
         } else {
-            std::string escapedValue = encode ? holder.urlEncode(parameter.value) : parameter.value;
+            const std::string escapedValue = encode ? holder.urlEncode(parameter.value) : parameter.value;
             content += escapedKey + "=";
             content += escapedValue;
         }
-    };
+    }
 
     return content;
 }
@@ -46,7 +45,7 @@ const std::string CurlContainer<Pair>::GetContent(const CurlHolder& holder) cons
         if (!content.empty()) {
             content += "&";
         }
-        std::string escaped = encode ? holder.urlEncode(element.value) : element.value;
+        const std::string escaped = encode ? holder.urlEncode(element.value) : element.value;
         content += element.key + "=" + escaped;
     }
 

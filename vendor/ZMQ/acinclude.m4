@@ -1070,6 +1070,32 @@ select(1, &t_rfds, 0, 0, &tv);
 }])
 
 dnl ################################################################################
+dnl # LIBZMQ_CHECK_PSELECT([action-if-found], [action-if-not-found])               #
+dnl # Checks pselect polling system                                                #
+dnl ################################################################################
+AC_DEFUN([LIBZMQ_CHECK_PSELECT], [{
+    AC_LINK_IFELSE([
+        AC_LANG_PROGRAM([
+#include <sys/select.h>
+#include <signal.h>
+        ],[[
+fd_set t_rfds;
+struct timespec ts;
+FD_ZERO(&t_rfds);
+FD_SET(0, &t_rfds);
+ts.tv_sec = 5;
+ts.tv_nsec = 0;
+sigset_t sigmask, sigmask_without_sigterm;
+sigemptyset(&sigmask);
+sigprocmask(SIG_BLOCK, &sigmask, &sigmask_without_sigterm);
+
+pselect(1, &t_rfds, 0, 0, &ts, &sigmask);
+        ]])],
+        [$1],[$2]
+    )
+}])
+
+dnl ################################################################################
 dnl # LIBZMQ_CHECK_POLLER([action-if-found], [action-if-not-found])                #
 dnl # Choose polling system                                                        #
 dnl ################################################################################
@@ -1197,6 +1223,27 @@ AC_DEFUN([LIBZMQ_CHECK_POLLER], [{
 	fi
 }])
 
+dnl ################################################################################
+dnl # LIBZMQ_CHECK_PPOLL([action-if-found], [action-if-not-found])                 #
+dnl # Check whether zmq_ppoll can be activated, and do so if it can                #
+dnl ################################################################################
+
+AC_DEFUN([LIBZMQ_CHECK_PPOLL], [{
+    AC_REQUIRE([AC_CANONICAL_HOST])
+
+    case "${host_os}" in
+        *mingw*|*cygwin*|*msys*)
+            # Disable ppoll by default on Windows
+            AC_MSG_NOTICE([NOT building active zmq_ppoll on '$host_os']) ;;
+        *)
+            LIBZMQ_CHECK_PSELECT([
+                AC_MSG_NOTICE([Building with zmq_ppoll])
+                AC_DEFINE(ZMQ_HAVE_PPOLL, 1, [Build with zmq_ppoll])
+            ])
+        ;;
+    esac
+}])
+
 dnl ##############################################################################
 dnl # LIBZMQ_CHECK_CACHELINE                                                     #
 dnl # Check cacheline size for alignment purposes                                #
@@ -1207,7 +1254,7 @@ AC_DEFUN([LIBZMQ_CHECK_CACHELINE], [{
     AC_CHECK_TOOL(libzmq_getconf, getconf)
     if ! test "x$libzmq_getconf" = "x"; then
         zmq_cacheline_size=$($libzmq_getconf LEVEL1_DCACHE_LINESIZE 2>/dev/null || echo 64)
-        if test "x$zmq_cacheline_size" = "x0" -o  "x$zmq_cacheline_size" = "x-1"; then
+        if test "x$zmq_cacheline_size" = "x0" -o  "x$zmq_cacheline_size" = "x-1" -o "x$zmq_cacheline_size" = "xundefined"; then
             # getconf on some architectures does not know the size, try to fallback to
             # the value the kernel knows on Linux
             zmq_cacheline_size=$(cat /sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size 2>/dev/null || echo 64)

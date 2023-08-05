@@ -27,7 +27,6 @@
  * Before adding a warning here please be ABSOLUTELY SURE it is one we cannot easily fix
  * and is to be silenced, thrown into the sarlacc pit to be eaten for 1000 years...
  */
-#if !defined(__MINGW__) && !defined(__MINGW32__) && !defined(__MINGW64__)
-  _Pragma("warning( disable : 4251 )"); // 4251 warns when we export classes or structures with stl member variables
-  _Pragma("warning( disable : 5105 )"); // 5105 is to do with macro warnings
-#endif
+
+_Pragma("warning( disable : 4251 )"); // 4251 warns when we export classes or structures with stl member variables
+_Pragma("warning( disable : 5105 )"); // 5105 is to do with macro warnings

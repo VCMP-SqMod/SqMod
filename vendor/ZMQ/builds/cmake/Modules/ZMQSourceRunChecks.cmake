@@ -194,13 +194,14 @@ macro(zmq_check_tcp_tipc)
 int main(int argc, char *argv [])
 {
     struct sockaddr_tipc topsrv;
-    int sd = socket(AF_TIPC, SOCK_SEQPACKET, 0);
+    int sd = socket(PF_TIPC, SOCK_SEQPACKET, 0);
     memset(&topsrv, 0, sizeof(topsrv));
     topsrv.family = AF_TIPC;
     topsrv.addrtype = TIPC_ADDR_NAME;
     topsrv.addr.name.name.type = TIPC_TOP_SRV;
     topsrv.addr.name.name.instance = TIPC_TOP_SRV;
     fcntl(sd, F_SETFL, O_NONBLOCK);
+    tipc_addr(0, 0, 0);
 }
 "
     ZMQ_HAVE_TIPC)
@@ -211,7 +212,7 @@ macro(zmq_check_pthread_setname)
   message(STATUS "Checking pthread_setname signature")
   set(SAVE_CMAKE_REQUIRED_FLAGS ${CMAKE_REQUIRED_FLAGS})
   set(CMAKE_REQUIRED_FLAGS "-D_GNU_SOURCE -Werror -pthread")
-  check_c_source_runs(
+  check_c_source_compiles(
     "
 #include <pthread.h>
 
@@ -222,7 +223,7 @@ int main(int argc, char *argv [])
 }
 "
     ZMQ_HAVE_PTHREAD_SETNAME_1)
-  check_c_source_runs(
+  check_c_source_compiles(
     "
 #include <pthread.h>
 
@@ -233,7 +234,7 @@ int main(int argc, char *argv [])
 }
 "
     ZMQ_HAVE_PTHREAD_SETNAME_2)
-  check_c_source_runs(
+  check_c_source_compiles(
     "
 #include <pthread.h>
 
@@ -244,7 +245,7 @@ int main(int argc, char *argv [])
 }
 "
     ZMQ_HAVE_PTHREAD_SETNAME_3)
-  check_c_source_runs(
+  check_c_source_compiles(
     "
 #include <pthread.h>
 
@@ -262,7 +263,7 @@ macro(zmq_check_pthread_setaffinity)
   message(STATUS "Checking pthread_setaffinity signature")
   set(SAVE_CMAKE_REQUIRED_FLAGS ${CMAKE_REQUIRED_FLAGS})
   set(CMAKE_REQUIRED_FLAGS "-D_GNU_SOURCE -Werror -pthread")
-  check_c_source_runs(
+  check_c_source_compiles(
     "
 #include <pthread.h>
 

@@ -19,6 +19,19 @@ SQMOD_DECL_TYPENAME(SqCpProxies, _SC("SqCprProxies"))
 SQMOD_DECL_TYPENAME(SqCpRedirect, _SC("SqCprRedirect"))
 SQMOD_DECL_TYPENAME(SqCpSession, _SC("SqCprSession"))
 
+// ------------------------------------------------------------------------------------------------
+struct CurlInit
+{
+    CurlInit()
+    {
+        curl_global_init(CURL_GLOBAL_ALL);
+    }
+    ~CurlInit()
+    {
+        curl_global_cleanup();
+    }
+};
+
 /* ------------------------------------------------------------------------------------------------
  * Common session action implementation.
 */
@@ -658,13 +671,11 @@ void Register_CURL(HSQUIRRELVM vm)
         .Func(_SC("SetTimeout"), &CpSession::SetTimeout_)
         .Func(_SC("SetConnectTimeout"), &CpSession::SetConnectTimeout_)
         .FmtFunc(_SC("SetAuth"), &CpSession::SetAuth_)
-        .FmtFunc(_SC("SetDigest"), &CpSession::SetDigest_)
         .FmtFunc(_SC("SetUserAgent"), &CpSession::SetUserAgent_)
         .Func(_SC("SetPayload"), &CpSession::SetPayload_)
         .Func(_SC("YieldPayload"), &CpSession::YieldPayload)
         .Func(_SC("SetProxies"), &CpSession::SetProxies_)
         .Func(_SC("YieldProxies"), &CpSession::YieldProxies)
-        .FmtFunc(_SC("SetNTLM"), &CpSession::SetNTLM_)
         .Func(_SC("SetRedirect"), &CpSession::SetRedirect_)
         .Func(_SC("SetCookies"), &CpSession::SetCookies_)
         .FmtFunc(_SC("SetBody"), &CpSession::SetBody_)

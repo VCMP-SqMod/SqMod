@@ -49,6 +49,9 @@ extern void TerminateRoutines();
 extern void TerminateCommands();
 extern void TerminateSignals();
 extern void TerminateNet();
+#ifdef SQMOD_DISCORD
+    extern void TerminateDiscord();
+#endif
 extern void TerminatePocoNet();
 extern void TerminatePocoData();
 
@@ -553,6 +556,11 @@ void Core::Terminate(bool shutdown)
     // Release network
     TerminateNet();
     cLogDbg(m_Verbosity >= 1, "Network terminated");
+    // Release DPP
+#ifdef SQMOD_DISCORD
+    TerminateDiscord();
+    cLogDbg(m_Verbosity >= 1, "Discord terminated");
+#endif
     // Release Poco statement results
     TerminatePocoNet();
     TerminatePocoData();
