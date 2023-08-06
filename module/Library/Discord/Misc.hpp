@@ -390,4 +390,104 @@ struct DpEmoji
     SQMOD_NODISCARD std::string GetMention() const { return Valid().get_mention(); }
 };
 
+/* ------------------------------------------------------------------------------------------------
+ * The results of a REST call wrapped in a convenient struct.
+*/
+struct DpCommandConfirmation
+{
+    using Ptr = std::unique_ptr< dpp::confirmation_callback_t >;
+    /* --------------------------------------------------------------------------------------------
+     * Referenced confirmation callback instance.
+    */
+    Ptr mPtr{nullptr};
+    /* --------------------------------------------------------------------------------------------
+     * Whether the referenced pointer is owned.
+    */
+    bool mOwned{false};
+    /* --------------------------------------------------------------------------------------------
+     * Default constructor.
+    */
+    DpCommandConfirmation() noexcept = default;
+    /* --------------------------------------------------------------------------------------------
+     * Explicit constructor.
+    */
+    explicit DpCommandConfirmation(Ptr::pointer ptr, bool owned = false) noexcept
+        : mPtr(ptr), mOwned(owned)
+    { }
+    /* --------------------------------------------------------------------------------------------
+     * Explicit constructor.
+    */
+    explicit DpCommandConfirmation(Ptr && ptr) noexcept
+        : mPtr(std::forward< Ptr >(ptr)), mOwned(true)
+    { }
+    /* --------------------------------------------------------------------------------------------
+     * Explicit constructor.
+    */
+    explicit DpCommandConfirmation(const Ptr::element_type & o) noexcept
+        : DpCommandConfirmation(new Ptr::element_type(o), true)
+    { }
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    explicit DpCommandConfirmation(Ptr::element_type && o) noexcept
+        : DpCommandConfirmation(new Ptr::element_type(std::forward< Ptr::element_type >(o)), true)
+    { }
+    /* --------------------------------------------------------------------------------------------
+     * Copy constructor (disabled).
+    */
+    DpCommandConfirmation(const DpCommandConfirmation & o) = delete;
+    /* --------------------------------------------------------------------------------------------
+     * Move constructor.
+    */
+    DpCommandConfirmation(DpCommandConfirmation && o) noexcept = default;
+    /* --------------------------------------------------------------------------------------------
+     * Destructor.
+    */
+    ~DpCommandConfirmation() noexcept { Cleanup(); }
+    /* --------------------------------------------------------------------------------------------
+     * Copy assignment operator (disabled).
+    */
+    DpCommandConfirmation & operator = (const DpCommandConfirmation & o) = delete;
+    /* --------------------------------------------------------------------------------------------
+     * Move assignment operator.
+    */
+    DpCommandConfirmation & operator = (DpCommandConfirmation && o) noexcept
+    {
+        if (this != &o) {
+            Cleanup();
+            // Transfer members values
+            mPtr = std::move(o.mPtr);
+            mOwned = o.mOwned;
+        }
+        return *this;
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Release any referenced resources and default to an empty/invalid state.
+    */
+    void Cleanup()
+    {
+        // Do we own this to try delete it?
+        if (!mOwned && mPtr) {
+            // Not our job, simply forget about it
+            [[maybe_unused]] auto p = mPtr.release();
+        } else mPtr.reset(); // We own this so delete the instance
+    }
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed handle.
+    */
+    void Validate() const { if (!mPtr) STHROWF("Invalid discord confirmation callback handle"); }
+    /* --------------------------------------------------------------------------------------------
+     * Validate the managed handle and retrieve a const reference to it.
+    */
+    SQMOD_NODISCARD Ptr::element_type & Valid() const { Validate(); return *mPtr; }
+    /* --------------------------------------------------------------------------------------------
+     * Check whether a valid instance is managed.
+    */
+    SQMOD_NODISCARD bool IsValid() const { return static_cast< bool >(mPtr); }
+    /* --------------------------------------------------------------------------------------------
+     * Retrieve the raw body string of the HTTP result.
+    */
+    SQMOD_NODISCARD std::string & GetHttpBody() const { return Valid().http_info.body; }
+};
+
 } // Namespace:: SqMod

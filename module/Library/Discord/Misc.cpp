@@ -10,6 +10,7 @@ SQMOD_DECL_TYPENAME(SqDpUptime, _SC("SqDiscordUptime"))
 SQMOD_DECL_TYPENAME(SqDpIconHash, _SC("SqDiscordIconHash"))
 SQMOD_DECL_TYPENAME(SqDpVoiceState, _SC("SqDiscordVoiceState"))
 SQMOD_DECL_TYPENAME(SqDpEmoji, _SC("SqDiscordEmoji"))
+SQMOD_DECL_TYPENAME(SqDpCommandConfirmation, _SC("SqDiscordCommandConfirmation"))
 
 // ------------------------------------------------------------------------------------------------
 void Register_Discord_Misc(HSQUIRRELVM vm, Table & ns)
@@ -111,6 +112,17 @@ void Register_Discord_Misc(HSQUIRRELVM vm, Table & ns)
         .Func(_SC("GetMention"), &DpEmoji::GetMention_)
         .Func(_SC("BuildJSON"), &DpEmoji::BuildJSON_)
         .Func(_SC("LoadImage"), &DpEmoji::LoadImage)
+    );
+    // --------------------------------------------------------------------------------------------
+    ns.Bind(_SC("CommandConfirmation"),
+        Class< DpCommandConfirmation, NoConstructor< DpCommandConfirmation > >(vm, SqDpCommandConfirmation::Str)
+        // Meta-methods
+        .SquirrelFunc(_SC("_typename"), &SqDpCommandConfirmation::Fn)
+        // Member Properties
+        .Prop(_SC("Valid"), &DpCommandConfirmation::IsValid)
+        .Prop(_SC("HttpBody"), &DpCommandConfirmation::GetHttpBody)
+        // Member Methods
+        //.Func(_SC("SetName"), &DpCommandConfirmation::ApplyName)
     );
 }
 
