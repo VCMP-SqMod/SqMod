@@ -12,32 +12,49 @@
 // ------------------------------------------------------------------------------------------------
 namespace Sqrat {
 
-// Allow the VM to treat the dpp::snowflake type as a integer.
-template<> struct Var<dpp::snowflake>
-{
-    dpp::snowflake value;
-    Var(HSQUIRRELVM vm, SQInteger idx)
-    {
-        sq_getinteger(vm, idx, reinterpret_cast<SQInteger*>(&static_cast<uint64_t&>(value)));
+// // Allow the VM to treat the dpp::snowflake type as a integer.
+// template<> struct Var<dpp::snowflake>
+// {
+//     dpp::snowflake value;
+//     Var(HSQUIRRELVM vm, SQInteger idx) {
+//         sq_getinteger(vm, idx, reinterpret_cast<SQInteger*>(&static_cast<uint64_t&>(value)));
+//     }
+//     inline static void push(HSQUIRRELVM vm, const dpp::snowflake& value) noexcept {
+//         sq_pushinteger(vm, static_cast<SQInteger>(static_cast<uint64_t>(value)));
+//     }
+// };
+
+// // Allow the VM to treat the dpp::snowflake type as a integer.
+// template<> struct Var<const dpp::snowflake&>
+// {
+//     dpp::snowflake value;
+//     Var(HSQUIRRELVM vm, SQInteger idx) {
+//         sq_getinteger(vm, idx, reinterpret_cast<SQInteger*>(&static_cast<uint64_t&>(value)));
+//     }
+//     inline static void push(HSQUIRRELVM vm, const dpp::snowflake& value) noexcept {
+//         sq_pushinteger(vm, static_cast<SQInteger>(static_cast<uint64_t>(value)));
+//     }
+// };
+
+
+// ------------------------------------------------------------------------------------------------
+// Used to get and push dpp::snowflake instances to and from the stack
+template <> struct Var<dpp::snowflake> {
+    dpp::snowflake value; ///< The actual value of get operations
+    Var(HSQUIRRELVM vm, SQInteger idx) : value(popAsInt< uint64_t, true >(vm, idx).value) { }
+    // Push dpp::snowflake instances to the stack as integers
+    static void push(HSQUIRRELVM vm, const dpp::snowflake& value) noexcept {
+        sq_pushinteger(vm, static_cast< SQInteger >(static_cast< std::uint64_t >(value)));
     }
-    inline static void push(HSQUIRRELVM vm, const dpp::snowflake& value) noexcept
-    {
-        sq_pushinteger(vm, static_cast<SQInteger>(static_cast<uint64_t>(value)));
+    static void push(HSQUIRRELVM vm, dpp::snowflake& value) noexcept {
+        sq_pushinteger(vm, static_cast< SQInteger >(static_cast< std::uint64_t & >(value)));
     }
 };
-
-// Allow the VM to treat the dpp::snowflake type as a integer.
-template<> struct Var<const dpp::snowflake&>
-{
-    dpp::snowflake value;
-    Var(HSQUIRRELVM vm, SQInteger idx)
-    {
-        sq_getinteger(vm, idx, reinterpret_cast<SQInteger*>(&static_cast<uint64_t&>(value)));
-    }
-    inline static void push(HSQUIRRELVM vm, const dpp::snowflake& value) noexcept
-    {
-        sq_pushinteger(vm, static_cast<SQInteger>(static_cast<uint64_t>(value)));
-    }
+template <> struct Var<dpp::snowflake&> : public Var<dpp::snowflake> {
+    Var(HSQUIRRELVM vm, SQInteger idx) : Var<dpp::snowflake>(vm, idx) { }
+};
+template <> struct Var<const dpp::snowflake&> : public Var<dpp::snowflake> {
+    Var(HSQUIRRELVM vm, SQInteger idx) : Var<dpp::snowflake>(vm, idx) { }
 };
 
 }
