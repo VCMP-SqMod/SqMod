@@ -15,6 +15,7 @@ DpCluster::DpCluster(DpClusterOptions & o)
     : Base(), mQueue(4096)
     , mC(std::make_unique< dpp::cluster >(o.mToken, o.mIntents, o.mShards, o.mClusterID, o.mMaxClusters, o.mCompressed, o.mPolicy, o.mRequestThreads, o.mRequestThreadsRaw))
     , mSqEvents(), mEvents(), mEventsHandle()
+    , mCCList(), mCCResults(std::make_shared< CCResultQueue >(4096))
 {
     // Make sure all event handles are not valid
     mEventsHandle.fill(0);
@@ -83,6 +84,31 @@ void DpCluster::Process(bool force)
             p->Cleanup();
         }
     }
+    CCResultItem cc_item;
+    // Retrieve each command completion result individually and process it
+    for (size_t count = mCCResults->size_approx(), n = 0; n <= count; ++n)
+    {
+        // Try to get a result from the queue
+        if (mCCResults->try_dequeue(cc_item))
+        {
+            CCResult & r = *cc_item;
+            // Get the script callback
+            Function & cb = *(r.first);
+            // Is there still a valid callback to invoke?
+            if (!cb.IsNull())
+            {
+                // Don't abort everything down the line for an error caused by a script callback
+                try {
+                    cb.Execute(LightObj(SqTypeIdentity< DpCommandConfirmation >{}, cb.GetVM(), std::move(r.second)));
+                } catch (const std::exception & e) {
+                    LogErr("Squirrel exception caught in discord command completion event");
+                    LogSInf("Message: %s", e.what());
+                }
+            }
+            // Release the callback from the list
+            mCCList.erase(r.first);
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -122,6 +148,7 @@ void Register_Discord_Cluster(HSQUIRRELVM vm, Table & ns)
         .Func(_SC("Stop"), &DpCluster::Stop)
         .Func(_SC("EnableEvent"), &DpCluster::EnableEvent)
         .Func(_SC("DisableEvent"), &DpCluster::DisableEvent)
+        .CbFunc(_SC("CurrentUserGetGuilds"), &DpCluster::CurrentUserGetGuilds)
     );
 }
 

@@ -333,6 +333,64 @@ private:
     void OnStageInstanceCreate(const dpp::stage_instance_create_t & ev);
     void OnStageInstanceUpdate(const dpp::stage_instance_update_t & ev);
     void OnStageInstanceDelete(const dpp::stage_instance_delete_t & ev);
+
+public:
+
+    // List type for command completion callbacks.
+    using CCList = std::list< Function >;
+    /* --------------------------------------------------------------------------------------------
+     * List of command completion callbacks.
+    */
+    CCList mCCList{};
+
+    /* --------------------------------------------------------------------------------------------
+     * Queue of iterators pointing to results of completed commands and their associated result.
+    */
+    using CCResult = std::pair< CCList::iterator, DpCommandConfirmation::Ptr >;
+    using CCResultItem = std::unique_ptr< CCResult >;
+    using CCResultQueue = moodycamel::ConcurrentQueue< CCResultItem >;
+
+    /* --------------------------------------------------------------------------------------------
+     * Command completion links queue.
+    */
+    std::shared_ptr< CCResultQueue > mCCResults{};
+
+    /* --------------------------------------------------------------------------------------------
+     * Maintains an iterator to the script callback associated with a completed command result.
+    */
+    struct CCLink
+    {
+        // Iterator to the element where the state can be found.
+        CCList::iterator    mItr{};
+        // Reference to the queue of iterators pointing to completed commands.
+        std::shared_ptr< CCResultQueue > mQueue{};
+        /* ----------------------------------------------------------------------------------------
+         * Base constructor.
+        */
+        CCLink(CCList::iterator && itr, std::shared_ptr< CCResultQueue > & q)
+            : mItr(std::forward< CCList::iterator >(itr)), mQueue(q)
+        { }
+        // Copy/Move constructors.
+        CCLink(const CCLink &) = default;
+        CCLink(CCLink &&) noexcept = default;
+        // Copy/Move assignment operators.
+        CCLink & operator = (const CCLink &) = default;
+        CCLink & operator = (CCLink &&) noexcept = default;
+        // Function call operator. Marks the linked callback as ready to invoke with obtained result.
+        void operator () (const dpp::confirmation_callback_t & cc) const
+        {
+            mQueue->enqueue(std::make_unique< CCResult >(std::move(mItr), std::make_unique< dpp::confirmation_callback_t >(cc.http_info)));
+        }
+    };
+
+    /* --------------------------------------------------------------------------------------------
+     * Get current (bot) user guilds.
+     * https://discord.com/developers/docs/resources/user#get-current-user-guilds
+    */
+    void CurrentUserGetGuilds(Function & cb)
+    {
+        Valid("get message").current_user_get_guilds(CCLink(mCCList.emplace(mCCList.cend(), std::move(cb)), mCCResults));
+    }
 };
 
 } // Namespace:: SqMod
