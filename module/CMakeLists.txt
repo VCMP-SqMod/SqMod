@@ -246,7 +246,12 @@ else()
 endif()
 # Copy module into the plug-ins folder
 add_custom_command(TARGET SqModule POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:SqModule> "${PROJECT_SOURCE_DIR}/bin/plugins")
-
+# Copy DPP into the bin folder
+if (ENABLE_DISCORD)
+    if (WIN32 OR MINGW)
+        add_custom_command(TARGET SqModule POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:dpp> "${PROJECT_SOURCE_DIR}/bin")
+    endif()
+endif()
 # Copy several dependent DLLs on windows to make distribution easier (used mainly by people that distribute builds)
 if(WIN32 AND MINGW AND COPY_DEPENDENCIES)
     get_filename_component(MINGW_BIN_PATH ${CMAKE_C_COMPILER} DIRECTORY REALPATH)
