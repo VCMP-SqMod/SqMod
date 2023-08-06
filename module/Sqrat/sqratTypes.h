@@ -45,28 +45,28 @@ struct popAsInt
     T value;
     popAsInt(HSQUIRRELVM vm, SQInteger idx)
     {
-        SQObjectType value_type = sq_gettype(vm, idx);
+        const SQObjectType value_type = sq_gettype(vm, idx);
         switch(value_type) {
-        case OT_BOOL:
-            SQBool sqValueb;
-            sq_getbool(vm, idx, &sqValueb);
-            value = static_cast<T>(sqValueb);
+            case OT_BOOL:
+                SQBool sqValueb;
+                sq_getbool(vm, idx, &sqValueb);
+                value = static_cast<T>(sqValueb);
             break;
-        case OT_INTEGER:
-            SQInteger sqValue;
-            sq_getinteger(vm, idx, &sqValue);
-            value = static_cast<T>(sqValue);
+            case OT_INTEGER:
+                SQInteger sqValue;
+                sq_getinteger(vm, idx, &sqValue);
+                value = static_cast<T>(sqValue);
             break;
-        case OT_FLOAT:
-            SQFloat sqValuef;
-            sq_getfloat(vm, idx, &sqValuef);
-			value = static_cast<T>(static_cast<int>(sqValuef));
+            case OT_FLOAT:
+                SQFloat sqValuef;
+                sq_getfloat(vm, idx, &sqValuef);
+                value = static_cast<T>(static_cast<SQInteger>(sqValuef));
             break;
-        default:
-            SQTHROW(vm, FormatTypeError(vm, idx, _SC("integer")));
-            value = static_cast<T>(0);
+            default:
+                SQTHROW(vm, FormatTypeError(vm, idx, _SC("integer")));
+                value = static_cast<T>(0);
             break;
-        }
+            }
     }
 };
 
@@ -86,26 +86,26 @@ struct popAsFloat
     T value;
     popAsFloat(HSQUIRRELVM vm, SQInteger idx)
     {
-        SQObjectType value_type = sq_gettype(vm, idx);
+        const SQObjectType value_type = sq_gettype(vm, idx);
         switch(value_type) {
-        case OT_BOOL:
-            SQBool sqValueb;
-            sq_getbool(vm, idx, &sqValueb);
-            value = static_cast<T>(sqValueb);
+            case OT_BOOL:
+                SQBool sqValueb;
+                sq_getbool(vm, idx, &sqValueb);
+                value = static_cast<T>(sqValueb);
             break;
-        case OT_INTEGER:
-            SQInteger sqValue; \
-            sq_getinteger(vm, idx, &sqValue);
-            value = static_cast<T>(sqValue);
+            case OT_INTEGER:
+                SQInteger sqValue; \
+                sq_getinteger(vm, idx, &sqValue);
+                value = static_cast<T>(sqValue);
             break;
-        case OT_FLOAT:
-            SQFloat sqValuef;
-            sq_getfloat(vm, idx, &sqValuef);
-            value = static_cast<T>(sqValuef);
+            case OT_FLOAT:
+                SQFloat sqValuef;
+                sq_getfloat(vm, idx, &sqValuef);
+                value = static_cast<T>(sqValuef);
             break;
-        default:
-            SQTHROW(vm, FormatTypeError(vm, idx, _SC("float")));
-            value = 0;
+            default:
+                SQTHROW(vm, FormatTypeError(vm, idx, _SC("float")));
+                value = 0;
             break;
         }
     }
