@@ -484,7 +484,6 @@ template < class T, class W, class U > inline void Register_Discord_VectorProxy(
 */
 template < class K, class V, class W > struct DpUnorderedMapProxy
 {
-{
     using Native = std::unordered_map< K, V >;
     using Binder = std::pair< LightObj, W * >;
     using Script = std::unordered_map< K, Binder >;
@@ -505,7 +504,7 @@ template < class K, class V, class W > struct DpUnorderedMapProxy
      * Default constructor.
     */
     DpUnorderedMapProxy() noexcept = default;
-}
+};
 
 /* ------------------------------------------------------------------------------------------------
  * Register a wrapper unordered map for the specified types.
