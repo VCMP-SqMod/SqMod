@@ -215,7 +215,6 @@ struct DpVoiceState
     SQMOD_NODISCARD bool IsSuppressed() const { return Valid().is_suppressed(); }
 };
 
-
 /* ------------------------------------------------------------------------------------------------
  * Represents the voice state of a user on a guild.
 */

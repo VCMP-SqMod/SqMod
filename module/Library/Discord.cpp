@@ -29,6 +29,7 @@ void ProcessDiscord()
 extern void Register_Discord_Constants(HSQUIRRELVM vm, Table & ns);
 extern void Register_Discord_Events(HSQUIRRELVM vm, Table & ns);
 extern void Register_Discord_Misc(HSQUIRRELVM vm, Table & ns);
+extern void Register_Discord_User(HSQUIRRELVM vm, Table & ns);
 extern void Register_Discord_Cluster(HSQUIRRELVM vm, Table & ns);
 
 // ================================================================================================
@@ -43,6 +44,7 @@ void Register_Discord(HSQUIRRELVM vm)
         ns.Bind(_SC("Event"), ens);
     }
     Register_Discord_Misc(vm, ns);
+    Register_Discord_User(vm, ns);
     Register_Discord_Cluster(vm, ns);
     // --------------------------------------------------------------------------------------------
     RootTable(vm).Bind(_SC("SqDiscord"), ns);

@@ -445,6 +445,9 @@ template < class T, class W > struct DpVectorProxy
     }
 };
 
+/* ------------------------------------------------------------------------------------------------
+ * Register a wrapper vector for the specified types.
+*/
 template < class T, class W, class U > inline void Register_Discord_VectorProxy(HSQUIRRELVM vm, Table & ns, const SQChar * name)
 {
     using Container = DpVectorProxy< T, W >;
@@ -473,6 +476,56 @@ template < class T, class W, class U > inline void Register_Discord_VectorProxy(
         .Func(_SC("EachRange"), &Container::EachRange)
         .Func(_SC("While"), &Container::While)
         .Func(_SC("WhileRange"), &Container::WhileRange)
+    );
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Wrapper around a std::unordered_map of DPP values.
+*/
+template < class K, class V, class W > struct DpUnorderedMapProxy
+{
+{
+    using Native = std::unordered_map< K, V >;
+    using Binder = std::pair< LightObj, W * >;
+    using Script = std::unordered_map< K, Binder >;
+    using Ptr = std::unique_ptr< Native >;
+    /* --------------------------------------------------------------------------------------------
+     * Referenced map instance.
+    */
+    Ptr mPtr{nullptr};
+    /* --------------------------------------------------------------------------------------------
+     * Cached script objects map.
+    */
+    Script mMap{};
+    /* --------------------------------------------------------------------------------------------
+     * Whether the referenced pointer is owned.
+    */
+    bool mOwned{false};
+    /* --------------------------------------------------------------------------------------------
+     * Default constructor.
+    */
+    DpUnorderedMapProxy() noexcept = default;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Register a wrapper unordered map for the specified types.
+*/
+template < class K, class V, class W, class U > inline void Register_Discord_UnorderedMapProxy(HSQUIRRELVM vm, Table & ns, const SQChar * name)
+{
+    using Container = DpUnorderedMapProxy< K, V, W >;
+    // --------------------------------------------------------------------------------------------
+    ns.Bind(name,
+        Class< Container, NoConstructor< Container > >(vm, U::Str)
+        // Meta-methods
+        .SquirrelFunc(_SC("_typename"), &U::Fn)
+        // Properties
+        //.Prop(_SC("Null"), &Container::IsNull)
+        //.Prop(_SC("Empty"), &Container::Empty)
+        //.Prop(_SC("Size"), &Container::Size)
+        //.Prop(_SC("Capacity"), &Container::Capacity, &Container::Reserve)
+        // Member Methods
+        //.Func(_SC("Get"), &Container::Get)
+        //.Func(_SC("Set"), &Container::Set)
     );
 }
 
