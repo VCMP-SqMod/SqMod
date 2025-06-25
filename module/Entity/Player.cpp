@@ -227,7 +227,6 @@ const SQChar * CPlayer::GetUID2() const
     // Return the requested information
     return s_Buffer;
 }
-#if SQMOD_SDK_LEAST(2, 1)
 // ------------------------------------------------------------------------------------------------
 void CPlayer::Kill() const
 {
@@ -236,7 +235,6 @@ void CPlayer::Kill() const
     // Perform the requested operation
     _Func->KillPlayer(m_ID);
 }
-#endif
 // ------------------------------------------------------------------------------------------------
 void CPlayer::Kick() const
 {
@@ -1422,7 +1420,7 @@ void CPlayer::Unspectate() const
     // Spectate the given target
     _Func->SetPlayerSpectateTarget(m_ID, -1);
 }
-#if SQMOD_SDK_LEAST(2, 1)
+
 // ------------------------------------------------------------------------------------------------
 void CPlayer::SetPlayer3DArrow(CPlayer & target, bool toggle) const
 {
@@ -1475,7 +1473,7 @@ bool CPlayer::InterpolateCameraLookAtEx(float x, float y, float z, uint32_t ms) 
     // Perform the requested operation
     return _Func->InterpolateCameraLookAt(m_ID, x, y, z, ms) != vcmpErrorRequestDenied;
 }
-#endif
+
 // ------------------------------------------------------------------------------------------------
 void CPlayer::Redirect(StackStrF & ip, uint32_t port, StackStrF & nick,
                         StackStrF & server_pass, StackStrF & user_pass) const
@@ -1508,7 +1506,7 @@ void CPlayer::PlaySound(int32_t sound_id) const
     // Perform the requested operation
     _Func->PlaySound(_Func->GetPlayerUniqueWorld(m_ID), sound_id, NAN, NAN, NAN);
 }
-#if SQMOD_SDK_LEAST(2, 1)
+
 // ------------------------------------------------------------------------------------------------
 void CPlayer::SetDrunkHandling(SQInteger level) const
 {
@@ -1544,7 +1542,7 @@ SQInteger CPlayer::GetDrunkVisuals() const
     // Perform the requested operation
     return _Func->GetPlayerDrunkVisuals(m_ID);
 }
-#endif
+
 // ------------------------------------------------------------------------------------------------
 LightObj & CPlayer::CreateCheckpointEx1a(int32_t world, bool sphere, float x, float y, float z,
                             uint8_t r, uint8_t g, uint8_t b, uint8_t a, float radius) const
@@ -2864,10 +2862,8 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Prop(_SC("Away"), &CPlayer::IsAway)
         .Prop(_SC("Spec"), &CPlayer::GetSpectator, &CPlayer::SetSpectator)
         .Prop(_SC("SpecID"), &CPlayer::GetSpectatorID, &CPlayer::SetSpectatorID)
-#if SQMOD_SDK_LEAST(2, 1)
         .Prop(_SC("DrunkHandling"), &CPlayer::GetDrunkHandling, &CPlayer::SetDrunkHandling)
         .Prop(_SC("DrunkVisuals"), &CPlayer::GetDrunkVisuals, &CPlayer::SetDrunkVisuals)
-#endif
         .Prop(_SC("CollideAreas"), &CPlayer::GetCollideAreas, &CPlayer::SetCollideAreas)
         .Prop(_SC("Authority"), &CPlayer::GetAuthority, &CPlayer::SetAuthority)
         .Prop(_SC("TrackPosition"), &CPlayer::GetTrackPosition, &CPlayer::SetTrackPosition)
@@ -2890,9 +2886,7 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Prop(_SC("Blue"), &CPlayer::GetColorB, &CPlayer::SetColorB)
         // Member Methods
         .Func(_SC("StreamedFor"), &CPlayer::IsStreamedFor)
-#if SQMOD_SDK_LEAST(2, 1)
         .Func(_SC("Kill"), &CPlayer::Kill)
-#endif
         .Func(_SC("Kick"), &CPlayer::Kick)
         .Func(_SC("Ban"), &CPlayer::Ban)
         .Func(_SC("KickBecause"), &CPlayer::KickBecause)
@@ -2926,14 +2920,12 @@ void Register_CPlayer(HSQUIRRELVM vm)
         .Func(_SC("Spectating"), &CPlayer::GetSpectator)
         .Func(_SC("Unspectate"), &CPlayer::Unspectate)
         .Func(_SC("Spectate"), &CPlayer::SetSpectator)
-#if SQMOD_SDK_LEAST(2, 1)
         .Func(_SC("SetPlayer3DArrow"), &CPlayer::SetPlayer3DArrow)
         .Func(_SC("GetPlayer3DArrow"), &CPlayer::GetPlayer3DArrow)
         .Func(_SC("SetPlayer3DArrowID"), &CPlayer::SetPlayer3DArrowID)
         .Func(_SC("GetPlayer3DArrowID"), &CPlayer::GetPlayer3DArrowID)
         .Func(_SC("InterpolateCameraLookAt"), &CPlayer::InterpolateCameraLookAt)
         .Func(_SC("InterpolateCameraLookAtEx"), &CPlayer::InterpolateCameraLookAtEx)
-#endif
         .Func(_SC("Redirect"), &CPlayer::Redirect)
         .Func(_SC("GetModuleList"), &CPlayer::GetModuleList)
         .Func(_SC("PlaySound"), &CPlayer::PlaySound)

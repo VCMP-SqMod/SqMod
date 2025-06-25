@@ -260,12 +260,12 @@ public:
      * Retrieve the unique user identifier version 2 of the managed player entity.
     */
     SQMOD_NODISCARD const SQChar * GetUID2() const;
-#if SQMOD_SDK_LEAST(2, 1)
+
     /* --------------------------------------------------------------------------------------------
      * Set player's health to 0 and reset the death reason.
     */
     void Kill() const;
-#endif
+
     /* --------------------------------------------------------------------------------------------
      * Kick the managed player entity from the server.
     */
@@ -750,7 +750,7 @@ public:
      * Set the managed player entity to spectate no one.
     */
     void Unspectate() const;
-#if SQMOD_SDK_LEAST(2, 1)
+
     /* --------------------------------------------------------------------------------------------
      * Set whether the target player will see an objective arrow over a player.
     */
@@ -780,7 +780,7 @@ public:
      * Smoothly pivots the camera angle.
     */
     SQMOD_NODISCARD bool InterpolateCameraLookAtEx(float x, float y, float z, uint32_t ms) const;
-#endif
+
     /* --------------------------------------------------------------------------------------------
      * Redirect the managed player entity to the specified server.
     */
@@ -796,7 +796,7 @@ public:
      * Retrieve the authority level of the managed player entity.
     */
     void PlaySound(int32_t sound_id) const;
-#if SQMOD_SDK_LEAST(2, 1)
+
     /* --------------------------------------------------------------------------------------------
      * Set how delayed a player's turn handling is when in a vehicle.
     */
@@ -816,7 +816,7 @@ public:
      * Retrieve how intense the drunk blur overlay is for a player.
     */
     SQMOD_NODISCARD SQInteger GetDrunkVisuals() const;
-#endif
+
     /* --------------------------------------------------------------------------------------------
      * Create a checkpoint or sphere for this player.
     */

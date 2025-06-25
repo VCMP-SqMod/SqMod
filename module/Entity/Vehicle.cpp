@@ -1205,7 +1205,6 @@ bool CVehicle::EmbarkEx(CPlayer & player, int32_t slot, bool allocate, bool warp
     return (_Func->PutPlayerInVehicle(player.GetID(), m_ID, slot,
         static_cast< uint8_t >(allocate), static_cast< uint8_t >(warp)) != vcmpErrorRequestDenied);
 }
-#if SQMOD_SDK_LEAST(2, 1)
 // ------------------------------------------------------------------------------------------------
 void CVehicle::SetPlayer3DArrow(CPlayer & target, bool toggle) const
 {
@@ -1241,7 +1240,6 @@ bool CVehicle::GetPlayer3DArrowID(SQInteger id) const
     // Spectate the given target
     return _Func->GetVehicle3DArrowForPlayer(m_ID, id);
 }
-#endif
 // ------------------------------------------------------------------------------------------------
 bool CVehicle::GetCollideAreas() const
 {
@@ -2191,12 +2189,10 @@ void Register_CVehicle(HSQUIRRELVM vm)
         .Func(_SC("SetHandlingRule"), &CVehicle::SetHandlingRule)
         .Func(_SC("ResetHandlingRule"), &CVehicle::ResetHandlingRule)
         .Func(_SC("ResetHandlings"), &CVehicle::ResetHandlings)
-#if SQMOD_SDK_LEAST(2, 1)
         .Func(_SC("SetPlayer3DArrow"), &CVehicle::SetPlayer3DArrow)
         .Func(_SC("GetPlayer3DArrow"), &CVehicle::GetPlayer3DArrow)
         .Func(_SC("SetPlayer3DArrowID"), &CVehicle::SetPlayer3DArrowID)
         .Func(_SC("GetPlayer3DArrowID"), &CVehicle::GetPlayer3DArrowID)
-#endif
         .Func(_SC("AreasCollide"), &CVehicle::SetAreasCollide)
         // Member Overloads
         .Overload(_SC("SetPos"), &CVehicle::SetPosition)

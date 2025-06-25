@@ -101,7 +101,7 @@ typedef enum {
 
 typedef enum {
 	vcmpPlayerUpdateNormal = 0,
-	vcmpPlayerUpdateAiming = 1,
+	vcmpPlayerUpdateAimingDeprecated = 1,
 	vcmpPlayerUpdateDriver = 2,
 	vcmpPlayerUpdatePassenger = 3,
 	forceSizeVcmpPlayerUpdate = INT32_MAX
@@ -170,7 +170,8 @@ typedef enum {
 	vcmpPlayerOptionCanAttack = 6,
 	vcmpPlayerOptionHasMarker = 7,
 	vcmpPlayerOptionChatTagsEnabled = 8,
-	vcmpPlayerOptionDrunkEffects = 9,
+	vcmpPlayerOptionDrunkEffectsDeprecated = 9,
+	vcmpPlayerOptionBleeding = 10,
 	forceSizeVcmpPlayerOption = INT32_MAX
 } vcmpPlayerOption;
 
@@ -182,6 +183,9 @@ typedef enum {
 	vcmpVehicleOptionGhost = 4,
 	vcmpVehicleOptionSiren = 5,
 	vcmpVehicleOptionSingleUse = 6,
+	vcmpVehicleOptionEngineDisabled = 7,
+	vcmpVehicleOptionBootOpen = 8,
+	vcmpVehicleOptionBonnetOpen = 9,
 	forceSizeVcmpVehicleOption = INT32_MAX
 } vcmpVehicleOption;
 
@@ -904,9 +908,33 @@ typedef struct {
 	uint16_t (*GetFallTimer) (void);
 
 	/* vcmpErrorNoSuchEntity */
-	vcmpError(*SetVehicleLightsData) (int32_t vehicleId, uint32_t lightsData);
+	vcmpError (*SetVehicleLightsData) (int32_t vehicleId, uint32_t lightsData);
 	/* GetLastError: vcmpErrorNoSuchEntity */
-	uint32_t(*GetVehicleLightsData) (int32_t vehicleId);
+	uint32_t (*GetVehicleLightsData) (int32_t vehicleId);
+
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*KillPlayer) (int32_t playerId);
+
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetVehicle3DArrowForPlayer) (int32_t nVehicleId, int32_t nTargetPlayerId, uint8_t bEnabled);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint8_t (*GetVehicle3DArrowForPlayer) (int32_t nVehicleId, int32_t nTargetPlayerId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetPlayer3DArrowForPlayer) (int32_t nPlayerId, int32_t nTargetPlayerId, uint8_t bEnabled);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint8_t (*GetPlayer3DArrowForPlayer) (int32_t nVehicleId, int32_t nTargetPlayerId);
+
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetPlayerDrunkHandling) (int32_t playerId, uint32_t drunkLevel);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint32_t (*GetPlayerDrunkHandling) (int32_t playerId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError (*SetPlayerDrunkVisuals) (int32_t playerId, uint8_t drunkLevel);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint8_t (*GetPlayerDrunkVisuals) (int32_t playerId);
+
+	/* vcmpErrorNoSuchEntity, vcmpErrorRequestDenied */
+	vcmpError (*InterpolateCameraLookAt) (int32_t playerId, float lookX, float lookY, float lookZ, uint32_t interpTimeMS);
 
 } PluginFuncs;
 

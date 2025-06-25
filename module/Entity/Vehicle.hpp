@@ -622,7 +622,7 @@ public:
      * Embark the specified player entity into the managed vehicle entity.
     */
     bool EmbarkEx(CPlayer & player, int32_t slot, bool allocate, bool warp);
-#if SQMOD_SDK_LEAST(2, 1)
+
     /* --------------------------------------------------------------------------------------------
      * Set whether the target player will see an objective arrow over a vehicle.
     */
@@ -642,7 +642,7 @@ public:
      * See whether the target player sees an objective arrow over a vehicle.
     */
     SQMOD_NODISCARD bool GetPlayer3DArrowID(SQInteger id) const;
-#endif
+
     /* --------------------------------------------------------------------------------------------
      * See whether the managed vehicle entity collides with user defined areas.
     */

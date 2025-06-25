@@ -736,7 +736,7 @@ struct LgPlayer
     void SetSpectateTarget(LightObj & player) const { player.IsNull() ? Get().SetSpectatorID(-1) : Get().SetSpectator(player.CastI< LgPlayer >()->Get()); }
     void SetMarkerVisible(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionHasMarker, static_cast< uint8_t >(toggle)); }
     void SetCanUseColors(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionChatTagsEnabled, static_cast< uint8_t >(toggle)); }
-    void SetDrunkStatus(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionDrunkEffects, static_cast< uint8_t >(toggle)); }
+    void SetDrunkStatus(bool toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionBleeding, static_cast< uint8_t >(toggle)); }
     void SetWantedLevel(int level) const { Get().SetWantedLevel(level); }
     // --------------------------------------------------------------------------------------------
     SQMOD_NODISCARD LgEntityVector GetPosition() const
@@ -787,7 +787,7 @@ struct LgPlayer
     { return {mID, LgEntityType::Player, LgPlayerVectorFlag::Speed, Get().GetSpeed()}; }
     SQMOD_NODISCARD bool GetCanUseColors() const { return _Func->GetPlayerOption(GetIdentifier(), vcmpPlayerOptionChatTagsEnabled) >= 1; }
     SQMOD_NODISCARD bool GetMarkerVisible() const { return _Func->GetPlayerOption(GetIdentifier(), vcmpPlayerOptionHasMarker) >= 1; }
-    SQMOD_NODISCARD bool GetDrunkStatus() const { return _Func->GetPlayerOption(GetIdentifier(), vcmpPlayerOptionDrunkEffects) >= 1; }
+    SQMOD_NODISCARD bool GetDrunkStatus() const { return _Func->GetPlayerOption(GetIdentifier(), vcmpPlayerOptionBleeding) >= 1; }
     SQMOD_NODISCARD double GetFPS() const { return Get().GetFPS(); }
     SQMOD_NODISCARD const SQChar * GetUniqueID() const { return Get().GetUID(); }
     SQMOD_NODISCARD const SQChar * GetUniqueID2() const { return Get().GetUID2(); }
@@ -828,8 +828,8 @@ struct LgPlayer
     void RemoveMarker() const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionHasMarker, 0); }
     void SetMarker(int toggle) const { _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionShowMarkers, static_cast< uint8_t >(toggle)); }
     void SetDrunkLevel(int visuals, int handling) const {
-        if (visuals <= 0 && handling <= 0) _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionDrunkEffects, 0);
-        else _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionDrunkEffects, 1);
+        if (visuals <= 0 && handling <= 0) _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionBleeding, 0);
+        else _Func->SetPlayerOption(GetIdentifier(), vcmpPlayerOptionBleeding, 1);
     }
     void RedirectPlayerToServer(StackStrF & ip, uint32_t port, StackStrF & nick, StackStrF & spass, StackStrF & upass) const
     { Get().Redirect(ip, port, nick, spass, upass); }
