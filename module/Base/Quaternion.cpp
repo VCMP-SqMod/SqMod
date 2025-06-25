@@ -493,7 +493,11 @@ Quaternion Quaternion::Abs() const
 // ------------------------------------------------------------------------------------------------
 bool Quaternion::IsNaN() const
 {
-    return isnanf(w) || isnanf(x) || isnanf(y) || isnanf(z);
+    #if defined (__MINGW32__) || defined (__MINGW64__)
+        return _isnanf(w) || _isnanf(x) || _isnanf(y) || _isnanf(z);
+    #else
+        return isnanf(w) || isnanf(x) || isnanf(y) || isnanf(z);
+    #endif
 }
 
 // ------------------------------------------------------------------------------------------------

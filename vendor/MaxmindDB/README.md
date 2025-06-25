@@ -6,10 +6,10 @@ designed to facilitate fast lookups of IP addresses while allowing for great
 flexibility in the type of data associated with an address.
 
 The MaxMind DB format is an open format. The spec is available at
-http://maxmind.github.io/MaxMind-DB/. This spec is licensed under the Creative
-Commons Attribution-ShareAlike 3.0 Unported License.
+https://maxmind.github.io/MaxMind-DB/. This spec is licensed under the
+Creative Commons Attribution-ShareAlike 3.0 Unported License.
 
-See http://dev.maxmind.com/ for more details about MaxMind's GeoIP2 products.
+See https://dev.maxmind.com/ for more details about MaxMind's GeoIP2 products.
 
 # License
 
@@ -30,11 +30,13 @@ structure.
 
 To install this code, run the following commands:
 
-    $ ./configure
-    $ make
-    $ make check
-    $ sudo make install
-    $ sudo ldconfig
+```bash
+./configure
+make
+make check
+sudo make install
+sudo ldconfig
+```
 
 You can skip the `make check` step but it's always good to know that tests are
 passing on your platform.
@@ -47,8 +49,10 @@ you may need to add the `lib` directory in your `prefix` to your library path.
 On most Linux distributions when using the default prefix (`/usr/local`), you
 can do this by running the following commands:
 
-    $ sudo sh -c "echo /usr/local/lib  >> /etc/ld.so.conf.d/local.conf"
-    $ ldconfig
+```bash
+sudo sh -c "echo /usr/local/lib  >> /etc/ld.so.conf.d/local.conf"
+ldconfig
+```
 
 ## From a GitHub "Source Code" Archive / Git Repo Clone (Achtung!)
 
@@ -65,7 +69,9 @@ in addition to `make` and a compiler.
 
 You can clone this repository and build it by running:
 
-    $ git clone --recursive https://github.com/maxmind/libmaxminddb
+```bash
+git clone --recursive https://github.com/maxmind/libmaxminddb
+```
 
 After cloning, run `./bootstrap` from the `libmaxminddb` directory and then
 follow the instructions for installing from a named release tarball as
@@ -77,48 +83,66 @@ We provide a CMake build script. This is primarily targeted at Windows users,
 but it can be used in other circumstances where the Autotools script does not
 work.
 
-    $ cmake --build .
-    $ ctest -V .
-    $ cmake --build . --target install
+```bash
+cmake -B build
+cd build/
+cmake --build .
+ctest -V .
+cmake --build . --target install
+```
 
 When building with Visual Studio, you may build a multithreaded (MT/MTd)
 runtime library, using the `MSVC_STATIC_RUNTIME` setting:
 
-    $ cmake -DMSVC_STATIC_RUNTIME=ON -DBUILD_SHARED_LIBS=OFF ..
+```bash
+cmake -DMSVC_STATIC_RUNTIME=ON -DBUILD_SHARED_LIBS=OFF ..
+```
+
+We also include a CMake `uninstall` target:
+
+```bash
+cmake --build . --target uninstall
+```
 
 ## On Ubuntu via PPA
 
 MaxMind provides a PPA for recent version of Ubuntu. To add the PPA to your
 APT sources, run:
 
-    $ sudo add-apt-repository ppa:maxmind/ppa
+```bash
+sudo add-apt-repository ppa:maxmind/ppa
+```
 
 Then install the packages by running:
 
-    $ sudo apt update
-    $ sudo apt install libmaxminddb0 libmaxminddb-dev mmdb-bin
+```bash
+sudo apt update
+sudo apt install libmaxminddb0 libmaxminddb-dev mmdb-bin
+```
 
-## On OS X via Homebrew
+## On macOS via Homebrew or MacPorts
 
-If you are on OS X and you have homebrew (see http://brew.sh/) you can install
-libmaxminddb via brew.
+You can install libmaxminddb on macOS using [Homebrew](https://brew.sh):
 
-    $ brew install libmaxminddb
+```bash
+brew install libmaxminddb
+```
+
+Or with [MacPorts](https://ports.macports.org/port/libmaxminddb):
+
+```bash
+sudo port install libmaxminddb
+```
+
+# Requirements
+
+libmaxminddb requires a minimum of POSIX.1-2001 support. If not specified
+at compilation time, it defaults to requesting POSIX.1-2008 support.
 
 # Bug Reports
 
 Please report bugs by filing an issue with our GitHub issue tracker at
 https://github.com/maxmind/libmaxminddb/issues
-
-# Dev Tools
-
-We have a few development tools under the `dev-bin` directory to make
-development easier. These are written in Perl or shell. They are:
-
-* `uncrustify-all.sh` - This runs `uncrustify` on all the code. Please run
-  this before submitting patches.
-* `valgrind-all.pl` - This runs Valgrind on the tests and `mmdblookup` to
-  check for memory leaks.
 
 # Creating a Release Tarball
 
@@ -126,13 +150,13 @@ Use `make safedist` to check the resulting tarball.
 
 # Copyright and License
 
-Copyright 2013-2021 MaxMind, Inc.
+Copyright 2013-2025 MaxMind, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+    https://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,

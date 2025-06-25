@@ -2,9 +2,9 @@
 
 void run_tests(int mode, const char *mode_desc) {
     const char *filename = "MaxMind-DB-test-broken-pointers-24.mmdb";
-    const char *path = test_database_path(filename);
+    char *path = test_database_path(filename);
     MMDB_s *mmdb = open_ok(path, mode, mode_desc);
-    free((void *)path);
+    free(path);
 
     {
         const char *ip = "1.1.1.16";
@@ -29,6 +29,9 @@ void run_tests(int mode, const char *mode_desc) {
                "MMDB_get_entry_data_list returns MMDB_INVALID_DATA_ERROR for "
                "bad pointer in data section");
 
+        // This is not necessary as on error we should not need to free
+        // anything. However test that it is safe to do so. See change in
+        // 1.12.2.
         MMDB_free_entry_data_list(entry_data_list);
     }
 
@@ -36,8 +39,7 @@ void run_tests(int mode, const char *mode_desc) {
         const char *ip = "1.1.1.32";
 
         int gai_error, mmdb_error;
-        MMDB_lookup_result_s UNUSED(result) =
-            MMDB_lookup_string(mmdb, ip, &gai_error, &mmdb_error);
+        MMDB_lookup_string(mmdb, ip, &gai_error, &mmdb_error);
 
         cmp_ok(mmdb_error,
                "==",

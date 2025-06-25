@@ -70,54 +70,59 @@ void run_read_node_tests(MMDB_s *mmdb,
 
 void run_24_bit_record_tests(int mode, const char *mode_desc) {
     const char *filename = "MaxMind-DB-test-mixed-24.mmdb";
-    const char *path = test_database_path(filename);
+    char *path = test_database_path(filename);
     MMDB_s *mmdb = open_ok(path, mode, mode_desc);
-    free((void *)path);
+    free(path);
 
-    const uint32_t tests[7][5] = {
-        {0, 1, MMDB_RECORD_TYPE_SEARCH_NODE, 242, MMDB_RECORD_TYPE_EMPTY},
-        {
-            80,
-            81,
-            MMDB_RECORD_TYPE_SEARCH_NODE,
-            197,
-            MMDB_RECORD_TYPE_SEARCH_NODE,
-        },
-        {
-            96,
-            97,
-            MMDB_RECORD_TYPE_SEARCH_NODE,
-            242,
-            MMDB_RECORD_TYPE_EMPTY,
-        },
-        {
-            103,
-            242,
-            MMDB_RECORD_TYPE_EMPTY,
-            104,
-            MMDB_RECORD_TYPE_SEARCH_NODE,
-        },
-        {
-            127,
-            242,
-            MMDB_RECORD_TYPE_EMPTY,
-            315,
-            MMDB_RECORD_TYPE_DATA,
-        },
-        {
-            132,
-            329,
-            MMDB_RECORD_TYPE_DATA,
-            242,
-            MMDB_RECORD_TYPE_EMPTY,
-        },
-        {
-            241,
-            96,
-            MMDB_RECORD_TYPE_SEARCH_NODE,
-            242,
-            MMDB_RECORD_TYPE_EMPTY,
-        }};
+    const uint32_t tests[7][5] = {{
+                                      0,
+                                      1,
+                                      MMDB_RECORD_TYPE_SEARCH_NODE,
+                                      435,
+                                      MMDB_RECORD_TYPE_SEARCH_NODE,
+                                  },
+                                  {
+                                      80,
+                                      81,
+                                      MMDB_RECORD_TYPE_SEARCH_NODE,
+                                      323,
+                                      MMDB_RECORD_TYPE_SEARCH_NODE,
+                                  },
+                                  {
+                                      96,
+                                      97,
+                                      MMDB_RECORD_TYPE_SEARCH_NODE,
+                                      148,
+                                      MMDB_RECORD_TYPE_SEARCH_NODE,
+                                  },
+                                  {
+                                      103,
+                                      444,
+                                      MMDB_RECORD_TYPE_EMPTY,
+                                      104,
+                                      MMDB_RECORD_TYPE_SEARCH_NODE,
+                                  },
+                                  {
+                                      127,
+                                      444,
+                                      MMDB_RECORD_TYPE_EMPTY,
+                                      514,
+                                      MMDB_RECORD_TYPE_DATA,
+                                  },
+                                  {
+                                      132,
+                                      527,
+                                      MMDB_RECORD_TYPE_DATA,
+                                      444,
+                                      MMDB_RECORD_TYPE_EMPTY,
+                                  },
+                                  {
+                                      241,
+                                      444,
+                                      MMDB_RECORD_TYPE_EMPTY,
+                                      242,
+                                      MMDB_RECORD_TYPE_SEARCH_NODE,
+                                  }};
     run_read_node_tests(mmdb, tests, 7, 24);
 
     MMDB_close(mmdb);
@@ -126,54 +131,59 @@ void run_24_bit_record_tests(int mode, const char *mode_desc) {
 
 void run_28_bit_record_tests(int mode, const char *mode_desc) {
     const char *filename = "MaxMind-DB-test-mixed-28.mmdb";
-    const char *path = test_database_path(filename);
+    char *path = test_database_path(filename);
     MMDB_s *mmdb = open_ok(path, mode, mode_desc);
-    free((void *)path);
+    free(path);
 
-    const uint32_t tests[7][5] = {
-        {0, 1, MMDB_RECORD_TYPE_SEARCH_NODE, 242, MMDB_RECORD_TYPE_EMPTY},
-        {
-            80,
-            81,
-            MMDB_RECORD_TYPE_SEARCH_NODE,
-            197,
-            MMDB_RECORD_TYPE_SEARCH_NODE,
-        },
-        {
-            96,
-            97,
-            MMDB_RECORD_TYPE_SEARCH_NODE,
-            242,
-            MMDB_RECORD_TYPE_EMPTY,
-        },
-        {
-            103,
-            242,
-            MMDB_RECORD_TYPE_EMPTY,
-            104,
-            MMDB_RECORD_TYPE_SEARCH_NODE,
-        },
-        {
-            127,
-            242,
-            MMDB_RECORD_TYPE_EMPTY,
-            315,
-            MMDB_RECORD_TYPE_DATA,
-        },
-        {
-            132,
-            329,
-            MMDB_RECORD_TYPE_DATA,
-            242,
-            MMDB_RECORD_TYPE_EMPTY,
-        },
-        {
-            241,
-            96,
-            MMDB_RECORD_TYPE_SEARCH_NODE,
-            242,
-            MMDB_RECORD_TYPE_EMPTY,
-        }};
+    const uint32_t tests[7][5] = {{
+                                      0,
+                                      1,
+                                      MMDB_RECORD_TYPE_SEARCH_NODE,
+                                      435,
+                                      MMDB_RECORD_TYPE_SEARCH_NODE,
+                                  },
+                                  {
+                                      80,
+                                      81,
+                                      MMDB_RECORD_TYPE_SEARCH_NODE,
+                                      323,
+                                      MMDB_RECORD_TYPE_SEARCH_NODE,
+                                  },
+                                  {
+                                      96,
+                                      97,
+                                      MMDB_RECORD_TYPE_SEARCH_NODE,
+                                      148,
+                                      MMDB_RECORD_TYPE_SEARCH_NODE,
+                                  },
+                                  {
+                                      103,
+                                      444,
+                                      MMDB_RECORD_TYPE_EMPTY,
+                                      104,
+                                      MMDB_RECORD_TYPE_SEARCH_NODE,
+                                  },
+                                  {
+                                      127,
+                                      444,
+                                      MMDB_RECORD_TYPE_EMPTY,
+                                      514,
+                                      MMDB_RECORD_TYPE_DATA,
+                                  },
+                                  {
+                                      132,
+                                      527,
+                                      MMDB_RECORD_TYPE_DATA,
+                                      444,
+                                      MMDB_RECORD_TYPE_EMPTY,
+                                  },
+                                  {
+                                      241,
+                                      444,
+                                      MMDB_RECORD_TYPE_EMPTY,
+                                      242,
+                                      MMDB_RECORD_TYPE_SEARCH_NODE,
+                                  }};
     run_read_node_tests(mmdb, tests, 7, 28);
 
     MMDB_close(mmdb);
@@ -182,54 +192,59 @@ void run_28_bit_record_tests(int mode, const char *mode_desc) {
 
 void run_32_bit_record_tests(int mode, const char *mode_desc) {
     const char *filename = "MaxMind-DB-test-mixed-32.mmdb";
-    const char *path = test_database_path(filename);
+    char *path = test_database_path(filename);
     MMDB_s *mmdb = open_ok(path, mode, mode_desc);
-    free((void *)path);
+    free(path);
 
-    const uint32_t tests[7][5] = {
-        {0, 1, MMDB_RECORD_TYPE_SEARCH_NODE, 242, MMDB_RECORD_TYPE_EMPTY},
-        {
-            80,
-            81,
-            MMDB_RECORD_TYPE_SEARCH_NODE,
-            197,
-            MMDB_RECORD_TYPE_SEARCH_NODE,
-        },
-        {
-            96,
-            97,
-            MMDB_RECORD_TYPE_SEARCH_NODE,
-            242,
-            MMDB_RECORD_TYPE_EMPTY,
-        },
-        {
-            103,
-            242,
-            MMDB_RECORD_TYPE_EMPTY,
-            104,
-            MMDB_RECORD_TYPE_SEARCH_NODE,
-        },
-        {
-            127,
-            242,
-            MMDB_RECORD_TYPE_EMPTY,
-            315,
-            MMDB_RECORD_TYPE_DATA,
-        },
-        {
-            132,
-            329,
-            MMDB_RECORD_TYPE_DATA,
-            242,
-            MMDB_RECORD_TYPE_EMPTY,
-        },
-        {
-            241,
-            96,
-            MMDB_RECORD_TYPE_SEARCH_NODE,
-            242,
-            MMDB_RECORD_TYPE_EMPTY,
-        }};
+    const uint32_t tests[7][5] = {{
+                                      0,
+                                      1,
+                                      MMDB_RECORD_TYPE_SEARCH_NODE,
+                                      435,
+                                      MMDB_RECORD_TYPE_SEARCH_NODE,
+                                  },
+                                  {
+                                      80,
+                                      81,
+                                      MMDB_RECORD_TYPE_SEARCH_NODE,
+                                      323,
+                                      MMDB_RECORD_TYPE_SEARCH_NODE,
+                                  },
+                                  {
+                                      96,
+                                      97,
+                                      MMDB_RECORD_TYPE_SEARCH_NODE,
+                                      148,
+                                      MMDB_RECORD_TYPE_SEARCH_NODE,
+                                  },
+                                  {
+                                      103,
+                                      444,
+                                      MMDB_RECORD_TYPE_EMPTY,
+                                      104,
+                                      MMDB_RECORD_TYPE_SEARCH_NODE,
+                                  },
+                                  {
+                                      127,
+                                      444,
+                                      MMDB_RECORD_TYPE_EMPTY,
+                                      514,
+                                      MMDB_RECORD_TYPE_DATA,
+                                  },
+                                  {
+                                      132,
+                                      527,
+                                      MMDB_RECORD_TYPE_DATA,
+                                      444,
+                                      MMDB_RECORD_TYPE_EMPTY,
+                                  },
+                                  {
+                                      241,
+                                      444,
+                                      MMDB_RECORD_TYPE_EMPTY,
+                                      242,
+                                      MMDB_RECORD_TYPE_SEARCH_NODE,
+                                  }};
 
     run_read_node_tests(mmdb, tests, 7, 32);
 

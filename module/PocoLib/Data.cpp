@@ -41,7 +41,7 @@ SQMOD_DECL_TYPENAME(SqPcSqDataAsyncBuilder, _SC("SqSqDataAsyncBuilder"))
 SQMOD_DECL_TYPENAME(SqPcDataStatementResult, _SC("SqDataStatementResult"))
 
 // ------------------------------------------------------------------------------------------------
-static const Poco::Data::NullData g_NullData{Poco::NULL_GENERIC};
+static const Poco::Data::NullData g_NullData = std::nullopt;
 
 // ------------------------------------------------------------------------------------------------
 void InitializePocoDataConnectors()

@@ -20,6 +20,7 @@
 #include "Poco/Data/Column.h"
 #include "Poco/Data/Date.h"
 #include "Poco/Data/Time.h"
+#include "Poco/Data/SQLChannel.h"
 #include "Poco/Data/SimpleRowFormatter.h"
 #include "Poco/Data/JSONRowFormatter.h"
 #include "Poco/Data/DataException.h"
@@ -27,57 +28,30 @@
 #include "Poco/BinaryReader.h"
 #include "Poco/BinaryWriter.h"
 #include "Poco/DateTime.h"
+#include "Poco/Stopwatch.h"
 #include "Poco/Types.h"
 #include "Poco/Dynamic/Var.h"
 #include "Poco/Data/DynamicLOB.h"
 #include "Poco/Data/DynamicDateTime.h"
 #include "Poco/Latin1Encoding.h"
 #include "Poco/Exception.h"
+#include "Poco/DirectoryIterator.h"
+#include "Poco/Glob.h"
+#include "Poco/File.h"
+#include "Poco/Path.h"
+#include "Poco/Nullable.h"
+#include <string>
 #include <cstring>
 #include <sstream>
 #include <iomanip>
 #include <set>
 
 
-using namespace Poco::Data::Keywords;
-
-
-using Poco::BinaryReader;
-using Poco::BinaryWriter;
-using Poco::UInt32;
-using Poco::Int64;
-using Poco::UInt64;
-using Poco::DateTime;
-using Poco::Latin1Encoding;
+using namespace Poco;
 using Poco::Dynamic::Var;
-using Poco::InvalidAccessException;
-using Poco::IllegalStateException;
-using Poco::RangeException;
-using Poco::NotFoundException;
-using Poco::InvalidArgumentException;
-using Poco::NotImplementedException;
-using Poco::Data::Session;
-using Poco::Data::SessionFactory;
-using Poco::Data::Statement;
-using Poco::Data::NotSupportedException;
-using Poco::Data::CLOB;
-using Poco::Data::CLOBInputStream;
-using Poco::Data::CLOBOutputStream;
-using Poco::Data::MetaColumn;
-using Poco::Data::Column;
-using Poco::Data::Row;
-using Poco::Data::RowFormatter;
-using Poco::Data::SimpleRowFormatter;
-using Poco::Data::JSONRowFormatter;
-using Poco::Data::Date;
-using Poco::Data::Time;
-using Poco::Data::AbstractExtractor;
-using Poco::Data::AbstractExtraction;
-using Poco::Data::AbstractExtractionVec;
-using Poco::Data::AbstractExtractionVecVec;
-using Poco::Data::AbstractBinding;
-using Poco::Data::AbstractBindingVec;
-using Poco::Data::NotConnectedException;
+using namespace Poco::Data;
+using namespace Poco::Data::Keywords;
+using namespace std::string_literals;
 
 
 DataTest::DataTest(const std::string& name): CppUnit::TestCase(name)
@@ -99,6 +73,7 @@ void DataTest::testSession()
 	assertTrue (sess.connector() == sess.impl()->connectorName());
 	assertTrue ("cs" == sess.impl()->connectionString());
 	assertTrue ("test:///cs" == sess.uri());
+	assertTrue ("Test" == sess.dbmsName());
 
 	assertTrue (sess.getLoginTimeout() == Session::LOGIN_TIMEOUT_DEFAULT);
 	sess.setLoginTimeout(123);
@@ -181,6 +156,47 @@ void DataTest::testFeatures()
 {
 	Session sess(SessionFactory::instance().create("test", "cs"));
 
+	// AbstractSession features
+	assertTrue (sess.hasFeature("bulk"));
+	assertTrue (!sess.getFeature("bulk"));
+	sess.setFeature("bulk", true);
+	assertTrue (sess.getFeature("bulk"));
+	sess.setFeature("bulk", false);
+	assertTrue (!sess.getFeature("bulk"));
+
+	assertTrue (sess.hasFeature("emptyStringIsNull"));
+	assertTrue (!sess.getFeature("emptyStringIsNull"));
+	sess.setFeature("emptyStringIsNull", true);
+	assertTrue (sess.getFeature("emptyStringIsNull"));
+	sess.setFeature("emptyStringIsNull", false);
+	assertTrue (!sess.getFeature("emptyStringIsNull"));
+
+	assertTrue (sess.hasFeature("forceEmptyString"));
+	assertTrue (!sess.getFeature("forceEmptyString"));
+	sess.setFeature("forceEmptyString", true);
+	assertTrue (sess.getFeature("forceEmptyString"));
+	sess.setFeature("forceEmptyString", false);
+	assertTrue (!sess.getFeature("forceEmptyString"));
+
+	assertTrue (sess.hasFeature("sqlParse"));
+	assertFalse (sess.getFeature("sqlParse"));
+	sess.setFeature("sqlParse", true);
+	assertTrue (sess.getFeature("sqlParse"));
+	sess.setFeature("sqlParse", false);
+	assertFalse (sess.getFeature("sqlParse"));
+
+	assertTrue (sess.hasFeature("autoCommit"));
+	assertTrue (sess.getFeature("autoCommit"));
+	sess.setFeature("autoCommit", false);
+	assertTrue (!sess.getFeature("autoCommit"));
+	sess.setFeature("autoCommit", true);
+	assertTrue (sess.getFeature("autoCommit"));
+
+	// Session implementation features
+	sess.setFeature("f1", true);
+	assertTrue (sess.getFeature("f1"));
+	assertTrue (sess.getFeature("f2"));
+
 	sess.setFeature("f1", true);
 	assertTrue (sess.getFeature("f1"));
 	assertTrue (sess.getFeature("f2"));
@@ -218,6 +234,16 @@ void DataTest::testProperties()
 {
 	Session sess(SessionFactory::instance().create("test", "cs"));
 
+	// AbstractSession properties
+	sess.setProperty("storage", "myStorage"s);
+	Poco::Any s1 = sess.getProperty("storage");
+	assertTrue (Poco::AnyCast<std::string>(s1) == "myStorage"s);
+
+	sess.setProperty("handle", 1);
+	Poco::Any h1 = sess.getProperty("handle");
+	assertTrue (Poco::AnyCast<int>(h1) == 1);
+
+	// Session implementation properties
 	sess.setProperty("p1", 1);
 	Poco::Any v1 = sess.getProperty("p1");
 	assertTrue (Poco::AnyCast<int>(v1) == 1);
@@ -330,7 +356,7 @@ void DataTest::testCLOB()
 	blobChrStr = CLOB(sss);
 	assertTrue (blobChrStr == blobNumStr);
 
-    std::string xyz = "xyz";
+	std::string xyz = "xyz";
 	vLOB = xyz;
 	blobChrStr = sss = vLOB.convert<std::string>();
 	assertTrue (0 == std::strncmp(xyz.c_str(), blobChrStr.rawContent(), blobChrStr.size()));
@@ -1139,7 +1165,6 @@ void DataTest::testRowSort()
 
 	testRowStrictWeak(row10, row9, row8);
 
-
 	Row row11;
 	row11.append("0", 2.5);
 	row11.append("1", 2.5);
@@ -1437,6 +1462,159 @@ void DataTest::testTranscode()
 }
 
 
+void DataTest::testSQLParse()
+{
+	Session sess(SessionFactory::instance().create("test", "cs"));
+
+	assertTrue (sess.getFeature("autoCommit"));
+	sess.setFeature("autoCommit", false);
+	assertTrue (!sess.getFeature("autoCommit"));
+
+	assertFalse (sess.getFeature("sqlParse"));
+	sess.setFeature("sqlParse", true);
+	assertTrue (sess.getFeature("sqlParse"));
+
+	Statement stmt = (sess << "SELECT %s%c%s,%d,%u,%f,%s FROM Person WHERE Name LIKE 'Simp%%'",
+		"'",'a',"'",-1, 1u, 1.5, "42", now);
+
+	assertTrue ("SELECT 'a',-1,1,1.500000,42 FROM Person WHERE Name LIKE 'Simp%'" == stmt.toString());
+
+#ifndef POCO_DATA_NO_SQL_PARSER
+
+	assertEqual (1u, stmt.statementsCount().value());
+	assertTrue (stmt.isSelect().value());
+	assertTrue (stmt.hasSelect().value());
+	assertTrue (!stmt.isUpdate().value());
+	assertTrue (!stmt.hasUpdate().value());
+	assertTrue (!stmt.isInsert().value());
+	assertTrue (!stmt.hasInsert().value());
+	assertTrue (!stmt.isDelete().value());
+	assertTrue (!stmt.hasDelete().value());
+
+	stmt.reset();
+	stmt = (sess << "INSERT INTO Test VALUES ('1', 2, 3.5);"
+		"SELECT * FROM Test WHERE First = ?;"
+		"UPDATE Test SET value=1 WHERE First = '1';"
+		"DELETE FROM Test WHERE First = ?;"
+		"DROP TABLE table_name;"
+		"ALTER TABLE mytable DROP COLUMN IF EXISTS mycolumn;"
+		"PREPARE prep_inst FROM 'INSERT INTO test VALUES (?, ?, ?)';"
+		"EXECUTE prep_inst(1, 2, 3);");
+	stmt.execute();
+	assertEqual (8u, stmt.statementsCount().value());
+	assertTrue (!stmt.isSelect().value());
+	assertTrue (stmt.hasSelect().value());
+	assertTrue (!stmt.isUpdate().value());
+	assertTrue (stmt.hasUpdate().value());
+	assertTrue (!stmt.isInsert().value());
+	assertTrue (stmt.hasInsert().value());
+	assertTrue (!stmt.isDelete().value());
+	assertTrue (stmt.hasDelete().value());
+
+	sess.setFeature("sqlParse", false);
+	assertTrue (!sess.getFeature("sqlParse"));
+
+#else
+
+	std::cout << "partial test (parser not available)";
+
+#endif // POCO_DATA_NO_SQL_PARSER
+
+	stmt.reset();
+	stmt = (sess << "INSERT INTO Test VALUES ('1', 2, 3.5);"
+		"SELECT * FROM Test WHERE First = ?;"
+		"UPDATE Test SET value=1 WHERE First = '1';"
+		"DELETE FROM Test WHERE First = ?;"
+		"DROP TABLE table_name;"
+		"ALTER TABLE mytable DROP COLUMN IF EXISTS mycolumn;"
+		"PREPARE prep_inst FROM 'INSERT INTO test VALUES (?, ?, ?)';"
+		"EXECUTE prep_inst(1, 2, 3);");
+
+	stmt.execute();
+	assertTrue (!stmt.isSelect().isSpecified());
+	assertTrue (!stmt.hasSelect().isSpecified());
+	assertTrue (!stmt.isUpdate().isSpecified());
+	assertTrue (!stmt.hasUpdate().isSpecified());
+	assertTrue (!stmt.isInsert().isSpecified());
+	assertTrue (!stmt.hasInsert().isSpecified());
+	assertTrue (!stmt.isDelete().isSpecified());
+	assertTrue (!stmt.hasDelete().isSpecified());
+}
+
+
+void DataTest::testSQLChannel()
+{
+	const std::string dir = Path::tempHome();
+	AutoPtr<SQLChannel> pChannel = new SQLChannel();
+	pChannel->setProperty("directory", dir);
+	Stopwatch sw; sw.start();
+	while (!pChannel->isRunning())
+	{
+		Thread::sleep(10);
+		if (sw.elapsedSeconds() > 3)
+			fail("SQLChannel timed out");
+	}
+
+	Glob g("*.log.sql");
+	if (File(dir).exists())
+	{
+		{
+			DirectoryIterator it(dir);
+			const DirectoryIterator end;
+			while (it != end)
+			{
+				if (g.match(it->path()))
+				{
+					File(it->path()).remove();
+				}
+				++it;
+			}
+		}
+	}
+
+	constexpr int mcount{10};
+	constexpr int batch{3};
+	pChannel->setProperty("minBatch", std::to_string(batch));
+	constexpr int flush{1};
+	pChannel->setProperty("flush", std::to_string(flush));
+	assertEqual(flush, NumberParser::parse(pChannel->getProperty("flush")));
+	for (int i = 0; i < mcount; i++)
+	{
+		Message msgInfA("InformationSource", Poco::format("%d Informational sync message", i), Message::PRIO_INFORMATION);
+		pChannel->log(msgInfA);
+	}
+	Thread::sleep(2000*flush); // give it time to flush
+	auto logged = pChannel->logged();
+	assertEqual(mcount, logged);
+	pChannel.reset();
+
+	int count = 0;
+	DirectoryIterator it(dir);
+	const DirectoryIterator end;
+	while (it != end)
+	{
+		if (g.match(it->path()))
+		{
+			++count;
+			File(it->path()).remove();
+		}
+		++it;
+	}
+	assertEqual(count, (mcount / batch) + (mcount % batch));
+}
+
+
+void DataTest::testNullableExtract()
+{
+	Poco::Data::Test::Extractor ext;
+	Poco::Nullable<Poco::Int32> ni;
+	assertTrue (ni.isNull());
+	assertTrue (ext.extract(0, ni));
+	assertFalse (ni.isNull());
+	assertEqual (ni.value(), 1);
+}
+
+
 void DataTest::setUp()
 {
 }
@@ -1469,6 +1647,9 @@ CppUnit::Test* DataTest::suite()
 	CppUnit_addTest(pSuite, DataTest, testDateAndTime);
 	CppUnit_addTest(pSuite, DataTest, testExternalBindingAndExtraction);
 	CppUnit_addTest(pSuite, DataTest, testTranscode);
+	CppUnit_addTest(pSuite, DataTest, testSQLParse);
+	CppUnit_addTest(pSuite, DataTest, testSQLChannel);
+	CppUnit_addTest(pSuite, DataTest, testNullableExtract);
 
 	return pSuite;
 }

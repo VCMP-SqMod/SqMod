@@ -1,6 +1,8 @@
-/* Some test files may require something newer */
-#if !defined(_GNU_SOURCE) && !defined(_POSIX_C_SOURCE)
-#define _POSIX_C_SOURCE 200112L
+// The spec says this should be set prior to including any headers, but since
+// this is test code, it should be fine to set it here. Setting it here avoids
+// setting it in every test program.
+#ifndef _POSIX_C_SOURCE
+#define _POSIX_C_SOURCE 200809L
 #endif
 
 #if HAVE_CONFIG_H
@@ -23,7 +25,7 @@
 #include <netdb.h>
 #endif
 
-#if (_MSC_VER && _MSC_VER < 1900)
+#if defined _MSC_VER && _MSC_VER < 1900
 /* _snprintf has security issues, but I don't think it is worth
    worrying about for the unit tests. */
 #define snprintf _snprintf
@@ -45,8 +47,8 @@ extern void for_all_record_sizes(const char *filename_fmt,
                                                const char *filename,
                                                const char *description));
 extern void for_all_modes(void (*tests)(int mode, const char *description));
-extern const char *test_database_path(const char *filename);
-extern const char *dup_entry_string_or_bail(MMDB_entry_data_s entry_data);
+extern char *test_database_path(const char *filename);
+extern char *dup_entry_string_or_bail(MMDB_entry_data_s entry_data);
 extern MMDB_s *open_ok(const char *db_file, int mode, const char *mode_desc);
 extern MMDB_lookup_result_s lookup_string_ok(MMDB_s *mmdb,
                                              const char *ip,

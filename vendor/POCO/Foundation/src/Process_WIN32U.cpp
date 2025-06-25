@@ -161,6 +161,30 @@ void ProcessImpl::timesImpl(long& userTime, long& kernelTime)
 }
 
 
+void ProcessImpl::timesMicrosecondsImpl(Poco::Int64& userTime, Poco::Int64& kernelTime)
+{
+	FILETIME ftCreation;
+	FILETIME ftExit;
+	FILETIME ftKernel;
+	FILETIME ftUser;
+
+	if (GetProcessTimes(GetCurrentProcess(), &ftCreation, &ftExit, &ftKernel, &ftUser) != 0)
+	{
+		ULARGE_INTEGER time;
+		time.LowPart = ftKernel.dwLowDateTime;
+		time.HighPart = ftKernel.dwHighDateTime;
+		kernelTime = Poco::Int64(time.QuadPart/10);
+		time.LowPart = ftUser.dwLowDateTime;
+		time.HighPart = ftUser.dwHighDateTime;
+		userTime = Poco::Int64(time.QuadPart/10);
+	}
+	else
+	{
+		userTime = kernelTime = -1;
+	}
+}
+
+
 bool ProcessImpl::mustEscapeArg(const std::string& arg)
 {
 	bool result = false;
@@ -280,7 +304,11 @@ ProcessHandleImpl* ProcessImpl::launchImpl(const std::string& command, const Arg
 	{
 		startupInfo.hStdInput = 0;
 	}
-	if (options & PROCESS_CLOSE_STDIN) CloseHandle(GetStdHandle(STD_INPUT_HANDLE));
+	if (options & PROCESS_CLOSE_STDIN)
+	{
+		HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
+		if (hStdIn) CloseHandle(hStdIn);
+	}
 
 	// outPipe may be the same as errPipe, so we duplicate first and close later.
 	if (outPipe)
@@ -312,9 +340,17 @@ ProcessHandleImpl* ProcessImpl::launchImpl(const std::string& command, const Arg
 		startupInfo.hStdError = 0;
 	}
 	if (outPipe) outPipe->close(Pipe::CLOSE_WRITE);
-	if (options & PROCESS_CLOSE_STDOUT) CloseHandle(GetStdHandle(STD_OUTPUT_HANDLE));
+	if (options & PROCESS_CLOSE_STDOUT) 
+	{
+		HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+		if (hStdOut) CloseHandle(hStdOut);
+	}
 	if (errPipe) errPipe->close(Pipe::CLOSE_WRITE);
-	if (options & PROCESS_CLOSE_STDERR) CloseHandle(GetStdHandle(STD_ERROR_HANDLE));
+	if (options & PROCESS_CLOSE_STDERR) 
+	{
+		HANDLE hStdErr = GetStdHandle(STD_ERROR_HANDLE);
+		if (hStdErr) CloseHandle(hStdErr);
+	}
 
 	if (mustInheritHandles)
 	{

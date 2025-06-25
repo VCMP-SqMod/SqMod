@@ -26,11 +26,7 @@
 #if defined(POCO_OS_FAMILY_UNIX)
 #include "Path_UNIX.cpp"
 #elif defined(POCO_OS_FAMILY_WINDOWS)
-#if defined(_WIN32_WCE)
-#include "Path_WINCE.cpp"
-#else
 #include "Path_WIN32U.cpp"
-#endif
 #endif
 
 
@@ -302,14 +298,14 @@ bool Path::tryParse(const std::string& path, Style style)
 
 Path& Path::parseDirectory(const std::string& path)
 {
-	assign(path);
+	assign(addDirectorySeparator(path));
 	return makeDirectory();
 }
 
 
 Path& Path::parseDirectory(const std::string& path, Style style)
 {
-	assign(path, style);
+	assign(addDirectorySeparator(path, style), style);
 	return makeDirectory();
 }
 
@@ -537,7 +533,7 @@ Path& Path::setBaseName(const std::string& name)
 std::string Path::getBaseName() const
 {
 	std::string::size_type pos = _name.rfind('.');
-	if (pos != std::string::npos)
+	if (pos != std::string::npos && pos != 0)
 		return _name.substr(0, pos);
 	else
 		return _name;
@@ -559,7 +555,7 @@ Path& Path::setExtension(const std::string& extension)
 std::string Path::getExtension() const
 {
 	std::string::size_type pos = _name.rfind('.');
-	if (pos != std::string::npos)
+	if (pos != std::string::npos && pos != 0)
 		return _name.substr(pos + 1);
 	else
 		return std::string();
@@ -575,6 +571,55 @@ Path& Path::clear()
 	_version.clear();
 	_absolute = false;
 	return *this;
+}
+
+
+std::string Path::addDirectorySeparator(const std::string& path)
+{
+	poco_assert(!path.empty());
+
+	if (path.back() != separator())
+	{
+		return path + separator();
+	}
+	return path;
+}
+
+
+std::string Path::addDirectorySeparator(const std::string& path, Style style)
+{
+	poco_assert(!path.empty());
+
+	char ch = '\0';
+	switch (style)
+	{
+	case PATH_UNIX:
+		ch = '/';
+		break;
+	case PATH_WINDOWS:
+		ch = '\\';
+		break;
+	case PATH_VMS:
+		ch = '.';
+		break;
+	case PATH_NATIVE:
+		ch = separator();
+		break;
+	default:
+		poco_bugcheck();
+	}
+
+	if (path.back() != ch)
+	{
+		return path + ch;
+	}
+	return path;
+}
+
+
+std::string Path::self()
+{
+	return PathImpl::selfImpl();
 }
 
 
@@ -935,7 +980,9 @@ void Path::parseGuess(const std::string& path)
 			case '\\': hasBackslash = true; break;
 			case '/':  hasSlash = true; break;
 			case '[':  hasOpenBracket = true;
+				[[fallthrough]];
 			case ']':  hasClosBracket = hasOpenBracket;
+				[[fallthrough]];
 			case ';':  semiIt = it; break;
 			}
 		}

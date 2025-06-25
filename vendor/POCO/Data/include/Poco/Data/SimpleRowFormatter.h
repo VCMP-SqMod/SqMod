@@ -107,20 +107,19 @@ inline std::streamsize SimpleRowFormatter::getSpacing() const
 } } // namespace Poco::Data
 
 
+#ifndef POCO_DOC
 namespace std
 {
-	// Note: for an unknown reason, clang refuses to compile this function as noexcept
 	template<>
 	inline void swap<Poco::Data::SimpleRowFormatter>(Poco::Data::SimpleRowFormatter& s1,
 		Poco::Data::SimpleRowFormatter& s2)
-#ifndef POCO_COMPILER_CLANG
-		noexcept
-#endif
+		noexcept(std::is_nothrow_swappable_v<Poco::Data::SimpleRowFormatter>)
 		/// Full template specalization of std:::swap for SimpleRowFormatter
 	{
 		s1.swap(s2);
 	}
 }
+#endif
 
 
 #endif // Data_SimpleRowFormatter_INCLUDED

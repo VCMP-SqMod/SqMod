@@ -10,18 +10,10 @@ POCO_HEADERS_AUTO(SRCS ${HDRS_G})
 POCO_SOURCES_AUTO_PLAT(SRCS UNIX src/SyslogChannel.cpp)
 POCO_HEADERS_AUTO(SRCS include/Poco/SyslogChannel.h)
 
-# For Windows CE we need to disable these
-if(WINCE)
-POCO_SOURCES_AUTO_PLAT(SRCS OFF
-	src/WindowsConsoleChannel.cpp
-	src/EventLogChannel.cpp
-	)
-else()
 POCO_SOURCES_AUTO_PLAT(SRCS WIN32
 	src/WindowsConsoleChannel.cpp
 	src/EventLogChannel.cpp
 	)
-endif()
 
 # Version Resource
 if(MSVC AND BUILD_SHARED_LIBS)
@@ -37,6 +29,7 @@ POCO_MESSAGES(SRCS Logging src/pocomsg.mc)
 if(POCO_UNBUNDLED)
 	find_package(PCRE2 REQUIRED)
 	find_package(ZLIB REQUIRED)
+	find_package(Utf8Proc REQUIRED)
 
 	#HACK: Unicode.cpp requires functions from these files. The can't be taken from the library
 	POCO_SOURCES(SRCS RegExp
@@ -49,6 +42,7 @@ else()
 	POCO_SOURCES(SRCS pcre2
 		src/pcre2_auto_possess.c
 		src/pcre2_chartables.c
+		src/pcre2_chkdint.c
 		src/pcre2_compile.c
 		src/pcre2_config.c
 		src/pcre2_context.c
@@ -76,12 +70,6 @@ else()
 		src/pcre2_xclass.c
 	)
 
-	# zlib
-	POCO_HEADERS(SRCS zlib
-		include/Poco/zconf.h
-		include/Poco/zlib.h
-		)
-
 	POCO_SOURCES(SRCS zlib
 		src/adler32.c
 		src/compress.c
@@ -93,6 +81,10 @@ else()
 		src/inftrees.c
 		src/trees.c
 		src/zutil.c
+	)
+
+	POCO_SOURCES(SRCS utf8proc
+		src/utf8proc.c
 	)
 endif(POCO_UNBUNDLED)
 
@@ -106,14 +98,14 @@ set_target_properties(Foundation
 	DEFINE_SYMBOL Foundation_EXPORTS
 )
 
-if (GNUC OR MINGW)
-	target_compile_options(Foundation PUBLIC -Wno-deprecated-declarations)
-endif()
-
 if(POCO_UNBUNDLED)
-	target_link_libraries(Foundation PUBLIC Pcre2::Pcre2 ZLIB::ZLIB)
+	target_link_libraries(Foundation PRIVATE Pcre2::Pcre2 ZLIB::ZLIB Utf8Proc::Utf8Proc)
 	target_compile_definitions(Foundation PUBLIC POCO_UNBUNDLED)
+else()
+	target_compile_definitions(Foundation PUBLIC UTF8PROC_STATIC)
 endif(POCO_UNBUNDLED)
+
+target_compile_definitions(Foundation PUBLIC POCO_CMAKE)
 
 target_include_directories(Foundation
 	PUBLIC
@@ -139,10 +131,9 @@ if(NOT DISABLE_CPP14 AND CMAKE_VERSION VERSION_GREATER "3.8")
 endif()
 
 if(NOT BUILD_SHARED_LIBS)
-	target_compile_definitions(Foundation
-		PUBLIC
-			POCO_STATIC
-	)
+	# The define must be set here to be included in the generated CMake files
+	# and properly detect build in the installed files.
+	target_compile_definitions(Foundation PUBLIC POCO_STATIC)
 endif()
 
 if(WIN32)
@@ -170,8 +161,10 @@ else()
 				target_compile_definitions(Foundation PUBLIC POCO_HAVE_FD_POLL)
 				target_link_libraries(Foundation PUBLIC pthread ${CMAKE_DL_LIBS} rt)
 			elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "AIX"  OR "${CMAKE_SYSTEM_NAME}" STREQUAL "GNU")
+				set(THREADS_PREFER_PTHREAD_FLAG ON)
+				find_package(Threads REQUIRED)
 				target_compile_definitions(Foundation PUBLIC _XOPEN_SOURCE=500 POCO_HAVE_FD_POLL)
-				target_link_libraries(Foundation PUBLIC pthread ${CMAKE_DL_LIBS} rt)
+				target_link_libraries(Foundation PUBLIC ${CMAKE_DL_LIBS} rt Threads::Threads)
 			else()
 				target_compile_definitions(Foundation PUBLIC _XOPEN_SOURCE=500 POCO_HAVE_FD_EPOLL)
 				target_link_libraries(Foundation PUBLIC pthread ${CMAKE_DL_LIBS} rt)
@@ -179,6 +172,10 @@ else()
 		endif(APPLE)
 	endif(UNIX AND NOT ANDROID)
 endif(CYGWIN)
+
+if(ENABLE_TRACE)
+	target_link_libraries(Foundation PRIVATE Poco::Trace)
+endif()
 
 if(CMAKE_SYSTEM MATCHES "SunOS")
 	target_compile_definitions(Foundation
@@ -193,7 +190,7 @@ if(CMAKE_SYSTEM MATCHES "SunOS")
 	target_link_libraries(Foundation PUBLIC pthread socket xnet nsl resolv rt ${CMAKE_DL_LIBS})
 endif()
 
-if(CMAKE_COMPILER_IS_MINGW)
+if(MINGW)
 	target_compile_definitions(Foundation
 		PUBLIC
 			WC_NO_BEST_FIT_CHARS=0x400
@@ -210,6 +207,11 @@ endif()
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "SunPro")
 	target_compile_definitions(Foundation PUBLIC _BSD_SOURCE)
 	target_compile_options(Foundation PUBLIC -library=stlport4)
+endif()
+
+# AIX
+if("${CMAKE_SYSTEM_NAME}" STREQUAL "AIX")
+	target_compile_definitions(Foundation PUBLIC POCO_NO_THREADNAME)
 endif()
 
 # iOS
@@ -238,10 +240,17 @@ endif()
 POCO_INSTALL(Foundation)
 POCO_GENERATE_PACKAGE(Foundation)
 
+if(ENABLE_SAMPLES)
+	add_subdirectory(samples)
+endif()
+
 if(ENABLE_TESTS)
 	if(NOT BUILD_SHARED_LIBS)
 		set_property(TARGET Foundation PROPERTY POSITION_INDEPENDENT_CODE ON) # This is needed to build TestLibrary.so as shared.
 	endif()
-	add_subdirectory(samples)
 	add_subdirectory(testsuite)
+endif()
+
+if(ENABLE_FUZZING)
+	add_subdirectory(fuzzing)
 endif()

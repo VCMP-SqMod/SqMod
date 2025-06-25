@@ -16,8 +16,10 @@
 #include "Poco/Bugcheck.h"
 #include "Poco/Dynamic/Struct.h"
 #include "Poco/Dynamic/Pair.h"
+#include "Poco/Dynamic/VarVisitor.h"
 #include <map>
 #include <utility>
+#include <iostream>
 
 
 #if defined(_MSC_VER) && _MSC_VER < 1400
@@ -48,9 +50,14 @@ public:
 		return _val;
 	}
 
-	bool operator == (int i)
+	bool operator == (int i) const
 	{
 		return i == _val;
+	}
+
+	friend bool operator == (const Dummy &d1, const Dummy &d2)
+	{
+		return d1._val == d2._val;
 	}
 
 private:
@@ -124,7 +131,7 @@ void VarTest::testInt8()
 	assertTrue (s7 == 32);
 	assertTrue (s8 == 32);
 	assertTrue (s9 == 32);
-	assertTrue (s10 == 32.0f);
+	assertTrue (s10 == 32.0F);
 	assertTrue (s11 == 32.0);
 	assertTrue (s12);
 	assertTrue (s13 == ' ');
@@ -218,7 +225,7 @@ void VarTest::testInt16()
 	assertTrue (s7 == 32);
 	assertTrue (s8 == 32);
 	assertTrue (s9 == 32);
-	assertTrue (s10 == 32.0f);
+	assertTrue (s10 == 32.0F);
 	assertTrue (s11 == 32.0);
 	assertTrue (s12);
 	assertTrue (s13 == ' ');
@@ -312,7 +319,7 @@ void VarTest::testInt32()
 	assertTrue (s7 == 32);
 	assertTrue (s8 == 32);
 	assertTrue (s9 == 32);
-	assertTrue (s10 == 32.0f);
+	assertTrue (s10 == 32.0F);
 	assertTrue (s11 == 32.0);
 	assertTrue (s12);
 	assertTrue (s13 == ' ');
@@ -406,7 +413,7 @@ void VarTest::testInt64()
 	assertTrue (s7 == 32);
 	assertTrue (s8 == 32);
 	assertTrue (s9 == 32);
-	assertTrue (s10 == 32.0f);
+	assertTrue (s10 == 32.0F);
 	assertTrue (s11 == 32.0);
 	assertTrue (s12);
 	assertTrue (s13 == ' ');
@@ -443,6 +450,14 @@ void VarTest::testInt64()
 	assertTrue (a3 == 32);
 	a3 *= 2;
 	assertTrue (a3 == 64);
+
+	{
+		// Convert a negative integer to a double
+		const Poco::Int64 srcNegative = -32;
+		const Var aNegative = srcNegative;
+		const double valueFloat = aNegative.convert<double>();
+		assertTrue (valueFloat == -32.0F);
+	}
 }
 
 
@@ -500,7 +515,7 @@ void VarTest::testUInt8()
 	assertTrue (s7 == 32);
 	assertTrue (s8 == 32);
 	assertTrue (s9 == 32);
-	assertTrue (s10 == 32.0f);
+	assertTrue (s10 == 32.0F);
 	assertTrue (s11 == 32.0);
 	assertTrue (s12);
 	assertTrue (s13 == ' ');
@@ -594,7 +609,7 @@ void VarTest::testUInt16()
 	assertTrue (s7 == 32);
 	assertTrue (s8 == 32);
 	assertTrue (s9 == 32);
-	assertTrue (s10 == 32.0f);
+	assertTrue (s10 == 32.0F);
 	assertTrue (s11 == 32.0);
 	assertTrue (s12);
 	assertTrue (s13 == ' ');
@@ -688,7 +703,7 @@ void VarTest::testUInt32()
 	assertTrue (s7 == 32);
 	assertTrue (s8 == 32);
 	assertTrue (s9 == 32);
-	assertTrue (s10 == 32.0f);
+	assertTrue (s10 == 32.0F);
 	assertTrue (s11 == 32.0);
 	assertTrue (s12);
 	assertTrue (s13 == ' ');
@@ -782,7 +797,7 @@ void VarTest::testUInt64()
 	assertTrue (s7 == 32);
 	assertTrue (s8 == 32);
 	assertTrue (s9 == 32);
-	assertTrue (s10 == 32.0f);
+	assertTrue (s10 == 32.0F);
 	assertTrue (s11 == 32.0);
 	assertTrue (s12);
 	assertTrue (s13 == ' ');
@@ -953,7 +968,7 @@ void VarTest::testChar()
 	assertTrue (s7 == 32);
 	assertTrue (s8 == 32);
 	assertTrue (s9 == 32);
-	assertTrue (s10 == 32.0f);
+	assertTrue (s10 == 32.0F);
 	assertTrue (s11 == 32.0);
 	assertTrue (s12);
 	assertTrue (s13 == ' ');
@@ -981,7 +996,7 @@ void VarTest::testFloat()
 	Var any("0");
 	float POCO_UNUSED f = any;
 
-	float src = 32.0f;
+	float src = 32.0F;
 	Var a1 = src;
 
 	assertTrue (a1.type() == typeid(float));
@@ -1033,7 +1048,7 @@ void VarTest::testFloat()
 	assertTrue (s7 == 32);
 	assertTrue (s8 == 32);
 	assertTrue (s9 == 32);
-	assertTrue (s10 == 32.0f);
+	assertTrue (s10 == 32.0F);
 	assertTrue (s11 == 32.0);
 	assertTrue (s12);
 	assertTrue (s13 == ' ');
@@ -1043,7 +1058,7 @@ void VarTest::testFloat()
 	assertTrue (s1 == t2);
 
 	float value = a1.extract<float>();
-	assertTrue (value == 32.0f);
+	assertTrue (value == 32.0F);
 
 	try
 	{
@@ -1059,7 +1074,7 @@ void VarTest::testFloat()
 	a3 = a1 - 1.0f;
 	assertTrue (a3 == 31.0f);
 	a3 += 1.0f;
-	assertTrue (a3 == 32.0f);
+	assertTrue (a3 == 32.0F);
 	a3 -= 1.0f;
 	assertTrue (a3 == 31.0f);
 	a3 = a1 / 2.0f;
@@ -1067,7 +1082,7 @@ void VarTest::testFloat()
 	a3 = a1 * 2.0f;
 	assertTrue (a3 == 64.0f);
 	a3 /= 2.0f;
-	assertTrue (a3 == 32.0f);
+	assertTrue (a3 == 32.0F);
 	a3 *= 2.0f;
 	assertTrue (a3 == 64.0f);
 }
@@ -1131,7 +1146,7 @@ void VarTest::testDouble()
 	assertTrue (s7 == 32);
 	assertTrue (s8 == 32);
 	assertTrue (s9 == 32);
-	assertTrue (s10 == 32.0f);
+	assertTrue (s10 == 32.0F);
 	assertTrue (s11 == 32.0);
 	assertTrue (s12);
 	assertTrue (s13 == ' ');
@@ -1225,7 +1240,7 @@ void VarTest::testString()
 	assertTrue (s7 == 32);
 	assertTrue (s8 == 32);
 	assertTrue (s9 == 32);
-	assertTrue (s10 == 32.0f);
+	assertTrue (s10 == 32.0F);
 	assertTrue (s11 == 32.0);
 	assertTrue (s12);
 	assertTrue (s13 == '3');
@@ -1316,7 +1331,7 @@ void VarTest::testLong()
 	assertTrue (s7 == 32);
 	assertTrue (s8 == 32);
 	assertTrue (s9 == 32);
-	assertTrue (s10 == 32.0f);
+	assertTrue (s10 == 32.0F);
 	assertTrue (s11 == 32.0);
 	assertTrue (s12);
 	assertTrue (s13 == ' ');
@@ -1410,7 +1425,7 @@ void VarTest::testULong()
 	assertTrue (s7 == 32);
 	assertTrue (s8 == 32);
 	assertTrue (s9 == 32);
-	assertTrue (s10 == 32.0f);
+	assertTrue (s10 == 32.0F);
 	assertTrue (s11 == 32.0);
 	assertTrue (s12);
 	assertTrue (s13 == ' ');
@@ -1503,7 +1518,7 @@ void VarTest::testLongLong()
 	assertTrue (s7 == 32);
 	assertTrue (s8 == 32);
 	assertTrue (s9 == 32);
-	assertTrue (s10 == 32.0f);
+	assertTrue (s10 == 32.0F);
 	assertTrue (s11 == 32.0);
 	assertTrue (s12);
 	assertTrue (s13 == ' ');
@@ -1597,7 +1612,7 @@ void VarTest::testULongLong()
 	assertTrue (s7 == 32);
 	assertTrue (s8 == 32);
 	assertTrue (s9 == 32);
-	assertTrue (s10 == 32.0f);
+	assertTrue (s10 == 32.0F);
 	assertTrue (s11 == 32.0);
 	assertTrue (s12);
 	assertTrue (s13 == ' ');
@@ -1608,6 +1623,103 @@ void VarTest::testULongLong()
 
 	unsigned long long value = a1.extract<unsigned long long>();
 	assertTrue (value == 32);
+
+	try
+	{
+		POCO_UNUSED Int16 value2; value2 = a1.extract<Int16>();
+		fail("bad cast - must throw");
+	}
+	catch (Poco::BadCastException&)
+	{
+	}
+
+	Var a3 = a1 + 1;
+	assertTrue (a3 == 33);
+	a3 = a1 - 1;
+	assertTrue (a3 == 31);
+	a3 += 1;
+	assertTrue (a3 == 32);
+	a3 -= 1;
+	assertTrue (a3 == 31);
+	a3 = a1 / 2;
+	assertTrue (a3 == 16);
+	a3 = a1 * 2;
+	assertTrue (a3 == 64);
+	a3 /= 2;
+	assertTrue (a3 == 32);
+	a3 *= 2;
+	assertTrue (a3 == 64);
+}
+
+
+void VarTest::testEnumType()
+{
+	enum class src {
+		value = 32
+	};
+
+	Var a1 = src::value;
+
+	assertTrue (a1.type() == typeid(src));
+
+	std::string s1;
+	Poco::Int8 s2;
+	Poco::Int16 s3;
+	Poco::Int32 s4;
+	Poco::Int64 s5;
+	Poco::UInt8 s6;
+	Poco::UInt16 s7;
+	Poco::UInt32 s8;
+	Poco::UInt64 s9;
+	float s10;
+	double s11;
+	bool s12;
+	char s13;
+	a1.convert(s1);
+	a1.convert(s2);
+	a1.convert(s3);
+	a1.convert(s4);
+	a1.convert(s5);
+	a1.convert(s6);
+	a1.convert(s7);
+	a1.convert(s8);
+	a1.convert(s9);
+	a1.convert(s10);
+	a1.convert(s11);
+	a1.convert(s12);
+	a1.convert(s13);
+	long s14;
+	unsigned long s15;
+	long long s16;
+	unsigned long long s17;
+	a1.convert(s14);
+	a1.convert(s15);
+	a1.convert(s16);
+	a1.convert(s17);
+	assertTrue (s14 == 32);
+	assertTrue (s15 == 32);
+	assertTrue (s16 == 32);
+	assertTrue (s17 == 32);
+	assertTrue (s1 == "32");
+	assertTrue (s2 == 32);
+	assertTrue (s3 == 32);
+	assertTrue (s4 == 32);
+	assertTrue (s5 == 32);
+	assertTrue (s6 == 32);
+	assertTrue (s7 == 32);
+	assertTrue (s8 == 32);
+	assertTrue (s9 == 32);
+	assertTrue (s10 == 32.0F);
+	assertTrue (s11 == 32.0);
+	assertTrue (s12);
+	assertTrue (s13 == ' ');
+	Var a2(a1);
+	std::string t2;
+	a2.convert(t2);
+	assertTrue (s1 == t2);
+
+	src value = a1.extract<src>();
+	assertTrue (value == src::value);
 
 	try
 	{
@@ -1975,7 +2087,6 @@ void VarTest::testLimitsInt()
 	testLimitsFloatToInt<float, UInt64>();
 	testLimitsFloatToInt<double, UInt64>();
 
-
 	testLimitsUnsigned<UInt16, UInt8>();
 	testLimitsUnsigned<UInt32, UInt8>();
 	testLimitsUnsigned<UInt64, UInt8>();
@@ -1991,16 +2102,44 @@ void VarTest::testLimitsFloat()
 {
 	if (std::numeric_limits<double>::max() != std::numeric_limits<float>::max())
 	{
-		double iMin = -1 * std::numeric_limits<float>::max();
+		constexpr double iMin = -1 * std::numeric_limits<float>::max();
 		Var da = iMin * 10;
-		try { float POCO_UNUSED f; f = da; fail("must fail"); }
+		try { float POCO_UNUSED f; f = da; fail("must throw", __LINE__, __FILE__); }
 		catch (RangeException&) {}
 
-		double iMax = std::numeric_limits<float>::max();
+		constexpr double iMax = std::numeric_limits<float>::max();
 		da = iMax * 10;
-		try { float POCO_UNUSED f; f = da; fail("must fail"); }
+		try { float POCO_UNUSED f; f = da; fail("must throw", __LINE__, __FILE__); }
 		catch (RangeException&) {}
 	}
+
+	int64_t i = std::numeric_limits<int>::max();
+	Var anyInt = i;
+	try { anyInt.convert<float>(); fail("must throw", __LINE__, __FILE__); }
+	catch (RangeException&) {}
+
+	Var anyFloat = 1.0f;
+	anyFloat = i;
+	anyFloat.convert<int>();
+	assertTrue (anyFloat.convert<int64_t>() == i);
+
+	try { float POCO_UNUSED fl = anyFloat; fail("must throw", __LINE__, __FILE__); }
+	catch (Poco::RangeException&) {}
+
+	i = std::numeric_limits<int64_t>::max();
+	anyInt = i;
+
+	float f = 0.f;
+	try { f = anyInt.convert<float>(); fail("must throw", __LINE__, __FILE__); }
+	catch (Poco::RangeException&) {}
+	i = static_cast<int64_t>(f);
+	assertTrue (0 == i);
+
+	double d = 0.;
+	try { d = anyInt.convert<double>(); fail("must throw", __LINE__, __FILE__); }
+	catch (Poco::RangeException&) {}
+	i = static_cast<int64_t>(d);
+	assertTrue (0 == i);
 }
 
 
@@ -2349,7 +2488,7 @@ void VarTest::testOrderedDynamicStructString()
 	assertTrue(a1["First Name"] == "Senior");
 	testGetIdxMustThrow(a1, 0);
 
-	typedef Struct<std::string, OrderedMap<std::string, Var>, OrderedSet<std::string> > OrderedStruct;
+	using OrderedStruct = OrderedDynamicStruct;
 	OrderedStruct s1;
 	s1["1"] = 1;
 	s1["2"] = 2;
@@ -2968,7 +3107,7 @@ void VarTest::testEmpty()
 	std::string s = da.extract<std::string>();
 	assertTrue ("123" == s);
 	assertTrue (!da.isEmpty());
-	da.empty();
+	da.clear();
 	assertTrue (da.isEmpty());
 	assertTrue (da.type() == typeid(void));
 	assertTrue (!da.isArray());
@@ -3030,6 +3169,8 @@ void VarTest::testIterator()
 
 	da = Poco::Dynamic::Array();
 	assertTrue(da.begin() == da.end());
+	assertTrue(da.begin() <= da.end());
+	assertTrue(da.begin() >= da.end());
 
 	da = 1;
 	assertTrue (!da.isEmpty());
@@ -3041,6 +3182,10 @@ void VarTest::testIterator()
 	}
 	catch (RangeException&) {}
 	assertTrue (da.begin() != da.end());
+	assertTrue (da.begin() <= da.end());
+	assertTrue (da.begin() < da.end());
+	assertTrue (da.end() >= da.begin());
+	assertTrue (da.end() > da.begin());
 
 	Var::Iterator it = da.begin();
 	Var::Iterator end = da.end();
@@ -3101,6 +3246,174 @@ void VarTest::testSharedPtr()
 		v1 = v;
 	}
 	assertTrue(p.referenceCount() == 1);
+}
+
+struct ProcessDummy
+{
+	Var &v;
+	ProcessDummy(Var &var) : v(var) {}
+	void operator()(const Dummy &d)
+	{
+		v = d;
+	}
+};
+
+#define ADD_HANDLER_FOR_TYPE_WITH_VALUE(Type, Handler, Value) \
+visitor.addHandler<Type>(Handler); \
+if (accepted) \
+{ \
+	var.emplace_back(Type(Value));\
+} \
+else \
+{ \
+	warn("handler already exists for " #Type "", __LINE__, __FILE__); \
+} void(0)
+
+void VarTest::testVarVisitor()
+{
+	Visitor visitor;
+	Var processedVar;
+	auto processInt8 = [&processedVar](const Poco::Int8 &v) -> void
+	{
+		processedVar = v;
+		std::cout << " -> Poco::Int8 ";
+	};
+	auto processInt16 = [&processedVar](const Poco::Int16 &v) -> void
+	{
+		processedVar = v;
+		std::cout << " -> Poco::Int16 ";
+	};
+	auto processInt32 = [&processedVar](const Poco::Int32 &v) -> void
+	{
+		processedVar = v;
+		std::cout << " -> Poco::Int32 ";
+	};
+	auto processInt64 = [&processedVar](const Poco::Int64 &v) -> void
+	{
+		processedVar = v;
+		std::cout << " -> Poco::Int64 ";
+	};
+	auto processUInt8 = [&processedVar](const Poco::UInt8 &v) -> void
+	{
+		processedVar = v;
+		std::cout << " -> Poco::UInt8 ";
+	};
+	auto processUInt16 = [&processedVar](const Poco::UInt16 &v) -> void
+	{
+		processedVar = v;
+		std::cout << " -> Poco::UInt16 ";
+	};
+	auto processUInt32 = [&processedVar](const Poco::UInt32 &v) -> void
+	{
+		processedVar = v;
+		std::cout << " -> Poco::UInt32 ";
+	};
+	auto processUInt64 = [&processedVar](const Poco::UInt64 &v) -> void
+	{
+		processedVar = v;
+		std::cout << " -> Poco::UInt64 ";
+	};
+	auto processBool = [&processedVar](const bool &v) -> void
+	{
+		processedVar = v;
+		std::cout << " -> bool ";
+	};
+	auto processChar = [&processedVar](const char &v) -> void
+	{
+		processedVar = v;
+		std::cout << " -> char ";
+	};
+	auto processFloat = [&processedVar](const float &v) -> void
+	{
+		processedVar = v;
+		std::cout << " -> float ";
+	};
+	auto processDouble = [&processedVar](const double &v) -> void
+	{
+		processedVar = v;
+		std::cout << " -> double ";
+	};
+	auto processLong = [&processedVar](const long &v) -> void
+	{
+		processedVar = v;
+		std::cout << " -> long ";
+	};
+	auto processLongLong = [&processedVar](const long long &v) -> void
+	{
+		processedVar = v;
+		std::cout << " -> long long ";
+	};
+	auto processULong = [&processedVar](const unsigned long &v) -> void
+	{
+		processedVar = v;
+		std::cout << " -> unsigned long ";
+	};
+	auto processULongLong = [&processedVar](const unsigned long long &v) -> void
+	{
+		processedVar = v;
+		std::cout << " -> unsigned long long ";
+	};
+	auto processString = [&processedVar](const std::string &v) -> void
+	{
+		processedVar = v;
+		std::cout << " -> string ";
+	};
+
+	std::vector<Var> var;
+
+	using ulong = unsigned long;
+	using longlong = long long;
+	using ulonglong = unsigned long long;
+
+	ProcessDummy processDummy(processedVar);
+
+	bool accepted = false;
+	accepted = ADD_HANDLER_FOR_TYPE_WITH_VALUE(Poco::Int8,   processInt8,      -8);
+	accepted = ADD_HANDLER_FOR_TYPE_WITH_VALUE(Poco::Int16,  processInt16,     -16);
+	accepted = ADD_HANDLER_FOR_TYPE_WITH_VALUE(Poco::Int32,  processInt32,     -32);
+	accepted = ADD_HANDLER_FOR_TYPE_WITH_VALUE(Poco::Int64,  processInt64,     -64);
+	accepted = ADD_HANDLER_FOR_TYPE_WITH_VALUE(Poco::UInt8,  processUInt8,     8);
+	accepted = ADD_HANDLER_FOR_TYPE_WITH_VALUE(Poco::UInt16, processUInt16,    16);
+	accepted = ADD_HANDLER_FOR_TYPE_WITH_VALUE(Poco::UInt32, processUInt32,    32);
+	accepted = ADD_HANDLER_FOR_TYPE_WITH_VALUE(Poco::UInt64, processUInt64,    64);
+	accepted = ADD_HANDLER_FOR_TYPE_WITH_VALUE(bool,         processBool,      true);
+	accepted = ADD_HANDLER_FOR_TYPE_WITH_VALUE(char,         processChar,      'f');
+	accepted = ADD_HANDLER_FOR_TYPE_WITH_VALUE(float,        processFloat,     1.2f);
+	accepted = ADD_HANDLER_FOR_TYPE_WITH_VALUE(double,       processDouble,    2.4);
+	if (typeid(long) != typeid(Poco::Int64))
+	{accepted = ADD_HANDLER_FOR_TYPE_WITH_VALUE(long,        processLong,      123L);}
+	if (typeid(ulong) != typeid(Poco::UInt64))
+	{accepted = ADD_HANDLER_FOR_TYPE_WITH_VALUE(ulong,       processULong,     124UL);}
+	if (typeid(longlong) != typeid(Poco::Int64))
+	{accepted = ADD_HANDLER_FOR_TYPE_WITH_VALUE(longlong,    processLongLong,  123123LL);}
+	if (typeid(ulonglong) != typeid(Poco::UInt64))
+	{accepted = ADD_HANDLER_FOR_TYPE_WITH_VALUE(ulonglong,   processULongLong, 124124ULL);}
+	accepted = ADD_HANDLER_FOR_TYPE_WITH_VALUE(std::string,  processString,    "hello world");
+	accepted = ADD_HANDLER_FOR_TYPE_WITH_VALUE(Dummy,        processDummy,     42);
+
+	for (const auto &v : var)
+	{
+		std::cout << "handle type : " << v.typeName();
+		if (visitor.visit(v))
+		{
+			if (v.type() != typeid(Dummy))
+			{
+				std::cout  << " [" << v.toString() << "] ... ";
+				assertTrue(v == processedVar);
+			}
+			else
+			{
+				std::cout  << " [" << v.extract<Dummy>() << "] ... ";
+				assertTrue(v.extract<Dummy>() == processedVar.extract<Dummy>());
+			}
+			std::cout << " ok" << '\n';
+		}
+		else
+		{
+			std::cout << " fail" << '\n';
+			fail(Poco::format("failed type handle : %s", v.typeName()), __LINE__, __FILE__);
+		}
+	}
 }
 
 
@@ -3172,6 +3485,8 @@ CppUnit::Test* VarTest::suite()
 	CppUnit_addTest(pSuite, VarTest, testUUID);
 	CppUnit_addTest(pSuite, VarTest, testEmpty);
 	CppUnit_addTest(pSuite, VarTest, testIterator);
+	CppUnit_addTest(pSuite, VarTest, testVarVisitor);
+	CppUnit_addTest(pSuite, VarTest, testEnumType);
 
 	return pSuite;
 }

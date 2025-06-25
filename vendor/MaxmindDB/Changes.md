@@ -1,4 +1,94 @@
-## 1.7.0
+## 1.12.2 - 2025-01-10
+
+* `MMDB_get_entry_data_list()` now always sets the passed `entry_data_list`
+  parameter to either `NULL` or valid memory. This makes it safe for
+  callers to use `MMDB_free_entry_data_list()` on it even in case of error.
+  In 1.12.0 `MMDB_get_entry_data_list()` was changed to not set this
+  parameter to valid memory in additional error cases. That change caused
+  segfaults for certain libraries that assumed it was safe to free memory
+  on error. Doing so was never safe, but worked in some cases. This change
+  makes such calls safe. Reported by Petr Pisar. GitHub
+  maxmind/MaxMind-DB-Reader-XS#39.
+
+## 1.12.1 - 2025-01-08
+
+* Added missing `cmake_uninstall.cmake.in` to the source distribution. This
+  was missing from 1.12.0, causing CMake builds to fail. Reported by Marcel
+  Raad. GitHub #367.
+
+## 1.12.0 - 2025-01-07
+
+* Fixed memory leaks in `MMDB_open()`. These could happen with invalid
+  databases or in error situations such as failing to allocate memory. As
+  part of the fix, `MMDB_get_entry_data_list()` now frees memory it
+  allocates on additional errors. Previously it failed to clean up when
+  certain errors occurred. Pull request by pkillarjun. GitHub #356.
+* There is now a build target to fuzz the library. Pull request by
+  pkillarjun. GitHub #357.
+* Updated `cmake_minimum_required` to a version range to quiet deprecation
+  warnings on new CMake versions. Reported by gmou3. GitHub #359.
+* The script for generating man pages no longer uses `autodie`. This
+  eliminates the dependency on `IPC::System::Simple`. Reported by gmou3.
+  GitHub #359.
+* An uninstall target is now included for CMake. Pull request by gmou3.
+  GitHub #362.
+
+## 1.11.0 - 2024-08-21
+
+* When building with CMake, the man pages will now be generated and
+  installed. Requested by Thomas Klausner. GitHub #351.
+* Removed unnecessary `$<INSTALL_INTERFACE:generated>` directory from
+  `target_include_directories` in the CMake build configuration. This is
+  a private build directory. Pull request by Ankur Verma. GitHub #354.
+
+## 1.10.0 - 2024-06-10
+
+* When building with CMake, it is now possible to disable the building
+  of binaries (e.g., `mmdblookup`) with the `MAXMINDDB_BUILD_BINARIES`
+  option and the install target generation with the `MAXMINDDB_INSTALL`
+  option. Pull request by Seena Fallah. GitHub #342.
+* CMake now makes greater use of GNUInstallDirs. Pull request by Maximilian
+  Downey Twiss. GitHub #346.
+* The reader can now look up records on a database with a search tree
+  that is greater than 4 gigabytes without sometimes returning erroneous
+  results due to an integer overflow.
+
+## 1.9.1 - 2024-01-09
+
+* `SSIZE_MAX` is now defined conditionally on Windows. The 1.9.0
+  release would cause a redefinition warning when compiled with MinGW.
+  Reported by Andreas Vögele. GitHub #338.
+
+## 1.9.0 - 2024-01-09
+
+* On very large databases, the calculation to determine the search tree
+  size could overflow. This was fixed and several additional guards
+  against overflows were added. Reported by Sami Salonen. GitHub #335.
+* Removed `sa_family_t` typedef from the public header on Windows. Pull
+  request by Noah Treuhaft. GitHub #334.
+* The CMake build was adjusted to allow running builds in parallel.
+  Pull request by Vladyslav Miachkov. GitHub #332.
+
+## 1.8.0 - 2023-11-07
+
+* `PACKAGE_VERSION` is now a private compile definition when building
+  with CMake. Pull request by bsergean. GitHub #308.
+* `PACKAGE_VERSION` is no longer defined in `maxminddb.h` on
+  Windows.
+* The feature test macro `_POSIX_C_SOURCE` is no longer set by
+  `maxminddb.h`. As discussed in GitHub #318, this should be set by
+  applications rather than by libraries.
+* `assert()` is no longer used outside test code.
+* The deprecated Visual Studio 12 project files in the `projects/`
+  directory have been removed. CMake should be used when building on
+  Windows.
+
+## 1.7.1 - 2022-09-30
+
+* The external symbols test now only runs on Linux. It assumes a Linux
+  environment. Reported by Carlo Cabrera. GitHub #304.
+
+## 1.7.0 - 2022-09-28
 
 * `FD_CLOEXEC` is now set on platforms that do not support `O_CLOEXEC`.
   Reported by rittneje. GitHub #273.
@@ -6,6 +96,11 @@
   CMake by setting `MSVC_STATIC_RUNTIME` to `ON`. Pull request by Rafael
   Santiago. GitHub #269.
 * The CMake build now works on iOS. Pull request by SpaceIm. GitHub #271.
+* The CMake build now uses the correct library directory on Linux systems
+  using alternate directory structures. Pull request by Satadru Pramanik.
+  GitHub #284.
+* File size check now correctly compares the size to `SSIZE_MAX`. Reported
+  by marakew. GitHub #301.
 
 ## 1.6.0 - 2021-04-29
 
@@ -190,7 +285,7 @@
   code to think it had found valid metadata when none existed. In addition,
   this could lead to an attempt to read past the end of the database
   entirely. Finally, if there are multiple metadata markers in the database,
-  we treat the final one as the start of the metdata, instead of the first.
+  we treat the final one as the start of the metadata, instead of the first.
   Implemented by Tobias Stoeckmann. GitHub #102.
 * Don't attempt to mmap a file that is too large to be mmapped on the
   system. Implemented by Tobias Stoeckmann. GitHub #101.

@@ -29,8 +29,9 @@
 namespace Poco {
 namespace MongoDB {
 
+class Array;
 
-class ElementFindByName
+class MongoDB_API ElementFindByName
 {
 public:
 	ElementFindByName(const std::string& name):
@@ -90,6 +91,10 @@ public:
 		/// Unlike the other add methods, this method returns
 		/// a reference to the new document.
 
+	Array& addNewArray(const std::string& name);
+		/// Create a new array and add it to this document.
+		/// Method returns a reference to the new array.
+
 	void clear();
 		/// Removes all elements from the document.
 
@@ -99,11 +104,11 @@ public:
 	bool empty() const;
 		/// Returns true if the document doesn't contain any documents.
 
-	bool exists(const std::string& name);
+	bool exists(const std::string& name) const;
 		/// Returns true if the document has an element with the given name.
 
 	template<typename T>
-	T get(const std::string& name) const
+	const T& get(const std::string& name) const
 		/// Returns the element with the given name and tries to convert
 		/// it to the template type. When the element is not found, a
 		/// NotFoundException will be thrown. When the element can't be
@@ -118,7 +123,7 @@ public:
 		{
 			if (ElementTraits<T>::TypeId == element->type())
 			{
-				ConcreteElement<T>* concrete = dynamic_cast<ConcreteElement<T>* >(element.get());
+				auto* concrete = dynamic_cast<ConcreteElement<T>* >(element.get());
 				if (concrete != 0)
 				{
 					return concrete->value();
@@ -129,7 +134,7 @@ public:
 	}
 
 	template<typename T>
-	T get(const std::string& name, const T& def) const
+	const T& get(const std::string& name, const T& def) const
 		/// Returns the element with the given name and tries to convert
 		/// it to the template type. When the element is not found, or
 		/// has the wrong type, the def argument will be returned.
@@ -142,7 +147,7 @@ public:
 
 		if (ElementTraits<T>::TypeId == element->type())
 		{
-			ConcreteElement<T>* concrete = dynamic_cast<ConcreteElement<T>* >(element.get());
+			auto* concrete = dynamic_cast<ConcreteElement<T>* >(element.get());
 			if (concrete != 0)
 			{
 				return concrete->value();
@@ -161,6 +166,9 @@ public:
 		/// or double for a number (count for example). This method will always
 		/// return an Int64. When the element is not found, a
 		/// Poco::NotFoundException will be thrown.
+
+	bool remove(const std::string& name);
+		/// Removes an element from the document.
 
 	template<typename T>
 	bool isType(const std::string& name) const
@@ -224,16 +232,27 @@ inline bool Document::empty() const
 
 inline void Document::elementNames(std::vector<std::string>& keys) const
 {
-	for (ElementSet::const_iterator it = _elements.begin(); it != _elements.end(); ++it)
+	for (const auto & _element : _elements)
 	{
-		keys.push_back((*it)->name());
+		keys.push_back(_element->name());
 	}
 }
 
 
-inline bool Document::exists(const std::string& name)
+inline bool Document::exists(const std::string& name) const
 {
 	return std::find_if(_elements.begin(), _elements.end(), ElementFindByName(name)) != _elements.end();
+}
+
+
+inline bool Document::remove(const std::string& name)
+{
+	auto it = std::find_if(_elements.begin(), _elements.end(), ElementFindByName(name));
+	if (it == _elements.end())
+		return false;
+
+	_elements.erase(it);
+	return true;
 }
 
 

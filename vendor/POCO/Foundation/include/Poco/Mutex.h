@@ -24,17 +24,16 @@
 #include "Poco/Timestamp.h"
 #include <atomic>
 
-
-#if defined(POCO_OS_FAMILY_WINDOWS)
-#if defined(_WIN32_WCE)
-#include "Poco/Mutex_WINCE.h"
+#ifdef POCO_ENABLE_STD_MUTEX
+#include "Poco/Mutex_STD.h"
 #else
+#if defined(POCO_OS_FAMILY_WINDOWS)
 #include "Poco/Mutex_WIN32.h"
-#endif
 #elif defined(POCO_VXWORKS)
 #include "Poco/Mutex_VX.h"
 #else
 #include "Poco/Mutex_POSIX.h"
+#endif
 #endif
 
 
@@ -53,6 +52,7 @@ class Foundation_API Mutex: private MutexImpl
 {
 public:
 	using ScopedLock = Poco::ScopedLock<Mutex>;
+	using ScopedLockWithUnlock = Poco::ScopedLockWithUnlock<Mutex>;
 
 	Mutex();
 		/// creates the Mutex.
@@ -108,6 +108,7 @@ class Foundation_API FastMutex: private FastMutexImpl
 {
 public:
 	using ScopedLock = Poco::ScopedLock<FastMutex>;
+	using ScopedLockWithUnlock = Poco::ScopedLockWithUnlock<FastMutex>;
 
 	FastMutex();
 		/// creates the Mutex.
@@ -158,13 +159,15 @@ class Foundation_API SpinlockMutex
 	///
 	/// While in some cases (eg. locking small blocks of code)
 	/// busy-waiting may be an optimal solution, in many scenarios
-	/// spinlock may not be the right choice - it is up to the user to
-	/// choose the proper mutex type for their particular case.
+	/// spinlock may not be the right choice (especially on single-core
+	/// systems) - it is up to the user to choose the proper mutex type
+	/// for their particular case.
 	///
 	/// Works with the ScopedLock class.
 {
 public:
 	using ScopedLock = Poco::ScopedLock<SpinlockMutex>;
+	using ScopedLockWithUnlock = Poco::ScopedLockWithUnlock<SpinlockMutex>;
 
 	SpinlockMutex();
 		/// Creates the SpinlockMutex.
@@ -209,6 +212,7 @@ class Foundation_API NullMutex
 {
 public:
 	using ScopedLock = Poco::ScopedLock<NullMutex>;
+	using ScopedLockWithUnlock = Poco::ScopedLockWithUnlock<NullMutex>;
 
 	NullMutex()
 		/// Creates the NullMutex.

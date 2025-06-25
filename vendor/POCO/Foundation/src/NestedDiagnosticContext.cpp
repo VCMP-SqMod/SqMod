@@ -13,8 +13,7 @@
 
 
 #include "Poco/NestedDiagnosticContext.h"
-#include "Poco/SingletonHolder.h"
-#include "Poco/ThreadLocal.h"
+#include "Poco/Path.h"
 
 
 namespace Poco {
@@ -54,7 +53,7 @@ void NestedDiagnosticContext::push(const std::string& info)
 }
 
 
-void NestedDiagnosticContext::push(const std::string& info, int line, const char* filename)
+void NestedDiagnosticContext::push(const std::string& info, LineNumber line, const char* filename)
 {
 	Context ctx;
 	ctx.info = info;
@@ -96,14 +95,26 @@ void NestedDiagnosticContext::dump(std::ostream& ostr) const
 }
 
 
-void NestedDiagnosticContext::dump(std::ostream& ostr, const std::string& delimiter) const
+void NestedDiagnosticContext::dump(std::ostream& ostr, const std::string& delimiter, bool nameOnly) const
 {
-	for (const auto& i: _stack)
+	for (auto it = _stack.begin(); it != _stack.end(); ++it)
 	{
-		ostr << i.info;
-		if (i.file)
-			ostr << " (in \"" << i.file << "\", line " << i.line << ")";
-		ostr << delimiter;
+		if (it != _stack.begin())
+		{
+			ostr << delimiter;
+		}
+
+		std::string file = it->file ? it->file : "";
+		if (nameOnly && !file.empty())
+		{
+			file = Path(file).getFileName();
+		}
+
+		ostr << it->info;
+		if (!file.empty())
+		{
+			ostr << " (in \"" << file << "\", line " << it->line << ")";
+		}
 	}
 }
 
@@ -114,15 +125,10 @@ void NestedDiagnosticContext::clear()
 }
 
 
-namespace
-{
-	static ThreadLocal<NestedDiagnosticContext> ndc;
-}
-
-
 NestedDiagnosticContext& NestedDiagnosticContext::current()
 {
-	return ndc.get();
+	static thread_local NestedDiagnosticContext ndc;
+	return ndc;
 }
 
 

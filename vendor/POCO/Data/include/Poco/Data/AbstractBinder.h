@@ -45,7 +45,7 @@ class Transcoder;
 namespace Keywords {
 
 
-static const NullData null = NULL_GENERIC;
+static const NullData null = std::nullopt;
 
 
 } // namespace Keywords
@@ -368,7 +368,7 @@ protected:
 
 private:
 	using StringList = std::vector<std::string*>;
-  
+
 	std::unique_ptr<Transcoder> _pTranscoder;
 	std::unique_ptr<StringList> _pStrings;
 };

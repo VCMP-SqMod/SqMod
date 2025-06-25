@@ -40,11 +40,14 @@ public:
 	void testColumnList();
 	void testRow();
 	void testRowSort();
-	void testSimpleRowFormatter();;
+	void testSimpleRowFormatter();
 	void testJSONRowFormatter();
 	void testDateAndTime();
 	void testExternalBindingAndExtraction();
 	void testTranscode();
+	void testSQLParse();
+	void testSQLChannel();
+	void testNullableExtract();
 
 	void setUp();
 	void tearDown();

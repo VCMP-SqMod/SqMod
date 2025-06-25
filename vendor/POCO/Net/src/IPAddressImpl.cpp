@@ -658,10 +658,15 @@ IPv6AddressImpl IPv6AddressImpl::parse(const std::string& addr)
 	struct addrinfo hints;
 	std::memset(&hints, 0, sizeof(hints));
 	hints.ai_flags = AI_NUMERICHOST;
+	// for the reason why this is not AF_INET6, see
+	// https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/getaddrinfo-fails-error-11001-call-af-inet6-family
+	hints.ai_family = AF_UNSPEC;
 	int rc = getaddrinfo(addr.c_str(), NULL, &hints, &pAI);
 	if (rc == 0)
 	{
-		IPv6AddressImpl result = IPv6AddressImpl(&reinterpret_cast<struct sockaddr_in6*>(pAI->ai_addr)->sin6_addr, static_cast<int>(reinterpret_cast<struct sockaddr_in6*>(pAI->ai_addr)->sin6_scope_id));
+		IPv6AddressImpl result = IPv6AddressImpl(
+			&reinterpret_cast<struct sockaddr_in6*>(pAI->ai_addr)->sin6_addr,
+			static_cast<int>(reinterpret_cast<struct sockaddr_in6*>(pAI->ai_addr)->sin6_scope_id));
 		freeaddrinfo(pAI);
 		return result;
 	}
@@ -673,7 +678,7 @@ IPv6AddressImpl IPv6AddressImpl::parse(const std::string& addr)
 	{
 		std::string::size_type start = ('[' == addr[0]) ? 1 : 0;
 		std::string unscopedAddr(addr, start, pos - start);
-		std::string scope(addr, pos + 1, addr.size() - start - pos);
+		std::string scope(addr, pos + 1, addr.size() - (2*start) - pos);
 		Poco::UInt32 scopeId(0);
 		if (!(scopeId = if_nametoindex(scope.c_str())))
 			return IPv6AddressImpl();

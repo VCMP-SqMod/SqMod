@@ -21,11 +21,7 @@
 
 
 #if defined(POCO_OS_FAMILY_WINDOWS)
-#if defined(_WIN32_WCE)
-#include "Thread_WINCE.cpp"
-#else
 #include "Thread_WIN32.cpp"
-#endif
 #elif defined(POCO_VXWORKS)
 #include "Thread_VX.cpp"
 #else
@@ -70,11 +66,9 @@ public:
 	{
 	}
 
-	~CallableHolder()
-	{
-	}
+	~CallableHolder() override = default;
 
-	void run()
+	void run() override
 	{
 		_callable(_pData);
 	}
@@ -88,21 +82,27 @@ private:
 } // namespace
 
 
-Thread::Thread():
+Thread::Thread(uint32_t sigMask):
 	_id(uniqueId()),
-	_pTLS(0),
-	_event(true)
+	_pTLS(nullptr),
+	_event(Event::EVENT_AUTORESET)
 {
 	setNameImpl(makeName());
+#if defined(POCO_OS_FAMILY_UNIX)
+	setSignalMaskImpl(sigMask);
+#endif
 }
 
 
-Thread::Thread(const std::string& name):
+Thread::Thread(const std::string& name, uint32_t sigMask):
 	_id(uniqueId()),
-	_pTLS(0),
-	_event(true)
+	_pTLS(nullptr),
+	_event(Event::EVENT_AUTORESET)
 {
 	setNameImpl(name);
+#if defined(POCO_OS_FAMILY_UNIX)
+	setSignalMaskImpl(sigMask);
+#endif
 }
 
 
@@ -188,7 +188,7 @@ void Thread::clearTLS()
 	if (_pTLS)
 	{
 		delete _pTLS;
-		_pTLS = 0;
+		_pTLS = nullptr;
 	}
 }
 

@@ -101,22 +101,27 @@ std::string htmlize(const std::string& str);
 // Automate network initialization (only relevant on Windows).
 //
 
-#if defined(POCO_OS_FAMILY_WINDOWS) && !defined(POCO_NO_AUTOMATIC_LIB_INIT) && !defined(__GNUC__)
+#if defined(POCO_OS_FAMILY_WINDOWS) && !defined(POCO_NO_AUTOMATIC_LIB_INIT)
 
 extern "C" const struct Net_API NetworkInitializer pocoNetworkInitializer;
 
-#if defined(Net_EXPORTS)
-	#if defined(_WIN64) || (defined(_WIN32_WCE) && !defined(x86))
+#if defined(POCO_COMPILER_MINGW)
+	#define POCO_NET_FORCE_SYMBOL(x) static void *__ ## x ## _fp = (void*)&x;
+#elif defined(Net_EXPORTS)
+	#if defined(_WIN64)
 		#define POCO_NET_FORCE_SYMBOL(s) __pragma(comment (linker, "/export:"#s))
 	#elif defined(_WIN32)
 		#define POCO_NET_FORCE_SYMBOL(s) __pragma(comment (linker, "/export:_"#s))
 	#endif
 #else  // !Net_EXPORTS
-	#if defined(_WIN64) || (defined(_WIN32_WCE) && !defined(x86))
-		#define POCO_NET_FORCE_SYMBOL(s) __pragma(comment (linker, "/include:"#s))
-	#elif defined(_WIN32)
-		#define POCO_NET_FORCE_SYMBOL(s) __pragma(comment (linker, "/include:_"#s))
+	#if !defined(POCO_NETWORK_INITIALIZER_INCLUDE_PATH)
+		#if defined(_WIN64)
+			#define POCO_NETWORK_INITIALIZER_INCLUDE_PATH "/include:"
+		#elif defined(_WIN32)
+			#define POCO_NETWORK_INITIALIZER_INCLUDE_PATH "/include:_"
+		#endif
 	#endif
+	#define POCO_NET_FORCE_SYMBOL(s) __pragma(comment (linker, POCO_NETWORK_INITIALIZER_INCLUDE_PATH#s))
 #endif // Net_EXPORTS
 
 POCO_NET_FORCE_SYMBOL(pocoNetworkInitializer)
@@ -132,7 +137,7 @@ POCO_NET_FORCE_SYMBOL(pocoNetworkInitializer)
 #endif
 
 
-#if (POCO_OS == POCO_OS_LINUX) || (POCO_OS == POCO_OS_WINDOWS_NT)
+#if (POCO_OS == POCO_OS_LINUX) || (POCO_OS == POCO_OS_WINDOWS_NT) || (POCO_OS == POCO_OS_ANDROID)
 	#define POCO_HAVE_FD_EPOLL 1
 #endif
 

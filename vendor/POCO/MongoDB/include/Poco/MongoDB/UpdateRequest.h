@@ -26,8 +26,9 @@
 namespace Poco {
 namespace MongoDB {
 
+//class POCO_DEPRECATED("Use new wire protocol") UpdateRequest;
 
-class UpdateRequest: public RequestMessage
+class MongoDB_API UpdateRequest: public RequestMessage
 	/// This request is used to update a document in a database
 	/// using the OP_UPDATE client request.
 {

@@ -17,12 +17,10 @@
 #ifndef MySQL_MySQL_INCLUDED
 #define MySQL_MySQL_INCLUDED
 
+
 #include "Poco/Foundation.h"
-#if defined(__MINGW32__) || defined(__MINGW64__)
-	#include <mysql/mysql.h>
-#else
-	#include <mysql.h>
-#endif
+#include <mysql/mysql.h>
+
 
 //
 // The following block is the standard way of creating macros which make exporting

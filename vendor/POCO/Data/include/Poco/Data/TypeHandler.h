@@ -28,6 +28,10 @@
 #include "Poco/SharedPtr.h"
 #include <cstddef>
 
+#if defined(POCO_COMPILER_GCC) && (__GNUC__ >= 12)
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wuse-after-free"
+#endif
 
 namespace Poco {
 namespace Data {
@@ -288,20 +292,10 @@ public:
 	static void extract(std::size_t pos, Nullable<T>& obj, const Nullable<T>& , AbstractExtractor::Ptr pExt)
 	{
 		poco_assert_dbg (!pExt.isNull());
-		T val;
-
-		if (pExt->extract(pos++, val))
-		{
-			obj = std::move(val);
-		}
-		else
-		{
-			obj.clear();
-		}
+		pExt->extract(pos++, obj);
 	}
 
 private:
-
 	TypeHandler();
 	~TypeHandler();
 	TypeHandler(const TypeHandler&);
@@ -5750,5 +5744,8 @@ private:
 
 } } // namespace Poco::Data
 
+#if defined(POCO_COMPILER_GCC) && (__GNUC__ >= 12)
+	#pragma GCC diagnostic pop
+#endif
 
 #endif // Data_TypeHandler_INCLUDED

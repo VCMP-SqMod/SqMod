@@ -250,6 +250,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>Default</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -281,6 +282,7 @@
       <CompileAs>Default</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -312,6 +314,7 @@
       <DebugInformationFormat />
       <CompileAs>Default</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -347,6 +350,7 @@
       <CompileAs>Default</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -376,6 +380,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>Default</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -407,6 +412,7 @@
       <CompileAs>Default</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -438,6 +444,7 @@
       <DebugInformationFormat />
       <CompileAs>Default</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -473,6 +480,7 @@
       <CompileAs>Default</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -502,6 +510,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>Default</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -533,6 +542,7 @@
       <CompileAs>Default</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -564,6 +574,7 @@
       <DebugInformationFormat />
       <CompileAs>Default</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -599,6 +610,7 @@
       <CompileAs>Default</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -651,6 +663,7 @@
     <ClCompile Include="src\FileChannelTest.cpp" />
     <ClCompile Include="src\FileStreamTest.cpp" />
     <ClCompile Include="src\FilesystemTestSuite.cpp" />
+    <ClCompile Include="src\FileStreamRWLockTest.cpp" />
     <ClCompile Include="src\FileTest.cpp" />
     <ClCompile Include="src\FormatTest.cpp" />
     <ClCompile Include="src\FoundationTestSuite.cpp" />
@@ -662,6 +675,7 @@
     <ClCompile Include="src\HashTableTest.cpp" />
     <ClCompile Include="src\HexBinaryTest.cpp" />
     <ClCompile Include="src\HMACEngineTest.cpp" />
+    <ClCompile Include="src\JSONFormatterTest.cpp" />
     <ClCompile Include="src\LinearHashTableTest.cpp" />
     <ClCompile Include="src\LineEndingConverterTest.cpp" />
     <ClCompile Include="src\ListMapTest.cpp" />
@@ -694,6 +708,7 @@
     <ClCompile Include="src\PBKDF2EngineTest.cpp" />
     <ClCompile Include="src\PriorityEventTest.cpp" />
     <ClCompile Include="src\PriorityNotificationQueueTest.cpp" />
+    <ClCompile Include="src\ProcessRunnerTest.cpp" />
     <ClCompile Include="src\ProcessesTestSuite.cpp" />
     <ClCompile Include="src\ProcessTest.cpp" />
     <ClCompile Include="src\RandomStreamTest.cpp" />
@@ -730,6 +745,7 @@
     <ClCompile Include="src\ThreadingTestSuite.cpp" />
     <ClCompile Include="src\ThreadLocalTest.cpp" />
     <ClCompile Include="src\ThreadPoolTest.cpp" />
+    <ClCompile Include="src\ActiveThreadPoolTest.cpp" />
     <ClCompile Include="src\ThreadTest.cpp" />
     <ClCompile Include="src\TimedNotificationQueueTest.cpp" />
     <ClCompile Include="src\TimerTest.cpp" />
@@ -791,7 +807,9 @@
     <ClInclude Include="src\FIFOEventTest.h" />
     <ClInclude Include="src\FileChannelTest.h" />
     <ClInclude Include="src\FileStreamTest.h" />
+    <ClInclude Include="src\FileStreamRWLockTest.h" />
     <ClInclude Include="src\FilesystemTestSuite.h" />
+    <ClInclude Include="src\FilesystemRWLockTest.h" />
     <ClInclude Include="src\FileTest.h" />
     <ClInclude Include="src\FormatTest.h" />
     <ClInclude Include="src\FoundationTestSuite.h" />
@@ -803,6 +821,7 @@
     <ClInclude Include="src\HashTableTest.h" />
     <ClInclude Include="src\HexBinaryTest.h" />
     <ClInclude Include="src\HMACEngineTest.h" />
+    <ClInclude Include="src\JSONFormatterTest.h" />
     <ClInclude Include="src\LinearHashTableTest.h" />
     <ClInclude Include="src\LineEndingConverterTest.h" />
     <ClInclude Include="src\ListMapTest.h" />
@@ -835,6 +854,7 @@
     <ClInclude Include="src\PBKDF2EngineTest.h" />
     <ClInclude Include="src\PriorityEventTest.h" />
     <ClInclude Include="src\PriorityNotificationQueueTest.h" />
+    <ClInclude Include="src\ProcessRunnerTest.h" />
     <ClInclude Include="src\ProcessesTestSuite.h" />
     <ClInclude Include="src\ProcessTest.h" />
     <ClInclude Include="src\RandomStreamTest.h" />
@@ -871,6 +891,7 @@
     <ClInclude Include="src\ThreadingTestSuite.h" />
     <ClInclude Include="src\ThreadLocalTest.h" />
     <ClInclude Include="src\ThreadPoolTest.h" />
+    <ClInclude Include="src\ActiveThreadPoolTest.h" />
     <ClInclude Include="src\ThreadTest.h" />
     <ClInclude Include="src\TimedNotificationQueueTest.h" />
     <ClInclude Include="src\TimerTest.h" />

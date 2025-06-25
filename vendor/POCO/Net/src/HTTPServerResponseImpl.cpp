@@ -28,6 +28,8 @@
 #include "Poco/FileStream.h"
 #include "Poco/DateTimeFormatter.h"
 #include "Poco/DateTimeFormat.h"
+#include "Poco/Error.h"
+#include "Poco/Net/NetException.h"
 
 
 using Poco::File;
@@ -37,6 +39,8 @@ using Poco::StreamCopier;
 using Poco::OpenFileException;
 using Poco::DateTimeFormatter;
 using Poco::DateTimeFormat;
+using Poco::Error;
+using namespace std::string_literals;
 
 
 namespace Poco {
@@ -112,7 +116,7 @@ void HTTPServerResponseImpl::sendFile(const std::string& path, const std::string
 	File f(path);
 	Timestamp dateTime    = f.getLastModified();
 	File::FileSize length = f.getSize();
-	set("Last-Modified", DateTimeFormatter::format(dateTime, DateTimeFormat::HTTP_FORMAT));
+	set("Last-Modified"s, DateTimeFormatter::format(dateTime, DateTimeFormat::HTTP_FORMAT));
 #if defined(POCO_HAVE_INT64)
 	setContentLength64(length);
 #else
@@ -128,7 +132,8 @@ void HTTPServerResponseImpl::sendFile(const std::string& path, const std::string
 		write(*_pStream);
 		if (_pRequest && _pRequest->getMethod() != HTTPRequest::HTTP_HEAD)
 		{
-			StreamCopier::copyStream(istr, *_pStream);
+			_pStream->flush(); // flush the HTTP headers to the socket, required by HTTP 1.0 and above
+			_session.socket().sendFile(istr);
 		}
 	}
 	else throw OpenFileException(path);
@@ -159,7 +164,7 @@ void HTTPServerResponseImpl::redirect(const std::string& uri, HTTPStatus status)
 	setChunkedTransferEncoding(false);
 
 	setStatusAndReason(status);
-	set("Location", uri);
+	set("Location"s, uri);
 
 	_pStream = new HTTPHeaderOutputStream(_session);
 	write(*_pStream);
@@ -174,7 +179,7 @@ void HTTPServerResponseImpl::requireAuthentication(const std::string& realm)
 	std::string auth("Basic realm=\"");
 	auth.append(realm);
 	auth.append("\"");
-	set("WWW-Authenticate", auth);
+	set("WWW-Authenticate"s, auth);
 }
 
 

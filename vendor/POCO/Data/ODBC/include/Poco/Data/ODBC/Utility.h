@@ -33,10 +33,15 @@ namespace Data {
 namespace ODBC {
 
 
+class ConnectionHandle;
+
+
 class ODBC_API Utility
 	/// Various utility functions
 {
 public:
+	inline static const std::string MS_SQL_SERVER_DBMS_NAME = "Microsoft SQL Server"s;
+
 	typedef std::map<std::string, std::string> DSNMap;
 	typedef DSNMap DriverMap;
 
@@ -160,6 +165,35 @@ public:
 		typename C::const_iterator it = dt.begin();
 		typename C::const_iterator end = dt.end();
 		for (; it != end; ++it, ++tIt) dateTimeSync(*tIt, *it);
+	}
+
+	static std::string dbmsName(const ConnectionHandle& db);
+		/// Returns the back end DBMS name.
+		/// On error, returns "unknown".
+
+	template <typename T>
+	static constexpr SQLINTEGER sizeOf()
+		/// Returns size of the data type.
+	{
+		static_assert (
+			(std::is_same_v<T, Date>) ||
+			(std::is_same_v<T, Time>) ||
+			(std::is_same_v<T, DateTime>) ||
+			(std::is_same_v<T, UUID>), "Utility::sizeOf(): Unsupported type"
+		);
+
+		if constexpr(std::is_same_v<T, Date    >) return sizeof(SQL_DATE_STRUCT);
+		if constexpr(std::is_same_v<T, Time    >) return sizeof(SQL_TIME_STRUCT);
+		if constexpr(std::is_same_v<T, DateTime>) return sizeof(SQL_TIMESTAMP_STRUCT);
+		if constexpr(std::is_same_v<T, UUID    >) return 16;
+		return 0;
+	}
+
+	template <typename T>
+	static constexpr SQLINTEGER sizeOf(const T&)
+		/// Returns size of the data type.
+	{
+		return sizeOf<std::remove_const_t<std::remove_reference_t<T>>>();
 	}
 
 private:

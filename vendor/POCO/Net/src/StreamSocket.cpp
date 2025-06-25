@@ -146,15 +146,15 @@ void StreamSocket::shutdownReceive()
 }
 
 
-void StreamSocket::shutdownSend()
+int StreamSocket::shutdownSend()
 {
-	impl()->shutdownSend();
+	return impl()->shutdownSend();
 }
 
 
-void StreamSocket::shutdown()
+int StreamSocket::shutdown()
 {
-	impl()->shutdown();
+	return impl()->shutdown();
 }
 
 
@@ -211,6 +211,12 @@ int StreamSocket::receiveBytes(FIFOBuffer& fifoBuf)
 void StreamSocket::sendUrgent(unsigned char data)
 {
 	impl()->sendUrgent(data);
+}
+
+
+std::streamsize StreamSocket::sendFile(Poco::FileInputStream& fileInputStream, std::streamoff offset, std::streamsize count)
+{
+	return impl()->sendFile(fileInputStream, offset, count);
 }
 
 

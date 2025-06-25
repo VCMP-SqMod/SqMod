@@ -10,10 +10,6 @@ POCO_SOURCES_AUTO_PLAT(TEST_SRCS OFF
 	src/WinDriver.cpp
 )
 
-POCO_SOURCES_AUTO_PLAT(TEST_SRCS WINCE
-	src/WinCEDriver.cpp
-)
-
 add_executable(Zip-testrunner ${TEST_SRCS})
 if(ANDROID)
 	add_test(
@@ -33,4 +29,4 @@ else()
 		COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/data ${CMAKE_CURRENT_BINARY_DIR}/data
 	)
 endif()
-target_link_libraries(Zip-testrunner PUBLIC Poco::Zip Poco::Net CppUnit)
+target_link_libraries(Zip-testrunner PUBLIC Poco::Zip CppUnit)

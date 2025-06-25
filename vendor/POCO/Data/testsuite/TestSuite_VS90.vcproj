@@ -523,6 +523,19 @@
 					RelativePath=".\src\SessionPoolTest.cpp"/>
 			</Filter>
 		</Filter>
+		<Filter
+			Name="SQLParser">
+			<Filter
+				Name="Header Files">
+				<File
+					RelativePath=".\src\SQLParserTest.h"/>
+			</Filter>
+			<Filter
+				Name="Source Files">
+				<File
+					RelativePath=".\src\SQLParserTest.cpp"/>
+			</Filter>
+		</Filter>
 	</Files>
 	<Globals/>
 </VisualStudioProject>

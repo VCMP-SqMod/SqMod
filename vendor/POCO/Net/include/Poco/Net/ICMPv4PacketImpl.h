@@ -54,12 +54,12 @@ public:
 	poco_static_assert (offsetof(Header, seq) == 0x06);
 #endif
 
-// wincrypt.h also contains a macro named TIMESTAMP_REQUEST
-// being a MinGW issue we can get rid of it for a moment
+#if defined(MINGW) || defined(__MINGW32__) || defined(__MINGW64__)
 #if defined(TIMESTAMP_REQUEST) && defined(POCO_COMPILER_MINGW)
-    #pragma push_macro("TIMESTAMP_REQUEST")
+	#pragma push_macro("TIMESTAMP_REQUEST")
 	#define POCO_RESTORE_TIMESTAMP_REQUEST
 	#undef TIMESTAMP_REQUEST
+#endif
 #endif
 	enum MessageType
 	{
@@ -83,11 +83,11 @@ public:
 		MESSAGE_TYPE_UNKNOWN,  // non-standard default, must remain last but one
 		MESSAGE_TYPE_LENGTH    // length indicator, must remain last
 	};
+
 #if defined(POCO_RESTORE_TIMESTAMP_REQUEST)
-    #pragma pop_macro("TIMESTAMP_REQUEST")
+	#pragma pop_macro("TIMESTAMP_REQUEST")
 	#undef POCO_RESTORE_TIMESTAMP_REQUEST
 #endif
-
 	enum DestinationUnreachableCode
 	{
 		NET_UNREACHABLE,

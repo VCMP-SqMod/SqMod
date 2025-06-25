@@ -400,13 +400,63 @@ void MessageHeaderTest::testDecodeWord()
 
 	coded = "(=?ISO-8859-1?Q?a?= =?ISO-8859-1?Q?b?=)";
 	decoded = MessageHeader::decodeWord(coded, "ISO-8859-1");
-	assertTrue (decoded == "(a b)");
+	assertTrue (decoded == "(ab)");
+
+	coded = "(=?ISO-8859-1?Q?a?= <0> =?ISO-8859-1?Q?b?=)";
+	decoded = MessageHeader::decodeWord(coded, "ISO-8859-1");
+	assertTrue (decoded == "(a <0> b)");
 
 	coded = "Hello =?UTF-8?B?RnJhbmNpcw==?=, good bye";
 	decoded = MessageHeader::decodeWord(coded, "ISO-8859-1");
 	assertTrue (decoded == "Hello Francis, good bye");
+	
+	coded = "application/pdf; name=\"=?utf-8?Q?RUG_Regler-_und_Ger=C3=A4tebau_Gm?= =?utf-8?Q?bH_Angebot_Erneuerung_=C3=9CE.pdf?=\"";
+	decoded = MessageHeader::decodeWord(coded, "UTF-8");
+	assertTrue (decoded == "application/pdf; name=\"RUG Regler- und Gerätebau GmbH Angebot Erneuerung ÜE.pdf\"");
 }
 
+// Sample HTTP reuest header
+static std::string httpRequestHeader{
+R"(GET / HTTP/2
+Host: stackoverflow.com
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/119.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-GB,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+X-Encoded-Header-A: (=?ISO-8859-1?Q?a?= =?ISO-8859-1?Q?b?=)
+X-Encoded-Header-B: Hello =?UTF-8?B?RnJhbmNpcw==?=, good bye
+
+)"
+};
+
+void MessageHeaderTest::testAutoDecode()
+{
+	{
+		std::istringstream istr(httpRequestHeader);
+		MessageHeader mh;
+		mh.read(istr);
+
+		assertEquals(mh.get("X-Encoded-Header-A"), "(ab)");
+		assertEquals(mh.get("X-Encoded-Header-B"), "Hello Francis, good bye");
+
+		assertEquals(mh.getDecoded("X-Encoded-Header-A"), "(ab)");
+		assertEquals(mh.getDecoded("X-Encoded-Header-B"), "Hello Francis, good bye");
+	}
+	{
+		std::istringstream istr(httpRequestHeader);
+		MessageHeader mh;
+		mh.setAutoDecode(false);
+		mh.read(istr);
+
+		assertEquals(mh.get("X-Encoded-Header-A"), "(=?ISO-8859-1?Q?a?= =?ISO-8859-1?Q?b?=)");
+		assertEquals(mh.get("X-Encoded-Header-B"), "Hello =?UTF-8?B?RnJhbmNpcw==?=, good bye");
+
+		assertEquals(mh.getDecoded("X-Encoded-Header-A"), "(ab)");
+		assertEquals(mh.getDecoded("X-Encoded-Header-B"), "Hello Francis, good bye");
+	}
+}
 
 
 void MessageHeaderTest::setUp()
@@ -440,6 +490,7 @@ CppUnit::Test* MessageHeaderTest::suite()
 	CppUnit_addTest(pSuite, MessageHeaderTest, testSplitParameters);
 	CppUnit_addTest(pSuite, MessageHeaderTest, testFieldLimit);
 	CppUnit_addTest(pSuite, MessageHeaderTest, testDecodeWord);
+	CppUnit_addTest(pSuite, MessageHeaderTest, testAutoDecode);
 
 	return pSuite;
 }

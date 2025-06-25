@@ -27,7 +27,7 @@ TypeInfo::TypeInfo(SQLHDBC* pHDBC): _pHDBC(pHDBC)
 {
 	fillCTypes();
 	fillSQLTypes();
-	if (_pHDBC) fillTypeInfo(*_pHDBC);
+	if (_pHDBC) fillTypeInfo(_pHDBC);
 }
 
 
@@ -62,7 +62,8 @@ void TypeInfo::fillCTypes()
 
 void TypeInfo::fillSQLTypes()
 {
-	_sqlDataTypes.insert(ValueType(SQL_C_CHAR, SQL_LONGVARCHAR));
+	_sqlDataTypes.insert(ValueType(SQL_C_CHAR, SQL_VARCHAR));
+	_sqlDataTypes.insert(ValueType(SQL_C_WCHAR, SQL_WVARCHAR));
 	_sqlDataTypes.insert(ValueType(SQL_C_BIT, SQL_BIT));
 	_sqlDataTypes.insert(ValueType(SQL_C_TINYINT, SQL_TINYINT));
 	_sqlDataTypes.insert(ValueType(SQL_C_STINYINT, SQL_TINYINT));
@@ -84,9 +85,9 @@ void TypeInfo::fillSQLTypes()
 }
 
 
-void TypeInfo::fillTypeInfo(SQLHDBC pHDBC)
+void TypeInfo::fillTypeInfo(const SQLHDBC* pHDBC)
 {
-	_pHDBC = &pHDBC;
+	_pHDBC = pHDBC;
 
 	if (_typeInfo.empty() && _pHDBC)
 	{
@@ -98,7 +99,7 @@ void TypeInfo::fillTypeInfo(SQLHDBC pHDBC)
 
 		rc = SQLAllocHandle(SQL_HANDLE_STMT, *_pHDBC, &hstmt);
 		if (!SQL_SUCCEEDED(rc))
-			throw StatementException(hstmt, "SQLGetData()");
+			throw StatementException(hstmt, "ODBC::Preparator::fillTypeInfo():SQLGetData()");
 
 		rc = SQLGetTypeInfo(hstmt, SQL_ALL_TYPES);
 		if (SQL_SUCCEEDED(rc))
@@ -166,7 +167,7 @@ void TypeInfo::fillTypeInfo(SQLHDBC pHDBC)
 }
 
 
-DynamicAny TypeInfo::getInfo(SQLSMALLINT type, const std::string& param) const
+Dynamic::Var TypeInfo::getInfo(SQLSMALLINT type, const std::string& param) const
 {
 	TypeInfoVec::const_iterator it = _typeInfo.begin();
 	TypeInfoVec::const_iterator end = _typeInfo.end();
@@ -180,7 +181,7 @@ DynamicAny TypeInfo::getInfo(SQLSMALLINT type, const std::string& param) const
 }
 
 
-bool TypeInfo::tryGetInfo(SQLSMALLINT type, const std::string& param, DynamicAny& result) const
+bool TypeInfo::tryGetInfo(SQLSMALLINT type, const std::string& param, Dynamic::Var& result) const
 {
 	TypeInfoVec::const_iterator it = _typeInfo.begin();
 	TypeInfoVec::const_iterator end = _typeInfo.end();
@@ -197,7 +198,7 @@ bool TypeInfo::tryGetInfo(SQLSMALLINT type, const std::string& param, DynamicAny
 }
 
 
-int TypeInfo::cDataType(int sqlDataType) const
+SQLSMALLINT TypeInfo::cDataType(SQLSMALLINT sqlDataType) const
 {
 	DataTypeMap::const_iterator it = _cDataTypes.find(sqlDataType);
 
@@ -208,7 +209,7 @@ int TypeInfo::cDataType(int sqlDataType) const
 }
 
 
-int TypeInfo::sqlDataType(int cDataType) const
+SQLSMALLINT TypeInfo::sqlDataType(SQLSMALLINT cDataType) const
 {
 	DataTypeMap::const_iterator it = _sqlDataTypes.find(cDataType);
 

@@ -32,7 +32,7 @@
 #include "Poco/Any.h"
 #include "Poco/UUIDGenerator.h"
 #include "Poco/SharedPtr.h"
-#include "Poco/DynamicAny.h"
+#include "Poco/Dynamic/Var.h"
 #include "Poco/DateTime.h"
 #include "Poco/Logger.h"
 #include "Poco/Message.h"
@@ -45,6 +45,7 @@
 #include <iostream>
 
 
+using namespace std::string_literals;
 using namespace Poco::Data::Keywords;
 using Poco::Data::Session;
 using Poco::Data::Statement;
@@ -62,13 +63,14 @@ using Poco::Data::Transaction;
 using Poco::Data::AbstractExtractionVec;
 using Poco::Data::AbstractExtractionVecVec;
 using Poco::Data::AbstractBindingVec;
+using Poco::Data::NullData;
 using Poco::Data::NotConnectedException;
 using Poco::Data::SQLite::Notifier;
 using Poco::Nullable;
 using Poco::Tuple;
 using Poco::Any;
 using Poco::AnyCast;
-using Poco::DynamicAny;
+using Poco::Dynamic::Var;
 using Poco::DateTime;
 using Poco::Logger;
 using Poco::Message;
@@ -86,9 +88,10 @@ using Poco::Data::SQLite::ConstraintViolationException;
 using Poco::Data::SQLite::ParameterCountMismatchException;
 using Poco::Int32;
 using Poco::Int64;
-using Poco::Dynamic::Var;
 using Poco::Data::SQLite::Utility;
 using Poco::delegate;
+using Poco::Stopwatch;
+using Poco::Data::SQLite::Connector;
 
 
 class Person
@@ -237,6 +240,29 @@ private:
 } } // namespace Poco::Data
 
 
+RecordSet getRecordsetMove(Session& session, const std::string& sql)
+{
+	Statement select(session);
+	select << sql;
+	select.execute();
+
+	// return directly
+	return RecordSet(select);
+}
+
+
+RecordSet getRecordsetCopyRVO(Session& session, const std::string& sql)
+{
+	Statement select(session);
+	select << sql;
+	select.execute();
+
+	// return temp copy (RVO)
+	RecordSet recordSet(select);
+	return recordSet;
+}
+
+
 int SQLiteTest::_insertCounter;
 int SQLiteTest::_updateCounter;
 int SQLiteTest::_deleteCounter;
@@ -251,6 +277,31 @@ SQLiteTest::SQLiteTest(const std::string& name): CppUnit::TestCase(name)
 SQLiteTest::~SQLiteTest()
 {
 	Poco::Data::SQLite::Connector::unregisterConnector();
+}
+
+
+void SQLiteTest::testBind()
+{
+	std::vector<int> vf1;
+	Session session(Poco::Data::SQLite::Connector::KEY, "dummy.db");
+	session << "DROP TABLE IF EXISTS test", now;
+	session << "CREATE TABLE test (f1 INTEGER)", now;
+
+	Statement statement(session);
+	statement << "INSERT INTO test(f1) VALUES(?)";
+	statement.addBind(Poco::Data::Keywords::bind(1, "f1"));
+	statement.execute();
+	session << "SELECT f1 FROM test", into(vf1), now;
+	assertTrue (vf1.size() == 1);
+	assertTrue (vf1[0] == 1);
+	statement.removeBind("f1");
+	statement.addBind(Poco::Data::Keywords::bind(2, "f1"));
+	statement.execute();
+	vf1.clear();
+	session << "SELECT f1 FROM test", into(vf1), now;
+	assertTrue (vf1.size() == 2);
+	assertTrue (vf1[0] == 1);
+	assertTrue (vf1[1] == 2);
 }
 
 
@@ -1383,7 +1434,7 @@ void SQLiteTest::testNonexistingDB()
 		Session tmp (Poco::Data::SQLite::Connector::KEY, "foo/bar/nonexisting.db", 1);
 		fail("non-existing DB must throw");
 	}
-	catch(ConnectionFailedException& ex)
+	catch(ConnectionFailedException&)
 	{
 		return;
 	}
@@ -2140,6 +2191,120 @@ void SQLiteTest::testNullable()
 }
 
 
+void SQLiteTest::testNullableVector()
+{
+	Session ses (Poco::Data::SQLite::Connector::KEY, "dummy.db");
+	ses << "DROP TABLE IF EXISTS NullableTest", now;
+
+	ses << "CREATE TABLE NullableTest (i INTEGER, r REAL, s VARCHAR, d DATETIME)", now;
+
+	const int sz = 3;
+	std::vector<NullData> nd(sz, null);
+	ses << "INSERT INTO NullableTest VALUES(:i, :r, :s, :d)", use(nd), use(nd), use(nd), use(nd), now;
+
+	std::vector<Nullable<int>> v(sz, 1);
+	std::vector<Nullable<double>> f(sz, 1.5);
+	std::vector<Nullable<std::string>> s(sz, "abc"s);
+	std::vector<Nullable<DateTime>> d(sz, DateTime());
+
+	for (int i = 0; i < sz; ++i)
+	{
+		assertFalse (v[i].isNull());
+		assertFalse (f[i].isNull());
+		assertFalse (s[i].isNull());
+		assertFalse (d[i].isNull());
+	}
+
+	v.clear();
+	f.clear();
+	s.clear();
+	d.clear();
+
+	assertEqual (0, v.size());
+	assertEqual (0, f.size());
+	assertEqual (0, s.size());
+	assertEqual (0, d.size());
+
+	ses << "SELECT i, r, s, d FROM NullableTest", into(v), into(f), into(s), into(d), now;
+
+	assertEqual (sz, v.size());
+	assertEqual (sz, f.size());
+	assertEqual (sz, s.size());
+	assertEqual (sz, d.size());
+
+	for (int i = 0; i < sz; ++i)
+	{
+		assertTrue (v[i].isNull());
+		assertTrue (f[i].isNull());
+		assertTrue (s[i].isNull());
+		assertTrue (d[i].isNull());
+	}
+
+	ses << "DELETE FROM NullableTest", now;
+	ses << "SELECT i, r, s, d FROM NullableTest", into(v), into(f), into(s), into(d), now;
+
+	assertEqual (0, v.size());
+	assertEqual (0, f.size());
+	assertEqual (0, s.size());
+	assertEqual (0, d.size());
+
+	const std::vector<Nullable<int>> nv = {null, 2, 3};
+	const std::vector<Nullable<double>> nf = {1.5, null, 3.5};
+	const std::vector<Nullable<std::string>> ns = {"123"s, "abc"s, null};
+	const std::vector<Nullable<DateTime>> ndt = {null, DateTime(1965, 6, 18), null};
+
+	v = nv;
+	f = nf;
+	s = ns;
+	d = ndt;
+
+	ses << "INSERT INTO NullableTest VALUES(:i, :r, :s, :d)", use(v), use(f), use(s), use(d), now;
+
+	v.clear();
+	f.clear();
+	s.clear();
+	d.clear();
+
+	assertEqual (0, v.size());
+	assertEqual (0, f.size());
+	assertEqual (0, s.size());
+	assertEqual (0, d.size());
+
+	ses << "SELECT i, r, s, d FROM NullableTest", into(v), into(f), into(s), into(d), now;
+
+	assertEqual (sz, v.size());
+	assertEqual (sz, f.size());
+	assertEqual (sz, s.size());
+	assertEqual (sz, d.size());
+
+	assertTrue (v == nv);
+	assertTrue (f == nf);
+	assertTrue (s == ns);
+	assertTrue (d == ndt);
+
+
+	RecordSet rs(ses, "SELECT * FROM NullableTest");
+
+	rs.moveFirst();
+	assertTrue (rs.isNull("i"));
+	assertTrue (!rs.isNull("r"));
+	assertTrue (!rs.isNull("s"));
+	assertTrue (rs.isNull("d"));
+
+	assertTrue (rs.moveNext());
+	assertTrue (!rs.isNull("i"));
+	assertTrue (rs.isNull("r"));
+	assertTrue (!rs.isNull("s"));
+	assertTrue (!rs.isNull("d"));
+
+	assertTrue (rs.moveNext());
+	assertTrue (!rs.isNull("i"));
+	assertTrue (!rs.isNull("r"));
+	assertTrue (rs.isNull("s"));
+	assertTrue (rs.isNull("d"));
+}
+
+
 void SQLiteTest::testNulls()
 {
 	Session ses (Poco::Data::SQLite::Connector::KEY, "dummy.db");
@@ -2368,10 +2533,10 @@ void SQLiteTest::testDynamicAny()
 	tmp << "DROP TABLE IF EXISTS Anys", now;
 	tmp << "CREATE TABLE Anys (int0 INTEGER, flt0 REAL, str0 VARCHAR, empty INTEGER)", now;
 
-	DynamicAny i = Int32(42);
-	DynamicAny f = double(42.5);
-	DynamicAny s = std::string("42");
-	DynamicAny e;
+	Var i = Int32(42);
+	Var f = double(42.5);
+	Var s = std::string("42");
+	Var e;
 	assertTrue (e.isEmpty());
 
 	tmp << "INSERT INTO Anys VALUES (?, ?, ?, null)", use(i), use(f), use(s), now;
@@ -2449,53 +2614,79 @@ void SQLiteTest::testSQLChannel()
 		"DateTime DATE)", now;
 
 	AutoPtr<SQLChannel> pChannel = new SQLChannel(Poco::Data::SQLite::Connector::KEY, "dummy.db", "TestSQLChannel");
+	Stopwatch sw; sw.start();
+	while (!pChannel->isRunning())
+	{
+		Thread::sleep(10);
+		if (sw.elapsedSeconds() > 3)
+			fail ("SQLChannel timed out");
+	}
+	// bulk binding mode is not suported by SQLite, but SQLChannel should handle it internally
+	pChannel->setProperty("bulk", "true");
 	pChannel->setProperty("keep", "2 seconds");
 
 	Message msgInf("InformationSource", "a Informational async message", Message::PRIO_INFORMATION);
 	pChannel->log(msgInf);
+	while (pChannel->logged() != 1) Thread::sleep(100);
+
 	Message msgWarn("WarningSource", "b Warning async message", Message::PRIO_WARNING);
 	pChannel->log(msgWarn);
-	pChannel->wait();
+	while (pChannel->logged() != 2) Thread::sleep(10);
 
-	pChannel->setProperty("async", "false");
 	Message msgInfS("InformationSource", "c Informational sync message", Message::PRIO_INFORMATION);
 	pChannel->log(msgInfS);
+	while (pChannel->logged() != 3) Thread::sleep(10);
 	Message msgWarnS("WarningSource", "d Warning sync message", Message::PRIO_WARNING);
 	pChannel->log(msgWarnS);
+	while (pChannel->logged() != 4) Thread::sleep(10);
 
 	RecordSet rs(tmp, "SELECT * FROM T_POCO_LOG ORDER by Text");
-	assertTrue (4 == rs.rowCount());
-	assertTrue ("InformationSource" == rs["Source"]);
-	assertTrue ("a Informational async message" == rs["Text"]);
+	size_t rc = rs.rowCount();
+	assertTrue(4 == rc);
+	assertTrue("InformationSource" == rs["Source"]);
+	assertTrue("a Informational async message" == rs["Text"]);
 	rs.moveNext();
-	assertTrue ("WarningSource" == rs["Source"]);
-	assertTrue ("b Warning async message" == rs["Text"]);
+	assertTrue("WarningSource" == rs["Source"]);
+	assertTrue("b Warning async message" == rs["Text"]);
 	rs.moveNext();
-	assertTrue ("InformationSource" == rs["Source"]);
-	assertTrue ("c Informational sync message" == rs["Text"]);
+	assertTrue("InformationSource" == rs["Source"]);
+	assertTrue("c Informational sync message" == rs["Text"]);
 	rs.moveNext();
-	assertTrue ("WarningSource" == rs["Source"]);
-	assertTrue ("d Warning sync message" == rs["Text"]);
+	assertTrue("WarningSource" == rs["Source"]);
+	assertTrue("d Warning sync message" == rs["Text"]);
 
-	Thread::sleep(3000);
+	Thread::sleep(3000); // give it time to archive
 
 	Message msgInfA("InformationSource", "e Informational sync message", Message::PRIO_INFORMATION);
 	pChannel->log(msgInfA);
+	while (pChannel->logged() != 5) Thread::sleep(10);
 	Message msgWarnA("WarningSource", "f Warning sync message", Message::PRIO_WARNING);
 	pChannel->log(msgWarnA);
+	while (pChannel->logged() != 6) Thread::sleep(10);
 
 	RecordSet rs1(tmp, "SELECT * FROM T_POCO_LOG_ARCHIVE");
-	assertTrue (4 == rs1.rowCount());
+	assertTrue(4 == rs1.rowCount());
 
 	pChannel->setProperty("keep", "");
-	assertTrue ("forever" == pChannel->getProperty("keep"));
+	assertTrue("forever" == pChannel->getProperty("keep"));
 	RecordSet rs2(tmp, "SELECT * FROM T_POCO_LOG ORDER by Text");
-	assertTrue (2 == rs2.rowCount());
-	assertTrue ("InformationSource" == rs2["Source"]);
-	assertTrue ("e Informational sync message" == rs2["Text"]);
+	assertTrue(2 == rs2.rowCount());
+	assertTrue("InformationSource" == rs2["Source"]);
+	assertTrue("e Informational sync message" == rs2["Text"]);
 	rs2.moveNext();
-	assertTrue ("WarningSource" == rs2["Source"]);
-	assertTrue ("f Warning sync message" == rs2["Text"]);
+	assertTrue("WarningSource" == rs2["Source"]);
+	assertTrue("f Warning sync message" == rs2["Text"]);
+
+	pChannel->setProperty("minBatch", "1024");
+	constexpr int mcount { 2000 };
+	for (int i = 0; i < mcount; i++)
+	{
+		Message msgInfG("InformationSource", "g Informational sync message", Message::PRIO_INFORMATION);
+		pChannel->log(msgInfG);
+	}
+	pChannel.reset();
+	RecordSet rsl(tmp, "SELECT * FROM T_POCO_LOG");
+	assertEquals(2+mcount, rsl.rowCount());
 }
 
 
@@ -2512,25 +2703,30 @@ void SQLiteTest::testSQLLogger()
 		"Text VARCHAR,"
 		"DateTime DATE)", now;
 
+	Logger& root = Logger::root();
+	AutoPtr<SQLChannel> pSQLChannel = new SQLChannel(Poco::Data::SQLite::Connector::KEY, "dummy.db", "TestSQLChannel");
+	Stopwatch sw; sw.start();
+	while (!pSQLChannel->isRunning())
 	{
-		AutoPtr<SQLChannel> pChannel = new SQLChannel(Poco::Data::SQLite::Connector::KEY, "dummy.db", "TestSQLChannel");
-		Logger& root = Logger::root();
-		root.setChannel(pChannel);
-		root.setLevel(Message::PRIO_INFORMATION);
-
-		root.information("Informational message");
-		root.warning("Warning message");
-		root.debug("Debug message");
+		Thread::sleep(10);
+		if (sw.elapsedSeconds() > 3)
+			fail ("SQLExecutor::sqlLogger(): SQLChannel timed out");
 	}
+	root.setChannel(pSQLChannel);
+	root.setLevel(Message::PRIO_INFORMATION);
 
-	Thread::sleep(100);
-	RecordSet rs(tmp, "SELECT * FROM T_POCO_LOG ORDER by DateTime");
-	assertTrue (2 == rs.rowCount());
-	assertTrue ("TestSQLChannel" == rs["Source"]);
-	assertTrue ("Informational message" == rs["Text"]);
+	root.information("a Informational message");
+	root.warning("b Warning message");
+	root.debug("Debug message");
+
+	while (pSQLChannel->logged() != 2) Thread::sleep(100);
+	RecordSet rs(tmp, "SELECT * FROM T_POCO_LOG ORDER by Text");
+	assertTrue(2 == rs.rowCount());
+	assertTrue("TestSQLChannel" == rs["Source"]);
+	assertTrue("a Informational message" == rs["Text"]);
 	rs.moveNext();
-	assertTrue ("TestSQLChannel" == rs["Source"]);
-	assertTrue ("Warning message" == rs["Text"]);
+	assertTrue("TestSQLChannel" == rs["Source"]);
+	assertTrue("b Warning message" == rs["Text"]);
 }
 
 
@@ -3088,7 +3284,7 @@ void SQLiteTest::setTransactionIsolation(Session& session, Poco::UInt32 ti)
 }
 
 
-void SQLiteTest::testSessionTransaction()
+void SQLiteTest::testSessionTransactionReadCommitted()
 {
 	Session session (Poco::Data::SQLite::Connector::KEY, "dummy.db");
 	assertTrue (session.isConnected());
@@ -3105,12 +3301,6 @@ void SQLiteTest::testSessionTransaction()
 	Session local (Poco::Data::SQLite::Connector::KEY, "dummy.db");
 	assertTrue (local.isConnected());
 
-	try
-	{
-		local.setFeature("autoCommit", true);
-		fail ("Setting SQLite auto-commit explicitly must fail!");
-	}
-	catch (NotImplementedException&) { }
 	assertTrue (local.getFeature("autoCommit"));
 
 	std::string funct = "transaction()";
@@ -3172,10 +3362,6 @@ void SQLiteTest::testSessionTransaction()
 	session << "SELECT count(*) FROM Person", into(count), now;
 	assertTrue (2 == count);
 
-	/* TODO: see http://www.sqlite.org/pragma.html#pragma_read_uncommitted
-	setTransactionIsolation(session, Session::TRANSACTION_READ_UNCOMMITTED);
-	*/
-
 	session.close();
 	assertTrue (!session.isConnected());
 
@@ -3183,7 +3369,108 @@ void SQLiteTest::testSessionTransaction()
 	assertTrue (!local.isConnected());
 }
 
+void SQLiteTest::testSessionTransactionSerializable()
+{
+	Session session (Poco::Data::SQLite::Connector::KEY, "dummy.db");
+	assertTrue (session.isConnected());
+	setTransactionIsolation(session, Session::TRANSACTION_SERIALIZABLE);
+}
 
+void SQLiteTest::testSessionTransactionRepeatableRead()
+{
+	Session session (Poco::Data::SQLite::Connector::KEY, "dummy.db");
+	assertTrue (session.isConnected());
+	setTransactionIsolation(session, Session::TRANSACTION_REPEATABLE_READ);
+}
+
+void SQLiteTest::testSessionTransactionReadUncommitted()
+{
+	Connector::enableSharedCache();
+	Session session (Poco::Data::SQLite::Connector::KEY, "dummy.db");
+	assertTrue (session.isConnected());
+
+	session << "DROP TABLE IF EXISTS Person", now;
+	session << "CREATE TABLE IF NOT EXISTS Person (LastName VARCHAR(30), FirstName VARCHAR, Address VARCHAR, Age INTEGER(3))", now;
+
+	if (!session.canTransact())
+	{
+		std::cout << "Session not capable of transactions." << std::endl;
+		return;
+	}
+
+	Session local (Poco::Data::SQLite::Connector::KEY, "dummy.db");
+	assertTrue (local.isConnected());
+
+	assertTrue (local.getFeature("autoCommit"));
+
+	std::string funct = "transaction()";
+	std::vector<std::string> lastNames;
+	std::vector<std::string> firstNames;
+	std::vector<std::string> addresses;
+	std::vector<int> ages;
+	std::string tableName("Person");
+	lastNames.push_back("LN1");
+	lastNames.push_back("LN2");
+	firstNames.push_back("FN1");
+	firstNames.push_back("FN2");
+	addresses.push_back("ADDR1");
+	addresses.push_back("ADDR2");
+	ages.push_back(1);
+	ages.push_back(2);
+	int count = 0, locCount = 0;
+	std::string result;
+
+	setTransactionIsolation(session, Session::TRANSACTION_READ_UNCOMMITTED);
+	setTransactionIsolation(local, Session::TRANSACTION_READ_UNCOMMITTED);
+
+	session.begin();
+	assertTrue (!session.getFeature("autoCommit"));
+	assertTrue (session.isTransaction());
+	session << "INSERT INTO Person VALUES (?,?,?,?)", use(lastNames), use(firstNames), use(addresses), use(ages), now;
+	assertTrue (session.isTransaction());
+
+	Statement stmt = (local << "SELECT COUNT(*) FROM Person", into(locCount), async, now);
+
+	session << "SELECT COUNT(*) FROM Person", into(count), now;
+	assertTrue (2 == count);
+
+	stmt.wait();
+	assertTrue (session.isTransaction());
+	session.rollback();
+
+	assertTrue (!session.isTransaction());
+	assertTrue (session.getFeature("autoCommit"));
+
+	assertEqual(2, locCount);
+
+	session << "SELECT count(*) FROM Person", into(count), now;
+	assertTrue (0 == count);
+	assertTrue (!session.isTransaction());
+
+	session.begin();
+	session << "INSERT INTO Person VALUES (?,?,?,?)", use(lastNames), use(firstNames), use(addresses), use(ages), now;
+	assertTrue (session.isTransaction());
+	assertTrue (!session.getFeature("autoCommit"));
+
+	Statement stmt1 = (local << "SELECT COUNT(*) FROM Person", into(locCount), now);
+	assertTrue (2 == locCount);
+
+	session << "SELECT count(*) FROM Person", into(count), now;
+	assertTrue (2 == count);
+
+	session.commit();
+	assertTrue (!session.isTransaction());
+	assertTrue (session.getFeature("autoCommit"));
+
+	session << "SELECT count(*) FROM Person", into(count), now;
+	assertTrue (2 == count);
+
+	session.close();
+	assertTrue (!session.isConnected());
+
+	local.close();
+	assertTrue (!local.isConnected());
+}
 void SQLiteTest::testTransaction()
 {
 	Session session (Poco::Data::SQLite::Connector::KEY, "dummy.db");
@@ -3210,12 +3497,16 @@ void SQLiteTest::testTransaction()
 	std::string tableName("Person");
 	lastNames.push_back("LN1");
 	lastNames.push_back("LN2");
+	lastNames.push_back("LN3");
 	firstNames.push_back("FN1");
 	firstNames.push_back("FN2");
+	firstNames.push_back("FN3");
 	addresses.push_back("ADDR1");
 	addresses.push_back("ADDR2");
+	addresses.push_back("ADDR3");
 	ages.push_back(1);
 	ages.push_back(2);
+	ages.push_back(3);
 	int count = 0, locCount = 0;
 	std::string result;
 
@@ -3233,7 +3524,7 @@ void SQLiteTest::testTransaction()
 		assertTrue (trans.isActive());
 
 		session << "SELECT COUNT(*) FROM Person", into(count), now;
-		assertTrue (2 == count);
+		assertTrue (3 == count);
 		assertTrue (session.isTransaction());
 		assertTrue (trans.isActive());
 		// no explicit commit, so transaction RAII must roll back here
@@ -3260,9 +3551,9 @@ void SQLiteTest::testTransaction()
 	}
 
 	session << "SELECT count(*) FROM Person", into(count), now;
-	assertTrue (2 == count);
+	assertTrue (3 == count);
 	local << "SELECT count(*) FROM Person", into(count), now;
-	assertTrue (2 == count);
+	assertTrue (3 == count);
 
 	session << "DELETE FROM Person", now;
 
@@ -3289,13 +3580,30 @@ void SQLiteTest::testTransaction()
 	session << "SELECT count(*) FROM Person", into(count), now;
 	assertTrue (0 == count);
 
-	trans.execute(sql);
+	bool status = trans.execute(sql);
+	assertTrue (status);
 
 	Statement stmt3 = (local << "SELECT COUNT(*) FROM Person", into(locCount), now);
 	assertTrue (2 == locCount);
 
 	session << "SELECT count(*) FROM Person", into(count), now;
 	assertTrue (2 == count);
+
+	session << "DELETE FROM Person", now;
+
+	std::string sql3 = format("INSERT INTO Pers VALUES ('%s','%s','%s',%d)", lastNames[2], firstNames[2], addresses[2], ages[2]);
+	// Table name is misspelled, should cause transaction rollback
+	sql.push_back(sql3);
+
+	std::string info;
+	status = trans.execute(sql, &info);
+
+	assertFalse (status);
+#ifndef POCO_ENABLE_TRACE
+	assertEqual (info, "Invalid SQL statement: no such table: Pers: no such table: Pers");
+#endif
+	session << "SELECT count(*) FROM Person", into(count), now;
+	assertTrue (0 == count);
 
 	session.close();
 	assertTrue (!session.isConnected());
@@ -3396,48 +3704,56 @@ void SQLiteTest::testTransactor()
 }
 
 
-void SQLiteTest::testFTS3()
+void SQLiteTest::testFTS()
 {
-#ifdef SQLITE_ENABLE_FTS3
+#if defined(SQLITE_ENABLE_FTS3) || defined(SQLITE_ENABLE_FTS5)
 	Session session(Poco::Data::SQLite::Connector::KEY, "dummy.db");
-	assertTrue (session.isConnected());
+	assertTrue(session.isConnected());
 
 	session << "DROP TABLE IF EXISTS docs", now;
+
+#if defined(SQLITE_ENABLE_FTS5)
+	session << "CREATE VIRTUAL TABLE docs USING fts5(content)", now;
+	const std::string idColumn = "rowid";
+#elif defined(SQLITE_ENABLE_FTS3)
 	session << "CREATE VIRTUAL TABLE docs USING fts3()", now;
+	const std::string idColumn = "docid";
+#endif
 
-	session << "INSERT INTO docs(docid, content) VALUES(1, 'a database is a software system')", now;
-	session << "INSERT INTO docs(docid, content) VALUES(2, 'sqlite is a software system')", now;
-	session << "INSERT INTO docs(docid, content) VALUES(3, 'sqlite is a database')", now;
+	session << "INSERT INTO docs(" << idColumn << ", content) VALUES(1, 'a database is a software system')", now;
+	session << "INSERT INTO docs(" << idColumn << ", content) VALUES(2, 'sqlite is a software system')", now;
+	session << "INSERT INTO docs(" << idColumn << ", content) VALUES(3, 'sqlite is a database')", now;
 
-	int docid = 0;
-	session << "SELECT docid FROM docs WHERE docs MATCH 'sqlite AND database'", into(docid), now;
-	assertTrue (docid == 3);
+	int id = 0;
+	session << "SELECT " << idColumn << " FROM docs WHERE docs MATCH 'sqlite AND database'", into(id), now;
+	assertTrue(id == 3);
 
-	docid = 0;
-	session << "SELECT docid FROM docs WHERE docs MATCH 'database sqlite'", into(docid), now;
-	assertTrue (docid == 3);
+	id = 0;
+	session << "SELECT " << idColumn << " FROM docs WHERE docs MATCH 'database sqlite'", into(id), now;
+	assertTrue(id == 3);
 
-	std::vector<int> docids;
-	session << "SELECT docid FROM docs WHERE docs MATCH 'sqlite OR database' ORDER BY docid",
-		into(docids), now;
-	assertTrue (docids.size() == 3);
-	assertTrue (docids[0] == 1);
-	assertTrue (docids[1] == 2);
-	assertTrue (docids[2] == 3);
+	std::vector<int> ids;
+	session << "SELECT " << idColumn << " FROM docs WHERE docs MATCH 'sqlite OR database' ORDER BY " << idColumn,
+		into(ids), now;
+	assertTrue(ids.size() == 3);
+	assertTrue(ids[0] == 1);
+	assertTrue(ids[1] == 2);
+	assertTrue(ids[2] == 3);
 
 	std::string content;
-	docid = 0;
-	session << "SELECT docid, content FROM docs WHERE docs MATCH 'database NOT sqlite'",
-		into(docid), into(content), now;
-	assertTrue (docid == 1);
-	assertTrue (content == "a database is a software system");
+	id = 0;
+	session << "SELECT " << idColumn << ", content FROM docs WHERE docs MATCH 'database NOT sqlite'",
+		into(id), into(content), now;
+	assertTrue(id == 1);
+	assertTrue(content == "a database is a software system");
 
-	docid = 0;
-	session << "SELECT count(*) FROM docs WHERE docs MATCH 'database and sqlite'", into(docid), now;
-	assertTrue (docid == 0);
+	id = 0;
+	session << "SELECT count(*) FROM docs WHERE docs MATCH 'database and sqlite'", into(id), now;
+	assertTrue(id == 0);
+
 #else
 	std::cout << "SQLite FTS not enabled, test not executed." << std::endl;
-#endif // SQLITE_ENABLE_FTS3
+#endif
 }
 
 
@@ -3453,7 +3769,7 @@ void SQLiteTest::testIllegalFilePath()
 	}
 }
 
-void SQLiteTest::testTransactionTypeProperty() 
+void SQLiteTest::testTransactionTypeProperty()
 {
 	try {
 		using namespace Poco::Data::SQLite;
@@ -3467,6 +3783,96 @@ void SQLiteTest::testTransactionTypeProperty()
 }
 
 
+void SQLiteTest::testRecordsetCopyMove()
+{
+	Session session(Poco::Data::SQLite::Connector::KEY, ":memory:");
+
+	{
+		auto recordSet = getRecordsetMove(session, "SELECT sqlite_version()");
+		assertTrue(recordSet.moveFirst());
+	}
+
+	{
+		auto recordSet = getRecordsetCopyRVO(session, "SELECT sqlite_version()");
+		assertTrue(recordSet.moveFirst());
+	}
+
+	session << "CREATE TABLE Vectors (int0 INTEGER, flt0 REAL, str0 VARCHAR)", now;
+
+	std::vector<Tuple<int, double, std::string> > v;
+	v.push_back(Tuple<int, double, std::string>(1, 1.5f, "3"));
+	v.push_back(Tuple<int, double, std::string>(2, 2.5f, "4"));
+	v.push_back(Tuple<int, double, std::string>(3, 3.5f, "5"));
+	v.push_back(Tuple<int, double, std::string>(4, 4.5f, "6"));
+
+	session << "INSERT INTO Vectors VALUES (?,?,?)", use(v), now;
+
+	RecordSet rset(session, "SELECT * FROM Vectors");
+	std::ostringstream osLoop;
+	RecordSet::Iterator it = rset.begin();
+	RecordSet::Iterator end = rset.end();
+	for (int i = 1; it != end; ++it, ++i)
+	{
+		assertTrue(it->get(0) == i);
+		osLoop << *it;
+	}
+	assertTrue(!osLoop.str().empty());
+	std::ostringstream osCopy;
+	std::copy(rset.begin(), rset.end(), std::ostream_iterator<Row>(osCopy));
+	assertTrue(osLoop.str() == osCopy.str());
+
+	// copy
+	RecordSet rsetCopy(rset);
+	osLoop.str("");
+	it = rsetCopy.begin();
+	end = rsetCopy.end();
+	for (int i = 1; it != end; ++it, ++i)
+	{
+		assertTrue(it->get(0) == i);
+		osLoop << *it;
+	}
+	assertTrue(!osLoop.str().empty());
+
+	osCopy.str("");
+	std::copy(rsetCopy.begin(), rsetCopy.end(), std::ostream_iterator<Row>(osCopy));
+	assertTrue(osLoop.str() == osCopy.str());
+
+	// move
+	RecordSet rsetMove(std::move(rsetCopy));
+	osLoop.str("");
+	it = rsetMove.begin();
+	end = rsetMove.end();
+	for (int i = 1; it != end; ++it, ++i)
+	{
+		assertTrue(it->get(0) == i);
+		osLoop << *it;
+	}
+	assertTrue(!osLoop.str().empty());
+
+	osCopy.str("");
+	std::copy(rsetMove.begin(), rsetMove.end(), std::ostream_iterator<Row>(osCopy));
+	assertTrue(osLoop.str() == osCopy.str());
+
+	// moved from object must remain in valid unspecified state
+	// and can be reused
+	assertEqual(0, rsetCopy.rowCount());
+	rsetCopy = (session << "SELECT * FROM Vectors", now);
+	assertEqual(v.size(), rsetCopy.rowCount());
+	osLoop.str("");
+	it = rsetCopy.begin();
+	end = rsetCopy.end();
+	for (int i = 1; it != end; ++it, ++i)
+	{
+		assertTrue(it->get(0) == i);
+		osLoop << *it;
+	}
+	assertTrue(!osLoop.str().empty());
+	osCopy.str("");
+	std::copy(rsetCopy.begin(), rsetCopy.end(), std::ostream_iterator<Row>(osCopy));
+	assertTrue(osLoop.str() == osCopy.str());
+}
+
+
 void SQLiteTest::setUp()
 {
 }
@@ -3474,6 +3880,7 @@ void SQLiteTest::setUp()
 
 void SQLiteTest::tearDown()
 {
+	Connector::enableSharedCache(false);
 }
 
 
@@ -3481,6 +3888,7 @@ CppUnit::Test* SQLiteTest::suite()
 {
 	CppUnit::TestSuite* pSuite = new CppUnit::TestSuite("SQLiteTest");
 
+	CppUnit_addTest(pSuite, SQLiteTest, testBind);
 	CppUnit_addTest(pSuite, SQLiteTest, testBinding);
 	CppUnit_addTest(pSuite, SQLiteTest, testZeroRows);
 	CppUnit_addTest(pSuite, SQLiteTest, testSimpleAccess);
@@ -3549,6 +3957,7 @@ CppUnit::Test* SQLiteTest::suite()
 	CppUnit_addTest(pSuite, SQLiteTest, testInternalExtraction);
 	CppUnit_addTest(pSuite, SQLiteTest, testPrimaryKeyConstraint);
 	CppUnit_addTest(pSuite, SQLiteTest, testNullable);
+	CppUnit_addTest(pSuite, SQLiteTest, testNullableVector);
 	CppUnit_addTest(pSuite, SQLiteTest, testNulls);
 	CppUnit_addTest(pSuite, SQLiteTest, testRowIterator);
 	CppUnit_addTest(pSuite, SQLiteTest, testAsync);
@@ -3566,12 +3975,16 @@ CppUnit::Test* SQLiteTest::suite()
 	CppUnit_addTest(pSuite, SQLiteTest, testCommitCallback);
 	CppUnit_addTest(pSuite, SQLiteTest, testRollbackCallback);
 	CppUnit_addTest(pSuite, SQLiteTest, testNotifier);
-	CppUnit_addTest(pSuite, SQLiteTest, testSessionTransaction);
+	CppUnit_addTest(pSuite, SQLiteTest, testSessionTransactionReadCommitted);
+	CppUnit_addTest(pSuite, SQLiteTest, testSessionTransactionReadUncommitted);
+	CppUnit_addTest(pSuite, SQLiteTest, testSessionTransactionSerializable);
+	CppUnit_addTest(pSuite, SQLiteTest, testSessionTransactionRepeatableRead);
 	CppUnit_addTest(pSuite, SQLiteTest, testTransaction);
 	CppUnit_addTest(pSuite, SQLiteTest, testTransactor);
-	CppUnit_addTest(pSuite, SQLiteTest, testFTS3);
+	CppUnit_addTest(pSuite, SQLiteTest, testFTS);
 	CppUnit_addTest(pSuite, SQLiteTest, testIllegalFilePath);
 	CppUnit_addTest(pSuite, SQLiteTest, testTransactionTypeProperty);
+	CppUnit_addTest(pSuite, SQLiteTest, testRecordsetCopyMove);
 
 	return pSuite;
 }

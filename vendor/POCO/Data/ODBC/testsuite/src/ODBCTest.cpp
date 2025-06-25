@@ -14,7 +14,7 @@
 #include "Poco/String.h"
 #include "Poco/Format.h"
 #include "Poco/Any.h"
-#include "Poco/DynamicAny.h"
+#include "Poco/Dynamic/Var.h"
 #include "Poco/Tuple.h"
 #include "Poco/DateTime.h"
 #include "Poco/Exception.h"
@@ -43,7 +43,7 @@ using Poco::format;
 using Poco::Tuple;
 using Poco::Any;
 using Poco::AnyCast;
-using Poco::DynamicAny;
+using Poco::Dynamic::Var;
 using Poco::DateTime;
 using Poco::NotFoundException;
 
@@ -55,7 +55,7 @@ const bool        ODBCTest::_bindValues[8] =
 
 ODBCTest::ODBCTest(const std::string& name,
 	SessionPtr pSession,
-	ExecPtr    pExecutor,
+	ExecPtr pExecutor,
 	std::string& rDSN,
 	std::string& rUID,
 	std::string& rPwd,
@@ -74,6 +74,24 @@ ODBCTest::ODBCTest(const std::string& name,
 
 ODBCTest::~ODBCTest()
 {
+}
+
+
+void ODBCTest::testConnection()
+{
+	_pExecutor->connection(_rConnectString);
+}
+
+
+void ODBCTest::testSession()
+{
+	_pExecutor->session(_rConnectString, 5);
+}
+
+
+void ODBCTest::testSessionPool()
+{
+	_pExecutor->sessionPool(_rConnectString, 1, 4, 3, 5);
 }
 
 
@@ -467,6 +485,18 @@ void ODBCTest::testPrepare()
 }
 
 
+void ODBCTest::testNullBulk()
+{
+	if (!_pSession) fail ("Test not available.");
+
+	_pSession->setFeature("autoBind", true);
+	_pSession->setFeature("autoExtract", true);
+
+	recreatePersonBLOBTable();
+	_pExecutor->nullBulk();
+}
+
+
 void ODBCTest::testBulk()
 {
 	if (!_pSession) fail ("Test not available.");
@@ -479,21 +509,21 @@ void ODBCTest::testBulk()
 		std::vector<std::string>,
 		std::vector<CLOB>,
 		std::vector<double>,
-		std::vector<DateTime> >(100);
+		std::vector<DateTime>>(100);
 
 	recreateMiscTable();
 	_pExecutor->doBulk<std::deque<int>,
 		std::deque<std::string>,
 		std::deque<CLOB>,
 		std::deque<double>,
-		std::deque<DateTime> >(100);
+		std::deque<DateTime>>(100);
 
 	recreateMiscTable();
 	_pExecutor->doBulk<std::list<int>,
 		std::list<std::string>,
 		std::list<CLOB>,
 		std::list<double>,
-		std::list<DateTime> >(100);
+		std::list<DateTime>>(100);
 }
 
 
@@ -842,6 +872,21 @@ void ODBCTest::testBLOBStmt()
 }
 
 
+void ODBCTest::testRecordSet()
+{
+	if (!_pSession) fail ("Test not available.");
+
+	for (int i = 0; i < 8;)
+	{
+		recreatePersonDateTimeTable();
+		_pSession->setFeature("autoBind", bindValue(i));
+		_pSession->setFeature("autoExtract", bindValue(i+1));
+		_pExecutor->recordSet();
+		i += 2;
+	}
+}
+
+
 void ODBCTest::testDateTime()
 {
 	if (!_pSession) fail ("Test not available.");
@@ -1173,6 +1218,36 @@ void ODBCTest::testSQLLogger()
 }
 
 
+void ODBCTest::testAutoCommit()
+{
+	if (!_pSession) fail ("Test not available.");
+
+	for (int i = 0; i < 8;)
+	{
+		recreatePersonTable();
+		_pSession->setFeature("autoBind", bindValue(i));
+		_pSession->setFeature("autoExtract", bindValue(i+1));
+		_pExecutor->autoCommit(_rConnectString);
+		i += 2;
+	}
+}
+
+
+void ODBCTest::testTransactionIsolation()
+{
+	if (!_pSession) fail ("Test not available.");
+
+	for (int i = 0; i < 8;)
+	{
+		recreatePersonTable();
+		_pSession->setFeature("autoBind", bindValue(i));
+		_pSession->setFeature("autoExtract", bindValue(i+1));
+		_pExecutor->transactionIsolation();
+		i += 2;
+	}
+}
+
+
 void ODBCTest::testSessionTransaction()
 {
 	if (!_pSession) fail ("Test not available.");
@@ -1188,6 +1263,21 @@ void ODBCTest::testSessionTransaction()
 }
 
 
+void ODBCTest::testSessionTransactionNoAutoCommit()
+{
+	if (!_pSession) fail ("Test not available.");
+
+	for (int i = 0; i < 8;)
+	{
+		recreatePersonTable();
+		_pSession->setFeature("autoBind", bindValue(i));
+		_pSession->setFeature("autoExtract", bindValue(i+1));
+		_pExecutor->sessionTransactionNoAutoCommit(_rConnectString);
+		i += 2;
+	}
+}
+
+
 void ODBCTest::testTransaction()
 {
 	if (!_pSession) fail ("Test not available.");
@@ -1197,7 +1287,7 @@ void ODBCTest::testTransaction()
 		recreatePersonTable();
 		_pSession->setFeature("autoBind", bindValue(i));
 		_pSession->setFeature("autoExtract", bindValue(i+1));
-		_pExecutor->transaction(_rConnectString);
+		_pExecutor->transaction(_rConnectString, _readUncommitted);
 		i += 2;
 	}
 }
@@ -1368,7 +1458,7 @@ ODBCTest::SessionPtr ODBCTest::init(const std::string& driver,
 
 	try
 	{
-		std::cout << "Conecting to [" << dbConnString << ']' << std::endl;
+		std::cout << "Connecting to [" << dbConnString << ']' << std::endl;
 		SessionPtr ptr = new Session(Poco::Data::ODBC::Connector::KEY, dbConnString, 5);
 		if (!dbEncoding.empty())
 			ptr->setProperty("dbEncoding", dbEncoding);

@@ -474,7 +474,11 @@ Vector3 Vector3::Abs() const
 // ------------------------------------------------------------------------------------------------
 bool Vector3::IsNaN() const
 {
+    #if defined (__MINGW32__) || defined (__MINGW64__)
+        return _isnanf(x) || _isnanf(y) || _isnanf(z);
+    #else
     return isnanf(x) || isnanf(y) || isnanf(z);
+    #endif
 }
 
 // ------------------------------------------------------------------------------------------------

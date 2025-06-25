@@ -12,18 +12,28 @@
 #include "CppUnit/TestCaller.h"
 #include "CppUnit/TestSuite.h"
 #include "Poco/LinearHashTable.h"
-#include "Poco/HashTable.h"
 #include "Poco/Stopwatch.h"
 #include "Poco/NumberFormatter.h"
 #include <set>
+
+#if defined(POCO_TEST_DEPRECATED)
+#include "Poco/HashTable.h"
 #include <iostream>
+#endif
+
+#ifdef POCO_COMPILER_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4834) // divide by zero
+#endif // POCO_COMPILER_MSVC
 
 
 using Poco::LinearHashTable;
 using Poco::Hash;
-using Poco::HashTable;
 using Poco::Stopwatch;
 using Poco::NumberFormatter;
+#if defined(POCO_TEST_DEPRECATED)
+using Poco::HashTable;
+#endif
 
 
 LinearHashTableTest::LinearHashTableTest(const std::string& name): CppUnit::TestCase(name)
@@ -183,10 +193,11 @@ void LinearHashTableTest::testConstIterator()
 	assertTrue (values.size() == N);
 }
 
+#if defined(POCO_TEST_DEPRECATED)
 
 void LinearHashTableTest::testPerformanceInt()
 {
-	const int N = 5000000;
+	const int N = 50000000;
 	Stopwatch sw;
 
 	{
@@ -245,7 +256,7 @@ void LinearHashTableTest::testPerformanceInt()
 		sw.start();
 		for (int i = 0; i < N; ++i)
 		{
-			s.find(i);
+			auto it = s.find(i);
 		}
 		sw.stop();
 		std::cout << "Find set: " << sw.elapsedSeconds() << std::endl;
@@ -257,10 +268,11 @@ void LinearHashTableTest::testPerformanceInt()
 
 void LinearHashTableTest::testPerformanceStr()
 {
-	const int N = 5000000;
+	const int N = 50000000;
 	Stopwatch sw;
 
 	std::vector<std::string> values;
+	values.reserve(N);
 	for (int i = 0; i < N; ++i)
 	{
 		values.push_back(NumberFormatter::format0(i, 8));
@@ -322,7 +334,7 @@ void LinearHashTableTest::testPerformanceStr()
 		sw.start();
 		for (int i = 0; i < N; ++i)
 		{
-			s.find(values[i]);
+			auto it = s.find(values[i]);
 		}
 		sw.stop();
 		std::cout << "Find set: " << sw.elapsedSeconds() << std::endl;
@@ -330,6 +342,7 @@ void LinearHashTableTest::testPerformanceStr()
 	}
 }
 
+#endif
 
 void LinearHashTableTest::setUp()
 {
@@ -349,8 +362,15 @@ CppUnit::Test* LinearHashTableTest::suite()
 	CppUnit_addTest(pSuite, LinearHashTableTest, testErase);
 	CppUnit_addTest(pSuite, LinearHashTableTest, testIterator);
 	CppUnit_addTest(pSuite, LinearHashTableTest, testConstIterator);
-	//CppUnit_addTest(pSuite, LinearHashTableTest, testPerformanceInt);
-	//CppUnit_addTest(pSuite, LinearHashTableTest, testPerformanceStr);
+
+#if defined(POCO_TEST_DEPRECATED)
+	CppUnit_addTest(pSuite, LinearHashTableTest, testPerformanceInt);
+	CppUnit_addTest(pSuite, LinearHashTableTest, testPerformanceStr);
+#endif
 
 	return pSuite;
 }
+
+#ifdef POCO_COMPILER_MSVC
+#pragma warning(pop)
+#endif // POCO_COMPILER_MSVC

@@ -17,9 +17,10 @@ jobs:
       CC: ${{ matrix.cc }}
       VERBOSE: 1
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: true
+          persist-credentials: false
       - run: sudo apt install libipc-run3-perl
         if: ${{ matrix.os == 'ubuntu-latest' }}
       - run: brew install autoconf automake libtool
@@ -38,9 +39,10 @@ jobs:
     name: CMake build on ${{matrix.os}}
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: true
+          persist-credentials: false
       - run: cmake -DBUILD_TESTING=ON .
       - run: cmake --build .
-      - run: ctest -V .
+      - run: ctest -V . -C Debug

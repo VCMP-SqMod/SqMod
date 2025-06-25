@@ -15,6 +15,8 @@
 #include "Poco/Net/HTTPRequest.h"
 #include "Poco/Net/HTTPResponse.h"
 #include "Poco/StreamCopier.h"
+#include "Poco/File.h"
+#include "Poco/Path.h"
 #include "HTTPTestServer.h"
 #include <istream>
 #include <ostream>
@@ -26,6 +28,8 @@ using Poco::Net::HTTPRequest;
 using Poco::Net::HTTPResponse;
 using Poco::Net::HTTPMessage;
 using Poco::StreamCopier;
+using Poco::File;
+using Poco::Path;
 
 
 HTTPClientSessionTest::HTTPClientSessionTest(const std::string& name): CppUnit::TestCase(name)
@@ -51,6 +55,32 @@ void HTTPClientSessionTest::testGetSmall()
 	std::ostringstream ostr;
 	StreamCopier::copyStream(rs, ostr);
 	assertTrue (ostr.str() == HTTPTestServer::SMALL_BODY);
+}
+
+
+void HTTPClientSessionTest::testGetSmallUnix()
+{
+#if defined(POCO_HAS_UNIX_SOCKET)
+#if POCO_OS == POCO_OS_ANDROID
+	File socketFile("/data/local/tmp/SocketTest.sock");
+#elif defined(POCO_OS_FAMILY_WINDOWS)
+	File socketFile(Path::tempHome() + "SocketTest.sock");
+#else
+	File socketFile("/tmp/SocketTest.sock");
+#endif // POCO_OS == POCO_OS_ANDROID
+	if (socketFile.exists()) socketFile.remove();
+	HTTPTestServer srv(socketFile.path());
+	HTTPClientSession s(socketFile.path());
+	HTTPRequest request(HTTPRequest::HTTP_GET, "/small");
+	s.sendRequest(request);
+	HTTPResponse response;
+	std::istream& rs = s.receiveResponse(response);
+	assertTrue(response.getContentLength() == HTTPTestServer::SMALL_BODY.length());
+	assertTrue(response.getContentType() == "text/plain");
+	std::ostringstream ostr;
+	StreamCopier::copyStream(rs, ostr);
+	assertTrue(ostr.str() == HTTPTestServer::SMALL_BODY);
+#endif // POCO_HAS_UNIX_SOCKET
 }
 
 
@@ -154,40 +184,6 @@ void HTTPClientSessionTest::testPostLargeChunked()
 	assertTrue (response.getContentLength() == HTTPMessage::UNKNOWN_CONTENT_LENGTH);
 	std::ostringstream ostr;
 	StreamCopier::copyStream(rs, ostr, 16000);
-	assertTrue (ostr.str() == body);
-}
-
-
-void HTTPClientSessionTest::testPostSmallClose()
-{
-	HTTPTestServer srv;
-	HTTPClientSession s("127.0.0.1", srv.port());
-	HTTPRequest request(HTTPRequest::HTTP_POST, "/echo");
-	std::string body("this is a random request body");
-	s.sendRequest(request) << body;
-	HTTPResponse response;
-	std::istream& rs = s.receiveResponse(response);
-	assertTrue (!response.getChunkedTransferEncoding());
-	assertTrue (response.getContentLength() == HTTPMessage::UNKNOWN_CONTENT_LENGTH);
-	std::ostringstream ostr;
-	StreamCopier::copyStream(rs, ostr);
-	assertTrue (ostr.str() == body);
-}
-
-
-void HTTPClientSessionTest::testPostLargeClose()
-{
-	HTTPTestServer srv;
-	HTTPClientSession s("127.0.0.1", srv.port());
-	HTTPRequest request(HTTPRequest::HTTP_POST, "/echo");
-	std::string body(8000, 'x');
-	s.sendRequest(request) << body;
-	HTTPResponse response;
-	std::istream& rs = s.receiveResponse(response);
-	assertTrue (!response.getChunkedTransferEncoding());
-	assertTrue (response.getContentLength() == HTTPMessage::UNKNOWN_CONTENT_LENGTH);
-	std::ostringstream ostr;
-	StreamCopier::copyStream(rs, ostr);
 	assertTrue (ostr.str() == body);
 }
 
@@ -373,14 +369,13 @@ CppUnit::Test* HTTPClientSessionTest::suite()
 	CppUnit::TestSuite* pSuite = new CppUnit::TestSuite("HTTPClientSessionTest");
 
 	CppUnit_addTest(pSuite, HTTPClientSessionTest, testGetSmall);
+	CppUnit_addTest(pSuite, HTTPClientSessionTest, testGetSmallUnix);
 	CppUnit_addTest(pSuite, HTTPClientSessionTest, testGetLarge);
 	CppUnit_addTest(pSuite, HTTPClientSessionTest, testHead);
 	CppUnit_addTest(pSuite, HTTPClientSessionTest, testPostSmallIdentity);
 	CppUnit_addTest(pSuite, HTTPClientSessionTest, testPostLargeIdentity);
 	CppUnit_addTest(pSuite, HTTPClientSessionTest, testPostSmallChunked);
 	CppUnit_addTest(pSuite, HTTPClientSessionTest, testPostLargeChunked);
-	CppUnit_addTest(pSuite, HTTPClientSessionTest, testPostSmallClose);
-	CppUnit_addTest(pSuite, HTTPClientSessionTest, testPostLargeClose);
 	CppUnit_addTest(pSuite, HTTPClientSessionTest, testKeepAlive);
 	CppUnit_addTest(pSuite, HTTPClientSessionTest, testTrailer);
 	CppUnit_addTest(pSuite, HTTPClientSessionTest, testProxy);

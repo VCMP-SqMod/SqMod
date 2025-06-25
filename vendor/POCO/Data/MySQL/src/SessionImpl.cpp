@@ -62,6 +62,12 @@ SessionImpl::SessionImpl(const std::string& connectionString, std::size_t loginT
 }
 
 
+void SessionImpl::setName()
+{
+	setDBMSName("MySQL"s);
+}
+
+
 void SessionImpl::open(const std::string& connect)
 {
 	if (connect != connectionString())
@@ -173,6 +179,9 @@ void SessionImpl::open(const std::string& connect)
 		&SessionImpl::autoCommit,
 		&SessionImpl::isAutoCommit);
 
+	// autocommit is initially on when a session is opened
+	AbstractSessionImpl::setAutoCommit("", true);
+	setName();
 	_connected = true;
 }
 
@@ -215,18 +224,18 @@ void SessionImpl::rollback()
 }
 
 
-void SessionImpl::autoCommit(const std::string&, bool val)
+void SessionImpl::autoCommit(const std::string& s, bool val)
 {
-	StatementExecutor ex(_handle);
-	ex.prepare(Poco::format("SET autocommit=%d", val ? 1 : 0));
-	ex.execute();
+	if (val != getAutoCommit(s)) {
+		_handle.autoCommit(val);
+		AbstractSessionImpl::setAutoCommit(s, val);
+	}
 }
 
 
-bool SessionImpl::isAutoCommit(const std::string&) const
+bool SessionImpl::isAutoCommit(const std::string& s) const
 {
-	int ac = 0;
-	return 1 == getSetting("autocommit", ac);
+	return AbstractSessionImpl::getAutoCommit(s);
 }
 
 
@@ -306,6 +315,7 @@ void SessionImpl::reset()
 	if (_connected && _reset)
 	{
 		_handle.reset();
+		AbstractSessionImpl::setAutoCommit("", true);
 	}
 }
 

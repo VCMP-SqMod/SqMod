@@ -15,6 +15,9 @@
 #include "Poco/Net/StreamSocket.h"
 #include "Poco/Net/ServerSocket.h"
 #include "Poco/Net/SocketAddress.h"
+#include "Poco/Net/TCPServerConnection.h"
+#include "Poco/Net/TCPServerConnectionFactory.h"
+#include "Poco/Net/TCPServer.h"
 #include "Poco/Net/NetException.h"
 #include "Poco/Timespan.h"
 #include "Poco/Stopwatch.h"
@@ -22,6 +25,10 @@
 #include "Poco/FIFOBuffer.h"
 #include "Poco/Delegate.h"
 #include "Poco/File.h"
+#include "Poco/TemporaryFile.h"
+#include "Poco/FileStream.h"
+#include "Poco/Path.h"
+#include "Poco/Thread.h"
 #include <iostream>
 
 
@@ -30,13 +37,70 @@ using Poco::Net::StreamSocket;
 using Poco::Net::ServerSocket;
 using Poco::Net::SocketAddress;
 using Poco::Net::ConnectionRefusedException;
+using Poco::Net::TCPServerConnection;
+using Poco::Net::TCPServerConnectionFactoryImpl;
+using Poco::Net::TCPServer;
 using Poco::Timespan;
 using Poco::Stopwatch;
 using Poco::TimeoutException;
 using Poco::InvalidArgumentException;
 using Poco::Buffer;
 using Poco::FIFOBuffer;
+using Poco::Path;
+using Poco::File;
 using Poco::delegate;
+
+
+namespace
+{
+	class CopyToStringConnection: public TCPServerConnection
+	{
+	public:
+		CopyToStringConnection(const StreamSocket& s): 
+			TCPServerConnection(s)
+		{
+		}
+
+		void run()
+		{
+			{
+				Poco::FastMutex::ScopedLock lock(_mutex);
+				_data.clear();
+			}
+			StreamSocket& ss = socket();
+			try
+			{
+				char buffer[256];
+				int n = ss.receiveBytes(buffer, sizeof(buffer));
+				while (n > 0)
+				{
+					{
+						Poco::FastMutex::ScopedLock lock(_mutex);
+						_data.append(buffer, n);
+					}
+					n = ss.receiveBytes(buffer, sizeof(buffer));
+				}
+			}
+			catch (Poco::Exception& exc)
+			{
+				std::cerr << "CopyToStringConnection: " << exc.displayText() << std::endl;
+			}
+		}
+
+		static const std::string data()
+		{
+			Poco::FastMutex::ScopedLock lock(_mutex);
+			return _data;
+		}
+
+	private:
+		static Poco::FastMutex _mutex;
+		static std::string _data;
+	};
+
+	Poco::FastMutex CopyToStringConnection::_mutex;
+	std::string CopyToStringConnection::_data;
+}
 
 
 SocketTest::SocketTest(const std::string& name): CppUnit::TestCase(name)
@@ -60,6 +124,27 @@ void SocketTest::testEcho()
 	n = ss.receiveBytes(buffer, sizeof(buffer));
 	assertTrue (n == 5);
 	assertTrue (std::string(buffer, n) == "hello");
+	ss.close();
+}
+
+
+void SocketTest::testPeek()
+{
+	EchoServer echoServer;
+	StreamSocket ss;
+	ss.connect(SocketAddress("127.0.0.1", echoServer.port()));
+	int n = ss.sendBytes("hello, world!", 13);
+	assertTrue (n == 13);
+	char buffer[256];
+	n = ss.receiveBytes(buffer, 5, MSG_PEEK);
+	assertTrue (n == 5);
+	assertTrue (std::string(buffer, n) == "hello");
+	n = ss.receiveBytes(buffer, sizeof(buffer), MSG_PEEK);
+	assertTrue (n == 13);
+	assertTrue (std::string(buffer, n) == "hello, world!");
+	n = ss.receiveBytes(buffer, sizeof(buffer));
+	assertTrue (n == 13);
+	assertTrue (std::string(buffer, n) == "hello, world!");
 	ss.close();
 }
 
@@ -431,6 +516,7 @@ void SocketTest::testOptions()
 	assertTrue (!ss.getOOBInline());
 }
 
+#if defined(POCO_TEST_DEPRECATED)
 
 void SocketTest::testSelect()
 {
@@ -533,15 +619,18 @@ void SocketTest::testSelect3()
 	assertTrue (rc == 0);
 }
 
+#endif
 
 void SocketTest::testEchoUnixLocal()
 {
-#if defined(POCO_OS_FAMILY_UNIX)
+#if defined(POCO_HAS_UNIX_SOCKET)
 #if POCO_OS == POCO_OS_ANDROID
-	Poco::File socketFile("/data/local/tmp/SocketTest.sock");
+	File socketFile("/data/local/tmp/SocketTest.sock");
+#elif defined(POCO_OS_FAMILY_WINDOWS)
+	File socketFile(Path::tempHome() + "SocketTest.sock");
 #else
-	Poco::File socketFile("/tmp/SocketTest.sock");
-#endif
+	File socketFile("/tmp/SocketTest.sock");
+#endif // POCO_OS == POCO_OS_ANDROID
 	if (socketFile.exists()) socketFile.remove();
 	SocketAddress localAddr(SocketAddress::UNIX_LOCAL, socketFile.path());
 	EchoServer echoServer(localAddr);
@@ -554,10 +643,204 @@ void SocketTest::testEchoUnixLocal()
 	assertTrue (n == 5);
 	assertTrue (std::string(buffer, n) == "hello");
 	ss.close();
-	socketFile.remove();
+	if (socketFile.exists()) socketFile.remove();
+	echoServer.stop();
+#else // POCO_HAS_UNIX_SOCKET
+	#if POCO_OS == POCO_OS_WINDOWS_NT
+		#pragma message("[UNIX LOCAL SOCKET DISABLED]")
+	#endif
+	std::cout << "[UNIX LOCAL SOCKET DISABLED]";
 #endif
 }
 
+
+void SocketTest::testUnixLocalAbstract()
+{
+// abstract local sockets don't work on windows
+// see https://github.com/microsoft/WSL/issues/4240
+// they are a nonportable Linux extension
+#if (POCO_OS == POCO_OS_LINUX) && defined(POCO_HAS_UNIX_SOCKET)
+	std::string addr("\0look ma - no file!", 20);
+	SocketAddress localAddr(SocketAddress::UNIX_LOCAL, addr);
+	EchoServer echoServer(localAddr);
+	StreamSocket ss(SocketAddress::UNIX_LOCAL);
+	ss.connect(localAddr);
+	int n = ss.sendBytes("hello", 5);
+	assertTrue(n == 5);
+	char buffer[256];
+	n = ss.receiveBytes(buffer, sizeof(buffer));
+	assertTrue(n == 5);
+	assertTrue(std::string(buffer, n) == "hello");
+	ss.close();
+	echoServer.stop();
+#else // POCO_HAS_UNIX_SOCKET
+	#if POCO_OS == POCO_OS_WINDOWS_NT
+		#pragma message("[ABSTRACT UNIX LOCAL SOCKET DISABLED]")
+	#endif
+	std::cout << "[ABSTRACT UNIX LOCAL SOCKET DISABLED]";
+#endif
+}
+
+
+void SocketTest::testUseFd()
+{
+#ifdef POCO_OS_FAMILY_WINDOWS
+	struct addrinfo addr_hint = {};
+	addr_hint.ai_family = AF_INET;
+	addr_hint.ai_socktype = SOCK_STREAM;
+	addr_hint.ai_protocol = IPPROTO_TCP;
+	addr_hint.ai_flags = AI_PASSIVE;
+	struct addrinfo* addr_result;
+	getaddrinfo(nullptr, "0", &addr_hint, &addr_result);
+	poco_socket_t listenfd = socket(addr_result->ai_family, addr_result->ai_socktype, addr_result->ai_protocol);
+	bind(listenfd, addr_result->ai_addr, (int)addr_result->ai_addrlen);
+	freeaddrinfo(addr_result);
+	listen(listenfd, SOMAXCONN);
+	SOCKADDR_IN serv_addr;
+	int addr_len = sizeof(serv_addr);
+	getsockname(listenfd, (SOCKADDR*)&serv_addr, &addr_len);
+	auto server_port = ntohs(serv_addr.sin_port);
+#elif defined(POCO_OS_FAMILY_UNIX)
+	poco_socket_t listenfd = socket(AF_INET, SOCK_STREAM, 0);
+	struct sockaddr_in serv_addr = {};
+	serv_addr.sin_family = AF_INET;
+	serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+	serv_addr.sin_port = htons(0);
+	bind(listenfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
+	listen(listenfd, 1);
+	socklen_t len = sizeof(serv_addr);
+	getsockname(listenfd, (struct sockaddr*)&serv_addr, &len);
+	auto server_port = ntohs(serv_addr.sin_port);
+#else
+	std::cout << "[USE FD TEST DISABLED]";
+	return;
+#endif
+	EchoServer server(ServerSocket::fromFileDescriptor(listenfd));
+	StreamSocket ss;
+	ss.connect(SocketAddress("127.0.0.1", server_port));
+	int n = ss.sendBytes("hello", 5);
+	assertTrue (n == 5);
+	char buffer[256];
+	n = ss.receiveBytes(buffer, sizeof(buffer));
+	assertTrue (n == 5);
+	assertTrue (std::string(buffer, n) == "hello");
+	ss.close();
+}
+
+
+void SocketTest::testSendFile()
+{
+	ServerSocket svs(0);
+	TCPServer srv(new TCPServerConnectionFactoryImpl<CopyToStringConnection>(), svs);
+	srv.start();	
+
+	StreamSocket ss;
+	ss.connect(SocketAddress("127.0.0.1", srv.port()));
+
+	std::string sentData = "Hello, world!";
+
+	Poco::TemporaryFile file;
+	Poco::FileOutputStream ostr(file.path());
+	ostr.write(sentData.data(), sentData.size());
+	ostr.close();
+	
+	Poco::FileInputStream istr(file.path());
+	std::streamsize n = ss.sendFile(istr);
+	assertTrue (n == file.getSize());
+
+	istr.close();
+	ss.close();
+
+	Poco::Thread::sleep(200);
+	while (srv.currentConnections() > 0) 
+	{
+		Poco::Thread::sleep(100);
+	}
+	srv.stop();
+
+	assertTrue (CopyToStringConnection::data() == sentData);
+}
+
+
+void SocketTest::testSendFileLarge()
+{
+	ServerSocket svs(0);
+	TCPServer srv(new TCPServerConnectionFactoryImpl<CopyToStringConnection>(), svs);
+	srv.start();	
+
+	StreamSocket ss;
+	ss.connect(SocketAddress("127.0.0.1", srv.port()));
+
+	std::string sentData;
+
+	Poco::TemporaryFile file;
+	Poco::FileOutputStream ostr(file.path());
+	std::string data("0123456789abcdef");
+	for (int i = 0; i < 10000; i++)
+	{
+		ostr.write(data.data(), data.size());
+		sentData += data;
+	}
+	ostr.close();
+	
+	Poco::FileInputStream istr(file.path());
+	std::streamsize n = ss.sendFile(istr);
+	assertTrue (n == file.getSize());
+	
+	istr.close();
+	ss.close();
+
+	Poco::Thread::sleep(200);
+	while (srv.currentConnections() > 0) 
+	{
+		Poco::Thread::sleep(100);
+	}
+	srv.stop();
+
+	assertTrue (CopyToStringConnection::data() == sentData);
+}
+
+
+void SocketTest::testSendFileRange()
+{
+	ServerSocket svs(0);
+	TCPServer srv(new TCPServerConnectionFactoryImpl<CopyToStringConnection>(), svs);
+	srv.start();	
+
+	StreamSocket ss;
+	ss.connect(SocketAddress("127.0.0.1", srv.port()));
+
+	std::string sentData;
+
+	Poco::TemporaryFile file;
+	Poco::FileOutputStream ostr(file.path());
+	std::string data("0123456789abcdef");
+	for (int i = 0; i < 1024; i++)
+	{
+		ostr.write(data.data(), data.size());
+		sentData += data;
+	}
+	ostr.close();
+	
+	const std::streamoff offset = 4000;
+	const std::streamsize count = 10000;
+
+	Poco::FileInputStream istr(file.path());
+	std::streamsize n = ss.sendFile(istr, offset, count);
+	assertTrue (n == count);
+
+	istr.close();
+	ss.close();
+
+	Poco::Thread::sleep(200);
+	while (srv.currentConnections() > 0) 
+	{
+		Poco::Thread::sleep(100);
+	}
+	srv.stop();
+
+	assertTrue (CopyToStringConnection::data() == sentData.substr(offset, count));
+}
 
 
 void SocketTest::onReadable(bool& b)
@@ -593,6 +876,7 @@ CppUnit::Test* SocketTest::suite()
 	CppUnit::TestSuite* pSuite = new CppUnit::TestSuite("SocketTest");
 
 	CppUnit_addTest(pSuite, SocketTest, testEcho);
+	CppUnit_addTest(pSuite, SocketTest, testPeek);
 	CppUnit_addTest(pSuite, SocketTest, testMoveStreamSocket);
 	CppUnit_addTest(pSuite, SocketTest, testPoll);
 	CppUnit_addTest(pSuite, SocketTest, testAvailable);
@@ -606,10 +890,19 @@ CppUnit::Test* SocketTest::suite()
 	CppUnit_addTest(pSuite, SocketTest, testTimeout);
 	CppUnit_addTest(pSuite, SocketTest, testBufferSize);
 	CppUnit_addTest(pSuite, SocketTest, testOptions);
+
+#if defined(POCO_TEST_DEPRECATED)
 	CppUnit_addTest(pSuite, SocketTest, testSelect);
 	CppUnit_addTest(pSuite, SocketTest, testSelect2);
 	CppUnit_addTest(pSuite, SocketTest, testSelect3);
+#endif
+
 	CppUnit_addTest(pSuite, SocketTest, testEchoUnixLocal);
+	CppUnit_addTest(pSuite, SocketTest, testUnixLocalAbstract);
+	CppUnit_addTest(pSuite, SocketTest, testUseFd);
+	CppUnit_addTest(pSuite, SocketTest, testSendFile);
+	CppUnit_addTest(pSuite, SocketTest, testSendFileLarge);
+	CppUnit_addTest(pSuite, SocketTest, testSendFileRange);
 
 	return pSuite;
 }

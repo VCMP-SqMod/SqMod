@@ -19,6 +19,7 @@
 
 
 #include "Poco/Data/ODBC/ODBC.h"
+#include "Poco/Data/ODBC/Utility.h"
 #include <vector>
 #include <cstring>
 #ifdef POCO_OS_FAMILY_WINDOWS
@@ -33,6 +34,10 @@ namespace ODBC {
 
 
 template <typename H, SQLSMALLINT handleType>
+class Error;
+
+
+template <typename H, SQLSMALLINT handleType>
 class Diagnostics
 	/// Utility class providing functionality for retrieving ODBC diagnostic
 	/// records. Diagnostics object must be created with corresponding handle
@@ -41,10 +46,10 @@ class Diagnostics
 {
 public:
 
-	static const unsigned int SQL_STATE_SIZE = SQL_SQLSTATE_SIZE + 1;
-	static const unsigned int SQL_MESSAGE_LENGTH = SQL_MAX_MESSAGE_LENGTH + 1;
-	static const unsigned int SQL_NAME_LENGTH = 128;
-	static const std::string  DATA_TRUNCATED;
+	static constexpr unsigned int SQL_STATE_SIZE = SQL_SQLSTATE_SIZE + 1;
+	static constexpr unsigned int SQL_MESSAGE_LENGTH = SQL_MAX_MESSAGE_LENGTH + 1;
+	static constexpr unsigned int SQL_NAME_LENGTH = 128;
+	inline static const std::string  DATA_TRUNCATED;
 
 	struct DiagnosticFields
 	{
@@ -138,6 +143,8 @@ public:
 
 	const Diagnostics& diagnostics()
 	{
+		if (SQL_NULL_HANDLE == _handle) return *this;
+
 		DiagnosticFields df;
 		SQLSMALLINT count = 1;
 		SQLSMALLINT messageLength = 0;
@@ -211,6 +218,12 @@ public:
 		return *this;
 	}
 
+protected:
+	const H& handle() const
+	{
+		return _handle;
+	}
+
 private:
 
 	Diagnostics();
@@ -224,13 +237,33 @@ private:
 
 	/// Context handle
 	const H& _handle;
+
+	friend class Error<H, handleType>;
 };
 
 
-typedef Diagnostics<SQLHENV, SQL_HANDLE_ENV> EnvironmentDiagnostics;
-typedef Diagnostics<SQLHDBC, SQL_HANDLE_DBC> ConnectionDiagnostics;
-typedef Diagnostics<SQLHSTMT, SQL_HANDLE_STMT> StatementDiagnostics;
-typedef Diagnostics<SQLHDESC, SQL_HANDLE_DESC> DescriptorDiagnostics;
+// explicit instantiation definition
+#ifndef POCO_DOC
+
+#if defined(POCO_OS_FAMILY_WINDOWS)
+extern template class Diagnostics<SQLHENV, SQL_HANDLE_ENV>;
+extern template class Diagnostics<SQLHDBC, SQL_HANDLE_DBC>;
+extern template class Diagnostics<SQLHSTMT, SQL_HANDLE_STMT>;
+extern template class Diagnostics<SQLHDESC, SQL_HANDLE_DESC>;
+#else
+extern template class ODBC_API Diagnostics<SQLHENV, SQL_HANDLE_ENV>;
+extern template class ODBC_API Diagnostics<SQLHDBC, SQL_HANDLE_DBC>;
+extern template class ODBC_API Diagnostics<SQLHSTMT, SQL_HANDLE_STMT>;
+extern template class ODBC_API Diagnostics<SQLHDESC, SQL_HANDLE_DESC>;
+#endif
+
+#endif
+
+
+using EnvironmentDiagnostics = Diagnostics<SQLHENV, SQL_HANDLE_ENV>;
+using ConnectionDiagnostics = Diagnostics<SQLHDBC, SQL_HANDLE_DBC>;
+using StatementDiagnostics = Diagnostics<SQLHSTMT, SQL_HANDLE_STMT>;
+using DescriptorDiagnostics = Diagnostics<SQLHDESC, SQL_HANDLE_DESC>;
 
 
 } } } // namespace Poco::Data::ODBC

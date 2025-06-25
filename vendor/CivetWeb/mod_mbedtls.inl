@@ -1,11 +1,19 @@
 #if defined(USE_MBEDTLS) // USE_MBEDTLS used with NO_SSL
 
-#include "mbedtls/certs.h"
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/debug.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/error.h"
+
+#if MBEDTLS_VERSION_NUMBER >= 0x03000000
+// The file include/mbedtls/net.h was removed in v3.0.0 because its only
+// function was to include mbedtls/net_sockets.h which now should be included
+// directly.
+#include "mbedtls/net_sockets.h"
+#else
 #include "mbedtls/net.h"
+#endif
+
 #include "mbedtls/pk.h"
 #include "mbedtls/platform.h"
 #include "mbedtls/ssl.h"
@@ -80,6 +88,19 @@ mbed_sslctx_init(SSL_CTX *ctx, const char *crt)
 	mbedtls_ctr_drbg_init(&ctx->ctr);
 	mbedtls_x509_crt_init(&ctx->cert);
 
+#ifdef MBEDTLS_PSA_CRYPTO_C
+	/* Initialize PSA crypto (mandatory with TLS 1.3)
+	 * This must be done before calling any other PSA Crypto
+	 * functions or they will fail with PSA_ERROR_BAD_STATE
+	 */
+	const psa_status_t status = psa_crypto_init();
+	if (status != PSA_SUCCESS) {
+		DEBUG_TRACE("Failed to initialize PSA crypto, returned %d\n",
+		            (int)status);
+		return -1;
+	}
+#endif
+
 	rc = mbedtls_ctr_drbg_seed(&ctx->ctr,
 	                           mbedtls_entropy_func,
 	                           &ctx->entropy,
@@ -90,7 +111,17 @@ mbed_sslctx_init(SSL_CTX *ctx, const char *crt)
 		return -1;
 	}
 
+#if MBEDTLS_VERSION_NUMBER >= 0x03000000
+	// mbedtls_pk_parse_keyfile() has changed in mbedTLS 3.0. You now need
+	// to pass a properly seeded, cryptographically secure RNG when calling
+	// these functions. It is used for blinding, a countermeasure against
+	// side-channel attacks.
+	// https://github.com/Mbed-TLS/mbedtls/blob/development/docs/3.0-migration-guide.md#some-functions-gained-an-rng-parameter
+	rc = mbedtls_pk_parse_keyfile(
+	    &ctx->pkey, crt, NULL, mbedtls_ctr_drbg_random, &ctx->ctr);
+#else
 	rc = mbedtls_pk_parse_keyfile(&ctx->pkey, crt, NULL);
+#endif
 	if (rc != 0) {
 		DEBUG_TRACE("TLS parse key file failed (%i)", rc);
 		return -1;
@@ -170,7 +201,13 @@ mbed_ssl_accept(mbedtls_ssl_context **ssl,
 		return -1;
 	}
 
+#if MBEDTLS_VERSION_NUMBER >= 0x03000000
+	DEBUG_TRACE("TLS connection %p accepted, state: %d",
+	            ssl,
+	            (*ssl)->MBEDTLS_PRIVATE(state));
+#else
 	DEBUG_TRACE("TLS connection %p accepted, state: %d", ssl, (*ssl)->state);
+#endif
 	return 0;
 }
 
@@ -196,7 +233,13 @@ mbed_ssl_handshake(mbedtls_ssl_context *ssl)
 		}
 	}
 
+#if MBEDTLS_VERSION_NUMBER >= 0x03000000
+	DEBUG_TRACE("TLS handshake rc: %d, state: %d",
+	            rc,
+	            ssl->MBEDTLS_PRIVATE(state));
+#else
 	DEBUG_TRACE("TLS handshake rc: %d, state: %d", rc, ssl->state);
+#endif
 	return rc;
 }
 

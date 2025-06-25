@@ -149,14 +149,15 @@ void SecureStreamSocketImpl::shutdownReceive()
 }
 
 
-void SecureStreamSocketImpl::shutdownSend()
+int SecureStreamSocketImpl::shutdownSend()
 {
+	return _impl.shutdown();
 }
 
 
-void SecureStreamSocketImpl::shutdown()
+int SecureStreamSocketImpl::shutdown()
 {
-	_impl.shutdown();
+	return _impl.shutdown();
 }
 
 
@@ -208,8 +209,31 @@ void SecureStreamSocketImpl::verifyPeerCertificate(const std::string& hostName)
 
 int SecureStreamSocketImpl::completeHandshake()
 {
-	_impl.completeHandshake();
-	return 0;
+	return _impl.completeHandshake();
+}
+
+
+void SecureStreamSocketImpl::setBlocking(bool flag)
+{
+	_impl.socket()->setBlocking(flag);
+}
+
+
+bool SecureStreamSocketImpl::getBlocking() const
+{
+	return _impl.socket()->getBlocking();
+}
+
+
+void SecureStreamSocketImpl::setRawOption(int level, int option, const void* value, poco_socklen_t length)
+{
+	_impl.socket()->setRawOption(level, option, value, length);
+}
+
+
+void SecureStreamSocketImpl::getRawOption(int level, int option, void* value, poco_socklen_t& length)
+{
+	_impl.socket()->getRawOption(level, option, value, length);
 }
 
 

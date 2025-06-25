@@ -322,16 +322,11 @@ std::ostream& HTTPClientSession::sendRequestImpl(const HTTPRequest& request)
 #endif
 		request.write(*_pRequestStream);
 	}
-	else if ((method != HTTPRequest::HTTP_PUT && method != HTTPRequest::HTTP_POST && method != HTTPRequest::HTTP_PATCH) || request.has(HTTPRequest::UPGRADE))
+	else 
 	{
 		Poco::CountingOutputStream cs;
 		request.write(cs);
 		_pRequestStream = new HTTPFixedLengthOutputStream(*this, cs.chars());
-		request.write(*_pRequestStream);
-	}
-	else
-	{
-		_pRequestStream = new HTTPOutputStream(*this);
 		request.write(*_pRequestStream);
 	}
 	_lastRequest.update();
@@ -459,7 +454,12 @@ void HTTPClientSession::reconnect()
 {
 	SocketAddress addr;
 	if (_proxyConfig.host.empty() || bypassProxy())
-		addr = SocketAddress(_host, _port);
+	{
+		if (SocketAddress::isUnixLocal(_host))
+			addr = SocketAddress(_host);
+		else
+			addr = SocketAddress(_host, _port);
+	}
 	else
 		addr = SocketAddress(_proxyConfig.host, _proxyConfig.port);
 

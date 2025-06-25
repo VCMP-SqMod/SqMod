@@ -24,11 +24,7 @@
 
 
 #if defined(POCO_OS_FAMILY_WINDOWS)
-#if defined(_WIN32_WCE)
-#include "File_WINCE.h"
-#else
 #include "Poco/File_WIN32U.h"
-#endif
 #elif defined(POCO_VXWORKS)
 #include "Poco/File_VX.h"
 #elif defined(POCO_OS_FAMILY_UNIX)
@@ -58,7 +54,7 @@ class Foundation_API File: private FileImpl
 	/// use the forward slash ("/") as directory separator.
 {
 public:
-	typedef FileSizeImpl FileSize;
+	using FileSize = FileSizeImpl;
 
 	enum LinkType
 		/// Type of link for linkTo().
@@ -88,7 +84,7 @@ public:
 	File(const File& file);
 		/// Copy constructor.
 
-	virtual ~File();
+	~File() override;
 		/// Destroys the file.
 
 	File& operator = (const File& file);
@@ -109,8 +105,23 @@ public:
 	const std::string& path() const;
 		/// Returns the path.
 
+	std::string absolutePath() const;
+		/// Returns absolute path.
+		/// Attempts to find the existing file
+		/// using curent work directory and the PATH
+		/// environment variable.
+		/// If the file doesn't exist, returns empty string.
+
 	bool exists() const;
 		/// Returns true iff the file exists.
+
+	bool existsAnywhere() const;
+		/// If the file path is relative, searches
+		/// for the file in the current working directory
+		/// and the environment paths.
+		/// If the file path is absolute, the
+		/// functionality is identical to the
+		/// exists() call.
 
 	bool canRead() const;
 		/// Returns true iff the file is readable.

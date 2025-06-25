@@ -22,17 +22,8 @@
 #include "Poco/Net/StreamSocket.h"
 #include "Poco/Net/ServerSocket.h"
 #include "Poco/Environment.h"
-#include "Poco/NObserver.h"
 #include "Poco/SharedPtr.h"
 #include <vector>
-
-
-using Poco::Net::Socket;
-using Poco::Net::SocketReactor;
-using Poco::Net::ServerSocket;
-using Poco::Net::StreamSocket;
-using Poco::NObserver;
-using Poco::AutoPtr;
 
 
 namespace Poco {
@@ -61,7 +52,7 @@ public:
 		const std::string& threadName = ""):
 		_threadName(threadName),
 		_socket(socket),
-		_pReactor(0),
+		_pReactor(nullptr),
 		_threads(threads),
 		_next(0)
 		/// Creates a ParallelSocketAcceptor using the given ServerSocket,
@@ -101,6 +92,10 @@ public:
 			poco_unexpected();
 		}
 	}
+
+	ParallelSocketAcceptor() = delete;
+	ParallelSocketAcceptor(const ParallelSocketAcceptor&) = delete;
+	ParallelSocketAcceptor& operator = (const ParallelSocketAcceptor&) = delete;
 
 	void setReactor(SocketReactor& reactor)
 		/// Sets the reactor for this acceptor.
@@ -149,7 +144,7 @@ public:
 	}
 
 protected:
-	typedef std::vector<typename ParallelReactor::Ptr> ReactorVec;
+	using ReactorVec = std::vector<typename ParallelReactor::Ptr>;
 
 	virtual ServiceHandler* createServiceHandler(StreamSocket& socket)
 		/// Create and initialize a new ServiceHandler instance.
@@ -181,7 +176,7 @@ protected:
 		{
 			if ((*it)->has(socket)) return it->get();
 		}
-		return 0;
+		return nullptr;
 	}
 
 	SocketReactor* reactor()
@@ -227,9 +222,6 @@ protected:
 	}
 
 private:
-	ParallelSocketAcceptor();
-	ParallelSocketAcceptor(const ParallelSocketAcceptor&);
-	ParallelSocketAcceptor& operator = (const ParallelSocketAcceptor&);
 
 	std::string _threadName;
 		/// Name prefix of sub SocketReactor threads

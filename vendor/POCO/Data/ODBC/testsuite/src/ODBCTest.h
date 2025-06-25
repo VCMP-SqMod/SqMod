@@ -29,8 +29,8 @@
 class ODBCTest: public CppUnit::TestCase
 {
 public:
-	typedef Poco::SharedPtr<Poco::Data::Session> SessionPtr;
-	typedef Poco::SharedPtr<SQLExecutor>         ExecPtr;
+	using SessionPtr = Poco::SharedPtr<Poco::Data::Session>;
+	using ExecPtr = Poco::SharedPtr<SQLExecutor>;
 
 	ODBCTest(const std::string& name,
 		SessionPtr pSession,
@@ -40,12 +40,16 @@ public:
 		std::string& rPwd,
 		std::string& rConnectString);
 
-	~ODBCTest();
+	~ODBCTest() override;
 
-	virtual void setUp();
-	virtual void tearDown();
+	void setUp() override;
+	void tearDown() override;
 
 	virtual void testBareboneODBC() = 0;
+
+	virtual void testConnection();
+	virtual void testSession();
+	virtual void testSessionPool();
 
 	virtual void testZeroRows();
 	virtual void testSimpleAccess();
@@ -79,6 +83,7 @@ public:
 	virtual void testLimitPrepare();
 	virtual void testLimitZero();
 	virtual void testPrepare();
+	virtual void testNullBulk();
 	virtual void testBulk();
 	virtual void testBulkPerformance();
 
@@ -101,10 +106,13 @@ public:
 	virtual void testIllegalRange();
 	virtual void testSingleSelect();
 	virtual void testEmptyDB();
+	virtual void testTempTable();
 
 	virtual void testBLOB();
 	virtual void testBLOBContainer();
 	virtual void testBLOBStmt();
+
+	virtual void testRecordSet();
 
 	virtual void testDateTime();
 	virtual void testDate();
@@ -125,7 +133,7 @@ public:
 
 	virtual void testStoredProcedure();
 	virtual void testStoredProcedureAny();
-	virtual void testStoredProcedureDynamicAny();
+	virtual void testStoredProcedureDynamicVar();
 
 	virtual void testStoredFunction();
 	virtual void testStoredFunctionAny();
@@ -145,7 +153,10 @@ public:
 	virtual void testSQLChannel();
 	virtual void testSQLLogger();
 
+	virtual void testAutoCommit();
+	virtual void testTransactionIsolation();
 	virtual void testSessionTransaction();
+	virtual void testSessionTransactionNoAutoCommit();
 	virtual void testTransaction();
 	virtual void testTransactor();
 	virtual void testNullable();
@@ -156,7 +167,7 @@ public:
 	virtual void testReconnect();
 
 protected:
-	typedef Poco::Data::ODBC::Utility::DriverMap Drivers;
+	using Drivers = Poco::Data::ODBC::Utility::DriverMap;
 
 	virtual void dropObject(const std::string& type, const std::string& name);
 	virtual void recreateNullableTable();
@@ -200,6 +211,8 @@ protected:
 	Poco::Data::Session& session();
 	SQLExecutor& executor();
 
+	void setReadUncommitted(bool val);
+
 	const std::string& dsn();
 	const std::string& uid();
 	const std::string& pwd();
@@ -214,12 +227,18 @@ private:
 	std::string&      _rUID;
 	std::string&      _rPwd;
 	std::string&      _rConnectString;
+	bool              _readUncommitted = true;
 };
 
 
 //
 // inlines
 //
+
+inline void ODBCTest::testTempTable()
+{
+	throw Poco::NotImplementedException("ODBCTest::testTempTable()");
+}
 
 inline void ODBCTest::testStoredProcedure()
 {
@@ -233,9 +252,9 @@ inline void ODBCTest::testStoredProcedureAny()
 }
 
 
-inline void ODBCTest::testStoredProcedureDynamicAny()
+inline void ODBCTest::testStoredProcedureDynamicVar()
 {
-	throw Poco::NotImplementedException("ODBCTest::testStoredProcedureDynamicAny()");
+	throw Poco::NotImplementedException("ODBCTest::testStoredProcedureDynamicVar()");
 }
 
 
@@ -425,6 +444,12 @@ inline const std::string& ODBCTest::pwd()
 inline const std::string& ODBCTest::dbConnString()
 {
 	return _rConnectString;
+}
+
+
+inline void ODBCTest::setReadUncommitted(bool val)
+{
+	_readUncommitted = val;
 }
 
 

@@ -14,7 +14,7 @@
 #include "ODBCTest.h"
 #include "Poco/Format.h"
 #include "Poco/Any.h"
-#include "Poco/DynamicAny.h"
+#include "Poco/Dynamic/Var.h"
 #include "Poco/DateTime.h"
 #include "Poco/Data/ODBC/Diagnostics.h"
 #include "Poco/Data/ODBC/ODBCException.h"
@@ -29,7 +29,7 @@ using Poco::Data::ODBC::StatementDiagnostics;
 using Poco::format;
 using Poco::Any;
 using Poco::AnyCast;
-using Poco::DynamicAny;
+using Poco::Dynamic::Var;
 using Poco::DateTime;
 
 
@@ -44,7 +44,7 @@ using Poco::DateTime;
 	#define POSTGRESQL_DSN "PocoDataPgSQLTestW"
 #else
 	#ifdef POCO_PTR_IS_64_BIT
-		#define POSTGRESQL_ODBC_DRIVER "PostgreSQL ANSI(x64)"
+		#define POSTGRESQL_ODBC_DRIVER "PostgreSQL ANSI"
 	#else
 		#define POSTGRESQL_ODBC_DRIVER "PostgreSQL ANSI"
 	#endif
@@ -59,8 +59,8 @@ using Poco::DateTime;
 #define POSTGRESQL_PORT    "5432"
 #define POSTGRESQL_DB      "postgres"
 #define POSTGRESQL_UID     "postgres"
-#define POSTGRESQL_PWD     "poco"
-#define POSTGRESQL_VERSION "10"
+#define POSTGRESQL_PWD     "postgres"
+#define POSTGRESQL_VERSION "16"
 
 #ifdef POCO_OS_FAMILY_WINDOWS
 const std::string ODBCPostgreSQLTest::_libDir = "C:\\\\Program Files\\\\PostgreSQL\\\\pg" POSTGRESQL_VERSION "\\\\lib\\\\";
@@ -326,8 +326,8 @@ void ODBCPostgreSQLTest::testStoredFunctionDynamicAny()
 		session().setFeature("autoBind", bindValue(k));
 		session().setFeature("autoExtract", bindValue(k+1));
 
-		DynamicAny i = 2;
-		DynamicAny result = 0;
+		Var i = 2;
+		Var result = 0;
 		session() << "{? = call storedFunction(?)}", out(result), in(i), now;
 		assertTrue (4 == result);
 
@@ -389,7 +389,7 @@ void ODBCPostgreSQLTest::dropObject(const std::string& type, const std::string& 
 void ODBCPostgreSQLTest::recreateNullableTable()
 {
 	dropObject("TABLE", "NullableTest");
-	try { *_pSession << "CREATE TABLE NullableTest (EmptyString VARCHAR(30) NULL, EmptyInteger INTEGER NULL, EmptyFloat FLOAT NULL , EmptyDateTime TIMESTAMP NULL)", now; }
+	try { *_pSession << "CREATE TABLE NullableTest (EmptyString VARCHAR(30) NULL, EmptyInteger INTEGER NULL, EmptyFloat FLOAT NULL, EmptyDateTime TIMESTAMP NULL, EmptyDate DATE NULL)", now; }
 	catch(ConnectionException& ce){ std::cout << ce.toString() << std::endl; fail ("recreatePersonTable()"); }
 	catch(StatementException& se){ std::cout << se.toString() << std::endl; fail ("recreatePersonTable()"); }
 }
@@ -583,6 +583,9 @@ CppUnit::Test* ODBCPostgreSQLTest::suite()
 		CppUnit::TestSuite* pSuite = new CppUnit::TestSuite("ODBCPostgreSQLTest");
 
 		CppUnit_addTest(pSuite, ODBCPostgreSQLTest, testBareboneODBC);
+		CppUnit_addTest(pSuite, ODBCPostgreSQLTest, testConnection);
+		CppUnit_addTest(pSuite, ODBCPostgreSQLTest, testSession);
+		CppUnit_addTest(pSuite, ODBCPostgreSQLTest, testSessionPool);
 		CppUnit_addTest(pSuite, ODBCPostgreSQLTest, testZeroRows);
 		CppUnit_addTest(pSuite, ODBCPostgreSQLTest, testSimpleAccess);
 		CppUnit_addTest(pSuite, ODBCPostgreSQLTest, testComplexType);
@@ -668,6 +671,9 @@ CppUnit::Test* ODBCPostgreSQLTest::suite()
 		CppUnit_addTest(pSuite, ODBCPostgreSQLTest, testMultipleResults);
 		CppUnit_addTest(pSuite, ODBCPostgreSQLTest, testSQLChannel);
 		CppUnit_addTest(pSuite, ODBCPostgreSQLTest, testSQLLogger);
+		CppUnit_addTest(pSuite, ODBCPostgreSQLTest, testAutoCommit);
+		CppUnit_addTest(pSuite, ODBCPostgreSQLTest, testSessionTransactionNoAutoCommit);
+		CppUnit_addTest(pSuite, ODBCPostgreSQLTest, testTransactionIsolation);
 		CppUnit_addTest(pSuite, ODBCPostgreSQLTest, testSessionTransaction);
 		// (postgres bug?)
 		// local session claims to be capable of reading uncommitted changes,

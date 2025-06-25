@@ -71,6 +71,8 @@ public:
 	void testStringifyPreserveOrder();
 	void testVarConvert();
 
+	void testBasicJson();
+
 	void testValidJanssonFiles();
 	void testInvalidJanssonFiles();
 	void testTemplate();
@@ -83,6 +85,8 @@ public:
 	void testCopy();
 	void testMove();
 	void testRemove();
+
+	void testEnum();
 
 	void setUp();
 	void tearDown();

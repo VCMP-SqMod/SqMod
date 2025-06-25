@@ -25,14 +25,13 @@ public:
 	~HTTPClientSessionTest();
 
 	void testGetSmall();
+	void testGetSmallUnix();
 	void testGetLarge();
 	void testHead();
 	void testPostSmallIdentity();
 	void testPostLargeIdentity();
 	void testPostSmallChunked();
 	void testPostLargeChunked();
-	void testPostSmallClose();
-	void testPostLargeClose();
 	void testKeepAlive();
 	void testTrailer();
 	void testProxy();

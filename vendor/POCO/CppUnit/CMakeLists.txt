@@ -29,12 +29,7 @@ if(WIN32)
 endif()
 
 if(NOT BUILD_SHARED_LIBS)
-	target_compile_definitions(CppUnit
-		PUBLIC
-			POCO_STATIC
-	)
-elseif(MINGW)
-	target_compile_definitions(CppUnit
-		PUBLIC
-			_DLL)
+	target_compile_definitions(CppUnit PUBLIC POCO_STATIC)
+elseif (MINGW)
+	target_compile_definitions(CppUnit PUBLIC _DLL)
 endif()

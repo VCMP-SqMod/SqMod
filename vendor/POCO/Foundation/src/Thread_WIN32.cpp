@@ -17,10 +17,7 @@
 #include "Poco/ErrorHandler.h"
 #include <process.h>
 #include <limits>
-#ifdef POCO_COMPILER_MINGW
-	#include <winnt.h>
-	#include <winternl.h>
-#endif
+
 
 namespace
 {
@@ -30,11 +27,7 @@ namespace
 
 	const DWORD MS_VC_EXCEPTION = 0x406D1388;
 
-#ifdef POCO_COMPILER_MINGW
-	#include <pshpack8.h>
-#else
 	#pragma pack(push,8)
-#endif
 	typedef struct tagTHREADNAME_INFO
 	{
 		DWORD dwType;     // Must be 0x1000.
@@ -42,49 +35,17 @@ namespace
 		DWORD dwThreadID; // Thread ID (-1=caller thread).
 		DWORD dwFlags;    // Reserved for future use, must be zero.
 	} THREADNAME_INFO;
-#ifdef POCO_COMPILER_MINGW
-	#include <poppack.h>
-#else
 	#pragma pack(pop)
-#endif
-
-#ifdef POCO_COMPILER_MINGW
-	static EXCEPTION_DISPOSITION NTAPI ignore_handler(EXCEPTION_RECORD *rec, void *frame, CONTEXT *ctx, void *disp)
-	{
-		return ExceptionContinueExecution;
-	}
-#endif
-
+	
 	void setThreadName(DWORD dwThreadID, const std::string& threadName)
 	{
-	#ifdef POCO_COMPILER_MINGW
-		// Don't bother if a debugger isn't attached to receive the event
-		if (!IsDebuggerPresent())
-			return;
-	#endif
-		// Thread information for VS compatible debugger.
 		THREADNAME_INFO info;
 		info.dwType     = 0x1000;
 		info.szName     = threadName.c_str();
-		info.dwThreadID = dwThreadID; // -1 sets current thread.
+		info.dwThreadID = dwThreadID;
 		info.dwFlags    = 0;
 
-	#ifdef POCO_COMPILER_MINGW
-		// Push an exception handler to ignore all following exceptions
-		NT_TIB *tib = ((NT_TIB*)NtCurrentTeb());
-		EXCEPTION_REGISTRATION_RECORD rec = {
-			.Next = tib->ExceptionList,
-			.Handler = ignore_handler,
-		};
-		tib->ExceptionList = &rec;
-
-		// Visual Studio and compatible debuggers receive thread names from the
-		// program through a specially crafted exception
-		RaiseException(MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(ULONG_PTR), (ULONG_PTR*)&info);
-
-		// Pop exception handler
-		tib->ExceptionList = tib->ExceptionList->Next;
-	#else
+#if !defined(POCO_COMPILER_MINGW)
 		__try
 		{
 			RaiseException(MS_VC_EXCEPTION, 0, sizeof(info)/sizeof(ULONG_PTR), (ULONG_PTR*)&info);
@@ -92,8 +53,8 @@ namespace
 		__except (EXCEPTION_CONTINUE_EXECUTION)
 		{
 		}
-	#endif
-	}
+#endif
+    }
 }
 
 

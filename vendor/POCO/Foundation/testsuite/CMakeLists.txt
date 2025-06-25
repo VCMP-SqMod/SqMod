@@ -4,7 +4,6 @@ set(TESTUNIT "Foundation-testrunner")
 file(GLOB SRCS_G "src/*.cpp")
 file(GLOB SRCS_G_REMOVE
 	src/TestApp.cpp
-	src/TestApp_WINCE.cpp
 	src/TestLibrary.cpp
 	src/TestPlugin.cpp
 )
@@ -18,10 +17,6 @@ POCO_HEADERS_AUTO(TEST_SRCS ${HDRS_G})
 # WinDriver depends on WinTestRunner which depends on MFC, and we don't want that
 POCO_SOURCES_AUTO_PLAT(TEST_SRCS OFF
 	src/WinDriver.cpp
-)
-
-POCO_SOURCES_AUTO_PLAT(TEST_SRCS WINCE
-	src/WinCEDriver.cpp
 )
 
 add_executable(Foundation-testrunner ${TEST_SRCS})
@@ -52,20 +47,25 @@ if(UNIX AND NOT ANDROID)
 	target_link_libraries(Foundation-testrunner PUBLIC pthread)
 endif(UNIX AND NOT ANDROID)
 
-# TestApp
-if(WINCE)
-add_executable(TestApp src/TestApp_WINCE.cpp)
-	set_target_properties(TestApp PROPERTIES LINK_FLAGS "/ENTRY:wmainCRTStartup")
-else()
-	add_executable(TestApp src/TestApp.cpp)
+if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+	target_link_libraries(Foundation-testrunner PUBLIC atomic)
 endif()
+
+# TestApp
+add_executable(TestApp src/TestApp.cpp)
 # The test is run in the runtime directory. So the TestApp is built there too because it is used by the tests
 set_target_properties(TestApp PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 target_link_libraries(TestApp PUBLIC Poco::Foundation)
 
 # TestLibrary
 add_library(TestLibrary SHARED src/TestLibrary.cpp src/TestPlugin.cpp src/TestPlugin.h)
-set_target_properties(TestLibrary PROPERTIES PREFIX "" DEBUG_POSTFIX "d") # The test requires the library named TestLibrary. By default it is prefixed with lib.
+set_target_properties(TestLibrary PROPERTIES DEBUG_POSTFIX "d")
+set_target_properties(TestLibrary PROPERTIES RELEASE_POSTFIX "")
+set_target_properties(TestLibrary PROPERTIES CMAKE_MINSIZEREL_POSTFIX "")
+set_target_properties(TestLibrary PROPERTIES CMAKE_RELWITHDEBINFO_POSTFIX "")
+# The test requires the library named TestLibrary. By default it is prefixed with lib.
+set_target_properties(TestLibrary PROPERTIES PREFIX "")
+
 # The test is run in the runtime directory. So the TestLibrary is built there too because it is used by the tests
 set_target_properties(TestLibrary PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 target_link_libraries(TestLibrary PUBLIC Poco::Foundation)

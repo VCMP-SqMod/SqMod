@@ -45,6 +45,7 @@ public:
 	void testRobustness();
 	void testParent();
 	void testForDirectory();
+	void testAddDirectorySeparator();
 	void testExpand();
 	void testListRoots();
 	void testFind();
@@ -52,6 +53,7 @@ public:
 	void testResolve();
 	void testPushPop();
 	void testWindowsSystem();
+	void testSelf();
 
 	void setUp();
 	void tearDown();

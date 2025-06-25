@@ -1,14 +1,14 @@
+#include "maxminddb_test_helper.h"
+
 #if HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#define _POSIX_C_SOURCE 200112L
 #include <assert.h>
 #include <stdarg.h>
 #include <sys/types.h>
 
 #include "maxminddb.h"
-#include "maxminddb_test_helper.h"
 
 #ifdef _WIN32
 #include <io.h>
@@ -26,7 +26,15 @@ void for_all_record_sizes(const char *filename_fmt,
         int size = sizes[i];
 
         char filename[500];
+#if defined(__clang__)
+// This warning seems ok to ignore here in the tests.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+#endif
         snprintf(filename, 500, filename_fmt, size);
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 
         char description[14];
         snprintf(description, 14, "%i bit record", size);
@@ -39,7 +47,7 @@ void for_all_modes(void (*tests)(int mode, const char *description)) {
     tests(MMDB_MODE_MMAP, "mmap mode");
 }
 
-const char *test_database_path(const char *filename) {
+char *test_database_path(const char *filename) {
     char *test_db_dir;
 #ifdef _WIN32
     test_db_dir = "../t/maxmind-db/test-data";
@@ -59,12 +67,11 @@ const char *test_database_path(const char *filename) {
 
     snprintf(path, 500, "%s/%s", test_db_dir, filename);
 
-    return (const char *)path;
+    return path;
 }
 
-const char *dup_entry_string_or_bail(MMDB_entry_data_s entry_data) {
-    const char *string =
-        mmdb_strndup(entry_data.utf8_string, entry_data.data_size);
+char *dup_entry_string_or_bail(MMDB_entry_data_s entry_data) {
+    char *string = mmdb_strndup(entry_data.utf8_string, entry_data.data_size);
     if (NULL == string) {
         BAIL_OUT("mmdb_strndup failed");
     }
@@ -73,7 +80,12 @@ const char *dup_entry_string_or_bail(MMDB_entry_data_s entry_data) {
 }
 
 MMDB_s *open_ok(const char *db_file, int mode, const char *mode_desc) {
-    if (0 != access(db_file, R_OK)) {
+#ifdef _WIN32
+    int access_rv = _access(db_file, 04);
+#else
+    int access_rv = access(db_file, R_OK);
+#endif
+    if (access_rv != 0) {
         BAIL_OUT("could not read the specified file - %s\nIf you are in a git "
                  "checkout try running 'git submodule update --init'",
                  db_file);
@@ -85,7 +97,7 @@ MMDB_s *open_ok(const char *db_file, int mode, const char *mode_desc) {
         BAIL_OUT("could not allocate memory for our MMDB_s struct");
     }
 
-    int status = MMDB_open(db_file, mode, mmdb);
+    int status = MMDB_open(db_file, (uint32_t)mode, mmdb);
 
     int is_ok = ok(MMDB_SUCCESS == status,
                    "open %s status is success - %s",
@@ -211,9 +223,9 @@ MMDB_entry_data_s data_ok(MMDB_lookup_result_s *result,
                "no error from call to MMDB_vget_value - %s",
                description)) {
 
-        if (!cmp_ok(data.type,
+        if (!cmp_ok((int)data.type,
                     "==",
-                    expect_type,
+                    (int)expect_type,
                     "got the expected data type - %s",
                     description)) {
 

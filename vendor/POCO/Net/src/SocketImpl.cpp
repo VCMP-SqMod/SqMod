@@ -17,12 +17,15 @@
 #include "Poco/Net/StreamSocketImpl.h"
 #include "Poco/NumberFormatter.h"
 #include "Poco/Timestamp.h"
+#include "Poco/FileStream.h"
+#include "Poco/Error.h"
 #include <string.h> // FD_SET needs memset on some platforms, so we can't use <cstring>
 
 
 #if defined(POCO_HAVE_FD_EPOLL)
 	#ifdef POCO_OS_FAMILY_WINDOWS
 		#include "wepoll.h"
+		#include "mswsock.h"
 	#else
 		#include <sys/epoll.h>
 		#include <sys/eventfd.h>
@@ -42,6 +45,19 @@
 
 #ifdef POCO_OS_FAMILY_WINDOWS
 #include <windows.h>
+#else
+#include <csignal>
+#endif
+
+
+#if POCO_OS == POCO_OS_MAC_OS_X || POCO_OS == POCO_OS_FREE_BSD
+#include <sys/uio.h>
+#include <sys/types.h>
+#endif
+
+
+#if POCO_OS == POCO_OS_LINUX && defined(POCO_HAVE_SENDFILE) && !defined(POCO_EMSCRIPTEN)
+#include <sys/sendfile.h>
 #endif
 
 
@@ -58,7 +74,6 @@ using Poco::Timespan;
 
 
 #ifdef WEPOLL_H_
-
 namespace {
 
 	int close(HANDLE h)
@@ -67,7 +82,6 @@ namespace {
 	}
 
 }
-
 #endif // WEPOLL_H_
 
 
@@ -132,7 +146,7 @@ SocketImpl* SocketImpl::acceptConnection(SocketAddress& clientAddr)
 		return new StreamSocketImpl(sd);
 	}
 	error(); // will throw
-	return 0;
+	return nullptr;
 }
 
 
@@ -227,8 +241,15 @@ void SocketImpl::bind(const SocketAddress& address, bool reuseAddress, bool reus
 	{
 		init(address.af());
 	}
-	setReuseAddress(reuseAddress);
-	setReusePort(reusePort);
+
+#ifdef POCO_HAS_UNIX_SOCKET
+	if (address.family() != SocketAddress::Family::UNIX_LOCAL)
+#endif
+	{
+		setReuseAddress(reuseAddress);
+		setReusePort(reusePort);
+	}
+
 #if defined(POCO_VXWORKS)
 	int rc = ::bind(_sockfd, (sockaddr*) address.addr(), address.length());
 #else
@@ -269,6 +290,14 @@ void SocketImpl::bind6(const SocketAddress& address, bool reuseAddress, bool reu
 }
 
 
+void SocketImpl::useFileDescriptor(poco_socket_t fd)
+{
+	poco_assert (_sockfd == POCO_INVALID_SOCKET);
+
+	_sockfd = fd;
+}
+
+
 void SocketImpl::listen(int backlog)
 {
 	if (_sockfd == POCO_INVALID_SOCKET) throw InvalidSocketException();
@@ -297,21 +326,23 @@ void SocketImpl::shutdownReceive()
 }
 
 
-void SocketImpl::shutdownSend()
+int SocketImpl::shutdownSend()
 {
 	if (_sockfd == POCO_INVALID_SOCKET) throw InvalidSocketException();
 
 	int rc = ::shutdown(_sockfd, 1);
 	if (rc != 0) error();
+	return 0;
 }
 
 
-void SocketImpl::shutdown()
+int SocketImpl::shutdown()
 {
 	if (_sockfd == POCO_INVALID_SOCKET) throw InvalidSocketException();
 
 	int rc = ::shutdown(_sockfd, 2);
 	if (rc != 0) error();
+	return 0;
 }
 
 
@@ -331,8 +362,10 @@ void SocketImpl::checkBrokenTimeout(SelectMode mode)
 
 int SocketImpl::sendBytes(const void* buffer, int length, int flags)
 {
-	checkBrokenTimeout(SELECT_WRITE);
-
+	if (_blocking)
+	{
+		checkBrokenTimeout(SELECT_WRITE);
+	}
 	int rc;
 	do
 	{
@@ -340,15 +373,26 @@ int SocketImpl::sendBytes(const void* buffer, int length, int flags)
 		rc = ::send(_sockfd, reinterpret_cast<const char*>(buffer), length, flags);
 	}
 	while (_blocking && rc < 0 && lastError() == POCO_EINTR);
-	if (rc < 0) error();
+	if (rc < 0)
+	{
+		int err = lastError();
+		if (!_blocking && (err == POCO_EAGAIN || err == POCO_EWOULDBLOCK))
+			;
+		else if (err == POCO_EAGAIN || err == POCO_ETIMEDOUT)
+			throw TimeoutException(err);
+		else
+			error(err);
+	}
 	return rc;
 }
 
 
 int SocketImpl::sendBytes(const SocketBufVec& buffers, int flags)
 {
-	checkBrokenTimeout(SELECT_WRITE);
-
+	if (_blocking)
+	{
+		checkBrokenTimeout(SELECT_WRITE);
+	}
 	int rc = 0;
 	do
 	{
@@ -365,15 +409,26 @@ int SocketImpl::sendBytes(const SocketBufVec& buffers, int flags)
 #endif
 	}
 	while (_blocking && rc < 0 && lastError() == POCO_EINTR);
-	if (rc < 0) error();
+	if (rc < 0)
+	{
+		int err = lastError();
+		if (!_blocking && (err == POCO_EAGAIN || err == POCO_EWOULDBLOCK))
+			;
+		else if (err == POCO_EAGAIN || err == POCO_ETIMEDOUT)
+			throw TimeoutException(err);
+		else
+			error(err);
+	}
 	return rc;
 }
 
 
 int SocketImpl::receiveBytes(void* buffer, int length, int flags)
 {
-	checkBrokenTimeout(SELECT_READ);
-
+	if (_blocking)
+	{
+		checkBrokenTimeout(SELECT_READ);
+	}
 	int rc;
 	do
 	{
@@ -384,7 +439,7 @@ int SocketImpl::receiveBytes(void* buffer, int length, int flags)
 	if (rc < 0)
 	{
 		int err = lastError();
-		if (err == POCO_EAGAIN && !_blocking)
+		if (!_blocking && (err == POCO_EAGAIN || err == POCO_EWOULDBLOCK))
 			;
 		else if (err == POCO_EAGAIN || err == POCO_ETIMEDOUT)
 			throw TimeoutException(err);
@@ -397,8 +452,10 @@ int SocketImpl::receiveBytes(void* buffer, int length, int flags)
 
 int SocketImpl::receiveBytes(SocketBufVec& buffers, int flags)
 {
-	checkBrokenTimeout(SELECT_READ);
-
+	if (_blocking)
+	{
+		checkBrokenTimeout(SELECT_READ);
+	}
 	int rc = 0;
 	do
 	{
@@ -418,7 +475,7 @@ int SocketImpl::receiveBytes(SocketBufVec& buffers, int flags)
 	if (rc < 0)
 	{
 		int err = lastError();
-		if (err == POCO_EAGAIN && !_blocking)
+		if (!_blocking && (err == POCO_EAGAIN || err == POCO_EWOULDBLOCK))
 			;
 		else if (err == POCO_EAGAIN || err == POCO_ETIMEDOUT)
 			throw TimeoutException(err);
@@ -446,7 +503,7 @@ int SocketImpl::receiveBytes(Poco::Buffer<char>& buffer, int flags, const Poco::
 		if (rc < 0)
 		{
 			int err = lastError();
-			if (err == POCO_EAGAIN && !_blocking)
+			if (!_blocking && (err == POCO_EAGAIN || err == POCO_EWOULDBLOCK))
 				;
 			else if (err == POCO_EAGAIN || err == POCO_ETIMEDOUT)
 				throw TimeoutException(err);
@@ -472,7 +529,16 @@ int SocketImpl::sendTo(const void* buffer, int length, const SocketAddress& addr
 #endif
 	}
 	while (_blocking && rc < 0 && lastError() == POCO_EINTR);
-	if (rc < 0) error();
+	if (rc < 0)
+	{
+		int err = lastError();
+		if (!_blocking && (err == POCO_EAGAIN || err == POCO_EWOULDBLOCK))
+			;
+		else if (err == POCO_EAGAIN || err == POCO_ETIMEDOUT)
+			throw TimeoutException(err);
+		else
+			error(err);
+	}
 	return rc;
 }
 
@@ -497,14 +563,23 @@ int SocketImpl::sendTo(const SocketBufVec& buffers, const SocketAddress& address
 		msgHdr.msg_namelen = address.length();
 		msgHdr.msg_iov = const_cast<iovec*>(&buffers[0]);
 		msgHdr.msg_iovlen = buffers.size();
-		msgHdr.msg_control = 0;
+		msgHdr.msg_control = nullptr;
 		msgHdr.msg_controllen = 0;
 		msgHdr.msg_flags = flags;
 		rc = sendmsg(_sockfd, &msgHdr, flags);
 #endif
 	}
 	while (_blocking && rc < 0 && lastError() == POCO_EINTR);
-	if (rc < 0) error();
+	if (rc < 0)
+	{
+		int err = lastError();
+		if (!_blocking && (err == POCO_EAGAIN || err == POCO_EWOULDBLOCK))
+			;
+		else if (err == POCO_EAGAIN || err == POCO_ETIMEDOUT)
+			throw TimeoutException(err);
+		else
+			error(err);
+	}
 	return rc;
 }
 
@@ -526,7 +601,10 @@ int SocketImpl::receiveFrom(void* buffer, int length, SocketAddress& address, in
 
 int SocketImpl::receiveFrom(void* buffer, int length, struct sockaddr** ppSA, poco_socklen_t** ppSALen, int flags)
 {
-	checkBrokenTimeout(SELECT_READ);
+	if (_blocking)
+	{
+		checkBrokenTimeout(SELECT_READ);
+	}
 	int rc;
 	do
 	{
@@ -537,7 +615,7 @@ int SocketImpl::receiveFrom(void* buffer, int length, struct sockaddr** ppSA, po
 	if (rc < 0)
 	{
 		int err = lastError();
-		if (err == POCO_EAGAIN && !_blocking)
+		if (!_blocking && (err == POCO_EAGAIN || err == POCO_EWOULDBLOCK))
 			;
 		else if (err == POCO_EAGAIN || err == POCO_ETIMEDOUT)
 			throw TimeoutException(err);
@@ -565,7 +643,10 @@ int SocketImpl::receiveFrom(SocketBufVec& buffers, SocketAddress& address, int f
 
 int SocketImpl::receiveFrom(SocketBufVec& buffers, struct sockaddr** pSA, poco_socklen_t** ppSALen, int flags)
 {
-	checkBrokenTimeout(SELECT_READ);
+	if (_blocking)
+	{
+		checkBrokenTimeout(SELECT_READ);
+	}
 	int rc = 0;
 	do
 	{
@@ -583,7 +664,7 @@ int SocketImpl::receiveFrom(SocketBufVec& buffers, struct sockaddr** pSA, poco_s
 		msgHdr.msg_namelen = **ppSALen;
 		msgHdr.msg_iov = &buffers[0];
 		msgHdr.msg_iovlen = buffers.size();
-		msgHdr.msg_control = 0;
+		msgHdr.msg_control = nullptr;
 		msgHdr.msg_controllen = 0;
 		msgHdr.msg_flags = flags;
 		rc = recvmsg(_sockfd, &msgHdr, flags);
@@ -594,7 +675,7 @@ int SocketImpl::receiveFrom(SocketBufVec& buffers, struct sockaddr** pSA, poco_s
 	if (rc < 0)
 	{
 		int err = lastError();
-		if (err == POCO_EAGAIN && !_blocking)
+		if (!_blocking && (err == POCO_EAGAIN || err == POCO_EWOULDBLOCK))
 			;
 		else if (err == POCO_EAGAIN || err == POCO_ETIMEDOUT)
 			throw TimeoutException(err);
@@ -614,6 +695,25 @@ void SocketImpl::sendUrgent(unsigned char data)
 }
 
 
+std::streamsize SocketImpl::sendFile(FileInputStream& fileInputStream, std::streamoff offset, std::streamsize count)
+{
+	if (!getBlocking()) throw NetException("sendFile() not supported for non-blocking sockets");
+
+#ifdef POCO_HAVE_SENDFILE
+	if (secure())
+	{
+		return sendFileBlockwise(fileInputStream, offset, count);
+	}
+	else
+	{
+		return sendFileNative(fileInputStream, offset, count);
+	}
+#else
+	return sendFileBlockwise(fileInputStream, offset, count);
+#endif
+}
+
+
 int SocketImpl::available()
 {
 	int result = 0;
@@ -622,7 +722,7 @@ int SocketImpl::available()
 	if (result && (type() == SOCKET_TYPE_DATAGRAM))
 	{
 		std::vector<char> buf(result);
-		result = recvfrom(sockfd(), &buf[0], result, MSG_PEEK, NULL, NULL);
+		result = recvfrom(sockfd(), &buf[0], result, MSG_PEEK, nullptr, nullptr);
 	}
 #endif
 	return result;
@@ -1084,7 +1184,7 @@ void SocketImpl::setReusePort(bool flag)
 		int value = flag ? 1 : 0;
 		setOption(SOL_SOCKET, SO_REUSEPORT, value);
 	}
-	catch (IOException&)
+	catch (const IOException&)
 	{
 		// ignore error, since not all implementations
 		// support SO_REUSEPORT, even if the macro
@@ -1341,6 +1441,145 @@ void SocketImpl::error(int code, const std::string& arg)
 	default:
 		throw IOException(NumberFormatter::format(code), arg, code);
 	}
+}
+
+
+#ifdef POCO_HAVE_SENDFILE
+#ifdef POCO_OS_FAMILY_WINDOWS
+
+
+std::streamsize SocketImpl::sendFileNative(FileInputStream& fileInputStream, std::streamoff offset, std::streamsize count)
+{
+	FileIOS::NativeHandle fd = fileInputStream.nativeHandle();
+	if (count == 0) count = fileInputStream.size() - offset;
+	LARGE_INTEGER offsetHelper;
+	offsetHelper.QuadPart = offset;
+	OVERLAPPED overlapped;
+	memset(&overlapped, 0, sizeof(overlapped));
+	overlapped.Offset = offsetHelper.LowPart;
+	overlapped.OffsetHigh =  offsetHelper.HighPart;
+	overlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+	if (overlapped.hEvent == nullptr)
+	{
+		int err = GetLastError();
+		error(err);
+	}
+	bool result = TransmitFile(_sockfd, fd, count, 0, &overlapped, nullptr, 0);
+	if (!result)
+	{
+		int err = WSAGetLastError();
+		if ((err != ERROR_IO_PENDING) && (WSAGetLastError() != WSA_IO_PENDING)) 
+		{
+			CloseHandle(overlapped.hEvent);
+			error(err);
+		}
+		WaitForSingleObject(overlapped.hEvent, INFINITE);
+	}
+	CloseHandle(overlapped.hEvent);
+	return count;
+}
+
+
+#else
+
+
+namespace
+{
+	std::streamoff sendFileUnix(poco_socket_t sd, FileIOS::NativeHandle fd, std::streamoff offset, std::streamsize count)
+	{
+		std::streamoff sent = 0;
+		#ifdef __USE_LARGEFILE64
+			off_t noffset = offset;
+			sent = sendfile64(sd, fd, &noffset, count);
+		#else
+			#if POCO_OS == POCO_OS_LINUX && !defined(POCO_EMSCRIPTEN)
+				off_t noffset = offset;
+				sent = sendfile(sd, fd, &noffset, count);
+			#elif POCO_OS == POCO_OS_MAC_OS_X
+				off_t len = count;
+				int result = sendfile(fd, sd, offset, &len, NULL, 0);
+				if (result < 0)
+				{
+					sent = -1;
+				} 
+				else 
+				{
+					sent = len;
+				}
+			#elif POCO_OS == POCO_OS_FREE_BSD
+				off_t sbytes;
+				int result = sendfile(fd, sd, offset, count, NULL, &sbytes, 0);
+				if (result < 0)
+				{
+					sent = -1;
+				} 
+				else 
+				{
+					sent = sbytes;
+				}
+			#else
+				throw Poco::NotImplementedException("native sendfile not implemented for this platform");
+			#endif
+		#endif
+		return sent;
+	}	
+}
+
+
+std::streamsize SocketImpl::sendFileNative(FileInputStream& fileInputStream, std::streamoff offset, std::streamsize count)
+{
+	FileIOS::NativeHandle fd = fileInputStream.nativeHandle();
+	if (count == 0) count = fileInputStream.size() - offset;
+	std::streamsize sent = 0;
+	while (count > 0)
+	{
+		std::streamoff rc = sendFileUnix(_sockfd, fd, offset, count);
+		if (rc >= 0)
+		{
+			sent += rc;
+			offset += rc;
+			count -= rc;
+		}
+		else
+		{
+			error(errno);
+		}
+	}
+	return sent;
+}
+
+
+#endif // POCO_OS_FAMILY_WINDOWS
+#endif // POCO_HAVE_SENDFILE
+
+
+std::streamsize SocketImpl::sendFileBlockwise(FileInputStream& fileInputStream, std::streamoff offset, std::streamsize count)
+{
+	fileInputStream.seekg(offset, std::ios_base::beg);
+	Poco::Buffer<char> buffer(8192);
+	std::size_t bufferSize = buffer.size();
+	if (count > 0 && bufferSize > count) bufferSize = count;
+
+	std::streamsize len = 0;
+	fileInputStream.read(buffer.begin(), bufferSize);
+	std::streamsize n = fileInputStream.gcount();
+	while (n > 0 && (count == 0 || len < count))
+	{
+		len += n;
+		sendBytes(buffer.begin(), static_cast<int>(n));
+		if (count > 0 && len < count)
+		{
+			const std::size_t remaining = count - len;
+			if (bufferSize > remaining) bufferSize = remaining;
+		}
+		if (fileInputStream)
+		{
+			fileInputStream.read(buffer.begin(), bufferSize);
+			n = fileInputStream.gcount();
+		}
+		else n = 0;
+	}
+	return len;
 }
 
 

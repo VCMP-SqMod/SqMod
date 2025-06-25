@@ -20,11 +20,7 @@
 
 #include "Poco/Data/MySQL/MySQL.h"
 #include "Poco/Data/Session.h"
-#if defined(__MINGW32__) || defined(__MINGW64__)
-	#include <mysql/mysql.h>
-#else
-	#include <mysql.h>
-#endif
+#include <mysql/mysql.h>
 
 
 namespace Poco {

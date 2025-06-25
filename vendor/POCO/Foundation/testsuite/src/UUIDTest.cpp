@@ -14,10 +14,6 @@
 #include "Poco/UUID.h"
 #include "Poco/Exception.h"
 
-
-using Poco::UUID;
-
-
 UUIDTest::UUIDTest(const std::string& name): CppUnit::TestCase(name)
 {
 }
@@ -30,7 +26,7 @@ UUIDTest::~UUIDTest()
 
 void UUIDTest::testParse()
 {
-	UUID uuid("6ba7b810-9dad-11d1-80b4-00c04fd430c8");
+    Poco::UUID uuid("6ba7b810-9dad-11d1-80b4-00c04fd430c8");
 	assertTrue (uuid.toString() == "6ba7b810-9dad-11d1-80b4-00c04fd430c8");
 
 	uuid.parse("6BA7B810-9DAD-11D1-80B4-00C04FD430C8");
@@ -42,7 +38,7 @@ void UUIDTest::testParse()
 	try
 	{
 		uuid.parse("6xA7B8109DAD11D180B400C04FD430C8");
-		fail("invalid UUID - must throw");
+        fail("invalid Poco::UUID - must throw");
 	}
 	catch (Poco::SyntaxException&)
 	{
@@ -51,7 +47,7 @@ void UUIDTest::testParse()
 	try
 	{
 		uuid.parse("6xa7b810-9dad-11d1-80b4-00c04fd430c8");
-		fail("invalid UUID - must throw");
+        fail("invalid Poco::UUID - must throw");
 	}
 	catch (Poco::SyntaxException&)
 	{
@@ -60,7 +56,7 @@ void UUIDTest::testParse()
 	try
 	{
 		uuid.parse("6ba7b810-xdad-11d1-80b4-00c04fd430c8");
-		fail("invalid UUID - must throw");
+        fail("invalid Poco::UUID - must throw");
 	}
 	catch (Poco::SyntaxException&)
 	{
@@ -69,7 +65,7 @@ void UUIDTest::testParse()
 	try
 	{
 		uuid.parse("6ba7b810-9dad-x1d1-80b4-00c04fd430c8");
-		fail("invalid UUID - must throw");
+        fail("invalid Poco::UUID - must throw");
 	}
 	catch (Poco::SyntaxException&)
 	{
@@ -78,7 +74,7 @@ void UUIDTest::testParse()
 	try
 	{
 		uuid.parse("6ba7b810-9dad-11d1-x0b4-00c04fd430c8");
-		fail("invalid UUID - must throw");
+        fail("invalid Poco::UUID - must throw");
 	}
 	catch (Poco::SyntaxException&)
 	{
@@ -87,7 +83,16 @@ void UUIDTest::testParse()
 	try
 	{
 		uuid.parse("6ba7b810-9dad-11d1-80b4-00x04fd430c8");
-		fail("invalid UUID - must throw");
+        fail("invalid Poco::UUID - must throw");
+	}
+	catch (Poco::SyntaxException&)
+	{
+	}
+
+	try
+	{
+		uuid.parse("495cff3a-a4b3-11ee-9e54-9cb6d0f68b51AA");
+        fail("invalid Poco::UUID - must throw");
 	}
 	catch (Poco::SyntaxException&)
 	{
@@ -97,10 +102,10 @@ void UUIDTest::testParse()
 
 void UUIDTest::testBuffer()
 {
-	UUID uuid("6ba7b810-9dad-11d1-80b4-00c04fd430c8");
+    Poco::UUID uuid("6ba7b810-9dad-11d1-80b4-00c04fd430c8");
 	char buffer[16];
 	uuid.copyTo(buffer);
-	UUID uuid2;
+    Poco::UUID uuid2;
 	uuid2.copyFrom(buffer);
 	assertTrue (uuid2.toString() == "6ba7b810-9dad-11d1-80b4-00c04fd430c8");
 }
@@ -108,12 +113,12 @@ void UUIDTest::testBuffer()
 
 void UUIDTest::testCompare()
 {
-	UUID null;
+    Poco::UUID null;
 	assertTrue (null.isNull());
-	assertTrue (UUID::null().isNull());
+    assertTrue (Poco::UUID::null().isNull());
 
-	UUID uuid1 = null;
-	UUID uuid2;
+    Poco::UUID uuid1 = null;
+    Poco::UUID uuid2;
 	assertTrue (uuid1.isNull());
 	assertTrue (uuid1 == null);
 	assertTrue (!(uuid1 != null));
@@ -123,7 +128,7 @@ void UUIDTest::testCompare()
 	assertTrue (!(uuid1 < null));
 	assertTrue (uuid1.toString() == "00000000-0000-0000-0000-000000000000");
 
-	uuid1 = UUID::dns();
+    uuid1 = Poco::UUID::dns();
 	assertTrue (!uuid1.isNull());
 	assertTrue (uuid1 != null);
 	assertTrue (!(uuid1 == null));
@@ -152,27 +157,27 @@ void UUIDTest::testCompare()
 
 void UUIDTest::testVersion()
 {
-	UUID uuid("db4fa7e9-9e62-4597-99e0-b1ec0b59800e");
-	UUID::Version v = uuid.version();
-	assertTrue (v == UUID::UUID_RANDOM);
+    Poco::UUID uuid("db4fa7e9-9e62-4597-99e0-b1ec0b59800e");
+    Poco::UUID::Version v = uuid.version();
+    assertTrue (v == Poco::UUID::UUID_RANDOM);
 
 	uuid.parse("6ba7b810-9dad-11d1-80b4-00c04fd430c8");
 	v = uuid.version();
-	assertTrue (v == UUID::UUID_TIME_BASED);
+    assertTrue (v == Poco::UUID::UUID_TIME_BASED);
 
 	uuid.parse("d2ee4220-3625-11d9-9669-0800200c9a66");
 	v = uuid.version();
-	assertTrue (v == UUID::UUID_TIME_BASED);
+    assertTrue (v == Poco::UUID::UUID_TIME_BASED);
 
 	uuid.parse("360d3652-4411-4786-bbe6-b9675b548559");
 	v = uuid.version();
-	assertTrue (v == UUID::UUID_RANDOM);
+    assertTrue (v == Poco::UUID::UUID_RANDOM);
 }
 
 
 void UUIDTest::testVariant()
 {
-	UUID uuid("db4fa7e9-9e62-4597-99e0-b1ec0b59800e");
+    Poco::UUID uuid("db4fa7e9-9e62-4597-99e0-b1ec0b59800e");
 	int v = uuid.variant();
 	assertTrue (v == 2);
 
@@ -192,23 +197,45 @@ void UUIDTest::testVariant()
 
 void UUIDTest::testSwap()
 {
-	UUID uuid1("db4fa7e9-9e62-4597-99e0-b1ec0b59800e");
-	UUID uuid2("d2ee4220-3625-11d9-9669-0800200c9a66");
+    Poco::UUID uuid1("db4fa7e9-9e62-4597-99e0-b1ec0b59800e");
+    Poco::UUID uuid2("d2ee4220-3625-11d9-9669-0800200c9a66");
 	uuid1.swap(uuid2);
 	assertTrue (uuid1.toString() == "d2ee4220-3625-11d9-9669-0800200c9a66");
 	assertTrue (uuid2.toString() == "db4fa7e9-9e62-4597-99e0-b1ec0b59800e");
 }
 
+
 void UUIDTest::testTryParse()
 {
-	UUID uuid;
+    Poco::UUID uuid;
 	assertTrue (uuid.tryParse("6BA7B810-9DAD-11D1-80B4-00C04FD430C8"));
 	assertTrue (uuid.toString() == "6ba7b810-9dad-11d1-80b4-00c04fd430c8");
 
-	UUID notUuid;
+    Poco::UUID notUuid;
 	assertTrue (!notUuid.tryParse("not a uuid"));
 	assertTrue (notUuid.isNull());
 }
+
+
+void UUIDTest::testV6()
+{
+	Poco::UUID uuid("1EC9414C-232A-6B00-B3C8-9F6BDECED846");
+	int ver = uuid.version();
+	assertTrue (ver == 6);
+	int var = uuid.variant();
+	assertTrue (var == 2);
+}
+
+
+void UUIDTest::testV7()
+{
+	Poco::UUID uuid("017F22E2-79B0-7CC3-98C4-DC0C0C07398F");
+	int ver = uuid.version();
+	assertTrue (ver == 7);
+	int var = uuid.variant();
+	assertTrue (var == 2);
+}
+
 
 void UUIDTest::setUp()
 {
@@ -231,6 +258,8 @@ CppUnit::Test* UUIDTest::suite()
 	CppUnit_addTest(pSuite, UUIDTest, testVariant);
 	CppUnit_addTest(pSuite, UUIDTest, testSwap);
 	CppUnit_addTest(pSuite, UUIDTest, testTryParse);
+	CppUnit_addTest(pSuite, UUIDTest, testV6);
+	CppUnit_addTest(pSuite, UUIDTest, testV7);
 
 	return pSuite;
 }

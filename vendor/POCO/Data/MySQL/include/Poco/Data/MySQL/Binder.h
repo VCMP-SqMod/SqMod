@@ -22,11 +22,7 @@
 #include "Poco/Data/AbstractBinder.h"
 #include "Poco/Data/LOB.h"
 #include "Poco/Data/MySQL/MySQLException.h"
-#if defined(__MINGW32__) || defined(__MINGW64__)
-	#include <mysql/mysql.h>
-#else
-	#include <mysql.h>
-#endif
+#include <mysql/mysql.h>
 
 
 namespace Poco {
